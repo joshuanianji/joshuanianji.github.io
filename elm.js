@@ -5592,7 +5592,6 @@ var author$project$Model$subscriptions = function (model) {
 					A2(author$project$Model$WindowSize, x, y));
 			}));
 };
-var elm$core$Debug$log = _Debug_log;
 var author$project$Model$update = F2(
 	function (msg, model) {
 		if (msg.$ === 'WindowResize') {
@@ -5601,10 +5600,7 @@ var author$project$Model$update = F2(
 				_Utils_update(
 					model,
 					{
-						device: A2(
-							elm$core$Debug$log,
-							'device',
-							mdgriffith$elm_ui$Element$classifyDevice(windowSize))
+						device: mdgriffith$elm_ui$Element$classifyDevice(windowSize)
 					}),
 				elm$core$Platform$Cmd$none);
 		} else {
@@ -11346,15 +11342,37 @@ var author$project$Text$title = mdgriffith$elm_ui$Element$Font$family(
 			{name: 'Antic Didone', url: 'https://fonts.googleapis.com/css?family=Antic+Didone'}),
 			mdgriffith$elm_ui$Element$Font$sansSerif
 		]));
-var author$project$View$title = A2(
-	mdgriffith$elm_ui$Element$el,
-	_List_fromArray(
-		[
-			mdgriffith$elm_ui$Element$Font$size(50),
-			mdgriffith$elm_ui$Element$centerX,
-			author$project$Text$title
-		]),
-	mdgriffith$elm_ui$Element$text('Joshua Ji'));
+var author$project$View$title = function (model) {
+	var _n0 = function () {
+		var _n1 = model.device._class;
+		switch (_n1.$) {
+			case 'BigDesktop':
+				return _Utils_Tuple2(100, 0);
+			case 'Desktop':
+				return _Utils_Tuple2(50, 0);
+			case 'Tablet':
+				var _n2 = model.device.orientation;
+				if (_n2.$ === 'Portrait') {
+					return _Utils_Tuple2(80, 30);
+				} else {
+					return _Utils_Tuple2(50, 0);
+				}
+			default:
+				return _Utils_Tuple2(80, 30);
+		}
+	}();
+	var fontSize = _n0.a;
+	var padding = _n0.b;
+	return A2(
+		mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$Font$size(fontSize),
+				mdgriffith$elm_ui$Element$centerX,
+				author$project$Text$title
+			]),
+		mdgriffith$elm_ui$Element$text('Joshua Ji'));
+};
 var author$project$Model$ChangeDirectory = function (a) {
 	return {$: 'ChangeDirectory', a: a};
 };
@@ -11632,7 +11650,7 @@ var author$project$View$page = function (model) {
 			]),
 		_List_fromArray(
 			[
-				author$project$View$title,
+				author$project$View$title(model),
 				author$project$View$Navbar$navbar(model),
 				author$project$View$content(model)
 			]));
