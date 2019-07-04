@@ -5698,15 +5698,6 @@ var author$project$Text$body = mdgriffith$elm_ui$Element$Font$family(
 			{name: 'Open Sans', url: 'https://fonts.googleapis.com/css?family=Open+Sans:300'}),
 			mdgriffith$elm_ui$Element$Font$sansSerif
 		]));
-var mdgriffith$elm_ui$Internal$Model$Text = function (a) {
-	return {$: 'Text', a: a};
-};
-var mdgriffith$elm_ui$Element$text = function (content) {
-	return mdgriffith$elm_ui$Internal$Model$Text(content);
-};
-var author$project$View$Blog$view = function (model) {
-	return mdgriffith$elm_ui$Element$text('Oops the blog hasn\'t been made yet');
-};
 var author$project$View$Home$Big = {$: 'Big'};
 var author$project$View$Home$Small = {$: 'Small'};
 var mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
@@ -10940,6 +10931,12 @@ var mdgriffith$elm_ui$Element$paragraph = F2(
 						attrs))),
 			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
 	});
+var mdgriffith$elm_ui$Internal$Model$Text = function (a) {
+	return {$: 'Text', a: a};
+};
+var mdgriffith$elm_ui$Element$text = function (content) {
+	return mdgriffith$elm_ui$Internal$Model$Text(content);
+};
 var mdgriffith$elm_ui$Internal$Model$Max = F2(
 	function (a, b) {
 		return {$: 'Max', a: a, b: b};
@@ -10989,7 +10986,7 @@ var author$project$View$Home$aboutContent = function (model) {
 		var _n0 = model.device._class;
 		switch (_n0.$) {
 			case 'BigDesktop':
-				return 50;
+				return 35;
 			case 'Desktop':
 				return 20;
 			case 'Tablet':
@@ -11017,7 +11014,7 @@ var author$project$View$Home$aboutContent = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						mdgriffith$elm_ui$Element$text('My name is Joshua Ji')
+						mdgriffith$elm_ui$Element$text('my name is Joshua Ji.')
 					])),
 				A2(
 				mdgriffith$elm_ui$Element$paragraph,
@@ -11045,7 +11042,7 @@ var author$project$View$Home$aboutContent = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						mdgriffith$elm_ui$Element$text('Though I have ventured into HTML, CSS and Javascript.')
+						mdgriffith$elm_ui$Element$text('though I have ventured into HTML, CSS and Javascript.')
 					]))
 			]));
 };
@@ -11082,7 +11079,7 @@ var author$project$View$Home$greeting = A2(
 	mdgriffith$elm_ui$Element$el,
 	_List_fromArray(
 		[
-			mdgriffith$elm_ui$Element$Font$size(50),
+			mdgriffith$elm_ui$Element$Font$size(55),
 			mdgriffith$elm_ui$Element$Font$bold
 		]),
 	mdgriffith$elm_ui$Element$text('Hey,'));
@@ -11192,7 +11189,7 @@ var author$project$View$Home$profilePic = function (model) {
 		var _n1 = model.device._class;
 		switch (_n1.$) {
 			case 'BigDesktop':
-				return _Utils_Tuple2(1000, mdgriffith$elm_ui$Element$alignRight);
+				return _Utils_Tuple2(500, mdgriffith$elm_ui$Element$alignRight);
 			case 'Desktop':
 				return _Utils_Tuple2(400, mdgriffith$elm_ui$Element$alignRight);
 			case 'Tablet':
@@ -11327,8 +11324,6 @@ var author$project$View$content = function (model) {
 	switch (_n0.$) {
 		case 'Home':
 			return author$project$View$Home$view(model);
-		case 'Blog':
-			return author$project$View$Blog$view(model);
 		case 'Resume':
 			return author$project$View$Resume$view(model);
 		default:
@@ -11347,7 +11342,7 @@ var author$project$View$title = function (model) {
 		var _n1 = model.device._class;
 		switch (_n1.$) {
 			case 'BigDesktop':
-				return _Utils_Tuple2(100, 0);
+				return _Utils_Tuple2(70, 0);
 			case 'Desktop':
 				return _Utils_Tuple2(50, 0);
 			case 'Tablet':
@@ -11430,7 +11425,7 @@ var author$project$View$Navbar$navbarElementAttributes = F2(
 			var _n0 = model.device._class;
 			switch (_n0.$) {
 				case 'BigDesktop':
-					return 50;
+					return 25;
 				case 'Desktop':
 					return 20;
 				case 'Tablet':
@@ -11446,7 +11441,7 @@ var author$project$View$Navbar$navbarElementAttributes = F2(
 		}();
 		var basicNavBarAttributes = _List_fromArray(
 			[
-				mdgriffith$elm_ui$Element$padding(10),
+				mdgriffith$elm_ui$Element$padding(15),
 				mdgriffith$elm_ui$Element$Border$width(0),
 				mdgriffith$elm_ui$Element$Font$size(fontSize)
 			]);
@@ -11618,13 +11613,11 @@ var author$project$View$Navbar$navbarFramework = F2(
 					author$project$Model$ChangeDirectory(directory))
 			});
 	});
-var author$project$Model$Blog = {$: 'Blog'};
 var author$project$Model$Projects = {$: 'Projects'};
 var author$project$Model$Resume = {$: 'Resume'};
 var author$project$View$Navbar$navbarMapList = _List_fromArray(
 	[
 		_Utils_Tuple2('Home', author$project$Model$Home),
-		_Utils_Tuple2('Blog', author$project$Model$Blog),
 		_Utils_Tuple2('Resume', author$project$Model$Resume),
 		_Utils_Tuple2('Projects', author$project$Model$Projects)
 	]);
