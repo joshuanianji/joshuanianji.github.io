@@ -4313,6 +4313,181 @@ function _Browser_load(url)
 
 
 
+// SEND REQUEST
+
+var _Http_toTask = F3(function(router, toTask, request)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		function done(response) {
+			callback(toTask(request.expect.a(response)));
+		}
+
+		var xhr = new XMLHttpRequest();
+		xhr.addEventListener('error', function() { done(elm$http$Http$NetworkError_); });
+		xhr.addEventListener('timeout', function() { done(elm$http$Http$Timeout_); });
+		xhr.addEventListener('load', function() { done(_Http_toResponse(request.expect.b, xhr)); });
+		elm$core$Maybe$isJust(request.tracker) && _Http_track(router, xhr, request.tracker.a);
+
+		try {
+			xhr.open(request.method, request.url, true);
+		} catch (e) {
+			return done(elm$http$Http$BadUrl_(request.url));
+		}
+
+		_Http_configureRequest(xhr, request);
+
+		request.body.a && xhr.setRequestHeader('Content-Type', request.body.a);
+		xhr.send(request.body.b);
+
+		return function() { xhr.c = true; xhr.abort(); };
+	});
+});
+
+
+// CONFIGURE
+
+function _Http_configureRequest(xhr, request)
+{
+	for (var headers = request.headers; headers.b; headers = headers.b) // WHILE_CONS
+	{
+		xhr.setRequestHeader(headers.a.a, headers.a.b);
+	}
+	xhr.timeout = request.timeout.a || 0;
+	xhr.responseType = request.expect.d;
+	xhr.withCredentials = request.allowCookiesFromOtherDomains;
+}
+
+
+// RESPONSES
+
+function _Http_toResponse(toBody, xhr)
+{
+	return A2(
+		200 <= xhr.status && xhr.status < 300 ? elm$http$Http$GoodStatus_ : elm$http$Http$BadStatus_,
+		_Http_toMetadata(xhr),
+		toBody(xhr.response)
+	);
+}
+
+
+// METADATA
+
+function _Http_toMetadata(xhr)
+{
+	return {
+		url: xhr.responseURL,
+		statusCode: xhr.status,
+		statusText: xhr.statusText,
+		headers: _Http_parseHeaders(xhr.getAllResponseHeaders())
+	};
+}
+
+
+// HEADERS
+
+function _Http_parseHeaders(rawHeaders)
+{
+	if (!rawHeaders)
+	{
+		return elm$core$Dict$empty;
+	}
+
+	var headers = elm$core$Dict$empty;
+	var headerPairs = rawHeaders.split('\r\n');
+	for (var i = headerPairs.length; i--; )
+	{
+		var headerPair = headerPairs[i];
+		var index = headerPair.indexOf(': ');
+		if (index > 0)
+		{
+			var key = headerPair.substring(0, index);
+			var value = headerPair.substring(index + 2);
+
+			headers = A3(elm$core$Dict$update, key, function(oldValue) {
+				return elm$core$Maybe$Just(elm$core$Maybe$isJust(oldValue)
+					? value + ', ' + oldValue.a
+					: value
+				);
+			}, headers);
+		}
+	}
+	return headers;
+}
+
+
+// EXPECT
+
+var _Http_expect = F3(function(type, toBody, toValue)
+{
+	return {
+		$: 0,
+		d: type,
+		b: toBody,
+		a: toValue
+	};
+});
+
+var _Http_mapExpect = F2(function(func, expect)
+{
+	return {
+		$: 0,
+		d: expect.d,
+		b: expect.b,
+		a: function(x) { return func(expect.a(x)); }
+	};
+});
+
+function _Http_toDataView(arrayBuffer)
+{
+	return new DataView(arrayBuffer);
+}
+
+
+// BODY and PARTS
+
+var _Http_emptyBody = { $: 0 };
+var _Http_pair = F2(function(a, b) { return { $: 0, a: a, b: b }; });
+
+function _Http_toFormData(parts)
+{
+	for (var formData = new FormData(); parts.b; parts = parts.b) // WHILE_CONS
+	{
+		var part = parts.a;
+		formData.append(part.a, part.b);
+	}
+	return formData;
+}
+
+var _Http_bytesToBlob = F2(function(mime, bytes)
+{
+	return new Blob([bytes], { type: mime });
+});
+
+
+// PROGRESS
+
+function _Http_track(router, xhr, tracker)
+{
+	// TODO check out lengthComputable on loadstart event
+
+	xhr.upload.addEventListener('progress', function(event) {
+		if (xhr.c) { return; }
+		_Scheduler_rawSpawn(A2(elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, elm$http$Http$Sending({
+			sent: event.loaded,
+			size: event.total
+		}))));
+	});
+	xhr.addEventListener('progress', function(event) {
+		if (xhr.c) { return; }
+		_Scheduler_rawSpawn(A2(elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, elm$http$Http$Receiving({
+			received: event.loaded,
+			size: event.lengthComputable ? elm$core$Maybe$Just(event.total) : elm$core$Maybe$Nothing
+		}))));
+	});
+}
+
+
 var _Bitwise_and = F2(function(a, b)
 {
 	return a & b;
@@ -4347,7 +4522,137 @@ var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 {
 	return a >>> offset;
 });
-var author$project$Model$Projects = {$: 'Projects'};
+
+
+
+
+// STRINGS
+
+
+var _Parser_isSubString = F5(function(smallString, offset, row, col, bigString)
+{
+	var smallLength = smallString.length;
+	var isGood = offset + smallLength <= bigString.length;
+
+	for (var i = 0; isGood && i < smallLength; )
+	{
+		var code = bigString.charCodeAt(offset);
+		isGood =
+			smallString[i++] === bigString[offset++]
+			&& (
+				code === 0x000A /* \n */
+					? ( row++, col=1 )
+					: ( col++, (code & 0xF800) === 0xD800 ? smallString[i++] === bigString[offset++] : 1 )
+			)
+	}
+
+	return _Utils_Tuple3(isGood ? offset : -1, row, col);
+});
+
+
+
+// CHARS
+
+
+var _Parser_isSubChar = F3(function(predicate, offset, string)
+{
+	return (
+		string.length <= offset
+			? -1
+			:
+		(string.charCodeAt(offset) & 0xF800) === 0xD800
+			? (predicate(_Utils_chr(string.substr(offset, 2))) ? offset + 2 : -1)
+			:
+		(predicate(_Utils_chr(string[offset]))
+			? ((string[offset] === '\n') ? -2 : (offset + 1))
+			: -1
+		)
+	);
+});
+
+
+var _Parser_isAsciiCode = F3(function(code, offset, string)
+{
+	return string.charCodeAt(offset) === code;
+});
+
+
+
+// NUMBERS
+
+
+var _Parser_chompBase10 = F2(function(offset, string)
+{
+	for (; offset < string.length; offset++)
+	{
+		var code = string.charCodeAt(offset);
+		if (code < 0x30 || 0x39 < code)
+		{
+			return offset;
+		}
+	}
+	return offset;
+});
+
+
+var _Parser_consumeBase = F3(function(base, offset, string)
+{
+	for (var total = 0; offset < string.length; offset++)
+	{
+		var digit = string.charCodeAt(offset) - 0x30;
+		if (digit < 0 || base <= digit) break;
+		total = base * total + digit;
+	}
+	return _Utils_Tuple2(offset, total);
+});
+
+
+var _Parser_consumeBase16 = F2(function(offset, string)
+{
+	for (var total = 0; offset < string.length; offset++)
+	{
+		var code = string.charCodeAt(offset);
+		if (0x30 <= code && code <= 0x39)
+		{
+			total = 16 * total + code - 0x30;
+		}
+		else if (0x41 <= code && code <= 0x46)
+		{
+			total = 16 * total + code - 55;
+		}
+		else if (0x61 <= code && code <= 0x66)
+		{
+			total = 16 * total + code - 87;
+		}
+		else
+		{
+			break;
+		}
+	}
+	return _Utils_Tuple2(offset, total);
+});
+
+
+
+// FIND STRING
+
+
+var _Parser_findSubString = F5(function(smallString, offset, row, col, bigString)
+{
+	var newOffset = bigString.indexOf(smallString, offset);
+	var target = newOffset < 0 ? bigString.length : newOffset + smallString.length;
+
+	while (offset < target)
+	{
+		var code = bigString.charCodeAt(offset++);
+		code === 0x000A /* \n */
+			? ( col=1, row++ )
+			: ( col++, (code & 0xF800) === 0xD800 && offset++ )
+	}
+
+	return _Utils_Tuple3(newOffset, row, col);
+});
+var author$project$Model$Home = {$: 'Home'};
 var elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
@@ -4433,6 +4738,7 @@ var elm$core$Array$toList = function (array) {
 	return A3(elm$core$Array$foldr, elm$core$List$cons, _List_Nil, array);
 };
 var elm$core$Debug$log = _Debug_log;
+var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Basics$and = _Basics_and;
 var elm$core$Basics$gt = _Utils_gt;
 var elm$core$Basics$le = _Utils_le;
@@ -4451,11 +4757,12 @@ var mdgriffith$elm_ui$Element$classifyDevice = function (window) {
 };
 var author$project$Model$initModel = function (flags) {
 	return {
+		blogSource: elm$core$Maybe$Nothing,
 		device: A2(
 			elm$core$Debug$log,
 			'device',
 			mdgriffith$elm_ui$Element$classifyDevice(flags)),
-		directory: author$project$Model$Projects
+		directory: author$project$Model$Home
 	};
 };
 var elm$core$Basics$False = {$: 'False'};
@@ -4634,7 +4941,6 @@ var elm$core$Array$initialize = F2(
 var elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
-var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -5596,27 +5902,722 @@ var author$project$Model$subscriptions = function (model) {
 					A2(author$project$Model$WindowSize, x, y));
 			}));
 };
+var author$project$Model$ChangeDirectory = function (a) {
+	return {$: 'ChangeDirectory', a: a};
+};
+var author$project$Model$GotSrc = function (a) {
+	return {$: 'GotSrc', a: a};
+};
+var author$project$Model$Post = {$: 'Post'};
+var elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var elm$core$Dict$get = F2(
+	function (targetKey, dict) {
+		get:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return elm$core$Maybe$Nothing;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var _n1 = A2(elm$core$Basics$compare, targetKey, key);
+				switch (_n1.$) {
+					case 'LT':
+						var $temp$targetKey = targetKey,
+							$temp$dict = left;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+					case 'EQ':
+						return elm$core$Maybe$Just(value);
+					default:
+						var $temp$targetKey = targetKey,
+							$temp$dict = right;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+				}
+			}
+		}
+	});
+var elm$core$Dict$getMin = function (dict) {
+	getMin:
+	while (true) {
+		if ((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) {
+			var left = dict.d;
+			var $temp$dict = left;
+			dict = $temp$dict;
+			continue getMin;
+		} else {
+			return dict;
+		}
+	}
+};
+var elm$core$Dict$moveRedLeft = function (dict) {
+	if (((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) && (dict.e.$ === 'RBNode_elm_builtin')) {
+		if ((dict.e.d.$ === 'RBNode_elm_builtin') && (dict.e.d.a.$ === 'Red')) {
+			var clr = dict.a;
+			var k = dict.b;
+			var v = dict.c;
+			var _n1 = dict.d;
+			var lClr = _n1.a;
+			var lK = _n1.b;
+			var lV = _n1.c;
+			var lLeft = _n1.d;
+			var lRight = _n1.e;
+			var _n2 = dict.e;
+			var rClr = _n2.a;
+			var rK = _n2.b;
+			var rV = _n2.c;
+			var rLeft = _n2.d;
+			var _n3 = rLeft.a;
+			var rlK = rLeft.b;
+			var rlV = rLeft.c;
+			var rlL = rLeft.d;
+			var rlR = rLeft.e;
+			var rRight = _n2.e;
+			return A5(
+				elm$core$Dict$RBNode_elm_builtin,
+				elm$core$Dict$Red,
+				rlK,
+				rlV,
+				A5(
+					elm$core$Dict$RBNode_elm_builtin,
+					elm$core$Dict$Black,
+					k,
+					v,
+					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					rlL),
+				A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, rK, rV, rlR, rRight));
+		} else {
+			var clr = dict.a;
+			var k = dict.b;
+			var v = dict.c;
+			var _n4 = dict.d;
+			var lClr = _n4.a;
+			var lK = _n4.b;
+			var lV = _n4.c;
+			var lLeft = _n4.d;
+			var lRight = _n4.e;
+			var _n5 = dict.e;
+			var rClr = _n5.a;
+			var rK = _n5.b;
+			var rV = _n5.c;
+			var rLeft = _n5.d;
+			var rRight = _n5.e;
+			if (clr.$ === 'Black') {
+				return A5(
+					elm$core$Dict$RBNode_elm_builtin,
+					elm$core$Dict$Black,
+					k,
+					v,
+					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight));
+			} else {
+				return A5(
+					elm$core$Dict$RBNode_elm_builtin,
+					elm$core$Dict$Black,
+					k,
+					v,
+					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight));
+			}
+		}
+	} else {
+		return dict;
+	}
+};
+var elm$core$Dict$moveRedRight = function (dict) {
+	if (((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) && (dict.e.$ === 'RBNode_elm_builtin')) {
+		if ((dict.d.d.$ === 'RBNode_elm_builtin') && (dict.d.d.a.$ === 'Red')) {
+			var clr = dict.a;
+			var k = dict.b;
+			var v = dict.c;
+			var _n1 = dict.d;
+			var lClr = _n1.a;
+			var lK = _n1.b;
+			var lV = _n1.c;
+			var _n2 = _n1.d;
+			var _n3 = _n2.a;
+			var llK = _n2.b;
+			var llV = _n2.c;
+			var llLeft = _n2.d;
+			var llRight = _n2.e;
+			var lRight = _n1.e;
+			var _n4 = dict.e;
+			var rClr = _n4.a;
+			var rK = _n4.b;
+			var rV = _n4.c;
+			var rLeft = _n4.d;
+			var rRight = _n4.e;
+			return A5(
+				elm$core$Dict$RBNode_elm_builtin,
+				elm$core$Dict$Red,
+				lK,
+				lV,
+				A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, llK, llV, llLeft, llRight),
+				A5(
+					elm$core$Dict$RBNode_elm_builtin,
+					elm$core$Dict$Black,
+					k,
+					v,
+					lRight,
+					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight)));
+		} else {
+			var clr = dict.a;
+			var k = dict.b;
+			var v = dict.c;
+			var _n5 = dict.d;
+			var lClr = _n5.a;
+			var lK = _n5.b;
+			var lV = _n5.c;
+			var lLeft = _n5.d;
+			var lRight = _n5.e;
+			var _n6 = dict.e;
+			var rClr = _n6.a;
+			var rK = _n6.b;
+			var rV = _n6.c;
+			var rLeft = _n6.d;
+			var rRight = _n6.e;
+			if (clr.$ === 'Black') {
+				return A5(
+					elm$core$Dict$RBNode_elm_builtin,
+					elm$core$Dict$Black,
+					k,
+					v,
+					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight));
+			} else {
+				return A5(
+					elm$core$Dict$RBNode_elm_builtin,
+					elm$core$Dict$Black,
+					k,
+					v,
+					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, rK, rV, rLeft, rRight));
+			}
+		}
+	} else {
+		return dict;
+	}
+};
+var elm$core$Dict$removeHelpPrepEQGT = F7(
+	function (targetKey, dict, color, key, value, left, right) {
+		if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) {
+			var _n1 = left.a;
+			var lK = left.b;
+			var lV = left.c;
+			var lLeft = left.d;
+			var lRight = left.e;
+			return A5(
+				elm$core$Dict$RBNode_elm_builtin,
+				color,
+				lK,
+				lV,
+				lLeft,
+				A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Red, key, value, lRight, right));
+		} else {
+			_n2$2:
+			while (true) {
+				if ((right.$ === 'RBNode_elm_builtin') && (right.a.$ === 'Black')) {
+					if (right.d.$ === 'RBNode_elm_builtin') {
+						if (right.d.a.$ === 'Black') {
+							var _n3 = right.a;
+							var _n4 = right.d;
+							var _n5 = _n4.a;
+							return elm$core$Dict$moveRedRight(dict);
+						} else {
+							break _n2$2;
+						}
+					} else {
+						var _n6 = right.a;
+						var _n7 = right.d;
+						return elm$core$Dict$moveRedRight(dict);
+					}
+				} else {
+					break _n2$2;
+				}
+			}
+			return dict;
+		}
+	});
+var elm$core$Dict$removeMin = function (dict) {
+	if ((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) {
+		var color = dict.a;
+		var key = dict.b;
+		var value = dict.c;
+		var left = dict.d;
+		var lColor = left.a;
+		var lLeft = left.d;
+		var right = dict.e;
+		if (lColor.$ === 'Black') {
+			if ((lLeft.$ === 'RBNode_elm_builtin') && (lLeft.a.$ === 'Red')) {
+				var _n3 = lLeft.a;
+				return A5(
+					elm$core$Dict$RBNode_elm_builtin,
+					color,
+					key,
+					value,
+					elm$core$Dict$removeMin(left),
+					right);
+			} else {
+				var _n4 = elm$core$Dict$moveRedLeft(dict);
+				if (_n4.$ === 'RBNode_elm_builtin') {
+					var nColor = _n4.a;
+					var nKey = _n4.b;
+					var nValue = _n4.c;
+					var nLeft = _n4.d;
+					var nRight = _n4.e;
+					return A5(
+						elm$core$Dict$balance,
+						nColor,
+						nKey,
+						nValue,
+						elm$core$Dict$removeMin(nLeft),
+						nRight);
+				} else {
+					return elm$core$Dict$RBEmpty_elm_builtin;
+				}
+			}
+		} else {
+			return A5(
+				elm$core$Dict$RBNode_elm_builtin,
+				color,
+				key,
+				value,
+				elm$core$Dict$removeMin(left),
+				right);
+		}
+	} else {
+		return elm$core$Dict$RBEmpty_elm_builtin;
+	}
+};
+var elm$core$Dict$removeHelp = F2(
+	function (targetKey, dict) {
+		if (dict.$ === 'RBEmpty_elm_builtin') {
+			return elm$core$Dict$RBEmpty_elm_builtin;
+		} else {
+			var color = dict.a;
+			var key = dict.b;
+			var value = dict.c;
+			var left = dict.d;
+			var right = dict.e;
+			if (_Utils_cmp(targetKey, key) < 0) {
+				if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Black')) {
+					var _n4 = left.a;
+					var lLeft = left.d;
+					if ((lLeft.$ === 'RBNode_elm_builtin') && (lLeft.a.$ === 'Red')) {
+						var _n6 = lLeft.a;
+						return A5(
+							elm$core$Dict$RBNode_elm_builtin,
+							color,
+							key,
+							value,
+							A2(elm$core$Dict$removeHelp, targetKey, left),
+							right);
+					} else {
+						var _n7 = elm$core$Dict$moveRedLeft(dict);
+						if (_n7.$ === 'RBNode_elm_builtin') {
+							var nColor = _n7.a;
+							var nKey = _n7.b;
+							var nValue = _n7.c;
+							var nLeft = _n7.d;
+							var nRight = _n7.e;
+							return A5(
+								elm$core$Dict$balance,
+								nColor,
+								nKey,
+								nValue,
+								A2(elm$core$Dict$removeHelp, targetKey, nLeft),
+								nRight);
+						} else {
+							return elm$core$Dict$RBEmpty_elm_builtin;
+						}
+					}
+				} else {
+					return A5(
+						elm$core$Dict$RBNode_elm_builtin,
+						color,
+						key,
+						value,
+						A2(elm$core$Dict$removeHelp, targetKey, left),
+						right);
+				}
+			} else {
+				return A2(
+					elm$core$Dict$removeHelpEQGT,
+					targetKey,
+					A7(elm$core$Dict$removeHelpPrepEQGT, targetKey, dict, color, key, value, left, right));
+			}
+		}
+	});
+var elm$core$Dict$removeHelpEQGT = F2(
+	function (targetKey, dict) {
+		if (dict.$ === 'RBNode_elm_builtin') {
+			var color = dict.a;
+			var key = dict.b;
+			var value = dict.c;
+			var left = dict.d;
+			var right = dict.e;
+			if (_Utils_eq(targetKey, key)) {
+				var _n1 = elm$core$Dict$getMin(right);
+				if (_n1.$ === 'RBNode_elm_builtin') {
+					var minKey = _n1.b;
+					var minValue = _n1.c;
+					return A5(
+						elm$core$Dict$balance,
+						color,
+						minKey,
+						minValue,
+						left,
+						elm$core$Dict$removeMin(right));
+				} else {
+					return elm$core$Dict$RBEmpty_elm_builtin;
+				}
+			} else {
+				return A5(
+					elm$core$Dict$balance,
+					color,
+					key,
+					value,
+					left,
+					A2(elm$core$Dict$removeHelp, targetKey, right));
+			}
+		} else {
+			return elm$core$Dict$RBEmpty_elm_builtin;
+		}
+	});
+var elm$core$Dict$remove = F2(
+	function (key, dict) {
+		var _n0 = A2(elm$core$Dict$removeHelp, key, dict);
+		if ((_n0.$ === 'RBNode_elm_builtin') && (_n0.a.$ === 'Red')) {
+			var _n1 = _n0.a;
+			var k = _n0.b;
+			var v = _n0.c;
+			var l = _n0.d;
+			var r = _n0.e;
+			return A5(elm$core$Dict$RBNode_elm_builtin, elm$core$Dict$Black, k, v, l, r);
+		} else {
+			var x = _n0;
+			return x;
+		}
+	});
+var elm$core$Dict$update = F3(
+	function (targetKey, alter, dictionary) {
+		var _n0 = alter(
+			A2(elm$core$Dict$get, targetKey, dictionary));
+		if (_n0.$ === 'Just') {
+			var value = _n0.a;
+			return A3(elm$core$Dict$insert, targetKey, value, dictionary);
+		} else {
+			return A2(elm$core$Dict$remove, targetKey, dictionary);
+		}
+	});
+var elm$core$Maybe$isJust = function (maybe) {
+	if (maybe.$ === 'Just') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var elm$core$Result$map = F2(
+	function (func, ra) {
+		if (ra.$ === 'Ok') {
+			var a = ra.a;
+			return elm$core$Result$Ok(
+				func(a));
+		} else {
+			var e = ra.a;
+			return elm$core$Result$Err(e);
+		}
+	});
+var elm$http$Http$BadStatus_ = F2(
+	function (a, b) {
+		return {$: 'BadStatus_', a: a, b: b};
+	});
+var elm$http$Http$BadUrl_ = function (a) {
+	return {$: 'BadUrl_', a: a};
+};
+var elm$http$Http$GoodStatus_ = F2(
+	function (a, b) {
+		return {$: 'GoodStatus_', a: a, b: b};
+	});
+var elm$http$Http$NetworkError_ = {$: 'NetworkError_'};
+var elm$http$Http$Receiving = function (a) {
+	return {$: 'Receiving', a: a};
+};
+var elm$http$Http$Sending = function (a) {
+	return {$: 'Sending', a: a};
+};
+var elm$http$Http$Timeout_ = {$: 'Timeout_'};
+var elm$http$Http$expectStringResponse = F2(
+	function (toMsg, toResult) {
+		return A3(
+			_Http_expect,
+			'',
+			elm$core$Basics$identity,
+			A2(elm$core$Basics$composeR, toResult, toMsg));
+	});
+var elm$core$Result$mapError = F2(
+	function (f, result) {
+		if (result.$ === 'Ok') {
+			var v = result.a;
+			return elm$core$Result$Ok(v);
+		} else {
+			var e = result.a;
+			return elm$core$Result$Err(
+				f(e));
+		}
+	});
+var elm$http$Http$BadBody = function (a) {
+	return {$: 'BadBody', a: a};
+};
+var elm$http$Http$BadStatus = function (a) {
+	return {$: 'BadStatus', a: a};
+};
+var elm$http$Http$BadUrl = function (a) {
+	return {$: 'BadUrl', a: a};
+};
+var elm$http$Http$NetworkError = {$: 'NetworkError'};
+var elm$http$Http$Timeout = {$: 'Timeout'};
+var elm$http$Http$resolve = F2(
+	function (toResult, response) {
+		switch (response.$) {
+			case 'BadUrl_':
+				var url = response.a;
+				return elm$core$Result$Err(
+					elm$http$Http$BadUrl(url));
+			case 'Timeout_':
+				return elm$core$Result$Err(elm$http$Http$Timeout);
+			case 'NetworkError_':
+				return elm$core$Result$Err(elm$http$Http$NetworkError);
+			case 'BadStatus_':
+				var metadata = response.a;
+				return elm$core$Result$Err(
+					elm$http$Http$BadStatus(metadata.statusCode));
+			default:
+				var body = response.b;
+				return A2(
+					elm$core$Result$mapError,
+					elm$http$Http$BadBody,
+					toResult(body));
+		}
+	});
+var elm$http$Http$expectString = function (toMsg) {
+	return A2(
+		elm$http$Http$expectStringResponse,
+		toMsg,
+		elm$http$Http$resolve(elm$core$Result$Ok));
+};
+var elm$http$Http$emptyBody = _Http_emptyBody;
+var elm$http$Http$Request = function (a) {
+	return {$: 'Request', a: a};
+};
+var elm$http$Http$State = F2(
+	function (reqs, subs) {
+		return {reqs: reqs, subs: subs};
+	});
+var elm$http$Http$init = elm$core$Task$succeed(
+	A2(elm$http$Http$State, elm$core$Dict$empty, _List_Nil));
+var elm$core$Process$spawn = _Scheduler_spawn;
+var elm$http$Http$updateReqs = F3(
+	function (router, cmds, reqs) {
+		updateReqs:
+		while (true) {
+			if (!cmds.b) {
+				return elm$core$Task$succeed(reqs);
+			} else {
+				var cmd = cmds.a;
+				var otherCmds = cmds.b;
+				if (cmd.$ === 'Cancel') {
+					var tracker = cmd.a;
+					var _n2 = A2(elm$core$Dict$get, tracker, reqs);
+					if (_n2.$ === 'Nothing') {
+						var $temp$router = router,
+							$temp$cmds = otherCmds,
+							$temp$reqs = reqs;
+						router = $temp$router;
+						cmds = $temp$cmds;
+						reqs = $temp$reqs;
+						continue updateReqs;
+					} else {
+						var pid = _n2.a;
+						return A2(
+							elm$core$Task$andThen,
+							function (_n3) {
+								return A3(
+									elm$http$Http$updateReqs,
+									router,
+									otherCmds,
+									A2(elm$core$Dict$remove, tracker, reqs));
+							},
+							elm$core$Process$kill(pid));
+					}
+				} else {
+					var req = cmd.a;
+					return A2(
+						elm$core$Task$andThen,
+						function (pid) {
+							var _n4 = req.tracker;
+							if (_n4.$ === 'Nothing') {
+								return A3(elm$http$Http$updateReqs, router, otherCmds, reqs);
+							} else {
+								var tracker = _n4.a;
+								return A3(
+									elm$http$Http$updateReqs,
+									router,
+									otherCmds,
+									A3(elm$core$Dict$insert, tracker, pid, reqs));
+							}
+						},
+						elm$core$Process$spawn(
+							A3(
+								_Http_toTask,
+								router,
+								elm$core$Platform$sendToApp(router),
+								req)));
+				}
+			}
+		}
+	});
+var elm$http$Http$onEffects = F4(
+	function (router, cmds, subs, state) {
+		return A2(
+			elm$core$Task$andThen,
+			function (reqs) {
+				return elm$core$Task$succeed(
+					A2(elm$http$Http$State, reqs, subs));
+			},
+			A3(elm$http$Http$updateReqs, router, cmds, state.reqs));
+	});
+var elm$http$Http$maybeSend = F4(
+	function (router, desiredTracker, progress, _n0) {
+		var actualTracker = _n0.a;
+		var toMsg = _n0.b;
+		return _Utils_eq(desiredTracker, actualTracker) ? elm$core$Maybe$Just(
+			A2(
+				elm$core$Platform$sendToApp,
+				router,
+				toMsg(progress))) : elm$core$Maybe$Nothing;
+	});
+var elm$http$Http$onSelfMsg = F3(
+	function (router, _n0, state) {
+		var tracker = _n0.a;
+		var progress = _n0.b;
+		return A2(
+			elm$core$Task$andThen,
+			function (_n1) {
+				return elm$core$Task$succeed(state);
+			},
+			elm$core$Task$sequence(
+				A2(
+					elm$core$List$filterMap,
+					A3(elm$http$Http$maybeSend, router, tracker, progress),
+					state.subs)));
+	});
+var elm$http$Http$Cancel = function (a) {
+	return {$: 'Cancel', a: a};
+};
+var elm$http$Http$cmdMap = F2(
+	function (func, cmd) {
+		if (cmd.$ === 'Cancel') {
+			var tracker = cmd.a;
+			return elm$http$Http$Cancel(tracker);
+		} else {
+			var r = cmd.a;
+			return elm$http$Http$Request(
+				{
+					allowCookiesFromOtherDomains: r.allowCookiesFromOtherDomains,
+					body: r.body,
+					expect: A2(_Http_mapExpect, func, r.expect),
+					headers: r.headers,
+					method: r.method,
+					timeout: r.timeout,
+					tracker: r.tracker,
+					url: r.url
+				});
+		}
+	});
+var elm$http$Http$MySub = F2(
+	function (a, b) {
+		return {$: 'MySub', a: a, b: b};
+	});
+var elm$http$Http$subMap = F2(
+	function (func, _n0) {
+		var tracker = _n0.a;
+		var toMsg = _n0.b;
+		return A2(
+			elm$http$Http$MySub,
+			tracker,
+			A2(elm$core$Basics$composeR, toMsg, func));
+	});
+_Platform_effectManagers['Http'] = _Platform_createManager(elm$http$Http$init, elm$http$Http$onEffects, elm$http$Http$onSelfMsg, elm$http$Http$cmdMap, elm$http$Http$subMap);
+var elm$http$Http$command = _Platform_leaf('Http');
+var elm$http$Http$subscription = _Platform_leaf('Http');
+var elm$http$Http$request = function (r) {
+	return elm$http$Http$command(
+		elm$http$Http$Request(
+			{allowCookiesFromOtherDomains: false, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
+};
+var elm$http$Http$get = function (r) {
+	return elm$http$Http$request(
+		{body: elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: elm$core$Maybe$Nothing, tracker: elm$core$Maybe$Nothing, url: r.url});
+};
 var author$project$Model$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'WindowResize') {
-			var windowSize = msg.a;
-			return _Utils_Tuple2(
-				_Utils_update(
+		switch (msg.$) {
+			case 'WindowResize':
+				var windowSize = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							device: A2(
+								elm$core$Debug$log,
+								'Device',
+								mdgriffith$elm_ui$Element$classifyDevice(windowSize))
+						}),
+					elm$core$Platform$Cmd$none);
+			case 'ChangeDirectory':
+				var directory = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{directory: directory}),
+					elm$core$Platform$Cmd$none);
+			case 'Request':
+				var src = msg.a;
+				return _Utils_Tuple2(
 					model,
-					{
-						device: A2(
-							elm$core$Debug$log,
-							'Device',
-							mdgriffith$elm_ui$Element$classifyDevice(windowSize))
-					}),
-				elm$core$Platform$Cmd$none);
-		} else {
-			var directory = msg.a;
-			return _Utils_Tuple2(
-				_Utils_update(
-					model,
-					{directory: directory}),
-				elm$core$Platform$Cmd$none);
+					elm$http$Http$get(
+						{
+							expect: elm$http$Http$expectString(author$project$Model$GotSrc),
+							url: src
+						}));
+			default:
+				var result = msg.a;
+				return A2(
+					author$project$Model$update,
+					author$project$Model$ChangeDirectory(author$project$Model$Post),
+					function () {
+						if (result.$ === 'Ok') {
+							var src = result.a;
+							return _Utils_update(
+								model,
+								{
+									blogSource: elm$core$Maybe$Just(src)
+								});
+						} else {
+							var err = result.a;
+							var _n2 = A2(elm$core$Debug$log, 'err', err);
+							return model;
+						}
+					}());
 		}
 	});
 var author$project$View$focusStyle = {backgroundColor: elm$core$Maybe$Nothing, borderColor: elm$core$Maybe$Nothing, shadow: elm$core$Maybe$Nothing};
@@ -5913,37 +6914,6 @@ var elm$core$Set$insert = F2(
 		var dict = _n0.a;
 		return elm$core$Set$Set_elm_builtin(
 			A3(elm$core$Dict$insert, key, _Utils_Tuple0, dict));
-	});
-var elm$core$Dict$get = F2(
-	function (targetKey, dict) {
-		get:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return elm$core$Maybe$Nothing;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var _n1 = A2(elm$core$Basics$compare, targetKey, key);
-				switch (_n1.$) {
-					case 'LT':
-						var $temp$targetKey = targetKey,
-							$temp$dict = left;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-					case 'EQ':
-						return elm$core$Maybe$Just(value);
-					default:
-						var $temp$targetKey = targetKey,
-							$temp$dict = right;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-				}
-			}
-		}
 	});
 var elm$core$Dict$member = F2(
 	function (key, dict) {
@@ -11320,6 +12290,6083 @@ var author$project$View$Home$view = function (model) {
 			return A2(author$project$View$Home$handheldDisplay, author$project$View$Home$Small, model);
 	}
 };
+var mdgriffith$elm_ui$Internal$Flag$fontAlignment = mdgriffith$elm_ui$Internal$Flag$flag(12);
+var mdgriffith$elm_ui$Element$Font$center = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$fontAlignment, mdgriffith$elm_ui$Internal$Style$classes.textCenter);
+var author$project$View$BlogPost$blogDate = function (dateStr) {
+	return A2(
+		mdgriffith$elm_ui$Element$paragraph,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$Font$center,
+				mdgriffith$elm_ui$Element$Font$size(15)
+			]),
+		_Utils_ap(
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$text('Published on ')
+				]),
+			dateStr));
+};
+var mdgriffith$elm_ui$Element$Font$italic = mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.italic);
+var author$project$View$BlogPost$blogSubtitle = function (subtitle) {
+	return A2(
+		mdgriffith$elm_ui$Element$paragraph,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$Font$center,
+				mdgriffith$elm_ui$Element$Font$italic,
+				mdgriffith$elm_ui$Element$Font$size(25)
+			]),
+		subtitle);
+};
+var author$project$View$BlogPost$blogTitle = function (title) {
+	return A2(
+		mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$centerX,
+				mdgriffith$elm_ui$Element$Font$size(40)
+			]),
+		mdgriffith$elm_ui$Element$text(title));
+};
+var author$project$View$BlogPost$applyTuple = F2(
+	function (fn, _n0) {
+		var one = _n0.a;
+		var two = _n0.b;
+		return A2(fn, one, two);
+	});
+var author$project$View$BlogPost$toAttributes = function (list) {
+	return A2(
+		elm$core$List$filterMap,
+		function (_n0) {
+			var attribute = _n0.a;
+			var bool = _n0.b;
+			return bool ? elm$core$Maybe$Just(attribute) : elm$core$Maybe$Nothing;
+		},
+		list);
+};
+var mdgriffith$elm_ui$Element$Font$strike = mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.strike);
+var author$project$View$BlogPost$viewText = F2(
+	function (styles, string) {
+		return (styles.bold || (styles.italic || styles.strike)) ? A2(
+			mdgriffith$elm_ui$Element$el,
+			author$project$View$BlogPost$toAttributes(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(mdgriffith$elm_ui$Element$Font$bold, styles.bold),
+						_Utils_Tuple2(mdgriffith$elm_ui$Element$Font$italic, styles.italic),
+						_Utils_Tuple2(mdgriffith$elm_ui$Element$Font$strike, styles.strike)
+					])),
+			mdgriffith$elm_ui$Element$text(string)) : mdgriffith$elm_ui$Element$text(string);
+	});
+var mdgriffith$elm_markup$Mark$textToTuple = function (_n0) {
+	var style = _n0.a;
+	var str = _n0.b;
+	return _Utils_Tuple2(style, str);
+};
+var mdgriffith$elm_markup$Mark$selectedText = function (sel) {
+	switch (sel.$) {
+		case 'EmptyAnnotation':
+			return _List_Nil;
+		case 'SelectText':
+			var txts = sel.a;
+			return A2(elm$core$List$map, mdgriffith$elm_markup$Mark$textToTuple, txts);
+		default:
+			return _List_Nil;
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$AnnotationNamed = function (a) {
+	return {$: 'AnnotationNamed', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$ProtoRecord = function (a) {
+	return {$: 'ProtoRecord', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$Uncertain = function (a) {
+	return {$: 'Uncertain', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Outcome$Almost = function (a) {
+	return {$: 'Almost', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$uncertain = function (err) {
+	return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+		mdgriffith$elm_markup$Mark$Internal$Description$Uncertain(
+			_Utils_Tuple2(err, _List_Nil)));
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$NoMatch = {$: 'NoMatch'};
+var mdgriffith$elm_markup$Mark$Internal$Outcome$Failure = function (a) {
+	return {$: 'Failure', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Outcome$Success = function (a) {
+	return {$: 'Success', a: a};
+};
+var mdgriffith$elm_markup$Mark$annotation = F2(
+	function (name, view) {
+		return mdgriffith$elm_markup$Mark$Internal$Description$ProtoRecord(
+			{
+				blockKind: mdgriffith$elm_markup$Mark$Internal$Description$AnnotationNamed(name),
+				expectations: _List_Nil,
+				fieldConverter: F2(
+					function (desc, selected) {
+						if (desc.$ === 'Record') {
+							var details = desc.a;
+							if (_Utils_eq(details.name, name)) {
+								var _n1 = details.found;
+								if (_n1.$ === 'Found') {
+									var pos = _n1.a;
+									var fieldDescriptions = _n1.b;
+									return mdgriffith$elm_markup$Mark$Internal$Outcome$Success(
+										_Utils_Tuple3(
+											pos,
+											fieldDescriptions,
+											view(
+												mdgriffith$elm_markup$Mark$selectedText(selected))));
+								} else {
+									var unexpected = _n1.a;
+									return mdgriffith$elm_markup$Mark$Internal$Description$uncertain(unexpected);
+								}
+							} else {
+								return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(mdgriffith$elm_markup$Mark$Internal$Error$NoMatch);
+							}
+						} else {
+							return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(mdgriffith$elm_markup$Mark$Internal$Error$NoMatch);
+						}
+					}),
+				fields: _List_Nil,
+				name: name
+			});
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$Balanced = function (a) {
+	return {$: 'Balanced', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$Replacement = F2(
+	function (a, b) {
+		return {$: 'Replacement', a: a, b: b};
+	});
+var mdgriffith$elm_markup$Mark$commonReplacements = _List_fromArray(
+	[
+		A2(mdgriffith$elm_markup$Mark$Internal$Parser$Replacement, '...', '…'),
+		A2(mdgriffith$elm_markup$Mark$Internal$Parser$Replacement, '<>', '\u00a0'),
+		A2(mdgriffith$elm_markup$Mark$Internal$Parser$Replacement, '---', '—'),
+		A2(mdgriffith$elm_markup$Mark$Internal$Parser$Replacement, '--', '–'),
+		A2(mdgriffith$elm_markup$Mark$Internal$Parser$Replacement, '//', '/'),
+		A2(mdgriffith$elm_markup$Mark$Internal$Parser$Replacement, '\'', '’'),
+		mdgriffith$elm_markup$Mark$Internal$Parser$Balanced(
+		{
+			end: _Utils_Tuple2('\"', '”'),
+			start: _Utils_Tuple2('\"', '“')
+		})
+	]);
+var mdgriffith$elm_markup$Mark$Field = F2(
+	function (a, b) {
+		return {$: 'Field', a: a, b: b};
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$getBlockExpectation = function (fromBlock) {
+	var expect = fromBlock.a.expect;
+	return expect;
+};
+var mdgriffith$elm_markup$Mark$fieldExpectation = function (_n0) {
+	var name = _n0.a;
+	var fieldBlock = _n0.b;
+	return _Utils_Tuple2(
+		name,
+		mdgriffith$elm_markup$Mark$Internal$Description$getBlockExpectation(fieldBlock));
+};
+var mdgriffith$elm_markup$Mark$fieldName = function (_n0) {
+	var name = _n0.a;
+	return name;
+};
+var elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
+var elm$core$String$repeatHelp = F3(
+	function (n, chunk, result) {
+		return (n <= 0) ? result : A3(
+			elm$core$String$repeatHelp,
+			n >> 1,
+			_Utils_ap(chunk, chunk),
+			(!(n & 1)) ? result : _Utils_ap(result, chunk));
+	});
+var elm$core$String$repeat = F2(
+	function (n, chunk) {
+		return A3(elm$core$String$repeatHelp, n, chunk, '');
+	});
+var elm$parser$Parser$Advanced$Token = F2(
+	function (a, b) {
+		return {$: 'Token', a: a, b: b};
+	});
+var elm$parser$Parser$Advanced$Parser = function (a) {
+	return {$: 'Parser', a: a};
+};
+var elm$parser$Parser$Advanced$Good = F3(
+	function (a, b, c) {
+		return {$: 'Good', a: a, b: b, c: c};
+	});
+var elm$parser$Parser$Advanced$isSubChar = _Parser_isSubChar;
+var elm$parser$Parser$Advanced$chompWhileHelp = F5(
+	function (isGood, offset, row, col, s0) {
+		chompWhileHelp:
+		while (true) {
+			var newOffset = A3(elm$parser$Parser$Advanced$isSubChar, isGood, offset, s0.src);
+			if (_Utils_eq(newOffset, -1)) {
+				return A3(
+					elm$parser$Parser$Advanced$Good,
+					_Utils_cmp(s0.offset, offset) < 0,
+					_Utils_Tuple0,
+					{col: col, context: s0.context, indent: s0.indent, offset: offset, row: row, src: s0.src});
+			} else {
+				if (_Utils_eq(newOffset, -2)) {
+					var $temp$isGood = isGood,
+						$temp$offset = offset + 1,
+						$temp$row = row + 1,
+						$temp$col = 1,
+						$temp$s0 = s0;
+					isGood = $temp$isGood;
+					offset = $temp$offset;
+					row = $temp$row;
+					col = $temp$col;
+					s0 = $temp$s0;
+					continue chompWhileHelp;
+				} else {
+					var $temp$isGood = isGood,
+						$temp$offset = newOffset,
+						$temp$row = row,
+						$temp$col = col + 1,
+						$temp$s0 = s0;
+					isGood = $temp$isGood;
+					offset = $temp$offset;
+					row = $temp$row;
+					col = $temp$col;
+					s0 = $temp$s0;
+					continue chompWhileHelp;
+				}
+			}
+		}
+	});
+var elm$parser$Parser$Advanced$chompWhile = function (isGood) {
+	return elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return A5(elm$parser$Parser$Advanced$chompWhileHelp, isGood, s.offset, s.row, s.col, s);
+		});
+};
+var elm$core$Basics$always = F2(
+	function (a, _n0) {
+		return a;
+	});
+var elm$parser$Parser$Advanced$Bad = F2(
+	function (a, b) {
+		return {$: 'Bad', a: a, b: b};
+	});
+var elm$parser$Parser$Advanced$map2 = F3(
+	function (func, _n0, _n1) {
+		var parseA = _n0.a;
+		var parseB = _n1.a;
+		return elm$parser$Parser$Advanced$Parser(
+			function (s0) {
+				var _n2 = parseA(s0);
+				if (_n2.$ === 'Bad') {
+					var p = _n2.a;
+					var x = _n2.b;
+					return A2(elm$parser$Parser$Advanced$Bad, p, x);
+				} else {
+					var p1 = _n2.a;
+					var a = _n2.b;
+					var s1 = _n2.c;
+					var _n3 = parseB(s1);
+					if (_n3.$ === 'Bad') {
+						var p2 = _n3.a;
+						var x = _n3.b;
+						return A2(elm$parser$Parser$Advanced$Bad, p1 || p2, x);
+					} else {
+						var p2 = _n3.a;
+						var b = _n3.b;
+						var s2 = _n3.c;
+						return A3(
+							elm$parser$Parser$Advanced$Good,
+							p1 || p2,
+							A2(func, a, b),
+							s2);
+					}
+				}
+			});
+	});
+var elm$parser$Parser$Advanced$ignorer = F2(
+	function (keepParser, ignoreParser) {
+		return A3(elm$parser$Parser$Advanced$map2, elm$core$Basics$always, keepParser, ignoreParser);
+	});
+var elm$parser$Parser$Advanced$Located = F3(
+	function (row, col, context) {
+		return {col: col, context: context, row: row};
+	});
+var elm$parser$Parser$Advanced$changeContext = F2(
+	function (newContext, s) {
+		return {col: s.col, context: newContext, indent: s.indent, offset: s.offset, row: s.row, src: s.src};
+	});
+var elm$parser$Parser$Advanced$inContext = F2(
+	function (context, _n0) {
+		var parse = _n0.a;
+		return elm$parser$Parser$Advanced$Parser(
+			function (s0) {
+				var _n1 = parse(
+					A2(
+						elm$parser$Parser$Advanced$changeContext,
+						A2(
+							elm$core$List$cons,
+							A3(elm$parser$Parser$Advanced$Located, s0.row, s0.col, context),
+							s0.context),
+						s0));
+				if (_n1.$ === 'Good') {
+					var p = _n1.a;
+					var a = _n1.b;
+					var s1 = _n1.c;
+					return A3(
+						elm$parser$Parser$Advanced$Good,
+						p,
+						a,
+						A2(elm$parser$Parser$Advanced$changeContext, s0.context, s1));
+				} else {
+					var step = _n1;
+					return step;
+				}
+			});
+	});
+var elm$parser$Parser$Advanced$keeper = F2(
+	function (parseFunc, parseArg) {
+		return A3(elm$parser$Parser$Advanced$map2, elm$core$Basics$apL, parseFunc, parseArg);
+	});
+var elm$parser$Parser$Advanced$map = F2(
+	function (func, _n0) {
+		var parse = _n0.a;
+		return elm$parser$Parser$Advanced$Parser(
+			function (s0) {
+				var _n1 = parse(s0);
+				if (_n1.$ === 'Good') {
+					var p = _n1.a;
+					var a = _n1.b;
+					var s1 = _n1.c;
+					return A3(
+						elm$parser$Parser$Advanced$Good,
+						p,
+						func(a),
+						s1);
+				} else {
+					var p = _n1.a;
+					var x = _n1.b;
+					return A2(elm$parser$Parser$Advanced$Bad, p, x);
+				}
+			});
+	});
+var elm$parser$Parser$Advanced$Empty = {$: 'Empty'};
+var elm$parser$Parser$Advanced$Append = F2(
+	function (a, b) {
+		return {$: 'Append', a: a, b: b};
+	});
+var elm$parser$Parser$Advanced$oneOfHelp = F3(
+	function (s0, bag, parsers) {
+		oneOfHelp:
+		while (true) {
+			if (!parsers.b) {
+				return A2(elm$parser$Parser$Advanced$Bad, false, bag);
+			} else {
+				var parse = parsers.a.a;
+				var remainingParsers = parsers.b;
+				var _n1 = parse(s0);
+				if (_n1.$ === 'Good') {
+					var step = _n1;
+					return step;
+				} else {
+					var step = _n1;
+					var p = step.a;
+					var x = step.b;
+					if (p) {
+						return step;
+					} else {
+						var $temp$s0 = s0,
+							$temp$bag = A2(elm$parser$Parser$Advanced$Append, bag, x),
+							$temp$parsers = remainingParsers;
+						s0 = $temp$s0;
+						bag = $temp$bag;
+						parsers = $temp$parsers;
+						continue oneOfHelp;
+					}
+				}
+			}
+		}
+	});
+var elm$parser$Parser$Advanced$oneOf = function (parsers) {
+	return elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return A3(elm$parser$Parser$Advanced$oneOfHelp, s, elm$parser$Parser$Advanced$Empty, parsers);
+		});
+};
+var elm$parser$Parser$Advanced$succeed = function (a) {
+	return elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return A3(elm$parser$Parser$Advanced$Good, false, a, s);
+		});
+};
+var elm$parser$Parser$Advanced$AddRight = F2(
+	function (a, b) {
+		return {$: 'AddRight', a: a, b: b};
+	});
+var elm$parser$Parser$Advanced$DeadEnd = F4(
+	function (row, col, problem, contextStack) {
+		return {col: col, contextStack: contextStack, problem: problem, row: row};
+	});
+var elm$parser$Parser$Advanced$fromState = F2(
+	function (s, x) {
+		return A2(
+			elm$parser$Parser$Advanced$AddRight,
+			elm$parser$Parser$Advanced$Empty,
+			A4(elm$parser$Parser$Advanced$DeadEnd, s.row, s.col, x, s.context));
+	});
+var elm$parser$Parser$Advanced$isSubString = _Parser_isSubString;
+var elm$parser$Parser$Advanced$token = function (_n0) {
+	var str = _n0.a;
+	var expecting = _n0.b;
+	var progress = !elm$core$String$isEmpty(str);
+	return elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			var _n1 = A5(elm$parser$Parser$Advanced$isSubString, str, s.offset, s.row, s.col, s.src);
+			var newOffset = _n1.a;
+			var newRow = _n1.b;
+			var newCol = _n1.c;
+			return _Utils_eq(newOffset, -1) ? A2(
+				elm$parser$Parser$Advanced$Bad,
+				false,
+				A2(elm$parser$Parser$Advanced$fromState, s, expecting)) : A3(
+				elm$parser$Parser$Advanced$Good,
+				progress,
+				_Utils_Tuple0,
+				{col: newCol, context: s.context, indent: s.indent, offset: newOffset, row: newRow, src: s.src});
+		});
+};
+var elm$parser$Parser$Advanced$changeIndent = F2(
+	function (newIndent, s) {
+		return {col: s.col, context: s.context, indent: newIndent, offset: s.offset, row: s.row, src: s.src};
+	});
+var elm$parser$Parser$Advanced$withIndent = F2(
+	function (newIndent, _n0) {
+		var parse = _n0.a;
+		return elm$parser$Parser$Advanced$Parser(
+			function (s0) {
+				var _n1 = parse(
+					A2(elm$parser$Parser$Advanced$changeIndent, newIndent, s0));
+				if (_n1.$ === 'Good') {
+					var p = _n1.a;
+					var a = _n1.b;
+					var s1 = _n1.c;
+					return A3(
+						elm$parser$Parser$Advanced$Good,
+						p,
+						a,
+						A2(elm$parser$Parser$Advanced$changeIndent, s0.indent, s1));
+				} else {
+					var p = _n1.a;
+					var x = _n1.b;
+					return A2(elm$parser$Parser$Advanced$Bad, p, x);
+				}
+			});
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$Found = F2(
+	function (a, b) {
+		return {$: 'Found', a: a, b: b};
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$ExpectingIndentation = function (a) {
+	return {$: 'ExpectingIndentation', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$InRecordField = function (a) {
+	return {$: 'InRecordField', a: a};
+};
+var elm$parser$Parser$Advanced$andThen = F2(
+	function (callback, _n0) {
+		var parseA = _n0.a;
+		return elm$parser$Parser$Advanced$Parser(
+			function (s0) {
+				var _n1 = parseA(s0);
+				if (_n1.$ === 'Bad') {
+					var p = _n1.a;
+					var x = _n1.b;
+					return A2(elm$parser$Parser$Advanced$Bad, p, x);
+				} else {
+					var p1 = _n1.a;
+					var a = _n1.b;
+					var s1 = _n1.c;
+					var _n2 = callback(a);
+					var parseB = _n2.a;
+					var _n3 = parseB(s1);
+					if (_n3.$ === 'Bad') {
+						var p2 = _n3.a;
+						var x = _n3.b;
+						return A2(elm$parser$Parser$Advanced$Bad, p1 || p2, x);
+					} else {
+						var p2 = _n3.a;
+						var b = _n3.b;
+						var s2 = _n3.c;
+						return A3(elm$parser$Parser$Advanced$Good, p1 || p2, b, s2);
+					}
+				}
+			});
+	});
+var elm$parser$Parser$Advanced$getIndent = elm$parser$Parser$Advanced$Parser(
+	function (s) {
+		return A3(elm$parser$Parser$Advanced$Good, false, s.indent, s);
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$withIndent = function (fn) {
+	return A2(elm$parser$Parser$Advanced$andThen, fn, elm$parser$Parser$Advanced$getIndent);
+};
+var elm$parser$Parser$Advanced$getOffset = elm$parser$Parser$Advanced$Parser(
+	function (s) {
+		return A3(elm$parser$Parser$Advanced$Good, false, s.offset, s);
+	});
+var elm$parser$Parser$Advanced$getPosition = elm$parser$Parser$Advanced$Parser(
+	function (s) {
+		return A3(
+			elm$parser$Parser$Advanced$Good,
+			false,
+			_Utils_Tuple2(s.row, s.col),
+			s);
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$getPosition = A2(
+	elm$parser$Parser$Advanced$keeper,
+	A2(
+		elm$parser$Parser$Advanced$keeper,
+		elm$parser$Parser$Advanced$succeed(
+			F2(
+				function (offset, _n0) {
+					var row = _n0.a;
+					var col = _n0.b;
+					return {column: col, line: row, offset: offset};
+				})),
+		elm$parser$Parser$Advanced$getOffset),
+	elm$parser$Parser$Advanced$getPosition);
+var mdgriffith$elm_markup$Mark$Internal$Parser$withRange = function (parser) {
+	return A2(
+		elm$parser$Parser$Advanced$keeper,
+		A2(
+			elm$parser$Parser$Advanced$keeper,
+			A2(
+				elm$parser$Parser$Advanced$keeper,
+				elm$parser$Parser$Advanced$succeed(
+					F3(
+						function (start, val, end) {
+							return _Utils_Tuple2(
+								{end: end, start: start},
+								val);
+						})),
+				mdgriffith$elm_markup$Mark$Internal$Parser$getPosition),
+			parser),
+		mdgriffith$elm_markup$Mark$Internal$Parser$getPosition);
+};
+var mdgriffith$elm_markup$Mark$fieldContentParser = F2(
+	function (name, parser) {
+		return mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+			function (indentation) {
+				return A2(
+					elm$parser$Parser$Advanced$map,
+					function (_n0) {
+						var pos = _n0.a;
+						var description = _n0.b;
+						return _Utils_Tuple2(
+							name,
+							A2(mdgriffith$elm_markup$Mark$Internal$Description$Found, pos, description));
+					},
+					mdgriffith$elm_markup$Mark$Internal$Parser$withRange(
+						A2(
+							elm$parser$Parser$Advanced$keeper,
+							elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+							elm$parser$Parser$Advanced$oneOf(
+								_List_fromArray(
+									[
+										A2(
+										elm$parser$Parser$Advanced$withIndent,
+										indentation + 4,
+										A2(
+											elm$parser$Parser$Advanced$inContext,
+											mdgriffith$elm_markup$Mark$Internal$Error$InRecordField(name),
+											parser)),
+										A2(
+										elm$parser$Parser$Advanced$keeper,
+										A2(
+											elm$parser$Parser$Advanced$ignorer,
+											A2(
+												elm$parser$Parser$Advanced$ignorer,
+												elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+												elm$parser$Parser$Advanced$chompWhile(
+													function (c) {
+														return _Utils_eq(
+															c,
+															_Utils_chr('\n'));
+													})),
+											elm$parser$Parser$Advanced$token(
+												A2(
+													elm$parser$Parser$Advanced$Token,
+													A2(elm$core$String$repeat, indentation + 4, ' '),
+													mdgriffith$elm_markup$Mark$Internal$Error$ExpectingIndentation(indentation)))),
+										A2(
+											elm$parser$Parser$Advanced$withIndent,
+											indentation + 4,
+											A2(
+												elm$parser$Parser$Advanced$inContext,
+												mdgriffith$elm_markup$Mark$Internal$Error$InRecordField(name),
+												parser)))
+									])))));
+			});
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$ExpectingBlockName = function (a) {
+	return {$: 'ExpectingBlockName', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$getParser = F3(
+	function (context, seed, _n0) {
+		var details = _n0.a;
+		var _n1 = details.kind;
+		switch (_n1.$) {
+			case 'Named':
+				var name = _n1.a;
+				var _n2 = A2(details.parser, context, seed);
+				var newSeed = _n2.a;
+				var blockParser = _n2.b;
+				return _Utils_Tuple2(
+					newSeed,
+					A2(
+						elm$parser$Parser$Advanced$keeper,
+						A2(
+							elm$parser$Parser$Advanced$ignorer,
+							A2(
+								elm$parser$Parser$Advanced$ignorer,
+								elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+								elm$parser$Parser$Advanced$token(
+									A2(
+										elm$parser$Parser$Advanced$Token,
+										'|>',
+										mdgriffith$elm_markup$Mark$Internal$Error$ExpectingBlockName(name)))),
+							elm$parser$Parser$Advanced$chompWhile(
+								function (c) {
+									return _Utils_eq(
+										c,
+										_Utils_chr(' '));
+								})),
+						blockParser));
+			case 'Value':
+				return A2(details.parser, context, seed);
+			case 'VerbatimNamed':
+				var name = _n1.a;
+				var _n3 = A2(details.parser, context, seed);
+				var newSeed = _n3.a;
+				var blockParser = _n3.b;
+				return _Utils_Tuple2(newSeed, blockParser);
+			default:
+				var name = _n1.a;
+				var _n4 = A2(details.parser, context, seed);
+				var newSeed = _n4.a;
+				var blockParser = _n4.b;
+				return _Utils_Tuple2(newSeed, blockParser);
+		}
+	});
+var mdgriffith$elm_markup$Mark$fieldParser = F3(
+	function (_n0, context, seed) {
+		var name = _n0.a;
+		var myBlock = _n0.b;
+		var _n1 = A3(mdgriffith$elm_markup$Mark$Internal$Description$getParser, context, seed, myBlock);
+		var newSeed = _n1.a;
+		var blockParser = _n1.b;
+		return _Utils_Tuple2(
+			newSeed,
+			_Utils_Tuple2(
+				name,
+				A2(mdgriffith$elm_markup$Mark$fieldContentParser, name, blockParser)));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$renderBlock = function (fromBlock) {
+	var converter = fromBlock.a.converter;
+	return converter;
+};
+var mdgriffith$elm_markup$Mark$matchField = F4(
+	function (targetName, targetBlock, _n0, existing) {
+		var name = _n0.a;
+		var foundDescription = _n0.b;
+		if (existing.$ === 'Just') {
+			return existing;
+		} else {
+			if (_Utils_eq(name, targetName)) {
+				if (foundDescription.$ === 'Found') {
+					var rng = foundDescription.a;
+					var description = foundDescription.b;
+					return elm$core$Maybe$Just(
+						A2(mdgriffith$elm_markup$Mark$Internal$Description$renderBlock, targetBlock, description));
+				} else {
+					var unexpected = foundDescription.a;
+					return elm$core$Maybe$Just(
+						mdgriffith$elm_markup$Mark$Internal$Description$uncertain(unexpected));
+				}
+			} else {
+				return existing;
+			}
+		}
+	});
+var mdgriffith$elm_markup$Mark$getField = F2(
+	function (_n0, fields) {
+		var name = _n0.a;
+		var fieldBlock = _n0.b;
+		return A3(
+			elm$core$List$foldl,
+			A2(mdgriffith$elm_markup$Mark$matchField, name, fieldBlock),
+			elm$core$Maybe$Nothing,
+			fields);
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$Recovered = F2(
+	function (a, b) {
+		return {$: 'Recovered', a: a, b: b};
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$mapSuccessAndRecovered = F2(
+	function (fn, outcome) {
+		switch (outcome.$) {
+			case 'Success':
+				var s = outcome.a;
+				return mdgriffith$elm_markup$Mark$Internal$Outcome$Success(
+					fn(s));
+			case 'Almost':
+				if (outcome.a.$ === 'Uncertain') {
+					var u = outcome.a.a;
+					return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+						mdgriffith$elm_markup$Mark$Internal$Description$Uncertain(u));
+				} else {
+					var _n1 = outcome.a;
+					var e = _n1.a;
+					var a = _n1.b;
+					return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+						A2(
+							mdgriffith$elm_markup$Mark$Internal$Description$Recovered,
+							e,
+							fn(a)));
+				}
+			default:
+				var f = outcome.a;
+				return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(f);
+		}
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$MissingFields = function (a) {
+	return {$: 'MissingFields', a: a};
+};
+var mdgriffith$elm_markup$Mark$field = F3(
+	function (name, value, _n0) {
+		var details = _n0.a;
+		var newField = A2(mdgriffith$elm_markup$Mark$Field, name, value);
+		return mdgriffith$elm_markup$Mark$Internal$Description$ProtoRecord(
+			{
+				blockKind: details.blockKind,
+				expectations: A2(
+					elm$core$List$cons,
+					mdgriffith$elm_markup$Mark$fieldExpectation(newField),
+					details.expectations),
+				fieldConverter: F2(
+					function (desc, ann) {
+						var _n1 = A2(details.fieldConverter, desc, ann);
+						switch (_n1.$) {
+							case 'Success':
+								var _n2 = _n1.a;
+								var pos = _n2.a;
+								var fieldDescriptions = _n2.b;
+								var rendered = _n2.c;
+								var _n3 = A2(mdgriffith$elm_markup$Mark$getField, newField, fieldDescriptions);
+								if (_n3.$ === 'Just') {
+									var outcome = _n3.a;
+									return A2(
+										mdgriffith$elm_markup$Mark$Internal$Description$mapSuccessAndRecovered,
+										function (myField) {
+											return _Utils_Tuple3(
+												pos,
+												fieldDescriptions,
+												rendered(myField));
+										},
+										outcome);
+								} else {
+									return mdgriffith$elm_markup$Mark$Internal$Description$uncertain(
+										{
+											problem: mdgriffith$elm_markup$Mark$Internal$Error$MissingFields(
+												_List_fromArray(
+													[
+														mdgriffith$elm_markup$Mark$fieldName(newField)
+													])),
+											range: pos
+										});
+								}
+							case 'Failure':
+								var fail = _n1.a;
+								return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(fail);
+							default:
+								if (_n1.a.$ === 'Recovered') {
+									var _n4 = _n1.a;
+									var e = _n4.a;
+									var _n5 = _n4.b;
+									var pos = _n5.a;
+									var fieldDescriptions = _n5.b;
+									var rendered = _n5.c;
+									var _n6 = A2(mdgriffith$elm_markup$Mark$getField, newField, fieldDescriptions);
+									if (_n6.$ === 'Just') {
+										var outcome = _n6.a;
+										return A2(
+											mdgriffith$elm_markup$Mark$Internal$Description$mapSuccessAndRecovered,
+											function (myField) {
+												return _Utils_Tuple3(
+													pos,
+													fieldDescriptions,
+													rendered(myField));
+											},
+											outcome);
+									} else {
+										return mdgriffith$elm_markup$Mark$Internal$Description$uncertain(
+											{
+												problem: mdgriffith$elm_markup$Mark$Internal$Error$MissingFields(
+													_List_fromArray(
+														[
+															mdgriffith$elm_markup$Mark$fieldName(newField)
+														])),
+												range: pos
+											});
+									}
+								} else {
+									var e = _n1.a.a;
+									return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+										mdgriffith$elm_markup$Mark$Internal$Description$Uncertain(e));
+								}
+						}
+					}),
+				fields: A2(
+					elm$core$List$cons,
+					mdgriffith$elm_markup$Mark$fieldParser(newField),
+					details.fields),
+				name: details.name
+			});
+	});
+var elm$core$String$trim = _String_trim;
+var elm$parser$Parser$Advanced$mapChompedString = F2(
+	function (func, _n0) {
+		var parse = _n0.a;
+		return elm$parser$Parser$Advanced$Parser(
+			function (s0) {
+				var _n1 = parse(s0);
+				if (_n1.$ === 'Bad') {
+					var p = _n1.a;
+					var x = _n1.b;
+					return A2(elm$parser$Parser$Advanced$Bad, p, x);
+				} else {
+					var p = _n1.a;
+					var a = _n1.b;
+					var s1 = _n1.c;
+					return A3(
+						elm$parser$Parser$Advanced$Good,
+						p,
+						A2(
+							func,
+							A3(elm$core$String$slice, s0.offset, s1.offset, s0.src),
+							a),
+						s1);
+				}
+			});
+	});
+var elm$parser$Parser$Advanced$getChompedString = function (parser) {
+	return A2(elm$parser$Parser$Advanced$mapChompedString, elm$core$Basics$always, parser);
+};
+var elm$parser$Parser$Advanced$loopHelp = F4(
+	function (p, state, callback, s0) {
+		loopHelp:
+		while (true) {
+			var _n0 = callback(state);
+			var parse = _n0.a;
+			var _n1 = parse(s0);
+			if (_n1.$ === 'Good') {
+				var p1 = _n1.a;
+				var step = _n1.b;
+				var s1 = _n1.c;
+				if (step.$ === 'Loop') {
+					var newState = step.a;
+					var $temp$p = p || p1,
+						$temp$state = newState,
+						$temp$callback = callback,
+						$temp$s0 = s1;
+					p = $temp$p;
+					state = $temp$state;
+					callback = $temp$callback;
+					s0 = $temp$s0;
+					continue loopHelp;
+				} else {
+					var result = step.a;
+					return A3(elm$parser$Parser$Advanced$Good, p || p1, result, s1);
+				}
+			} else {
+				var p1 = _n1.a;
+				var x = _n1.b;
+				return A2(elm$parser$Parser$Advanced$Bad, p || p1, x);
+			}
+		}
+	});
+var elm$parser$Parser$Advanced$loop = F2(
+	function (state, callback) {
+		return elm$parser$Parser$Advanced$Parser(
+			function (s) {
+				return A4(elm$parser$Parser$Advanced$loopHelp, false, state, callback, s);
+			});
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$Block = function (a) {
+	return {$: 'Block', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$DescribeString = F3(
+	function (a, b, c) {
+		return {$: 'DescribeString', a: a, b: b, c: c};
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$ExpectString = function (a) {
+	return {$: 'ExpectString', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$Value = {$: 'Value'};
+var mdgriffith$elm_markup$Mark$Internal$Id$Id = function (a) {
+	return {$: 'Id', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Id$Seed = function (a) {
+	return {$: 'Seed', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Id$step = function (_n0) {
+	var seed = _n0.a;
+	if (!seed.b) {
+		return _Utils_Tuple2(
+			mdgriffith$elm_markup$Mark$Internal$Id$Id(
+				_List_fromArray(
+					[0])),
+			mdgriffith$elm_markup$Mark$Internal$Id$Seed(
+				_List_fromArray(
+					[0])));
+	} else {
+		var current = seed.a;
+		var remain = seed.b;
+		return _Utils_Tuple2(
+			mdgriffith$elm_markup$Mark$Internal$Id$Id(seed),
+			mdgriffith$elm_markup$Mark$Internal$Id$Seed(
+				A2(elm$core$List$cons, current + 1, remain)));
+	}
+};
+var elm$parser$Parser$Advanced$Done = function (a) {
+	return {$: 'Done', a: a};
+};
+var elm$parser$Parser$Advanced$Loop = function (a) {
+	return {$: 'Loop', a: a};
+};
+var elm$parser$Parser$Advanced$backtrackable = function (_n0) {
+	var parse = _n0.a;
+	return elm$parser$Parser$Advanced$Parser(
+		function (s0) {
+			var _n1 = parse(s0);
+			if (_n1.$ === 'Bad') {
+				var x = _n1.b;
+				return A2(elm$parser$Parser$Advanced$Bad, false, x);
+			} else {
+				var a = _n1.b;
+				var s1 = _n1.c;
+				return A3(elm$parser$Parser$Advanced$Good, false, a, s1);
+			}
+		});
+};
+var elm$parser$Parser$Advanced$end = function (x) {
+	return elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return _Utils_eq(
+				elm$core$String$length(s.src),
+				s.offset) ? A3(elm$parser$Parser$Advanced$Good, false, _Utils_Tuple0, s) : A2(
+				elm$parser$Parser$Advanced$Bad,
+				false,
+				A2(elm$parser$Parser$Advanced$fromState, s, x));
+		});
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$End = {$: 'End'};
+var mdgriffith$elm_markup$Mark$Internal$Error$Newline = {$: 'Newline'};
+var mdgriffith$elm_markup$Mark$Internal$Parser$newline = elm$parser$Parser$Advanced$token(
+	A2(elm$parser$Parser$Advanced$Token, '\n', mdgriffith$elm_markup$Mark$Internal$Error$Newline));
+var mdgriffith$elm_markup$Mark$Internal$Parser$indentedString = F2(
+	function (indentation, found) {
+		return elm$parser$Parser$Advanced$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					elm$parser$Parser$Advanced$ignorer,
+					elm$parser$Parser$Advanced$succeed(
+						elm$parser$Parser$Advanced$Done(found)),
+					elm$parser$Parser$Advanced$end(mdgriffith$elm_markup$Mark$Internal$Error$End)),
+					A2(
+					elm$parser$Parser$Advanced$keeper,
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(
+							function (extra) {
+								return elm$parser$Parser$Advanced$Loop(
+									extra ? (found + '\n\n') : (found + '\n'));
+							}),
+						mdgriffith$elm_markup$Mark$Internal$Parser$newline),
+					elm$parser$Parser$Advanced$oneOf(
+						_List_fromArray(
+							[
+								A2(
+								elm$parser$Parser$Advanced$ignorer,
+								A2(
+									elm$parser$Parser$Advanced$ignorer,
+									elm$parser$Parser$Advanced$succeed(true),
+									elm$parser$Parser$Advanced$backtrackable(
+										elm$parser$Parser$Advanced$chompWhile(
+											function (c) {
+												return _Utils_eq(
+													c,
+													_Utils_chr(' '));
+											}))),
+								elm$parser$Parser$Advanced$backtrackable(
+									elm$parser$Parser$Advanced$token(
+										A2(elm$parser$Parser$Advanced$Token, '\n', mdgriffith$elm_markup$Mark$Internal$Error$Newline)))),
+								elm$parser$Parser$Advanced$succeed(false)
+							]))),
+					(found === '') ? A2(
+					elm$parser$Parser$Advanced$keeper,
+					elm$parser$Parser$Advanced$succeed(
+						function (str) {
+							return elm$parser$Parser$Advanced$Loop(
+								_Utils_ap(found, str));
+						}),
+					elm$parser$Parser$Advanced$getChompedString(
+						elm$parser$Parser$Advanced$chompWhile(
+							function (c) {
+								return !_Utils_eq(
+									c,
+									_Utils_chr('\n'));
+							}))) : A2(
+					elm$parser$Parser$Advanced$keeper,
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(
+							function (str) {
+								return elm$parser$Parser$Advanced$Loop(
+									_Utils_ap(found, str));
+							}),
+						elm$parser$Parser$Advanced$token(
+							A2(
+								elm$parser$Parser$Advanced$Token,
+								A2(elm$core$String$repeat, indentation, ' '),
+								mdgriffith$elm_markup$Mark$Internal$Error$ExpectingIndentation(indentation)))),
+					elm$parser$Parser$Advanced$getChompedString(
+						elm$parser$Parser$Advanced$chompWhile(
+							function (c) {
+								return !_Utils_eq(
+									c,
+									_Utils_chr('\n'));
+							}))),
+					elm$parser$Parser$Advanced$succeed(
+					elm$parser$Parser$Advanced$Done(found))
+				]));
+	});
+var mdgriffith$elm_markup$Mark$string = mdgriffith$elm_markup$Mark$Internal$Description$Block(
+	{
+		converter: function (desc) {
+			if (desc.$ === 'DescribeString') {
+				var id = desc.a;
+				var range = desc.b;
+				var str = desc.c;
+				return mdgriffith$elm_markup$Mark$Internal$Outcome$Success(
+					elm$core$String$trim(str));
+			} else {
+				return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(mdgriffith$elm_markup$Mark$Internal$Error$NoMatch);
+			}
+		},
+		expect: mdgriffith$elm_markup$Mark$Internal$Description$ExpectString('REPLACE'),
+		kind: mdgriffith$elm_markup$Mark$Internal$Description$Value,
+		parser: F2(
+			function (context, seed) {
+				var _n1 = mdgriffith$elm_markup$Mark$Internal$Id$step(seed);
+				var id = _n1.a;
+				var newSeed = _n1.b;
+				return _Utils_Tuple2(
+					newSeed,
+					function () {
+						switch (context.$) {
+							case 'ParseInline':
+								return A2(
+									elm$parser$Parser$Advanced$keeper,
+									A2(
+										elm$parser$Parser$Advanced$keeper,
+										A2(
+											elm$parser$Parser$Advanced$keeper,
+											elm$parser$Parser$Advanced$succeed(
+												F3(
+													function (start, str, end) {
+														return A3(
+															mdgriffith$elm_markup$Mark$Internal$Description$DescribeString,
+															id,
+															{end: end, start: start},
+															elm$core$String$trim(str));
+													})),
+											mdgriffith$elm_markup$Mark$Internal$Parser$getPosition),
+										elm$parser$Parser$Advanced$getChompedString(
+											elm$parser$Parser$Advanced$chompWhile(
+												function (c) {
+													return (!_Utils_eq(
+														c,
+														_Utils_chr('\n'))) && ((!_Utils_eq(
+														c,
+														_Utils_chr(','))) && (!_Utils_eq(
+														c,
+														_Utils_chr('}'))));
+												}))),
+									mdgriffith$elm_markup$Mark$Internal$Parser$getPosition);
+							case 'ParseBlock':
+								return A2(
+									elm$parser$Parser$Advanced$map,
+									function (_n3) {
+										var pos = _n3.a;
+										var str = _n3.b;
+										return A3(mdgriffith$elm_markup$Mark$Internal$Description$DescribeString, id, pos, str);
+									},
+									mdgriffith$elm_markup$Mark$Internal$Parser$withRange(
+										mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+											function (indentation) {
+												return A2(
+													elm$parser$Parser$Advanced$loop,
+													'',
+													mdgriffith$elm_markup$Mark$Internal$Parser$indentedString(indentation));
+											})));
+							default:
+								return A2(
+									elm$parser$Parser$Advanced$map,
+									function (_n4) {
+										var pos = _n4.a;
+										var str = _n4.b;
+										return A3(mdgriffith$elm_markup$Mark$Internal$Description$DescribeString, id, pos, str);
+									},
+									mdgriffith$elm_markup$Mark$Internal$Parser$withRange(
+										mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+											function (indentation) {
+												return A2(
+													elm$parser$Parser$Advanced$loop,
+													'',
+													mdgriffith$elm_markup$Mark$Internal$Parser$indentedString(indentation));
+											})));
+						}
+					}());
+			})
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$ExpectRecord = F2(
+	function (a, b) {
+		return {$: 'ExpectRecord', a: a, b: b};
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$ParseInline = {$: 'ParseInline'};
+var mdgriffith$elm_markup$Mark$Internal$Id$threadThrough = F2(
+	function (current, _n0) {
+		var seed = _n0.a;
+		var past = _n0.b;
+		var _n1 = current(seed);
+		var newSeed = _n1.a;
+		var result = _n1.b;
+		return _Utils_Tuple2(
+			newSeed,
+			A2(elm$core$List$cons, result, past));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Id$thread = F2(
+	function (seed, steps) {
+		return A2(
+			elm$core$Tuple$mapSecond,
+			elm$core$List$reverse,
+			A3(
+				elm$core$List$foldl,
+				mdgriffith$elm_markup$Mark$Internal$Id$threadThrough,
+				_Utils_Tuple2(seed, _List_Nil),
+				steps));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$InlineRecord = {$: 'InlineRecord'};
+var elm$parser$Parser$Advanced$chompIf = F2(
+	function (isGood, expecting) {
+		return elm$parser$Parser$Advanced$Parser(
+			function (s) {
+				var newOffset = A3(elm$parser$Parser$Advanced$isSubChar, isGood, s.offset, s.src);
+				return _Utils_eq(newOffset, -1) ? A2(
+					elm$parser$Parser$Advanced$Bad,
+					false,
+					A2(elm$parser$Parser$Advanced$fromState, s, expecting)) : (_Utils_eq(newOffset, -2) ? A3(
+					elm$parser$Parser$Advanced$Good,
+					true,
+					_Utils_Tuple0,
+					{col: 1, context: s.context, indent: s.indent, offset: s.offset + 1, row: s.row + 1, src: s.src}) : A3(
+					elm$parser$Parser$Advanced$Good,
+					true,
+					_Utils_Tuple0,
+					{col: s.col + 1, context: s.context, indent: s.indent, offset: newOffset, row: s.row, src: s.src}));
+			});
+	});
+var elm$parser$Parser$Advanced$keyword = function (_n0) {
+	var kwd = _n0.a;
+	var expecting = _n0.b;
+	var progress = !elm$core$String$isEmpty(kwd);
+	return elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			var _n1 = A5(elm$parser$Parser$Advanced$isSubString, kwd, s.offset, s.row, s.col, s.src);
+			var newOffset = _n1.a;
+			var newRow = _n1.b;
+			var newCol = _n1.c;
+			return (_Utils_eq(newOffset, -1) || (0 <= A3(
+				elm$parser$Parser$Advanced$isSubChar,
+				function (c) {
+					return elm$core$Char$isAlphaNum(c) || _Utils_eq(
+						c,
+						_Utils_chr('_'));
+				},
+				newOffset,
+				s.src))) ? A2(
+				elm$parser$Parser$Advanced$Bad,
+				false,
+				A2(elm$parser$Parser$Advanced$fromState, s, expecting)) : A3(
+				elm$parser$Parser$Advanced$Good,
+				progress,
+				_Utils_Tuple0,
+				{col: newCol, context: s.context, indent: s.indent, offset: newOffset, row: newRow, src: s.src});
+		});
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$Record = function (a) {
+	return {$: 'Record', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$Unexpected = function (a) {
+	return {$: 'Unexpected', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$Expecting = function (a) {
+	return {$: 'Expecting', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$backtrackCharacters = F2(
+	function (chars, range) {
+		return {
+			end: range.end,
+			start: {column: range.start.column - chars, line: range.start.line, offset: range.start.offset - chars}
+		};
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$ExpectingIndent = function (a) {
+	return {$: 'ExpectingIndent', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$UnexpectedField = function (a) {
+	return {$: 'UnexpectedField', a: a};
+};
+var elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$ExpectingFieldName = function (a) {
+	return {$: 'ExpectingFieldName', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$parseField = function (_n0) {
+	var name = _n0.a;
+	var contentParser = _n0.b;
+	return A2(
+		elm$parser$Parser$Advanced$keeper,
+		A2(
+			elm$parser$Parser$Advanced$ignorer,
+			A2(
+				elm$parser$Parser$Advanced$ignorer,
+				A2(
+					elm$parser$Parser$Advanced$ignorer,
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+						elm$parser$Parser$Advanced$keyword(
+							A2(
+								elm$parser$Parser$Advanced$Token,
+								name,
+								mdgriffith$elm_markup$Mark$Internal$Error$ExpectingFieldName(name)))),
+					elm$parser$Parser$Advanced$chompWhile(
+						function (c) {
+							return _Utils_eq(
+								c,
+								_Utils_chr(' '));
+						})),
+				A2(
+					elm$parser$Parser$Advanced$chompIf,
+					function (c) {
+						return _Utils_eq(
+							c,
+							_Utils_chr('='));
+					},
+					mdgriffith$elm_markup$Mark$Internal$Error$Expecting('='))),
+			elm$parser$Parser$Advanced$chompWhile(
+				function (c) {
+					return _Utils_eq(
+						c,
+						_Utils_chr(' '));
+				})),
+		contentParser);
+};
+var elm$parser$Parser$Advanced$getSource = elm$parser$Parser$Advanced$Parser(
+	function (s) {
+		return A3(elm$parser$Parser$Advanced$Good, false, s.src, s);
+	});
+var elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return elm$core$Maybe$Just(x);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
+var elm$core$String$lines = _String_lines;
+var mdgriffith$elm_markup$Mark$Internal$Parser$sliceRange = F2(
+	function (range, source) {
+		if (_Utils_eq(range.start.line, range.end.line)) {
+			var lineStart = range.start.offset - (range.start.column - 1);
+			return A2(
+				elm$core$Maybe$withDefault,
+				'',
+				elm$core$List$head(
+					elm$core$String$lines(
+						A3(elm$core$String$slice, lineStart, range.end.offset + 20, source))));
+		} else {
+			var snippet = A3(elm$core$String$slice, range.start.offset, range.end.offset, source);
+			var indented = A3(elm$core$String$slice, (range.start.offset + 1) - range.start.column, range.start.offset, source);
+			return _Utils_ap(indented, snippet);
+		}
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$getRangeAndSource = function (parser) {
+	return A2(
+		elm$parser$Parser$Advanced$keeper,
+		A2(
+			elm$parser$Parser$Advanced$keeper,
+			A2(
+				elm$parser$Parser$Advanced$keeper,
+				A2(
+					elm$parser$Parser$Advanced$keeper,
+					elm$parser$Parser$Advanced$succeed(
+						F4(
+							function (src, start, result, end) {
+								var range = {end: end, start: start};
+								return {
+									range: range,
+									source: A2(mdgriffith$elm_markup$Mark$Internal$Parser$sliceRange, range, src),
+									value: result
+								};
+							})),
+					elm$parser$Parser$Advanced$getSource),
+				mdgriffith$elm_markup$Mark$Internal$Parser$getPosition),
+			parser),
+		mdgriffith$elm_markup$Mark$Internal$Parser$getPosition);
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$unexpectedField = F2(
+	function (recordName, options) {
+		return mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+			function (indentation) {
+				return A2(
+					elm$parser$Parser$Advanced$map,
+					function (_n0) {
+						var range = _n0.range;
+						var value = _n0.value;
+						return _Utils_Tuple2(
+							value,
+							mdgriffith$elm_markup$Mark$Internal$Description$Unexpected(
+								{
+									problem: mdgriffith$elm_markup$Mark$Internal$Error$UnexpectedField(
+										{found: value, options: options, recordName: recordName}),
+									range: range
+								}));
+					},
+					mdgriffith$elm_markup$Mark$Internal$Parser$getRangeAndSource(
+						A2(
+							elm$parser$Parser$Advanced$keeper,
+							elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+							A2(
+								elm$parser$Parser$Advanced$ignorer,
+								A2(
+									elm$parser$Parser$Advanced$ignorer,
+									A2(
+										elm$parser$Parser$Advanced$ignorer,
+										A2(
+											elm$parser$Parser$Advanced$ignorer,
+											elm$parser$Parser$Advanced$getChompedString(
+												elm$parser$Parser$Advanced$chompWhile(elm$core$Char$isAlphaNum)),
+											elm$parser$Parser$Advanced$chompWhile(
+												function (c) {
+													return _Utils_eq(
+														c,
+														_Utils_chr(' '));
+												})),
+										A2(
+											elm$parser$Parser$Advanced$chompIf,
+											function (c) {
+												return _Utils_eq(
+													c,
+													_Utils_chr('='));
+											},
+											mdgriffith$elm_markup$Mark$Internal$Error$Expecting('='))),
+									elm$parser$Parser$Advanced$chompWhile(
+										function (c) {
+											return _Utils_eq(
+												c,
+												_Utils_chr(' '));
+										})),
+								A2(
+									elm$parser$Parser$Advanced$withIndent,
+									indentation + 4,
+									elm$parser$Parser$Advanced$getChompedString(
+										elm$parser$Parser$Advanced$chompWhile(
+											function (c) {
+												return !_Utils_eq(
+													c,
+													_Utils_chr('\n'));
+											})))))));
+			});
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$captureField = F4(
+	function (found, recordName, fields, fieldNames) {
+		return A2(
+			elm$parser$Parser$Advanced$map,
+			function (maybeField) {
+				if (maybeField.$ === 'Nothing') {
+					return elm$parser$Parser$Advanced$Loop(fields);
+				} else {
+					var _n1 = maybeField.a;
+					var foundFieldname = _n1.a;
+					var fieldValue = _n1.b;
+					if (fieldValue.$ === 'Found') {
+						return elm$parser$Parser$Advanced$Loop(
+							{
+								found: elm$core$Result$Ok(
+									A2(
+										elm$core$List$cons,
+										_Utils_Tuple2(foundFieldname, fieldValue),
+										found)),
+								remaining: A2(
+									elm$core$List$filter,
+									function (_n3) {
+										var fieldParserName = _n3.a;
+										return !_Utils_eq(fieldParserName, foundFieldname);
+									},
+									fields.remaining)
+							});
+					} else {
+						var unexpected = fieldValue.a;
+						return elm$parser$Parser$Advanced$Loop(
+							{
+								found: elm$core$Result$Err(
+									_Utils_Tuple2(
+										elm$core$Maybe$Just(unexpected.range),
+										unexpected.problem)),
+								remaining: A2(
+									elm$core$List$filter,
+									function (_n4) {
+										var fieldParserName = _n4.a;
+										return !_Utils_eq(fieldParserName, foundFieldname);
+									},
+									fields.remaining)
+							});
+					}
+				}
+			},
+			elm$parser$Parser$Advanced$oneOf(
+				_Utils_ap(
+					A2(
+						elm$core$List$map,
+						A2(
+							elm$core$Basics$composeL,
+							elm$parser$Parser$Advanced$map(elm$core$Maybe$Just),
+							mdgriffith$elm_markup$Mark$Internal$Parser$parseField),
+						fields.remaining),
+					_List_fromArray(
+						[
+							A2(
+							elm$parser$Parser$Advanced$map,
+							elm$core$Maybe$Just,
+							A2(mdgriffith$elm_markup$Mark$Internal$Parser$unexpectedField, recordName, fieldNames))
+						]))));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$Space = {$: 'Space'};
+var mdgriffith$elm_markup$Mark$Internal$Parser$EmptyLine = {$: 'EmptyLine'};
+var mdgriffith$elm_markup$Mark$Internal$Parser$Indented = function (a) {
+	return {$: 'Indented', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$WeirdIndent = function (a) {
+	return {$: 'WeirdIndent', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$newlineWith = function (x) {
+	return elm$parser$Parser$Advanced$token(
+		A2(
+			elm$parser$Parser$Advanced$Token,
+			'\n',
+			mdgriffith$elm_markup$Mark$Internal$Error$Expecting(x)));
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$indentOrSkip = F2(
+	function (indentation, successParser) {
+		return elm$parser$Parser$Advanced$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					elm$parser$Parser$Advanced$keeper,
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+						elm$parser$Parser$Advanced$token(
+							A2(
+								elm$parser$Parser$Advanced$Token,
+								A2(elm$core$String$repeat, indentation, ' '),
+								mdgriffith$elm_markup$Mark$Internal$Error$ExpectingIndentation(indentation)))),
+					elm$parser$Parser$Advanced$oneOf(
+						_List_fromArray(
+							[
+								A2(
+								elm$parser$Parser$Advanced$map,
+								elm$core$Basics$always(mdgriffith$elm_markup$Mark$Internal$Parser$EmptyLine),
+								mdgriffith$elm_markup$Mark$Internal$Parser$newline),
+								A2(
+								elm$parser$Parser$Advanced$keeper,
+								A2(
+									elm$parser$Parser$Advanced$keeper,
+									A2(
+										elm$parser$Parser$Advanced$ignorer,
+										elm$parser$Parser$Advanced$succeed(
+											F2(
+												function (foundIndent, content) {
+													return (content !== '') ? mdgriffith$elm_markup$Mark$Internal$Parser$WeirdIndent(
+														elm$core$String$length(foundIndent)) : mdgriffith$elm_markup$Mark$Internal$Parser$EmptyLine;
+												})),
+										A2(
+											elm$parser$Parser$Advanced$chompIf,
+											function (c) {
+												return _Utils_eq(
+													c,
+													_Utils_chr(' '));
+											},
+											mdgriffith$elm_markup$Mark$Internal$Error$Space)),
+									elm$parser$Parser$Advanced$getChompedString(
+										elm$parser$Parser$Advanced$chompWhile(
+											function (c) {
+												return _Utils_eq(
+													c,
+													_Utils_chr(' '));
+											}))),
+								A2(
+									elm$parser$Parser$Advanced$ignorer,
+									elm$parser$Parser$Advanced$getChompedString(
+										elm$parser$Parser$Advanced$chompWhile(
+											function (c) {
+												return !_Utils_eq(
+													c,
+													_Utils_chr('\n'));
+											})),
+									mdgriffith$elm_markup$Mark$Internal$Parser$newlineWith('indentOrSkip one'))),
+								A2(
+								elm$parser$Parser$Advanced$keeper,
+								elm$parser$Parser$Advanced$succeed(mdgriffith$elm_markup$Mark$Internal$Parser$Indented),
+								A2(
+									elm$parser$Parser$Advanced$ignorer,
+									successParser,
+									elm$parser$Parser$Advanced$chompWhile(
+										function (c) {
+											return _Utils_eq(
+												c,
+												_Utils_chr('\n'));
+										})))
+							]))),
+					A2(
+					elm$parser$Parser$Advanced$keeper,
+					A2(
+						elm$parser$Parser$Advanced$keeper,
+						elm$parser$Parser$Advanced$succeed(
+							F2(
+								function (foundIndent, hasContent) {
+									return hasContent ? mdgriffith$elm_markup$Mark$Internal$Parser$WeirdIndent(
+										elm$core$String$length(foundIndent)) : mdgriffith$elm_markup$Mark$Internal$Parser$EmptyLine;
+								})),
+						elm$parser$Parser$Advanced$getChompedString(
+							elm$parser$Parser$Advanced$chompWhile(
+								function (c) {
+									return _Utils_eq(
+										c,
+										_Utils_chr(' '));
+								}))),
+					elm$parser$Parser$Advanced$oneOf(
+						_List_fromArray(
+							[
+								A2(
+								elm$parser$Parser$Advanced$map,
+								elm$core$Basics$always(false),
+								mdgriffith$elm_markup$Mark$Internal$Parser$newline),
+								A2(
+								elm$parser$Parser$Advanced$ignorer,
+								A2(
+									elm$parser$Parser$Advanced$ignorer,
+									elm$parser$Parser$Advanced$succeed(true),
+									elm$parser$Parser$Advanced$getChompedString(
+										elm$parser$Parser$Advanced$chompWhile(
+											function (c) {
+												return !_Utils_eq(
+													c,
+													_Utils_chr('\n'));
+											}))),
+								mdgriffith$elm_markup$Mark$Internal$Parser$newline)
+							])))
+				]));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$indentationBetween = F2(
+	function (lower, higher) {
+		var top = A2(elm$core$Basics$max, lower, higher);
+		var bottom = A2(elm$core$Basics$min, lower, higher);
+		return elm$core$List$reverse(
+			A2(
+				elm$core$List$map,
+				function (numSpaces) {
+					return A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(numSpaces),
+						elm$parser$Parser$Advanced$token(
+							A2(
+								elm$parser$Parser$Advanced$Token,
+								A2(elm$core$String$repeat, numSpaces, ' '),
+								mdgriffith$elm_markup$Mark$Internal$Error$ExpectingIndentation(numSpaces))));
+				},
+				A2(elm$core$List$range, bottom, top)));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$raggedIndentedStringAbove = F2(
+	function (indentation, found) {
+		return elm$parser$Parser$Advanced$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					elm$parser$Parser$Advanced$keeper,
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(
+							function (extra) {
+								return elm$parser$Parser$Advanced$Loop(
+									extra ? (found + '\n\n') : (found + '\n'));
+							}),
+						elm$parser$Parser$Advanced$token(
+							A2(elm$parser$Parser$Advanced$Token, '\n', mdgriffith$elm_markup$Mark$Internal$Error$Newline))),
+					elm$parser$Parser$Advanced$oneOf(
+						_List_fromArray(
+							[
+								A2(
+								elm$parser$Parser$Advanced$ignorer,
+								A2(
+									elm$parser$Parser$Advanced$ignorer,
+									elm$parser$Parser$Advanced$succeed(true),
+									elm$parser$Parser$Advanced$backtrackable(
+										elm$parser$Parser$Advanced$chompWhile(
+											function (c) {
+												return _Utils_eq(
+													c,
+													_Utils_chr(' '));
+											}))),
+								elm$parser$Parser$Advanced$backtrackable(
+									elm$parser$Parser$Advanced$token(
+										A2(elm$parser$Parser$Advanced$Token, '\n', mdgriffith$elm_markup$Mark$Internal$Error$Newline)))),
+								elm$parser$Parser$Advanced$succeed(false)
+							]))),
+					A2(
+					elm$parser$Parser$Advanced$keeper,
+					A2(
+						elm$parser$Parser$Advanced$keeper,
+						elm$parser$Parser$Advanced$succeed(
+							F2(
+								function (indentCount, str) {
+									return (indentCount <= 0) ? elm$parser$Parser$Advanced$Done(found) : elm$parser$Parser$Advanced$Loop(
+										_Utils_ap(
+											found,
+											_Utils_ap(
+												A2(elm$core$String$repeat, indentCount, ' '),
+												str)));
+								})),
+						elm$parser$Parser$Advanced$oneOf(
+							A2(mdgriffith$elm_markup$Mark$Internal$Parser$indentationBetween, indentation + 1, indentation + 4))),
+					elm$parser$Parser$Advanced$getChompedString(
+						elm$parser$Parser$Advanced$chompWhile(
+							function (c) {
+								return !_Utils_eq(
+									c,
+									_Utils_chr('\n'));
+							}))),
+					elm$parser$Parser$Advanced$succeed(
+					elm$parser$Parser$Advanced$Done(found))
+				]));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$parseFields = F3(
+	function (recordName, fieldNames, fields) {
+		var _n0 = fields.remaining;
+		if (!_n0.b) {
+			return mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+				function (indentation) {
+					return A2(
+						elm$parser$Parser$Advanced$keeper,
+						elm$parser$Parser$Advanced$succeed(
+							function (remaining) {
+								return (elm$core$String$trim(remaining) === '') ? elm$parser$Parser$Advanced$Done(fields.found) : elm$parser$Parser$Advanced$Done(
+									elm$core$Result$Err(
+										_Utils_Tuple2(
+											elm$core$Maybe$Nothing,
+											mdgriffith$elm_markup$Mark$Internal$Error$UnexpectedField(
+												{
+													found: elm$core$String$trim(remaining),
+													options: fieldNames,
+													recordName: recordName
+												}))));
+							}),
+						elm$parser$Parser$Advanced$oneOf(
+							_List_fromArray(
+								[
+									A2(
+									elm$parser$Parser$Advanced$keeper,
+									A2(
+										elm$parser$Parser$Advanced$ignorer,
+										elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+										elm$parser$Parser$Advanced$token(
+											A2(
+												elm$parser$Parser$Advanced$Token,
+												A2(elm$core$String$repeat, indentation, ' '),
+												mdgriffith$elm_markup$Mark$Internal$Error$ExpectingIndentation(indentation)))),
+									elm$parser$Parser$Advanced$getChompedString(
+										elm$parser$Parser$Advanced$chompWhile(
+											function (c) {
+												return !_Utils_eq(
+													c,
+													_Utils_chr('\n'));
+											}))),
+									elm$parser$Parser$Advanced$succeed('')
+								])));
+				});
+		} else {
+			var _n1 = fields.found;
+			if (_n1.$ === 'Ok') {
+				var found = _n1.a;
+				return mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+					function (indentation) {
+						return elm$parser$Parser$Advanced$oneOf(
+							_List_fromArray(
+								[
+									A2(
+									elm$parser$Parser$Advanced$map,
+									function (indentedField) {
+										switch (indentedField.$) {
+											case 'Indented':
+												var thing = indentedField.a;
+												return thing;
+											case 'EmptyLine':
+												return elm$parser$Parser$Advanced$Loop(fields);
+											default:
+												var i = indentedField.a;
+												return elm$parser$Parser$Advanced$Loop(
+													{
+														found: elm$core$Result$Err(
+															_Utils_Tuple2(
+																elm$core$Maybe$Nothing,
+																mdgriffith$elm_markup$Mark$Internal$Error$ExpectingIndent(indentation))),
+														remaining: fields.remaining
+													});
+										}
+									},
+									A2(
+										mdgriffith$elm_markup$Mark$Internal$Parser$indentOrSkip,
+										indentation,
+										A4(mdgriffith$elm_markup$Mark$Internal$Parser$captureField, found, recordName, fields, fieldNames))),
+									elm$parser$Parser$Advanced$succeed(
+									elm$parser$Parser$Advanced$Done(
+										elm$core$Result$Err(
+											_Utils_Tuple2(
+												elm$core$Maybe$Nothing,
+												mdgriffith$elm_markup$Mark$Internal$Error$MissingFields(
+													A2(elm$core$List$map, elm$core$Tuple$first, fields.remaining))))))
+								]));
+					});
+			} else {
+				var unexpected = _n1.a;
+				return mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+					function (indentation) {
+						return A2(
+							elm$parser$Parser$Advanced$ignorer,
+							elm$parser$Parser$Advanced$succeed(
+								elm$parser$Parser$Advanced$Done(fields.found)),
+							A2(
+								elm$parser$Parser$Advanced$loop,
+								'',
+								mdgriffith$elm_markup$Mark$Internal$Parser$raggedIndentedStringAbove(indentation - 4)));
+					});
+			}
+		}
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$parseInlineFields = F3(
+	function (recordName, fieldNames, fields) {
+		var hasMore = function () {
+			var _n2 = fields.remaining;
+			if (!_n2.b) {
+				return false;
+			} else {
+				if (!_n2.b.b) {
+					var fst = _n2.a;
+					return false;
+				} else {
+					return true;
+				}
+			}
+		}();
+		var _n0 = fields.remaining;
+		if (!_n0.b) {
+			return A2(
+				elm$parser$Parser$Advanced$keeper,
+				elm$parser$Parser$Advanced$succeed(
+					function (remaining) {
+						return (elm$core$String$trim(remaining) === '') ? elm$parser$Parser$Advanced$Done(fields.found) : elm$parser$Parser$Advanced$Done(
+							elm$core$Result$Err(
+								_Utils_Tuple2(
+									elm$core$Maybe$Nothing,
+									mdgriffith$elm_markup$Mark$Internal$Error$UnexpectedField(
+										{
+											found: elm$core$String$trim(remaining),
+											options: fieldNames,
+											recordName: recordName
+										}))));
+					}),
+				elm$parser$Parser$Advanced$oneOf(
+					_List_fromArray(
+						[
+							elm$parser$Parser$Advanced$getChompedString(
+							elm$parser$Parser$Advanced$chompWhile(
+								function (c) {
+									return !_Utils_eq(
+										c,
+										_Utils_chr('}'));
+								})),
+							elm$parser$Parser$Advanced$succeed('')
+						])));
+		} else {
+			var _n1 = fields.found;
+			if (_n1.$ === 'Ok') {
+				var found = _n1.a;
+				return elm$parser$Parser$Advanced$oneOf(
+					_List_fromArray(
+						[
+							A2(
+							elm$parser$Parser$Advanced$keeper,
+							A2(
+								elm$parser$Parser$Advanced$ignorer,
+								elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+								elm$parser$Parser$Advanced$chompWhile(
+									function (c) {
+										return _Utils_eq(
+											c,
+											_Utils_chr(' '));
+									})),
+							A2(
+								elm$parser$Parser$Advanced$ignorer,
+								A2(
+									elm$parser$Parser$Advanced$ignorer,
+									A4(mdgriffith$elm_markup$Mark$Internal$Parser$captureField, found, recordName, fields, fieldNames),
+									elm$parser$Parser$Advanced$chompWhile(
+										function (c) {
+											return _Utils_eq(
+												c,
+												_Utils_chr(' '));
+										})),
+								hasMore ? elm$parser$Parser$Advanced$token(
+									A2(
+										elm$parser$Parser$Advanced$Token,
+										',',
+										mdgriffith$elm_markup$Mark$Internal$Error$Expecting(','))) : elm$parser$Parser$Advanced$succeed(_Utils_Tuple0))),
+							elm$parser$Parser$Advanced$succeed(
+							elm$parser$Parser$Advanced$Done(
+								elm$core$Result$Err(
+									_Utils_Tuple2(
+										elm$core$Maybe$Nothing,
+										mdgriffith$elm_markup$Mark$Internal$Error$MissingFields(
+											A2(elm$core$List$map, elm$core$Tuple$first, fields.remaining))))))
+						]));
+			} else {
+				var unexpected = _n1.a;
+				return A2(
+					elm$parser$Parser$Advanced$ignorer,
+					elm$parser$Parser$Advanced$succeed(
+						elm$parser$Parser$Advanced$Done(fields.found)),
+					elm$parser$Parser$Advanced$chompWhile(
+						function (c) {
+							return !_Utils_eq(
+								c,
+								_Utils_chr('}'));
+						}));
+			}
+		}
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$withRangeResult = function (parser) {
+	return A2(
+		elm$parser$Parser$Advanced$keeper,
+		A2(
+			elm$parser$Parser$Advanced$keeper,
+			A2(
+				elm$parser$Parser$Advanced$keeper,
+				elm$parser$Parser$Advanced$succeed(
+					F3(
+						function (start, result, end) {
+							if (result.$ === 'Ok') {
+								var val = result.a;
+								return elm$core$Result$Ok(
+									{
+										range: {end: end, start: start},
+										value: val
+									});
+							} else {
+								var err = result.a;
+								var range = {end: end, start: start};
+								return elm$core$Result$Err(
+									{error: err, range: range});
+							}
+						})),
+				mdgriffith$elm_markup$Mark$Internal$Parser$getPosition),
+			parser),
+		mdgriffith$elm_markup$Mark$Internal$Parser$getPosition);
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$record = F5(
+	function (recordType, id, recordName, expectations, fields) {
+		return A2(
+			elm$parser$Parser$Advanced$keeper,
+			elm$parser$Parser$Advanced$succeed(
+				function (result) {
+					if (result.$ === 'Ok') {
+						var details = result.a;
+						return mdgriffith$elm_markup$Mark$Internal$Description$Record(
+							{
+								expected: expectations,
+								found: A2(
+									mdgriffith$elm_markup$Mark$Internal$Description$Found,
+									A2(mdgriffith$elm_markup$Mark$Internal$Parser$backtrackCharacters, 2, details.range),
+									details.value),
+								id: id,
+								name: recordName
+							});
+					} else {
+						var err = result.a;
+						return mdgriffith$elm_markup$Mark$Internal$Description$Record(
+							{
+								expected: expectations,
+								found: mdgriffith$elm_markup$Mark$Internal$Description$Unexpected(
+									{
+										problem: err.error.b,
+										range: A2(
+											elm$core$Maybe$withDefault,
+											A2(mdgriffith$elm_markup$Mark$Internal$Parser$backtrackCharacters, 2, err.range),
+											err.error.a)
+									}),
+								id: id,
+								name: recordName
+							});
+					}
+				}),
+			mdgriffith$elm_markup$Mark$Internal$Parser$withRangeResult(
+				mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+					function (indentation) {
+						return A2(
+							elm$parser$Parser$Advanced$keeper,
+							A2(
+								elm$parser$Parser$Advanced$ignorer,
+								A2(
+									elm$parser$Parser$Advanced$ignorer,
+									elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+									elm$parser$Parser$Advanced$keyword(
+										A2(
+											elm$parser$Parser$Advanced$Token,
+											recordName,
+											mdgriffith$elm_markup$Mark$Internal$Error$ExpectingBlockName(recordName)))),
+								elm$parser$Parser$Advanced$chompWhile(
+									function (c) {
+										return _Utils_eq(
+											c,
+											_Utils_chr(' '));
+									})),
+							elm$core$List$isEmpty(fields) ? elm$parser$Parser$Advanced$succeed(
+								elm$core$Result$Ok(_List_Nil)) : A2(
+								elm$parser$Parser$Advanced$keeper,
+								A2(
+									elm$parser$Parser$Advanced$ignorer,
+									elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+									function () {
+										if (recordType.$ === 'InlineRecord') {
+											return A2(
+												elm$parser$Parser$Advanced$chompIf,
+												function (c) {
+													return _Utils_eq(
+														c,
+														_Utils_chr('|'));
+												},
+												mdgriffith$elm_markup$Mark$Internal$Error$Expecting('bar'));
+										} else {
+											return A2(
+												elm$parser$Parser$Advanced$chompIf,
+												function (c) {
+													return _Utils_eq(
+														c,
+														_Utils_chr('\n'));
+												},
+												mdgriffith$elm_markup$Mark$Internal$Error$Newline);
+										}
+									}()),
+								function () {
+									if (recordType.$ === 'InlineRecord') {
+										return A2(
+											elm$parser$Parser$Advanced$loop,
+											{
+												found: elm$core$Result$Ok(_List_Nil),
+												remaining: fields
+											},
+											A2(
+												mdgriffith$elm_markup$Mark$Internal$Parser$parseInlineFields,
+												recordName,
+												A2(elm$core$List$map, elm$core$Tuple$first, fields)));
+									} else {
+										return A2(
+											elm$parser$Parser$Advanced$withIndent,
+											indentation + 4,
+											A2(
+												elm$parser$Parser$Advanced$loop,
+												{
+													found: elm$core$Result$Ok(_List_Nil),
+													remaining: fields
+												},
+												A2(
+													mdgriffith$elm_markup$Mark$Internal$Parser$parseFields,
+													recordName,
+													A2(elm$core$List$map, elm$core$Tuple$first, fields))));
+									}
+								}()));
+					})));
+	});
+var mdgriffith$elm_markup$Mark$recordToInlineBlock = F2(
+	function (_n0, annotationType) {
+		var details = _n0.a;
+		var expectations = A2(mdgriffith$elm_markup$Mark$Internal$Description$ExpectRecord, details.name, details.expectations);
+		return mdgriffith$elm_markup$Mark$Internal$Description$Block(
+			{
+				converter: function (desc) {
+					var _n1 = A2(details.fieldConverter, desc, annotationType);
+					switch (_n1.$) {
+						case 'Success':
+							var _n2 = _n1.a;
+							var pos = _n2.a;
+							var fieldDescriptions = _n2.b;
+							var rendered = _n2.c;
+							return mdgriffith$elm_markup$Mark$Internal$Outcome$Success(rendered);
+						case 'Failure':
+							var fail = _n1.a;
+							return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(fail);
+						default:
+							if (_n1.a.$ === 'Uncertain') {
+								var e = _n1.a.a;
+								return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+									mdgriffith$elm_markup$Mark$Internal$Description$Uncertain(e));
+							} else {
+								var _n3 = _n1.a;
+								var e = _n3.a;
+								var _n4 = _n3.b;
+								var pos = _n4.a;
+								var fieldDescriptions = _n4.b;
+								var rendered = _n4.c;
+								return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+									A2(mdgriffith$elm_markup$Mark$Internal$Description$Recovered, e, rendered));
+							}
+					}
+				},
+				expect: expectations,
+				kind: details.blockKind,
+				parser: F2(
+					function (context, seed) {
+						var _n5 = mdgriffith$elm_markup$Mark$Internal$Id$step(seed);
+						var parentId = _n5.a;
+						var parentSeed = _n5.b;
+						var _n6 = A2(
+							mdgriffith$elm_markup$Mark$Internal$Id$thread,
+							parentSeed,
+							A3(
+								elm$core$List$foldl,
+								F2(
+									function (f, ls) {
+										return A2(
+											elm$core$List$cons,
+											f(mdgriffith$elm_markup$Mark$Internal$Description$ParseInline),
+											ls);
+									}),
+								_List_Nil,
+								details.fields));
+						var newSeed = _n6.a;
+						var fields = _n6.b;
+						return _Utils_Tuple2(
+							newSeed,
+							A5(mdgriffith$elm_markup$Mark$Internal$Parser$record, mdgriffith$elm_markup$Mark$Internal$Parser$InlineRecord, parentId, details.name, expectations, fields));
+					})
+			});
+	});
+var mdgriffith$elm_markup$Mark$matchKinds = F2(
+	function (inline, blockKind) {
+		var recordName = function () {
+			var _n2 = inline.record;
+			if (_n2.$ === 'Record') {
+				var rec = _n2.a;
+				return elm$core$Maybe$Just(rec.name);
+			} else {
+				return elm$core$Maybe$Nothing;
+			}
+		}();
+		var _n0 = _Utils_Tuple3(recordName, inline.kind, blockKind);
+		_n0$3:
+		while (true) {
+			if (_n0.a.$ === 'Just') {
+				switch (_n0.b.$) {
+					case 'SelectString':
+						if (_n0.c.$ === 'VerbatimNamed') {
+							var inlineName = _n0.a.a;
+							var str = _n0.b.a;
+							var vertName = _n0.c.a;
+							return _Utils_eq(inlineName, vertName);
+						} else {
+							break _n0$3;
+						}
+					case 'SelectText':
+						if (_n0.c.$ === 'AnnotationNamed') {
+							var inlineName = _n0.a.a;
+							var annName = _n0.c.a;
+							return _Utils_eq(inlineName, annName);
+						} else {
+							break _n0$3;
+						}
+					default:
+						if (_n0.c.$ === 'Named') {
+							var inlineName = _n0.a.a;
+							var _n1 = _n0.b;
+							var name = _n0.c.a;
+							return _Utils_eq(inlineName, name);
+						} else {
+							break _n0$3;
+						}
+				}
+			} else {
+				break _n0$3;
+			}
+		}
+		return false;
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$EmptyAnnotation = {$: 'EmptyAnnotation'};
+var mdgriffith$elm_markup$Mark$Internal$Description$Text = F2(
+	function (a, b) {
+		return {$: 'Text', a: a, b: b};
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$emptyStyles = {bold: false, italic: false, strike: false};
+var mdgriffith$elm_markup$Mark$Internal$Description$startingCharacters = F2(
+	function (one, two) {
+		var strikeOpening = ((!one.strike) && two.strike) ? '~' : '';
+		var strikeClosing = (one.strike && (!two.strike)) ? '~' : '';
+		var italicOpening = ((!one.italic) && two.italic) ? '/' : '';
+		var italicClosing = (one.italic && (!two.italic)) ? '/' : '';
+		var boldOpening = ((!one.bold) && two.bold) ? '*' : '';
+		var boldClosing = (one.bold && (!two.bold)) ? '*' : '';
+		return _Utils_ap(
+			boldClosing,
+			_Utils_ap(
+				italicClosing,
+				_Utils_ap(
+					strikeClosing,
+					_Utils_ap(
+						strikeOpening,
+						_Utils_ap(italicOpening, boldOpening)))));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$gatherText = F2(
+	function (_n0, _n1) {
+		var styles = _n0.a;
+		var txt = _n0.b;
+		var existingStyles = _n1.a;
+		var existingStr = _n1.b;
+		return _Utils_Tuple2(
+			styles,
+			_Utils_ap(
+				existingStr,
+				_Utils_ap(
+					A2(mdgriffith$elm_markup$Mark$Internal$Description$startingCharacters, existingStyles, styles),
+					txt)));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$inlineExample = F2(
+	function (kind, _n0) {
+		var block = _n0.a;
+		var selection = function () {
+			switch (kind.$) {
+				case 'EmptyAnnotation':
+					return '';
+				case 'SelectText':
+					var txts = kind.a;
+					var _n5 = A2(
+						mdgriffith$elm_markup$Mark$Internal$Description$gatherText,
+						A2(mdgriffith$elm_markup$Mark$Internal$Description$Text, mdgriffith$elm_markup$Mark$Internal$Description$emptyStyles, ''),
+						A3(
+							elm$core$List$foldl,
+							mdgriffith$elm_markup$Mark$Internal$Description$gatherText,
+							_Utils_Tuple2(mdgriffith$elm_markup$Mark$Internal$Description$emptyStyles, ''),
+							txts));
+					var newStyles = _n5.a;
+					var renderedText = _n5.b;
+					return renderedText;
+				default:
+					var str = kind.a;
+					return str;
+			}
+		}();
+		var renderField = function (_n3) {
+			var name = _n3.a;
+			var contentBlock = _n3.b;
+			return name + (' = ' + 'value');
+		};
+		var containerAsString = function () {
+			var _n2 = block.expect;
+			if (_n2.$ === 'ExpectRecord') {
+				if (!_n2.b.b) {
+					var name = _n2.a;
+					return '{' + (name + '}');
+				} else {
+					var name = _n2.a;
+					var fields = _n2.b;
+					return '{' + (name + ('| ' + (A2(
+						elm$core$String$join,
+						', ',
+						A2(elm$core$List$map, renderField, fields)) + ' }')));
+				}
+			} else {
+				return '';
+			}
+		}();
+		var _n1 = block.kind;
+		switch (_n1.$) {
+			case 'Named':
+				var name = _n1.a;
+				return containerAsString;
+			case 'Value':
+				return containerAsString;
+			case 'VerbatimNamed':
+				var str = _n1.a;
+				return '`' + (selection + ('`' + containerAsString));
+			default:
+				var name = _n1.a;
+				return '[' + (selection + (']' + containerAsString));
+		}
+	});
+var elm$core$List$sum = function (numbers) {
+	return A3(elm$core$List$foldl, elm$core$Basics$add, 0, numbers);
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$textLength = function (_n0) {
+	var str = _n0.b;
+	return elm$core$String$length(str);
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$length = function (inlineEl) {
+	if (inlineEl.$ === 'Styled') {
+		var txt = inlineEl.b;
+		return mdgriffith$elm_markup$Mark$Internal$Description$textLength(txt);
+	} else {
+		var details = inlineEl.a;
+		var _n1 = details.kind;
+		switch (_n1.$) {
+			case 'EmptyAnnotation':
+				return 0;
+			case 'SelectString':
+				var str = _n1.a;
+				return elm$core$String$length(str);
+			default:
+				var txts = _n1.a;
+				return elm$core$List$sum(
+					A2(elm$core$List$map, mdgriffith$elm_markup$Mark$Internal$Description$textLength, txts));
+		}
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$mergeErrors = F2(
+	function (_n0, _n1) {
+		var h1 = _n0.a;
+		var r1 = _n0.b;
+		var h2 = _n1.a;
+		var r2 = _n1.b;
+		return _Utils_Tuple2(
+			h1,
+			_Utils_ap(
+				r1,
+				A2(elm$core$List$cons, h2, r2)));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$mergeWith = F3(
+	function (fn, one, two) {
+		var _n0 = _Utils_Tuple2(one, two);
+		_n0$3:
+		while (true) {
+			_n0$4:
+			while (true) {
+				switch (_n0.a.$) {
+					case 'Success':
+						switch (_n0.b.$) {
+							case 'Success':
+								var renderedOne = _n0.a.a;
+								var renderedTwo = _n0.b.a;
+								return mdgriffith$elm_markup$Mark$Internal$Outcome$Success(
+									A2(fn, renderedOne, renderedTwo));
+							case 'Almost':
+								if (_n0.b.a.$ === 'Uncertain') {
+									break _n0$3;
+								} else {
+									break _n0$4;
+								}
+							default:
+								break _n0$4;
+						}
+					case 'Almost':
+						if (_n0.a.a.$ === 'Recovered') {
+							if (_n0.b.$ === 'Almost') {
+								if (_n0.b.a.$ === 'Recovered') {
+									var _n1 = _n0.a.a;
+									var firstErrs = _n1.a;
+									var fst = _n1.b;
+									var _n2 = _n0.b.a;
+									var secondErrs = _n2.a;
+									var snd = _n2.b;
+									return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+										A2(
+											mdgriffith$elm_markup$Mark$Internal$Description$Recovered,
+											A2(mdgriffith$elm_markup$Mark$Internal$Description$mergeErrors, firstErrs, secondErrs),
+											A2(fn, fst, snd)));
+								} else {
+									break _n0$3;
+								}
+							} else {
+								break _n0$4;
+							}
+						} else {
+							var unexpected = _n0.a.a.a;
+							return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+								mdgriffith$elm_markup$Mark$Internal$Description$Uncertain(unexpected));
+						}
+					default:
+						if ((_n0.b.$ === 'Almost') && (_n0.b.a.$ === 'Uncertain')) {
+							break _n0$3;
+						} else {
+							break _n0$4;
+						}
+				}
+			}
+			return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(mdgriffith$elm_markup$Mark$Internal$Error$NoMatch);
+		}
+		var unexpected = _n0.b.a.a;
+		return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+			mdgriffith$elm_markup$Mark$Internal$Description$Uncertain(unexpected));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$recordName = function (desc) {
+	if (desc.$ === 'Record') {
+		var details = desc.a;
+		return elm$core$Maybe$Just(details.name);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$UnknownInline = function (a) {
+	return {$: 'UnknownInline', a: a};
+};
+var mdgriffith$elm_markup$Mark$convertTextDescription = F4(
+	function (id, options, comp, cursor) {
+		var blockLength = mdgriffith$elm_markup$Mark$Internal$Description$length(comp);
+		if (comp.$ === 'Styled') {
+			var range = comp.a;
+			var _n1 = comp.b;
+			var styling = _n1.a;
+			var str = _n1.b;
+			return {
+				lastOffset: cursor.lastOffset + blockLength,
+				outcome: A3(
+					mdgriffith$elm_markup$Mark$Internal$Description$mergeWith,
+					elm$core$List$cons,
+					mdgriffith$elm_markup$Mark$Internal$Outcome$Success(
+						A3(
+							options.view,
+							{
+								id: id,
+								selection: {anchor: cursor.lastOffset, focus: cursor.lastOffset + blockLength}
+							},
+							styling,
+							str)),
+					cursor.outcome)
+			};
+		} else {
+			var details = comp.a;
+			var recordName = A2(
+				elm$core$Maybe$withDefault,
+				'',
+				mdgriffith$elm_markup$Mark$Internal$Description$recordName(details.record));
+			var matchInlineName = F3(
+				function (name, almostInlineBlock, maybeFound) {
+					if (maybeFound.$ === 'Nothing') {
+						var _n4 = almostInlineBlock(details.kind);
+						var inlineDetails = _n4.a;
+						return A2(mdgriffith$elm_markup$Mark$matchKinds, details, inlineDetails.kind) ? elm$core$Maybe$Just(inlineDetails) : elm$core$Maybe$Nothing;
+					} else {
+						return maybeFound;
+					}
+				});
+			var maybeMatched = A3(
+				elm$core$List$foldl,
+				matchInlineName(recordName),
+				elm$core$Maybe$Nothing,
+				options.inlines);
+			if (maybeMatched.$ === 'Nothing') {
+				return {
+					lastOffset: cursor.lastOffset + blockLength,
+					outcome: mdgriffith$elm_markup$Mark$Internal$Description$uncertain(
+						{
+							problem: mdgriffith$elm_markup$Mark$Internal$Error$UnknownInline(
+								A2(
+									elm$core$List$map,
+									function (inline) {
+										return A2(
+											mdgriffith$elm_markup$Mark$Internal$Description$inlineExample,
+											details.kind,
+											inline(mdgriffith$elm_markup$Mark$Internal$Description$EmptyAnnotation));
+									},
+									options.inlines)),
+							range: details.range
+						})
+				};
+			} else {
+				var matched = maybeMatched.a;
+				return {
+					lastOffset: cursor.lastOffset + blockLength,
+					outcome: A3(
+						mdgriffith$elm_markup$Mark$Internal$Description$mergeWith,
+						elm$core$List$cons,
+						matched.converter(details.record),
+						cursor.outcome)
+				};
+			}
+		}
+	});
+var mdgriffith$elm_markup$Mark$renderText = F2(
+	function (options, description) {
+		if (description.$ === 'DescribeText') {
+			var details = description.a;
+			return A2(
+				mdgriffith$elm_markup$Mark$Internal$Description$mapSuccessAndRecovered,
+				elm$core$List$reverse,
+				A3(
+					elm$core$List$foldl,
+					A2(mdgriffith$elm_markup$Mark$convertTextDescription, details.id, options),
+					{
+						lastOffset: 0,
+						outcome: mdgriffith$elm_markup$Mark$Internal$Outcome$Success(_List_Nil)
+					},
+					details.text).outcome);
+		} else {
+			return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(mdgriffith$elm_markup$Mark$Internal$Error$NoMatch);
+		}
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$ExpectInlineBlock = function (a) {
+	return {$: 'ExpectInlineBlock', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$ExpectTextBlock = function (a) {
+	return {$: 'ExpectTextBlock', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$SelectString = function (a) {
+	return {$: 'SelectString', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$SelectText = function (a) {
+	return {$: 'SelectText', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$blockKindToSelection = function (kind) {
+	switch (kind.$) {
+		case 'Value':
+			return mdgriffith$elm_markup$Mark$Internal$Description$EmptyAnnotation;
+		case 'Named':
+			var name = kind.a;
+			return mdgriffith$elm_markup$Mark$Internal$Description$EmptyAnnotation;
+		case 'VerbatimNamed':
+			var name = kind.a;
+			return mdgriffith$elm_markup$Mark$Internal$Description$SelectString('');
+		default:
+			var name = kind.a;
+			return mdgriffith$elm_markup$Mark$Internal$Description$SelectText(_List_Nil);
+	}
+};
+var elm$core$String$cons = _String_cons;
+var elm$core$String$fromChar = function (_char) {
+	return A2(elm$core$String$cons, _char, '');
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$DescribeText = function (a) {
+	return {$: 'DescribeText', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$firstChar = function (str) {
+	var _n0 = elm$core$String$uncons(str);
+	if (_n0.$ === 'Nothing') {
+		return elm$core$Maybe$Nothing;
+	} else {
+		var _n1 = _n0.a;
+		var fst = _n1.a;
+		return elm$core$Maybe$Just(fst);
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$replacementStartingChars = function (replacements) {
+	var first = function (repl) {
+		if (repl.$ === 'Replacement') {
+			var x = repl.a;
+			var y = repl.b;
+			return mdgriffith$elm_markup$Mark$Internal$Parser$firstChar(x);
+		} else {
+			var range = repl.a;
+			return mdgriffith$elm_markup$Mark$Internal$Parser$firstChar(range.start.a);
+		}
+	};
+	return A2(elm$core$List$filterMap, first, replacements);
+};
+var elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
+var elm$core$String$trimRight = _String_trimRight;
+var elm$parser$Parser$Advanced$problem = function (x) {
+	return elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return A2(
+				elm$parser$Parser$Advanced$Bad,
+				false,
+				A2(elm$parser$Parser$Advanced$fromState, s, x));
+		});
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$Bold = {$: 'Bold'};
+var mdgriffith$elm_markup$Mark$Internal$Description$DescribeNothing = function (a) {
+	return {$: 'DescribeNothing', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$InlineBlock = function (a) {
+	return {$: 'InlineBlock', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$Italic = {$: 'Italic'};
+var mdgriffith$elm_markup$Mark$Internal$Description$Strike = {$: 'Strike'};
+var mdgriffith$elm_markup$Mark$Internal$Description$Styled = F2(
+	function (a, b) {
+		return {$: 'Styled', a: a, b: b};
+	});
+var mdgriffith$elm_markup$Mark$Internal$Id$initialSeed = mdgriffith$elm_markup$Mark$Internal$Id$Seed(
+	_List_fromArray(
+		[0]));
+var mdgriffith$elm_markup$Mark$Internal$Parser$ContinueWith = function (a) {
+	return {$: 'ContinueWith', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$StopWith = function (a) {
+	return {$: 'StopWith', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor = function (a) {
+	return {$: 'TextCursor', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$addText = F2(
+	function (newTxt, _n0) {
+		var cursor = _n0.a;
+		var _n1 = cursor.current;
+		var styles = _n1.a;
+		var txt = _n1.b;
+		return mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor(
+			_Utils_update(
+				cursor,
+				{
+					current: A2(
+						mdgriffith$elm_markup$Mark$Internal$Description$Text,
+						styles,
+						_Utils_ap(txt, newTxt))
+				}));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$addToTextCursor = F2(
+	function (_new, _n0) {
+		var cursor = _n0.a;
+		return mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor(
+			_Utils_update(
+				cursor,
+				{
+					found: A2(elm$core$List$cons, _new, cursor.found)
+				}));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$advanceTo = F2(
+	function (target, _n0) {
+		var cursor = _n0.a;
+		return mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor(
+			{balancedReplacements: cursor.balancedReplacements, current: cursor.current, found: cursor.found, start: target});
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$EscapedChar = {$: 'EscapedChar'};
+var mdgriffith$elm_markup$Mark$Internal$Parser$almostReplacement = F2(
+	function (replacements, existing) {
+		var first = function (repl) {
+			if (repl.$ === 'Replacement') {
+				var x = repl.a;
+				var y = repl.b;
+				return mdgriffith$elm_markup$Mark$Internal$Parser$firstChar(x);
+			} else {
+				var range = repl.a;
+				return mdgriffith$elm_markup$Mark$Internal$Parser$firstChar(range.start.a);
+			}
+		};
+		var captureChar = function (_char) {
+			return A2(
+				elm$parser$Parser$Advanced$keeper,
+				elm$parser$Parser$Advanced$succeed(
+					function (c) {
+						return A2(mdgriffith$elm_markup$Mark$Internal$Parser$addText, c, existing);
+					}),
+				elm$parser$Parser$Advanced$getChompedString(
+					A2(
+						elm$parser$Parser$Advanced$chompIf,
+						function (c) {
+							return _Utils_eq(c, _char) && ((!_Utils_eq(
+								_char,
+								_Utils_chr('{'))) && ((!_Utils_eq(
+								_char,
+								_Utils_chr('*'))) && (!_Utils_eq(
+								_char,
+								_Utils_chr('/')))));
+						},
+						mdgriffith$elm_markup$Mark$Internal$Error$EscapedChar)));
+		};
+		var allFirstChars = A2(elm$core$List$filterMap, first, replacements);
+		return A2(
+			elm$core$List$map,
+			captureChar,
+			A2(
+				elm$core$List$cons,
+				_Utils_chr('1'),
+				allFirstChars));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$ExpectingInlineName = function (a) {
+	return {$: 'ExpectingInlineName', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$InlineEnd = {$: 'InlineEnd'};
+var mdgriffith$elm_markup$Mark$Internal$Error$InlineStart = {$: 'InlineStart'};
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$okUnit = elm$core$Result$Ok(_Utils_Tuple0);
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$chompWhile = function (_while) {
+	return A2(
+		elm$parser$Parser$Advanced$ignorer,
+		elm$parser$Parser$Advanced$succeed(mdgriffith$elm_markup$Mark$Internal$TolerantParser$okUnit),
+		elm$parser$Parser$Advanced$chompWhile(_while));
+};
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$FastForwardTo = function (a) {
+	return {$: 'FastForwardTo', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$fastForwardTo = mdgriffith$elm_markup$Mark$Internal$TolerantParser$FastForwardTo;
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$ignore = F2(
+	function (ignorePls, keepPls) {
+		return A2(
+			elm$parser$Parser$Advanced$andThen,
+			function (possiblyKeepThisOne) {
+				if (possiblyKeepThisOne.$ === 'Err') {
+					var err = possiblyKeepThisOne.a;
+					return elm$parser$Parser$Advanced$succeed(
+						elm$core$Result$Err(err));
+				} else {
+					var keepThisOne = possiblyKeepThisOne.a;
+					return A2(
+						elm$parser$Parser$Advanced$map,
+						function (possibly) {
+							if (possibly.$ === 'Ok') {
+								return elm$core$Result$Ok(keepThisOne);
+							} else {
+								var newErr = possibly.a;
+								return elm$core$Result$Err(newErr);
+							}
+						},
+						ignorePls);
+				}
+			},
+			keepPls);
+	});
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$keep = F2(
+	function (newDataParser, fnParser) {
+		return A2(
+			elm$parser$Parser$Advanced$andThen,
+			function (existing) {
+				if (existing.$ === 'Err') {
+					var err = existing.a;
+					return elm$parser$Parser$Advanced$succeed(
+						elm$core$Result$Err(err));
+				} else {
+					var fn = existing.a;
+					return A2(
+						elm$parser$Parser$Advanced$map,
+						function (possiblyNew) {
+							if (possiblyNew.$ === 'Ok') {
+								var _new = possiblyNew.a;
+								return elm$core$Result$Ok(
+									fn(_new));
+							} else {
+								var newErr = possiblyNew.a;
+								return elm$core$Result$Err(newErr);
+							}
+						},
+						newDataParser);
+				}
+			},
+			fnParser);
+	});
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$oneOf = F2(
+	function (prob, options) {
+		return elm$parser$Parser$Advanced$oneOf(
+			_Utils_ap(
+				options,
+				_List_fromArray(
+					[
+						elm$parser$Parser$Advanced$succeed(
+						elm$core$Result$Err(
+							_List_fromArray(
+								[prob])))
+					])));
+	});
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$StopWith = function (a) {
+	return {$: 'StopWith', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$stopWith = function (err) {
+	return mdgriffith$elm_markup$Mark$Internal$TolerantParser$StopWith(err);
+};
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$succeed = function (x) {
+	return elm$parser$Parser$Advanced$succeed(
+		elm$core$Result$Ok(x));
+};
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$till = F2(
+	function (chars, prob) {
+		return A2(
+			elm$parser$Parser$Advanced$ignorer,
+			A2(
+				elm$parser$Parser$Advanced$ignorer,
+				elm$parser$Parser$Advanced$succeed(_Utils_Tuple0),
+				elm$parser$Parser$Advanced$chompWhile(
+					function (c) {
+						return !A2(elm$core$List$member, c, chars);
+					})),
+			elm$parser$Parser$Advanced$oneOf(
+				_List_fromArray(
+					[
+						A2(
+						elm$parser$Parser$Advanced$map,
+						elm$core$Basics$always(true),
+						A2(
+							elm$parser$Parser$Advanced$chompIf,
+							function (c) {
+								return A2(elm$core$List$member, c, chars);
+							},
+							prob)),
+						elm$parser$Parser$Advanced$succeed(false)
+					])));
+	});
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$runToken = F2(
+	function (details, tokenParser) {
+		var _n0 = details.onError;
+		switch (_n0.$) {
+			case 'FastForwardTo':
+				var skipTo = _n0.a;
+				return elm$parser$Parser$Advanced$oneOf(
+					_List_fromArray(
+						[
+							A2(elm$parser$Parser$Advanced$map, elm$core$Result$Ok, tokenParser),
+							A2(
+							elm$parser$Parser$Advanced$ignorer,
+							elm$parser$Parser$Advanced$succeed(
+								elm$core$Result$Err(
+									_List_fromArray(
+										[details.problem]))),
+							A2(mdgriffith$elm_markup$Mark$Internal$TolerantParser$till, skipTo, details.problem))
+						]));
+			case 'Skip':
+				return A2(elm$parser$Parser$Advanced$map, elm$core$Result$Ok, tokenParser);
+			default:
+				var err = _n0.a;
+				return elm$parser$Parser$Advanced$oneOf(
+					_List_fromArray(
+						[
+							A2(elm$parser$Parser$Advanced$map, elm$core$Result$Ok, tokenParser),
+							elm$parser$Parser$Advanced$succeed(
+							elm$core$Result$Err(
+								_List_fromArray(
+									[err])))
+						]));
+		}
+	});
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$token = function (details) {
+	return A2(
+		mdgriffith$elm_markup$Mark$Internal$TolerantParser$runToken,
+		details,
+		elm$parser$Parser$Advanced$token(
+			A2(elm$parser$Parser$Advanced$Token, details.match, details.problem)));
+};
+var mdgriffith$elm_markup$Mark$Internal$TolerantParser$try = elm$parser$Parser$Advanced$map(elm$core$Result$Ok);
+var mdgriffith$elm_markup$Mark$Internal$Parser$attrContainer = function (recordBlocks) {
+	return A2(
+		mdgriffith$elm_markup$Mark$Internal$TolerantParser$ignore,
+		mdgriffith$elm_markup$Mark$Internal$TolerantParser$token(
+			{
+				match: '}',
+				onError: mdgriffith$elm_markup$Mark$Internal$TolerantParser$fastForwardTo(
+					_List_fromArray(
+						[
+							_Utils_chr('}'),
+							_Utils_chr('\n')
+						])),
+				problem: mdgriffith$elm_markup$Mark$Internal$Error$InlineEnd
+			}),
+		A2(
+			mdgriffith$elm_markup$Mark$Internal$TolerantParser$ignore,
+			mdgriffith$elm_markup$Mark$Internal$TolerantParser$chompWhile(
+				function (c) {
+					return _Utils_eq(
+						c,
+						_Utils_chr(' '));
+				}),
+			A2(
+				mdgriffith$elm_markup$Mark$Internal$TolerantParser$keep,
+				A2(
+					mdgriffith$elm_markup$Mark$Internal$TolerantParser$oneOf,
+					mdgriffith$elm_markup$Mark$Internal$Error$ExpectingInlineName(''),
+					A2(
+						elm$core$List$map,
+						A2(
+							elm$core$Basics$composeL,
+							A2(elm$core$Basics$composeL, mdgriffith$elm_markup$Mark$Internal$TolerantParser$try, elm$core$Tuple$second),
+							A2(mdgriffith$elm_markup$Mark$Internal$Description$getParser, mdgriffith$elm_markup$Mark$Internal$Description$ParseInline, mdgriffith$elm_markup$Mark$Internal$Id$initialSeed)),
+						recordBlocks)),
+				A2(
+					mdgriffith$elm_markup$Mark$Internal$TolerantParser$ignore,
+					mdgriffith$elm_markup$Mark$Internal$TolerantParser$chompWhile(
+						function (c) {
+							return _Utils_eq(
+								c,
+								_Utils_chr(' '));
+						}),
+					A2(
+						mdgriffith$elm_markup$Mark$Internal$TolerantParser$ignore,
+						mdgriffith$elm_markup$Mark$Internal$TolerantParser$token(
+							{
+								match: '{',
+								onError: mdgriffith$elm_markup$Mark$Internal$TolerantParser$stopWith(mdgriffith$elm_markup$Mark$Internal$Error$InlineStart),
+								problem: mdgriffith$elm_markup$Mark$Internal$Error$InlineStart
+							}),
+						mdgriffith$elm_markup$Mark$Internal$TolerantParser$succeed(elm$core$Basics$identity))))));
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$clearText = function (_n0) {
+	var styles = _n0.a;
+	return A2(mdgriffith$elm_markup$Mark$Internal$Description$Text, styles, '');
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$flipStyle = F2(
+	function (newStyle, textStyle) {
+		var styles = textStyle.a;
+		var str = textStyle.b;
+		switch (newStyle.$) {
+			case 'Bold':
+				return A2(
+					mdgriffith$elm_markup$Mark$Internal$Description$Text,
+					_Utils_update(
+						styles,
+						{bold: !styles.bold}),
+					str);
+			case 'Italic':
+				return A2(
+					mdgriffith$elm_markup$Mark$Internal$Description$Text,
+					_Utils_update(
+						styles,
+						{italic: !styles.italic}),
+					str);
+			default:
+				return A2(
+					mdgriffith$elm_markup$Mark$Internal$Description$Text,
+					_Utils_update(
+						styles,
+						{strike: !styles.strike}),
+					str);
+		}
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$measure = F2(
+	function (start, textStr) {
+		var len = elm$core$String$length(textStr);
+		return _Utils_update(
+			start,
+			{column: start.column + len, offset: start.offset + len});
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$changeStyle = F2(
+	function (_n0, styleToken) {
+		var cursor = _n0.a;
+		var newText = mdgriffith$elm_markup$Mark$Internal$Parser$clearText(
+			A2(mdgriffith$elm_markup$Mark$Internal$Parser$flipStyle, styleToken, cursor.current));
+		var cursorText = function () {
+			var _n1 = cursor.current;
+			var txt = _n1.b;
+			return txt;
+		}();
+		if (cursorText === '') {
+			return mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor(
+				{balancedReplacements: cursor.balancedReplacements, current: newText, found: cursor.found, start: cursor.start});
+		} else {
+			var end = A2(mdgriffith$elm_markup$Mark$Internal$Parser$measure, cursor.start, cursorText);
+			return mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor(
+				{
+					balancedReplacements: cursor.balancedReplacements,
+					current: newText,
+					found: A2(
+						elm$core$List$cons,
+						A2(
+							mdgriffith$elm_markup$Mark$Internal$Description$Styled,
+							{end: end, start: cursor.start},
+							cursor.current),
+						cursor.found),
+					start: end
+				});
+		}
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$commitText = function (existingTextCursor) {
+	var cursor = existingTextCursor.a;
+	var _n0 = cursor.current;
+	if (_n0.b === '') {
+		return existingTextCursor;
+	} else {
+		var styles = _n0.a;
+		var cursorText = _n0.b;
+		var end = A2(mdgriffith$elm_markup$Mark$Internal$Parser$measure, cursor.start, cursorText);
+		return mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor(
+			{
+				balancedReplacements: cursor.balancedReplacements,
+				current: A2(mdgriffith$elm_markup$Mark$Internal$Description$Text, styles, ''),
+				found: A2(
+					elm$core$List$cons,
+					A2(
+						mdgriffith$elm_markup$Mark$Internal$Description$Styled,
+						{end: end, start: cursor.start},
+						cursor.current),
+					cursor.found),
+				start: end
+			});
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$getCurrentStyle = function (_n0) {
+	var cursor = _n0.a;
+	var _n1 = cursor.current;
+	var s = _n1.a;
+	return s;
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$onlyAnnotation = function (thisBlock) {
+	var details = thisBlock.a;
+	var _n0 = details.kind;
+	switch (_n0.$) {
+		case 'Value':
+			return elm$core$Maybe$Nothing;
+		case 'Named':
+			var name = _n0.a;
+			return elm$core$Maybe$Nothing;
+		case 'VerbatimNamed':
+			return elm$core$Maybe$Nothing;
+		default:
+			return elm$core$Maybe$Just(thisBlock);
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$onlyVerbatim = function (thisBlock) {
+	var details = thisBlock.a;
+	var _n0 = details.kind;
+	switch (_n0.$) {
+		case 'Value':
+			return elm$core$Maybe$Nothing;
+		case 'Named':
+			var name = _n0.a;
+			return elm$core$Maybe$Nothing;
+		case 'VerbatimNamed':
+			return elm$core$Maybe$Just(thisBlock);
+		default:
+			return elm$core$Maybe$Nothing;
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$Escape = {$: 'Escape'};
+var mdgriffith$elm_markup$Mark$Internal$Parser$addBalance = F2(
+	function (id, _n0) {
+		var cursor = _n0.a;
+		return mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor(
+			_Utils_update(
+				cursor,
+				{
+					balancedReplacements: A2(elm$core$List$cons, id, cursor.balancedReplacements)
+				}));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$balanceId = function (balance) {
+	var join = function (_n0) {
+		var x = _n0.a;
+		var y = _n0.b;
+		return _Utils_ap(x, y);
+	};
+	return _Utils_ap(
+		join(balance.start),
+		join(balance.end));
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$removeBalance = F2(
+	function (id, _n0) {
+		var cursor = _n0.a;
+		return mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor(
+			_Utils_update(
+				cursor,
+				{
+					balancedReplacements: A2(
+						elm$core$List$filter,
+						elm$core$Basics$neq(id),
+						cursor.balancedReplacements)
+				}));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$replace = F2(
+	function (replacements, existing) {
+		var replaceWith = function (repl) {
+			if (repl.$ === 'Replacement') {
+				var x = repl.a;
+				var y = repl.b;
+				return A2(
+					elm$parser$Parser$Advanced$keeper,
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(
+							function (_n1) {
+								return A2(mdgriffith$elm_markup$Mark$Internal$Parser$addText, y, existing);
+							}),
+						elm$parser$Parser$Advanced$token(
+							A2(
+								elm$parser$Parser$Advanced$Token,
+								x,
+								mdgriffith$elm_markup$Mark$Internal$Error$Expecting(x)))),
+					elm$parser$Parser$Advanced$succeed(_Utils_Tuple0));
+			} else {
+				var range = repl.a;
+				var id = mdgriffith$elm_markup$Mark$Internal$Parser$balanceId(range);
+				var balanceCache = function () {
+					var cursor = existing.a;
+					return cursor.balancedReplacements;
+				}();
+				if (A2(elm$core$List$member, id, balanceCache)) {
+					var _n2 = range.end;
+					var x = _n2.a;
+					var y = _n2.b;
+					return A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(
+							A2(
+								mdgriffith$elm_markup$Mark$Internal$Parser$removeBalance,
+								id,
+								A2(mdgriffith$elm_markup$Mark$Internal$Parser$addText, y, existing))),
+						elm$parser$Parser$Advanced$token(
+							A2(
+								elm$parser$Parser$Advanced$Token,
+								x,
+								mdgriffith$elm_markup$Mark$Internal$Error$Expecting(x))));
+				} else {
+					var _n3 = range.start;
+					var x = _n3.a;
+					var y = _n3.b;
+					return A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(
+							A2(
+								mdgriffith$elm_markup$Mark$Internal$Parser$addBalance,
+								id,
+								A2(mdgriffith$elm_markup$Mark$Internal$Parser$addText, y, existing))),
+						elm$parser$Parser$Advanced$token(
+							A2(
+								elm$parser$Parser$Advanced$Token,
+								x,
+								mdgriffith$elm_markup$Mark$Internal$Error$Expecting(x))));
+				}
+			}
+		};
+		var escaped = A2(
+			elm$parser$Parser$Advanced$keeper,
+			A2(
+				elm$parser$Parser$Advanced$ignorer,
+				elm$parser$Parser$Advanced$succeed(
+					function (esc) {
+						return A2(mdgriffith$elm_markup$Mark$Internal$Parser$addText, esc, existing);
+					}),
+				elm$parser$Parser$Advanced$token(
+					A2(elm$parser$Parser$Advanced$Token, '\\', mdgriffith$elm_markup$Mark$Internal$Error$Escape))),
+			elm$parser$Parser$Advanced$getChompedString(
+				A2(
+					elm$parser$Parser$Advanced$chompIf,
+					elm$core$Basics$always(true),
+					mdgriffith$elm_markup$Mark$Internal$Error$EscapedChar)));
+		return A2(
+			elm$core$List$cons,
+			escaped,
+			A2(elm$core$List$map, replaceWith, replacements));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$resetBalancedReplacements = F2(
+	function (newBalance, _n0) {
+		var cursor = _n0.a;
+		return mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor(
+			_Utils_update(
+				cursor,
+				{balancedReplacements: newBalance}));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$resetTextWith = F2(
+	function (_n0, _n1) {
+		var styles = _n0.a;
+		var cursor = _n1.a;
+		return mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor(
+			_Utils_update(
+				cursor,
+				{
+					current: A2(mdgriffith$elm_markup$Mark$Internal$Description$Text, styles, '')
+				}));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$getStyles = function (_n0) {
+	var styles = _n0.a;
+	return styles;
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$getCurrentStyles = function (_n0) {
+	var cursor = _n0.a;
+	return mdgriffith$elm_markup$Mark$Internal$Parser$getStyles(cursor.current);
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$stylingChars = _List_fromArray(
+	[
+		_Utils_chr('~'),
+		_Utils_chr('['),
+		_Utils_chr('/'),
+		_Utils_chr('*'),
+		_Utils_chr('\n'),
+		_Utils_chr('{'),
+		_Utils_chr('`')
+	]);
+var mdgriffith$elm_markup$Mark$Internal$Parser$toText = function (textDesc) {
+	if (textDesc.$ === 'Styled') {
+		var txt = textDesc.b;
+		return elm$core$Maybe$Just(txt);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$simpleStyledTextTill = F3(
+	function (until, replacements, cursor) {
+		return elm$parser$Parser$Advanced$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					elm$parser$Parser$Advanced$map,
+					elm$parser$Parser$Advanced$Loop,
+					elm$parser$Parser$Advanced$oneOf(
+						A2(mdgriffith$elm_markup$Mark$Internal$Parser$replace, replacements, cursor))),
+					A2(
+					elm$parser$Parser$Advanced$map,
+					elm$parser$Parser$Advanced$Loop,
+					elm$parser$Parser$Advanced$oneOf(
+						A2(mdgriffith$elm_markup$Mark$Internal$Parser$almostReplacement, replacements, cursor))),
+					A2(
+					elm$parser$Parser$Advanced$keeper,
+					elm$parser$Parser$Advanced$succeed(
+						A2(
+							elm$core$Basics$composeL,
+							elm$parser$Parser$Advanced$Loop,
+							mdgriffith$elm_markup$Mark$Internal$Parser$changeStyle(cursor))),
+					elm$parser$Parser$Advanced$oneOf(
+						_List_fromArray(
+							[
+								A2(
+								elm$parser$Parser$Advanced$map,
+								elm$core$Basics$always(mdgriffith$elm_markup$Mark$Internal$Description$Italic),
+								elm$parser$Parser$Advanced$token(
+									A2(
+										elm$parser$Parser$Advanced$Token,
+										'/',
+										mdgriffith$elm_markup$Mark$Internal$Error$Expecting('/')))),
+								A2(
+								elm$parser$Parser$Advanced$map,
+								elm$core$Basics$always(mdgriffith$elm_markup$Mark$Internal$Description$Strike),
+								elm$parser$Parser$Advanced$token(
+									A2(
+										elm$parser$Parser$Advanced$Token,
+										'~',
+										mdgriffith$elm_markup$Mark$Internal$Error$Expecting('~')))),
+								A2(
+								elm$parser$Parser$Advanced$map,
+								elm$core$Basics$always(mdgriffith$elm_markup$Mark$Internal$Description$Bold),
+								elm$parser$Parser$Advanced$token(
+									A2(
+										elm$parser$Parser$Advanced$Token,
+										'*',
+										mdgriffith$elm_markup$Mark$Internal$Error$Expecting('*'))))
+							]))),
+					A2(
+					elm$parser$Parser$Advanced$andThen,
+					function (_new) {
+						if ((_new === '') || (_new === '\n')) {
+							var _n0 = mdgriffith$elm_markup$Mark$Internal$Parser$commitText(cursor);
+							var txt = _n0.a;
+							var styling = function () {
+								var _n1 = txt.current;
+								var s = _n1.a;
+								return s;
+							}();
+							return elm$parser$Parser$Advanced$succeed(
+								elm$parser$Parser$Advanced$Done(
+									_Utils_Tuple2(
+										elm$core$List$reverse(
+											A2(elm$core$List$filterMap, mdgriffith$elm_markup$Mark$Internal$Parser$toText, txt.found)),
+										mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor(txt))));
+						} else {
+							return elm$parser$Parser$Advanced$succeed(
+								elm$parser$Parser$Advanced$Loop(
+									A2(mdgriffith$elm_markup$Mark$Internal$Parser$addText, _new, cursor)));
+						}
+					},
+					elm$parser$Parser$Advanced$getChompedString(
+						elm$parser$Parser$Advanced$chompWhile(
+							function (c) {
+								return !A2(
+									elm$core$List$member,
+									c,
+									A2(
+										elm$core$List$cons,
+										_Utils_chr('\\'),
+										A2(
+											elm$core$List$cons,
+											_Utils_chr('\n'),
+											_Utils_ap(
+												until,
+												_Utils_ap(
+													mdgriffith$elm_markup$Mark$Internal$Parser$stylingChars,
+													mdgriffith$elm_markup$Mark$Internal$Parser$replacementStartingChars(replacements))))));
+							})))
+				]));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$textCursor = F2(
+	function (inheritedStyles, startingPos) {
+		return mdgriffith$elm_markup$Mark$Internal$Parser$TextCursor(
+			{
+				balancedReplacements: _List_Nil,
+				current: A2(mdgriffith$elm_markup$Mark$Internal$Description$Text, inheritedStyles, ''),
+				found: _List_Nil,
+				start: startingPos
+			});
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$textSelection = F2(
+	function (replacements, found) {
+		return elm$parser$Parser$Advanced$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					elm$parser$Parser$Advanced$keeper,
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(
+							function (str) {
+								return _Utils_Tuple2(
+									elm$core$Maybe$Nothing,
+									mdgriffith$elm_markup$Mark$Internal$Description$SelectString(str));
+							}),
+						elm$parser$Parser$Advanced$token(
+							A2(
+								elm$parser$Parser$Advanced$Token,
+								'`',
+								mdgriffith$elm_markup$Mark$Internal$Error$Expecting('`')))),
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$getChompedString(
+							elm$parser$Parser$Advanced$chompWhile(
+								function (c) {
+									return (!_Utils_eq(
+										c,
+										_Utils_chr('`'))) && (!_Utils_eq(
+										c,
+										_Utils_chr('\n')));
+								})),
+						elm$parser$Parser$Advanced$chompWhile(
+							function (c) {
+								return _Utils_eq(
+									c,
+									_Utils_chr('`'));
+							}))),
+					A2(
+					elm$parser$Parser$Advanced$keeper,
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(
+							function (_n0) {
+								var txts = _n0.a;
+								var cursor = _n0.b;
+								return _Utils_Tuple2(
+									elm$core$Maybe$Just(cursor),
+									mdgriffith$elm_markup$Mark$Internal$Description$SelectText(txts));
+							}),
+						elm$parser$Parser$Advanced$token(
+							A2(
+								elm$parser$Parser$Advanced$Token,
+								'[',
+								mdgriffith$elm_markup$Mark$Internal$Error$Expecting('[')))),
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						A2(
+							elm$parser$Parser$Advanced$loop,
+							A2(
+								mdgriffith$elm_markup$Mark$Internal$Parser$textCursor,
+								mdgriffith$elm_markup$Mark$Internal$Parser$getCurrentStyles(found),
+								{column: 1, line: 1, offset: 0}),
+							A2(
+								mdgriffith$elm_markup$Mark$Internal$Parser$simpleStyledTextTill,
+								_List_fromArray(
+									[
+										_Utils_chr('\n'),
+										_Utils_chr(']')
+									]),
+								replacements)),
+						elm$parser$Parser$Advanced$token(
+							A2(
+								elm$parser$Parser$Advanced$Token,
+								']',
+								mdgriffith$elm_markup$Mark$Internal$Error$Expecting(']')))))
+				]));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$styledTextLoop = F5(
+	function (options, context, meaningful, untilStrings, found) {
+		return elm$parser$Parser$Advanced$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					elm$parser$Parser$Advanced$map,
+					elm$parser$Parser$Advanced$Loop,
+					elm$parser$Parser$Advanced$oneOf(
+						A2(mdgriffith$elm_markup$Mark$Internal$Parser$replace, options.replacements, found))),
+					A2(
+					elm$parser$Parser$Advanced$map,
+					elm$parser$Parser$Advanced$Loop,
+					elm$parser$Parser$Advanced$oneOf(
+						A2(mdgriffith$elm_markup$Mark$Internal$Parser$almostReplacement, options.replacements, found))),
+					A2(
+					elm$parser$Parser$Advanced$keeper,
+					elm$parser$Parser$Advanced$succeed(
+						A2(
+							elm$core$Basics$composeL,
+							elm$parser$Parser$Advanced$Loop,
+							mdgriffith$elm_markup$Mark$Internal$Parser$changeStyle(found))),
+					elm$parser$Parser$Advanced$oneOf(
+						_List_fromArray(
+							[
+								A2(
+								elm$parser$Parser$Advanced$map,
+								elm$core$Basics$always(mdgriffith$elm_markup$Mark$Internal$Description$Italic),
+								elm$parser$Parser$Advanced$token(
+									A2(
+										elm$parser$Parser$Advanced$Token,
+										'/',
+										mdgriffith$elm_markup$Mark$Internal$Error$Expecting('/')))),
+								A2(
+								elm$parser$Parser$Advanced$map,
+								elm$core$Basics$always(mdgriffith$elm_markup$Mark$Internal$Description$Strike),
+								elm$parser$Parser$Advanced$token(
+									A2(
+										elm$parser$Parser$Advanced$Token,
+										'~',
+										mdgriffith$elm_markup$Mark$Internal$Error$Expecting('~')))),
+								A2(
+								elm$parser$Parser$Advanced$map,
+								elm$core$Basics$always(mdgriffith$elm_markup$Mark$Internal$Description$Bold),
+								elm$parser$Parser$Advanced$token(
+									A2(
+										elm$parser$Parser$Advanced$Token,
+										'*',
+										mdgriffith$elm_markup$Mark$Internal$Error$Expecting('*'))))
+							]))),
+					A2(
+					elm$parser$Parser$Advanced$keeper,
+					A2(
+						elm$parser$Parser$Advanced$keeper,
+						A2(
+							elm$parser$Parser$Advanced$keeper,
+							elm$parser$Parser$Advanced$succeed(
+								F3(
+									function (start, _n0, end) {
+										var maybeNewCursor = _n0.a;
+										var newInlineBlock = _n0.b;
+										var resetCursor = function (curs) {
+											if (maybeNewCursor.$ === 'Nothing') {
+												return curs;
+											} else {
+												var newCursor = maybeNewCursor.a.a;
+												return A2(
+													mdgriffith$elm_markup$Mark$Internal$Parser$resetTextWith,
+													newCursor.current,
+													A2(mdgriffith$elm_markup$Mark$Internal$Parser$resetBalancedReplacements, newCursor.balancedReplacements, curs));
+											}
+										};
+										return elm$parser$Parser$Advanced$Loop(
+											A2(
+												mdgriffith$elm_markup$Mark$Internal$Parser$advanceTo,
+												end,
+												resetCursor(
+													A2(
+														mdgriffith$elm_markup$Mark$Internal$Parser$addToTextCursor,
+														newInlineBlock(
+															{end: end, start: start}),
+														mdgriffith$elm_markup$Mark$Internal$Parser$commitText(found)))));
+									})),
+							mdgriffith$elm_markup$Mark$Internal$Parser$getPosition),
+						A2(
+							elm$parser$Parser$Advanced$andThen,
+							function (_n2) {
+								var maybeNewCursor = _n2.a;
+								var selection = _n2.b;
+								return A2(
+									elm$parser$Parser$Advanced$map,
+									function (attrResult) {
+										return _Utils_Tuple2(
+											maybeNewCursor,
+											function (range) {
+												if (attrResult.$ === 'Err') {
+													if ((attrResult.a.b && (attrResult.a.a.$ === 'InlineStart')) && (!attrResult.a.b.b)) {
+														var _n4 = attrResult.a;
+														var _n5 = _n4.a;
+														if (selection.$ === 'SelectString') {
+															var str = selection.a;
+															return A2(
+																mdgriffith$elm_markup$Mark$Internal$Description$Styled,
+																range,
+																A2(
+																	mdgriffith$elm_markup$Mark$Internal$Description$Text,
+																	mdgriffith$elm_markup$Mark$Internal$Parser$getCurrentStyle(found),
+																	str));
+														} else {
+															return mdgriffith$elm_markup$Mark$Internal$Description$InlineBlock(
+																{
+																	kind: selection,
+																	range: range,
+																	record: mdgriffith$elm_markup$Mark$Internal$Description$DescribeNothing(
+																		mdgriffith$elm_markup$Mark$Internal$Id$step(mdgriffith$elm_markup$Mark$Internal$Id$initialSeed).a)
+																});
+														}
+													} else {
+														var errs = attrResult.a;
+														return mdgriffith$elm_markup$Mark$Internal$Description$InlineBlock(
+															{
+																kind: selection,
+																range: range,
+																record: mdgriffith$elm_markup$Mark$Internal$Description$DescribeNothing(
+																	mdgriffith$elm_markup$Mark$Internal$Id$step(mdgriffith$elm_markup$Mark$Internal$Id$initialSeed).a)
+															});
+													}
+												} else {
+													var foundFields = attrResult.a;
+													return mdgriffith$elm_markup$Mark$Internal$Description$InlineBlock(
+														{kind: selection, range: range, record: foundFields});
+												}
+											});
+									},
+									mdgriffith$elm_markup$Mark$Internal$Parser$attrContainer(
+										function () {
+											switch (selection.$) {
+												case 'SelectString':
+													return A2(elm$core$List$filterMap, mdgriffith$elm_markup$Mark$Internal$Parser$onlyVerbatim, options.inlines);
+												case 'SelectText':
+													return A2(elm$core$List$filterMap, mdgriffith$elm_markup$Mark$Internal$Parser$onlyAnnotation, options.inlines);
+												default:
+													return _List_Nil;
+											}
+										}()));
+							},
+							A2(mdgriffith$elm_markup$Mark$Internal$Parser$textSelection, options.replacements, found))),
+					mdgriffith$elm_markup$Mark$Internal$Parser$getPosition),
+					A2(
+					elm$parser$Parser$Advanced$keeper,
+					elm$parser$Parser$Advanced$succeed(
+						function (_n8) {
+							var _new = _n8.a;
+							var _final = _n8.b;
+							if ((_new === '') || _final) {
+								var _n9 = mdgriffith$elm_markup$Mark$Internal$Parser$commitText(
+									A2(
+										mdgriffith$elm_markup$Mark$Internal$Parser$addText,
+										elm$core$String$trimRight(_new),
+										found));
+								var txt = _n9.a;
+								var styling = function () {
+									var _n10 = txt.current;
+									var s = _n10.a;
+									return s;
+								}();
+								return elm$parser$Parser$Advanced$Done(
+									elm$core$List$reverse(txt.found));
+							} else {
+								return elm$parser$Parser$Advanced$Loop(
+									A2(mdgriffith$elm_markup$Mark$Internal$Parser$addText, _new, found));
+							}
+						}),
+					A2(
+						elm$parser$Parser$Advanced$andThen,
+						function (str) {
+							return elm$parser$Parser$Advanced$oneOf(
+								_List_fromArray(
+									[
+										A2(
+										elm$parser$Parser$Advanced$ignorer,
+										elm$parser$Parser$Advanced$succeed(
+											_Utils_Tuple2(str, true)),
+										elm$parser$Parser$Advanced$token(
+											A2(elm$parser$Parser$Advanced$Token, '\n\n', mdgriffith$elm_markup$Mark$Internal$Error$Newline))),
+										mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+										function (indentation) {
+											return A2(
+												elm$parser$Parser$Advanced$keeper,
+												A2(
+													elm$parser$Parser$Advanced$ignorer,
+													elm$parser$Parser$Advanced$succeed(
+														function (finished) {
+															if (finished.$ === 'StopWith') {
+																var add = finished.a;
+																return _Utils_Tuple2(
+																	_Utils_ap(str, add),
+																	true);
+															} else {
+																var add = finished.a;
+																return _Utils_Tuple2(
+																	_Utils_ap(str, add),
+																	false);
+															}
+														}),
+													elm$parser$Parser$Advanced$backtrackable(
+														elm$parser$Parser$Advanced$token(
+															A2(
+																elm$parser$Parser$Advanced$Token,
+																'\n' + A2(elm$core$String$repeat, indentation, ' '),
+																mdgriffith$elm_markup$Mark$Internal$Error$Newline)))),
+												elm$parser$Parser$Advanced$oneOf(
+													_Utils_ap(
+														_List_fromArray(
+															[
+																A2(
+																elm$parser$Parser$Advanced$map,
+																elm$core$Basics$always(
+																	mdgriffith$elm_markup$Mark$Internal$Parser$StopWith('')),
+																elm$parser$Parser$Advanced$end(mdgriffith$elm_markup$Mark$Internal$Error$End)),
+																A2(
+																elm$parser$Parser$Advanced$map,
+																elm$core$Basics$always(
+																	mdgriffith$elm_markup$Mark$Internal$Parser$StopWith('')),
+																mdgriffith$elm_markup$Mark$Internal$Parser$newline)
+															]),
+														function () {
+															if (context.$ === 'ParseInTree') {
+																return _List_fromArray(
+																	[
+																		A2(
+																		elm$parser$Parser$Advanced$andThen,
+																		elm$core$Basics$always(
+																			elm$parser$Parser$Advanced$problem(
+																				mdgriffith$elm_markup$Mark$Internal$Error$Expecting('---'))),
+																		elm$parser$Parser$Advanced$backtrackable(
+																			elm$parser$Parser$Advanced$token(
+																				A2(elm$parser$Parser$Advanced$Token, '-', mdgriffith$elm_markup$Mark$Internal$Error$Newline)))),
+																		A2(
+																		elm$parser$Parser$Advanced$andThen,
+																		elm$core$Basics$always(
+																			elm$parser$Parser$Advanced$problem(
+																				mdgriffith$elm_markup$Mark$Internal$Error$Expecting('1.'))),
+																		elm$parser$Parser$Advanced$backtrackable(
+																			elm$parser$Parser$Advanced$token(
+																				A2(elm$parser$Parser$Advanced$Token, '1.', mdgriffith$elm_markup$Mark$Internal$Error$Newline)))),
+																		A2(
+																		elm$parser$Parser$Advanced$map,
+																		function (c) {
+																			return mdgriffith$elm_markup$Mark$Internal$Parser$ContinueWith('\n' + c);
+																		},
+																		elm$parser$Parser$Advanced$getChompedString(
+																			A2(
+																				elm$parser$Parser$Advanced$chompIf,
+																				function (c) {
+																					return (!_Utils_eq(
+																						c,
+																						_Utils_chr('-'))) && ((!_Utils_eq(
+																						c,
+																						_Utils_chr('1'))) && (!_Utils_eq(
+																						c,
+																						_Utils_chr(' '))));
+																				},
+																				mdgriffith$elm_markup$Mark$Internal$Error$Expecting('char'))))
+																	]);
+															} else {
+																return _List_fromArray(
+																	[
+																		elm$parser$Parser$Advanced$succeed(
+																		mdgriffith$elm_markup$Mark$Internal$Parser$ContinueWith('\n'))
+																	]);
+															}
+														}())));
+										}),
+										A2(
+										elm$parser$Parser$Advanced$ignorer,
+										elm$parser$Parser$Advanced$succeed(
+											_Utils_Tuple2(str, true)),
+										elm$parser$Parser$Advanced$token(
+											A2(elm$parser$Parser$Advanced$Token, '\n', mdgriffith$elm_markup$Mark$Internal$Error$Newline))),
+										A2(
+										elm$parser$Parser$Advanced$ignorer,
+										elm$parser$Parser$Advanced$succeed(
+											_Utils_Tuple2(str, true)),
+										elm$parser$Parser$Advanced$end(mdgriffith$elm_markup$Mark$Internal$Error$End)),
+										elm$parser$Parser$Advanced$succeed(
+										_Utils_Tuple2(str, false))
+									]));
+						},
+						elm$parser$Parser$Advanced$getChompedString(
+							elm$parser$Parser$Advanced$chompWhile(
+								function (c) {
+									return !A2(elm$core$List$member, c, meaningful);
+								}))))
+				]));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$styledText = F6(
+	function (options, context, seed, startingPos, inheritedStyles, until) {
+		var vacantText = A2(mdgriffith$elm_markup$Mark$Internal$Parser$textCursor, inheritedStyles, startingPos);
+		var untilStrings = A2(elm$core$List$map, elm$core$String$fromChar, until);
+		var meaningful = A2(
+			elm$core$List$cons,
+			_Utils_chr('1'),
+			A2(
+				elm$core$List$cons,
+				_Utils_chr('\\'),
+				A2(
+					elm$core$List$cons,
+					_Utils_chr('\n'),
+					_Utils_ap(
+						until,
+						_Utils_ap(
+							mdgriffith$elm_markup$Mark$Internal$Parser$stylingChars,
+							mdgriffith$elm_markup$Mark$Internal$Parser$replacementStartingChars(options.replacements))))));
+		var _n0 = mdgriffith$elm_markup$Mark$Internal$Id$step(seed);
+		var newId = _n0.a;
+		var newSeed = _n0.b;
+		return elm$parser$Parser$Advanced$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					elm$parser$Parser$Advanced$map,
+					function (_n1) {
+						var pos = _n1.a;
+						var textNodes = _n1.b;
+						return mdgriffith$elm_markup$Mark$Internal$Description$DescribeText(
+							{id: newId, range: pos, text: textNodes});
+					},
+					mdgriffith$elm_markup$Mark$Internal$Parser$withRange(
+						A2(
+							elm$parser$Parser$Advanced$loop,
+							vacantText,
+							A4(mdgriffith$elm_markup$Mark$Internal$Parser$styledTextLoop, options, context, meaningful, untilStrings))))
+				]));
+	});
+var mdgriffith$elm_markup$Mark$textWith = function (options) {
+	var inlineRecords = A2(elm$core$List$map, mdgriffith$elm_markup$Mark$recordToInlineBlock, options.inlines);
+	var inlineExpectations = A2(
+		elm$core$List$map,
+		function (_n2) {
+			var rec = _n2.a;
+			return mdgriffith$elm_markup$Mark$Internal$Description$ExpectInlineBlock(
+				{
+					fields: rec.expectations,
+					kind: mdgriffith$elm_markup$Mark$Internal$Description$blockKindToSelection(rec.blockKind),
+					name: rec.name
+				});
+		},
+		options.inlines);
+	return mdgriffith$elm_markup$Mark$Internal$Description$Block(
+		{
+			converter: mdgriffith$elm_markup$Mark$renderText(
+				{
+					inlines: inlineRecords,
+					view: elm$core$Basics$always(options.view)
+				}),
+			expect: mdgriffith$elm_markup$Mark$Internal$Description$ExpectTextBlock(inlineExpectations),
+			kind: mdgriffith$elm_markup$Mark$Internal$Description$Value,
+			parser: F2(
+				function (context, seed) {
+					var _n0 = mdgriffith$elm_markup$Mark$Internal$Id$step(seed);
+					var newSeed = _n0.b;
+					var _n1 = mdgriffith$elm_markup$Mark$Internal$Id$step(newSeed);
+					var returnSeed = _n1.b;
+					return _Utils_Tuple2(
+						returnSeed,
+						A2(
+							elm$parser$Parser$Advanced$andThen,
+							function (pos) {
+								return A6(
+									mdgriffith$elm_markup$Mark$Internal$Parser$styledText,
+									{
+										inlines: A2(
+											elm$core$List$map,
+											function (x) {
+												return x(mdgriffith$elm_markup$Mark$Internal$Description$EmptyAnnotation);
+											},
+											inlineRecords),
+										replacements: options.replacements
+									},
+									context,
+									newSeed,
+									pos,
+									mdgriffith$elm_markup$Mark$Internal$Description$emptyStyles,
+									_List_Nil);
+							},
+							mdgriffith$elm_markup$Mark$Internal$Parser$getPosition));
+				})
+		});
+};
+var elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
+};
+var elm$html$Html$Attributes$rel = _VirtualDom_attribute('rel');
+var mdgriffith$elm_ui$Element$link = F2(
+	function (attrs, _n0) {
+		var url = _n0.url;
+		var label = _n0.label;
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asEl,
+			mdgriffith$elm_ui$Internal$Model$NodeName('a'),
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Internal$Model$Attr(
+					elm$html$Html$Attributes$href(url)),
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Internal$Model$Attr(
+						elm$html$Html$Attributes$rel('noopener noreferrer')),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
+						A2(
+							elm$core$List$cons,
+							mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+							A2(
+								elm$core$List$cons,
+								mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentCenterX + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
+								attrs))))),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(
+				_List_fromArray(
+					[label])));
+	});
+var author$project$View$BlogPost$text = mdgriffith$elm_markup$Mark$textWith(
+	{
+		inlines: _List_fromArray(
+			[
+				A3(
+				mdgriffith$elm_markup$Mark$field,
+				'url',
+				mdgriffith$elm_markup$Mark$string,
+				A2(
+					mdgriffith$elm_markup$Mark$annotation,
+					'link',
+					F2(
+						function (texts, url) {
+							return A2(
+								mdgriffith$elm_ui$Element$link,
+								_List_Nil,
+								{
+									label: A2(
+										mdgriffith$elm_ui$Element$paragraph,
+										_List_Nil,
+										A2(
+											elm$core$List$map,
+											author$project$View$BlogPost$applyTuple(author$project$View$BlogPost$viewText),
+											texts)),
+									url: url
+								});
+						})))
+			]),
+		replacements: mdgriffith$elm_markup$Mark$commonReplacements,
+		view: F2(
+			function (styles, string) {
+				return A2(author$project$View$BlogPost$viewText, styles, string);
+			})
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$Named = function (a) {
+	return {$: 'Named', a: a};
+};
+var mdgriffith$elm_markup$Mark$record = F2(
+	function (name, view) {
+		return mdgriffith$elm_markup$Mark$Internal$Description$ProtoRecord(
+			{
+				blockKind: mdgriffith$elm_markup$Mark$Internal$Description$Named(name),
+				expectations: _List_Nil,
+				fieldConverter: F2(
+					function (desc, ann) {
+						if (desc.$ === 'Record') {
+							var details = desc.a;
+							if (_Utils_eq(details.name, name) && _Utils_eq(ann, mdgriffith$elm_markup$Mark$Internal$Description$EmptyAnnotation)) {
+								var _n1 = details.found;
+								if (_n1.$ === 'Found') {
+									var pos = _n1.a;
+									var fieldDescriptions = _n1.b;
+									return mdgriffith$elm_markup$Mark$Internal$Outcome$Success(
+										_Utils_Tuple3(pos, fieldDescriptions, view));
+								} else {
+									var unexpected = _n1.a;
+									return mdgriffith$elm_markup$Mark$Internal$Description$uncertain(unexpected);
+								}
+							} else {
+								return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(mdgriffith$elm_markup$Mark$Internal$Error$NoMatch);
+							}
+						} else {
+							return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(mdgriffith$elm_markup$Mark$Internal$Error$NoMatch);
+						}
+					}),
+				fields: _List_Nil,
+				name: name
+			});
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$ParseBlock = {$: 'ParseBlock'};
+var mdgriffith$elm_markup$Mark$Internal$Parser$BlockRecord = {$: 'BlockRecord'};
+var mdgriffith$elm_markup$Mark$toBlock = function (_n0) {
+	var details = _n0.a;
+	var expectations = A2(mdgriffith$elm_markup$Mark$Internal$Description$ExpectRecord, details.name, details.expectations);
+	return mdgriffith$elm_markup$Mark$Internal$Description$Block(
+		{
+			converter: function (desc) {
+				var _n1 = A2(details.fieldConverter, desc, mdgriffith$elm_markup$Mark$Internal$Description$EmptyAnnotation);
+				switch (_n1.$) {
+					case 'Success':
+						var _n2 = _n1.a;
+						var pos = _n2.a;
+						var fieldDescriptions = _n2.b;
+						var rendered = _n2.c;
+						return mdgriffith$elm_markup$Mark$Internal$Outcome$Success(rendered);
+					case 'Failure':
+						var fail = _n1.a;
+						return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(fail);
+					default:
+						if (_n1.a.$ === 'Uncertain') {
+							var e = _n1.a.a;
+							return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+								mdgriffith$elm_markup$Mark$Internal$Description$Uncertain(e));
+						} else {
+							var _n3 = _n1.a;
+							var e = _n3.a;
+							var _n4 = _n3.b;
+							var pos = _n4.a;
+							var fieldDescriptions = _n4.b;
+							var rendered = _n4.c;
+							return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+								A2(mdgriffith$elm_markup$Mark$Internal$Description$Recovered, e, rendered));
+						}
+				}
+			},
+			expect: expectations,
+			kind: details.blockKind,
+			parser: F2(
+				function (context, seed) {
+					var _n5 = mdgriffith$elm_markup$Mark$Internal$Id$step(seed);
+					var parentId = _n5.a;
+					var parentSeed = _n5.b;
+					var _n6 = A2(
+						mdgriffith$elm_markup$Mark$Internal$Id$thread,
+						parentSeed,
+						A3(
+							elm$core$List$foldl,
+							F2(
+								function (f, ls) {
+									return A2(
+										elm$core$List$cons,
+										f(mdgriffith$elm_markup$Mark$Internal$Description$ParseBlock),
+										ls);
+								}),
+							_List_Nil,
+							details.fields));
+					var newSeed = _n6.a;
+					var fields = _n6.b;
+					return _Utils_Tuple2(
+						newSeed,
+						A5(mdgriffith$elm_markup$Mark$Internal$Parser$record, mdgriffith$elm_markup$Mark$Internal$Parser$BlockRecord, parentId, details.name, expectations, fields));
+				})
+		});
+};
+var author$project$View$BlogPost$header = mdgriffith$elm_markup$Mark$toBlock(
+	A3(
+		mdgriffith$elm_markup$Mark$field,
+		'date',
+		author$project$View$BlogPost$text,
+		A3(
+			mdgriffith$elm_markup$Mark$field,
+			'subtitle',
+			author$project$View$BlogPost$text,
+			A3(
+				mdgriffith$elm_markup$Mark$field,
+				'title',
+				mdgriffith$elm_markup$Mark$string,
+				A2(
+					mdgriffith$elm_markup$Mark$record,
+					'Header',
+					F3(
+						function (title, subtitle, date) {
+							return A2(
+								mdgriffith$elm_ui$Element$column,
+								_List_fromArray(
+									[
+										mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+										mdgriffith$elm_ui$Element$spacing(20)
+									]),
+								_List_fromArray(
+									[
+										author$project$View$BlogPost$blogTitle(title),
+										author$project$View$BlogPost$blogSubtitle(subtitle),
+										author$project$View$BlogPost$blogDate(date)
+									]));
+						}))))));
+var elm$html$Html$pre = _VirtualDom_node('pre');
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
+var mdgriffith$elm_ui$Internal$Model$unstyled = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Unstyled, elm$core$Basics$always);
+var mdgriffith$elm_ui$Element$html = mdgriffith$elm_ui$Internal$Model$unstyled;
+var author$project$View$BlogPost$codeText = function (str) {
+	return mdgriffith$elm_ui$Element$html(
+		A2(
+			elm$html$Html$pre,
+			_List_fromArray(
+				[
+					A2(elm$html$Html$Attributes$style, 'padding', '12px'),
+					A2(elm$html$Html$Attributes$style, 'background-color', '#eee')
+				]),
+			_List_fromArray(
+				[
+					elm$html$Html$text(str)
+				])));
+};
+var author$project$View$BlogPost$readmeTitle = mdgriffith$elm_ui$Element$text('Readme.md');
+var mdgriffith$elm_markup$Mark$Internal$Description$DescribeBlock = function (a) {
+	return {$: 'DescribeBlock', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$ExpectBlock = F2(
+	function (a, b) {
+		return {$: 'ExpectBlock', a: a, b: b};
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$InBlock = function (a) {
+	return {$: 'InBlock', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$skipBlankLineWith = function (x) {
+	return A2(
+		elm$parser$Parser$Advanced$ignorer,
+		A2(
+			elm$parser$Parser$Advanced$ignorer,
+			elm$parser$Parser$Advanced$succeed(x),
+			elm$parser$Parser$Advanced$token(
+				A2(elm$parser$Parser$Advanced$Token, '\n', mdgriffith$elm_markup$Mark$Internal$Error$Newline))),
+		elm$parser$Parser$Advanced$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					elm$parser$Parser$Advanced$ignorer,
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(_Utils_Tuple0),
+						elm$parser$Parser$Advanced$backtrackable(
+							elm$parser$Parser$Advanced$chompWhile(
+								function (c) {
+									return _Utils_eq(
+										c,
+										_Utils_chr(' '));
+								}))),
+					elm$parser$Parser$Advanced$backtrackable(
+						elm$parser$Parser$Advanced$token(
+							A2(elm$parser$Parser$Advanced$Token, '\n', mdgriffith$elm_markup$Mark$Internal$Error$Newline)))),
+					elm$parser$Parser$Advanced$succeed(_Utils_Tuple0)
+				])));
+};
+var mdgriffith$elm_markup$Mark$block = F3(
+	function (name, view, child) {
+		return mdgriffith$elm_markup$Mark$Internal$Description$Block(
+			{
+				converter: function (desc) {
+					if (desc.$ === 'DescribeBlock') {
+						var details = desc.a;
+						if (_Utils_eq(details.name, name)) {
+							var _n1 = details.found;
+							if (_n1.$ === 'Found') {
+								var range = _n1.a;
+								var found = _n1.b;
+								return A2(
+									mdgriffith$elm_markup$Mark$Internal$Description$mapSuccessAndRecovered,
+									view,
+									A2(mdgriffith$elm_markup$Mark$Internal$Description$renderBlock, child, found));
+							} else {
+								var unexpected = _n1.a;
+								return mdgriffith$elm_markup$Mark$Internal$Description$uncertain(unexpected);
+							}
+						} else {
+							return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(mdgriffith$elm_markup$Mark$Internal$Error$NoMatch);
+						}
+					} else {
+						return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(mdgriffith$elm_markup$Mark$Internal$Error$NoMatch);
+					}
+				},
+				expect: A2(
+					mdgriffith$elm_markup$Mark$Internal$Description$ExpectBlock,
+					name,
+					mdgriffith$elm_markup$Mark$Internal$Description$getBlockExpectation(child)),
+				kind: mdgriffith$elm_markup$Mark$Internal$Description$Named(name),
+				parser: F2(
+					function (context, seed) {
+						var _n2 = A3(mdgriffith$elm_markup$Mark$Internal$Description$getParser, context, seed, child);
+						var newSeed = _n2.a;
+						var childParser = _n2.b;
+						var _n3 = mdgriffith$elm_markup$Mark$Internal$Id$step(newSeed);
+						var parentId = _n3.a;
+						var finalSeed = _n3.b;
+						return _Utils_Tuple2(
+							finalSeed,
+							A2(
+								elm$parser$Parser$Advanced$map,
+								function (result) {
+									if (result.$ === 'Ok') {
+										var details = result.a;
+										return mdgriffith$elm_markup$Mark$Internal$Description$DescribeBlock(
+											{
+												expected: A2(
+													mdgriffith$elm_markup$Mark$Internal$Description$ExpectBlock,
+													name,
+													mdgriffith$elm_markup$Mark$Internal$Description$getBlockExpectation(child)),
+												found: A2(mdgriffith$elm_markup$Mark$Internal$Description$Found, details.range, details.value),
+												id: parentId,
+												name: name
+											});
+									} else {
+										var details = result.a;
+										return mdgriffith$elm_markup$Mark$Internal$Description$DescribeBlock(
+											{
+												expected: A2(
+													mdgriffith$elm_markup$Mark$Internal$Description$ExpectBlock,
+													name,
+													mdgriffith$elm_markup$Mark$Internal$Description$getBlockExpectation(child)),
+												found: mdgriffith$elm_markup$Mark$Internal$Description$Unexpected(
+													{problem: details.error, range: details.range}),
+												id: parentId,
+												name: name
+											});
+									}
+								},
+								mdgriffith$elm_markup$Mark$Internal$Parser$withRangeResult(
+									mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+										function (indentation) {
+											return A2(
+												elm$parser$Parser$Advanced$keeper,
+												A2(
+													elm$parser$Parser$Advanced$ignorer,
+													A2(
+														elm$parser$Parser$Advanced$ignorer,
+														A2(
+															elm$parser$Parser$Advanced$ignorer,
+															elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+															elm$parser$Parser$Advanced$keyword(
+																A2(
+																	elm$parser$Parser$Advanced$Token,
+																	name,
+																	mdgriffith$elm_markup$Mark$Internal$Error$ExpectingBlockName(name)))),
+														elm$parser$Parser$Advanced$chompWhile(
+															function (c) {
+																return _Utils_eq(
+																	c,
+																	_Utils_chr(' '));
+															})),
+													mdgriffith$elm_markup$Mark$Internal$Parser$skipBlankLineWith(_Utils_Tuple0)),
+												elm$parser$Parser$Advanced$oneOf(
+													_List_fromArray(
+														[
+															A2(
+															elm$parser$Parser$Advanced$andThen,
+															function (start) {
+																return elm$parser$Parser$Advanced$oneOf(
+																	_List_fromArray(
+																		[
+																			A2(
+																			elm$parser$Parser$Advanced$keeper,
+																			A2(
+																				elm$parser$Parser$Advanced$ignorer,
+																				A2(
+																					elm$parser$Parser$Advanced$ignorer,
+																					elm$parser$Parser$Advanced$succeed(
+																						function (end) {
+																							return elm$core$Result$Err(
+																								mdgriffith$elm_markup$Mark$Internal$Error$ExpectingIndent(indentation + 4));
+																						}),
+																					A2(
+																						elm$parser$Parser$Advanced$chompIf,
+																						function (c) {
+																							return _Utils_eq(
+																								c,
+																								_Utils_chr(' '));
+																						},
+																						mdgriffith$elm_markup$Mark$Internal$Error$Space)),
+																				elm$parser$Parser$Advanced$chompWhile(
+																					function (c) {
+																						return _Utils_eq(
+																							c,
+																							_Utils_chr(' '));
+																					})),
+																			A2(
+																				elm$parser$Parser$Advanced$ignorer,
+																				mdgriffith$elm_markup$Mark$Internal$Parser$getPosition,
+																				A2(
+																					elm$parser$Parser$Advanced$loop,
+																					'',
+																					mdgriffith$elm_markup$Mark$Internal$Parser$raggedIndentedStringAbove(indentation)))),
+																			A2(
+																			elm$parser$Parser$Advanced$map,
+																			elm$core$Result$Ok,
+																			A2(
+																				elm$parser$Parser$Advanced$withIndent,
+																				indentation + 4,
+																				A2(
+																					elm$parser$Parser$Advanced$inContext,
+																					mdgriffith$elm_markup$Mark$Internal$Error$InBlock(name),
+																					childParser)))
+																		]));
+															},
+															A2(
+																elm$parser$Parser$Advanced$keeper,
+																elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+																A2(
+																	elm$parser$Parser$Advanced$ignorer,
+																	mdgriffith$elm_markup$Mark$Internal$Parser$getPosition,
+																	elm$parser$Parser$Advanced$token(
+																		A2(
+																			elm$parser$Parser$Advanced$Token,
+																			A2(elm$core$String$repeat, indentation + 4, ' '),
+																			mdgriffith$elm_markup$Mark$Internal$Error$ExpectingIndentation(indentation + 4)))))),
+															A2(
+															elm$parser$Parser$Advanced$ignorer,
+															elm$parser$Parser$Advanced$succeed(
+																elm$core$Result$Err(
+																	mdgriffith$elm_markup$Mark$Internal$Error$ExpectingIndent(indentation + 4))),
+															A2(
+																elm$parser$Parser$Advanced$loop,
+																'',
+																mdgriffith$elm_markup$Mark$Internal$Parser$raggedIndentedStringAbove(indentation)))
+														])));
+										}))));
+					})
+			});
+	});
+var author$project$View$BlogPost$readmeBlock = A3(
+	mdgriffith$elm_markup$Mark$block,
+	'ReadmeTitle',
+	function (str) {
+		return A2(
+			mdgriffith$elm_ui$Element$column,
+			_List_Nil,
+			_List_fromArray(
+				[
+					author$project$View$BlogPost$readmeTitle,
+					author$project$View$BlogPost$codeText(str)
+				]));
+	},
+	mdgriffith$elm_markup$Mark$string);
+var mdgriffith$elm_markup$Mark$unexpectedFromFound = function (found) {
+	if (found.$ === 'Found') {
+		return _List_Nil;
+	} else {
+		var unexpected = found.a;
+		return _List_fromArray(
+			[unexpected]);
+	}
+};
+var mdgriffith$elm_markup$Mark$getUnexpecteds = function (description) {
+	switch (description.$) {
+		case 'DescribeBlock':
+			var details = description.a;
+			return mdgriffith$elm_markup$Mark$spelunkUnexpectedsFromFound(details.found);
+		case 'Record':
+			var details = description.a;
+			var _n2 = details.found;
+			if (_n2.$ === 'Found') {
+				var fields = _n2.b;
+				return A2(
+					elm$core$List$concatMap,
+					A2(elm$core$Basics$composeR, elm$core$Tuple$second, mdgriffith$elm_markup$Mark$spelunkUnexpectedsFromFound),
+					fields);
+			} else {
+				var unexpected = _n2.a;
+				return _List_fromArray(
+					[unexpected]);
+			}
+		case 'OneOf':
+			var one = description.a;
+			return mdgriffith$elm_markup$Mark$spelunkUnexpectedsFromFound(one.child);
+		case 'ManyOf':
+			var many = description.a;
+			return A2(elm$core$List$concatMap, mdgriffith$elm_markup$Mark$spelunkUnexpectedsFromFound, many.children);
+		case 'StartsWith':
+			var details = description.a;
+			return _Utils_ap(
+				mdgriffith$elm_markup$Mark$getUnexpecteds(details.first.found),
+				mdgriffith$elm_markup$Mark$getUnexpecteds(details.second.found));
+		case 'DescribeTree':
+			var details = description.a;
+			return _List_Nil;
+		case 'DescribeBoolean':
+			var details = description.a;
+			return mdgriffith$elm_markup$Mark$unexpectedFromFound(details.found);
+		case 'DescribeInteger':
+			var details = description.a;
+			return mdgriffith$elm_markup$Mark$unexpectedFromFound(details.found);
+		case 'DescribeFloat':
+			var details = description.a;
+			return mdgriffith$elm_markup$Mark$unexpectedFromFound(details.found);
+		case 'DescribeText':
+			var details = description.a;
+			return _List_Nil;
+		case 'DescribeString':
+			var rng = description.a;
+			var str = description.c;
+			return _List_Nil;
+		default:
+			return _List_Nil;
+	}
+};
+var mdgriffith$elm_markup$Mark$spelunkUnexpectedsFromFound = function (found) {
+	if (found.$ === 'Found') {
+		var desc = found.b;
+		return mdgriffith$elm_markup$Mark$getUnexpecteds(desc);
+	} else {
+		var unexpected = found.a;
+		return _List_fromArray(
+			[unexpected]);
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$Document = function (a) {
+	return {$: 'Document', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$Parsed = function (a) {
+	return {$: 'Parsed', a: a};
+};
+var elm$core$List$sortBy = _List_sortBy;
+var elm$core$String$toUpper = _String_toUpper;
+var mdgriffith$elm_markup$Mark$Internal$Error$Rendered = function (a) {
+	return {$: 'Rendered', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$addIndent = F2(
+	function (x, str) {
+		return _Utils_ap(
+			A2(elm$core$String$repeat, x, ' '),
+			str);
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$CompilerError = {$: 'CompilerError'};
+var mdgriffith$elm_markup$Mark$Internal$Error$Global = function (a) {
+	return {$: 'Global', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Format$text = function (str) {
+	return {bold: false, color: elm$core$Maybe$Nothing, text: str, underline: false};
+};
+var mdgriffith$elm_markup$Mark$Internal$Format$yellow = function (txt) {
+	return _Utils_update(
+		txt,
+		{
+			color: elm$core$Maybe$Just('yellow')
+		});
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$compilerError = mdgriffith$elm_markup$Mark$Internal$Error$Global(
+	{
+		message: _List_fromArray(
+			[
+				mdgriffith$elm_markup$Mark$Internal$Format$text('Oh boy, this looks like a  '),
+				mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+				mdgriffith$elm_markup$Mark$Internal$Format$text('compiler error')),
+				mdgriffith$elm_markup$Mark$Internal$Format$text('\n\n'),
+				mdgriffith$elm_markup$Mark$Internal$Format$text('If you have time, could you file an '),
+				mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+				mdgriffith$elm_markup$Mark$Internal$Format$text('issue')),
+				mdgriffith$elm_markup$Mark$Internal$Format$text(' on the elm-markup respository(https://github.com/mdgriffith/elm-markup) describing how you got here?')
+			]),
+		problem: mdgriffith$elm_markup$Mark$Internal$Error$CompilerError,
+		title: 'COMPILER ERROR'
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$DocumentMismatch = {$: 'DocumentMismatch'};
+var mdgriffith$elm_markup$Mark$Internal$Error$documentMismatch = mdgriffith$elm_markup$Mark$Internal$Error$Global(
+	{
+		message: _List_fromArray(
+			[
+				mdgriffith$elm_markup$Mark$Internal$Format$text('Your '),
+				mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+				mdgriffith$elm_markup$Mark$Internal$Format$text('document')),
+				mdgriffith$elm_markup$Mark$Internal$Format$text(' and your '),
+				mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+				mdgriffith$elm_markup$Mark$Internal$Format$text('Parsed')),
+				mdgriffith$elm_markup$Mark$Internal$Format$text(' structure don\'t match for some reason.\n\n'),
+				mdgriffith$elm_markup$Mark$Internal$Format$text('This usually occurs because you\'ve stored the '),
+				mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+				mdgriffith$elm_markup$Mark$Internal$Format$text('Parsed')),
+				mdgriffith$elm_markup$Mark$Internal$Format$text(' data somewhere and then made a breaking change to your document.')
+			]),
+		problem: mdgriffith$elm_markup$Mark$Internal$Error$DocumentMismatch,
+		title: 'DOCUMENT MISMATCH'
+	});
+var mdgriffith$elm_markup$Mark$Internal$Format$red = function (txt) {
+	return _Utils_update(
+		txt,
+		{
+			color: elm$core$Maybe$Just('red')
+		});
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$highlightLine = function (_n0) {
+	var index = _n0.a;
+	var line = _n0.b;
+	return _List_fromArray(
+		[
+			mdgriffith$elm_markup$Mark$Internal$Format$text(
+			elm$core$String$fromInt(index)),
+			mdgriffith$elm_markup$Mark$Internal$Format$red(
+			mdgriffith$elm_markup$Mark$Internal$Format$text('>')),
+			mdgriffith$elm_markup$Mark$Internal$Format$text(line + '\n')
+		]);
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$highlight = F2(
+	function (range, source) {
+		if (_Utils_eq(range.start.line, range.end.line)) {
+			var lineStart = range.start.offset - (range.start.column - 1);
+			var line = A2(
+				elm$core$Maybe$withDefault,
+				'',
+				elm$core$List$head(
+					elm$core$String$lines(
+						A3(elm$core$String$slice, lineStart, range.end.offset + 20, source))));
+			var lineNumber = _Utils_ap(
+				elm$core$String$fromInt(range.start.line),
+				A2(elm$core$String$startsWith, '|', line) ? '' : '|');
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text(lineNumber + (line + '\n')),
+					mdgriffith$elm_markup$Mark$Internal$Format$red(
+					mdgriffith$elm_markup$Mark$Internal$Format$text(
+						A2(
+							elm$core$String$repeat,
+							(range.start.column - 1) + elm$core$String$length(lineNumber),
+							' ') + (A2(elm$core$String$repeat, range.end.column - range.start.column, '^') + '\n')))
+				]);
+		} else {
+			var snippet = A3(elm$core$String$slice, range.start.offset, range.end.offset, source);
+			var indented = A3(elm$core$String$slice, (range.start.offset + 1) - range.start.column, range.start.offset, source);
+			var lines = A2(
+				elm$core$List$indexedMap,
+				F2(
+					function (i, str) {
+						return _Utils_Tuple2((i + range.start.line) - 1, str);
+					}),
+				elm$core$String$lines(
+					_Utils_ap(indented, snippet)));
+			return A2(elm$core$List$concatMap, mdgriffith$elm_markup$Mark$Internal$Error$highlightLine, lines);
+		}
+	});
+var mdgriffith$elm_markup$Mark$Internal$Format$underline = function (txt) {
+	return _Utils_update(
+		txt,
+		{underline: true});
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$hint = function (str) {
+	return _List_fromArray(
+		[
+			mdgriffith$elm_markup$Mark$Internal$Format$underline(
+			mdgriffith$elm_markup$Mark$Internal$Format$text('Hint')),
+			mdgriffith$elm_markup$Mark$Internal$Format$text(': ' + str)
+		]);
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$DocumentDoesntAllow = F2(
+	function (a, b) {
+		return {$: 'DocumentDoesntAllow', a: a, b: b};
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$EditingError = function (a) {
+	return {$: 'EditingError', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$indent = mdgriffith$elm_markup$Mark$Internal$Format$text(
+	A2(elm$core$String$repeat, 4, ' '));
+var mdgriffith$elm_markup$Mark$Internal$Error$documentDoesntAllow = F2(
+	function (_new, expectations) {
+		return mdgriffith$elm_markup$Mark$Internal$Error$Global(
+			{
+				message: _Utils_ap(
+					_List_fromArray(
+						[
+							mdgriffith$elm_markup$Mark$Internal$Format$text('You tried to insert a\n\n'),
+							mdgriffith$elm_markup$Mark$Internal$Error$indent,
+							mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+							mdgriffith$elm_markup$Mark$Internal$Format$text(_new)),
+							mdgriffith$elm_markup$Mark$Internal$Format$text('\n\n'),
+							mdgriffith$elm_markup$Mark$Internal$Format$text('but the block at the provided '),
+							mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+							mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.Edit.Id')),
+							mdgriffith$elm_markup$Mark$Internal$Format$text(' is expecting\n\n')
+						]),
+					A2(
+						elm$core$List$concatMap,
+						function (exp) {
+							return _List_fromArray(
+								[
+									mdgriffith$elm_markup$Mark$Internal$Error$indent,
+									mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+									mdgriffith$elm_markup$Mark$Internal$Format$text(exp)),
+									mdgriffith$elm_markup$Mark$Internal$Format$text('\n')
+								]);
+						},
+						expectations)),
+				problem: mdgriffith$elm_markup$Mark$Internal$Error$EditingError(
+					A2(mdgriffith$elm_markup$Mark$Internal$Error$DocumentDoesntAllow, _new, expectations)),
+				title: 'DOCUMENT DOESN\'T ALLOW'
+			});
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$IdNotFound = {$: 'IdNotFound'};
+var mdgriffith$elm_markup$Mark$Internal$Error$idNotFound = mdgriffith$elm_markup$Mark$Internal$Error$Global(
+	{
+		message: _List_fromArray(
+			[
+				mdgriffith$elm_markup$Mark$Internal$Format$text('The '),
+				mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+				mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.Edit.Id')),
+				mdgriffith$elm_markup$Mark$Internal$Format$text(' that you provided doesn\'t match any blocks in the document.')
+			]),
+		problem: mdgriffith$elm_markup$Mark$Internal$Error$EditingError(mdgriffith$elm_markup$Mark$Internal$Error$IdNotFound),
+		title: 'ID NOT FOUND'
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$InvalidInsert = {$: 'InvalidInsert'};
+var mdgriffith$elm_markup$Mark$Internal$Error$invalidDelete = mdgriffith$elm_markup$Mark$Internal$Error$Global(
+	{
+		message: _List_fromArray(
+			[
+				mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+				mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.Edit.deleteAt')),
+				mdgriffith$elm_markup$Mark$Internal$Format$text(' is only valid for elements within a '),
+				mdgriffith$elm_markup$Mark$Internal$Error$indent,
+				mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+				mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.manyOf'))
+			]),
+		problem: mdgriffith$elm_markup$Mark$Internal$Error$EditingError(mdgriffith$elm_markup$Mark$Internal$Error$InvalidInsert),
+		title: 'INVALID DELETE'
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$invalidInsert = mdgriffith$elm_markup$Mark$Internal$Error$Global(
+	{
+		message: _List_fromArray(
+			[
+				mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+				mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.Edit.insertAt')),
+				mdgriffith$elm_markup$Mark$Internal$Format$text(' is only valid for elements within a '),
+				mdgriffith$elm_markup$Mark$Internal$Error$indent,
+				mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+				mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.manyOf'))
+			]),
+		problem: mdgriffith$elm_markup$Mark$Internal$Error$EditingError(mdgriffith$elm_markup$Mark$Internal$Error$InvalidInsert),
+		title: 'INVALID INSERT'
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$InvalidTextEdit = {$: 'InvalidTextEdit'};
+var mdgriffith$elm_markup$Mark$Internal$Error$invalidTextEdit = mdgriffith$elm_markup$Mark$Internal$Error$Global(
+	{
+		message: _Utils_ap(
+			_List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('Text edits such as\n\n'),
+					mdgriffith$elm_markup$Mark$Internal$Error$indent,
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.Edit.insertText\n')),
+					mdgriffith$elm_markup$Mark$Internal$Error$indent,
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.Edit.deleteText\n')),
+					mdgriffith$elm_markup$Mark$Internal$Error$indent,
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.Edit.restyle\n')),
+					mdgriffith$elm_markup$Mark$Internal$Error$indent,
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.Edit.addStyles\n')),
+					mdgriffith$elm_markup$Mark$Internal$Error$indent,
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.Edit.removeStyles\n\n')),
+					mdgriffith$elm_markup$Mark$Internal$Format$text('only work on '),
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.text')),
+					mdgriffith$elm_markup$Mark$Internal$Format$text(' or '),
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text('Mark.textWith')),
+					mdgriffith$elm_markup$Mark$Internal$Format$text(' blocks.\n\n')
+				]),
+			mdgriffith$elm_markup$Mark$Internal$Error$hint('If you\'re trying to update a simple Mark.string, you probably want to use `Mark.Edit.replace` instead.')),
+		problem: mdgriffith$elm_markup$Mark$Internal$Error$EditingError(mdgriffith$elm_markup$Mark$Internal$Error$InvalidTextEdit),
+		title: 'INVALID TEXT EDIT'
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$renderEditError = function (editErr) {
+	switch (editErr.$) {
+		case 'IdNotFound':
+			return mdgriffith$elm_markup$Mark$Internal$Error$idNotFound;
+		case 'InvalidTextEdit':
+			return mdgriffith$elm_markup$Mark$Internal$Error$invalidTextEdit;
+		case 'InvalidInsert':
+			return mdgriffith$elm_markup$Mark$Internal$Error$invalidInsert;
+		case 'InvalidDelete':
+			return mdgriffith$elm_markup$Mark$Internal$Error$invalidDelete;
+		default:
+			var _new = editErr.a;
+			var exp = editErr.b;
+			return A2(mdgriffith$elm_markup$Mark$Internal$Error$documentDoesntAllow, _new, exp);
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$ParsingIssue = function (a) {
+	return {$: 'ParsingIssue', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$renderParsingProblem = function (prob) {
+	switch (prob.$) {
+		case 'ExpectingIndentation':
+			var i = prob.a;
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text(
+					'I was expecting an indent of ' + (elm$core$String$fromInt(i) + ' spaces'))
+				]);
+		case 'InlineStart':
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('InlineStart')
+				]);
+		case 'InlineEnd':
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expecting the end of an inline: '),
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text('}'))
+				]);
+		case 'BlockStart':
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expecting the start of a block: '),
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text('|>'))
+				]);
+		case 'Expecting':
+			var str = prob.a;
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expecting \"' + (str + '\"'))
+				]);
+		case 'ExpectingBlockName':
+			var name = prob.a;
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expecting a block named '),
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text(name))
+				]);
+		case 'ExpectingInlineName':
+			var name = prob.a;
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expecting an inline named '),
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text(name))
+				]);
+		case 'ExpectingFieldName':
+			var name = prob.a;
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expecting a field named '),
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text(name))
+				]);
+		case 'Escape':
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expectng a backslash')
+				]);
+		case 'EscapedChar':
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expecting an escaped character')
+				]);
+		case 'Newline':
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expecting a newline')
+				]);
+		case 'Space':
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expecting a space')
+				]);
+		case 'End':
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expecting the end of a document.')
+				]);
+		case 'Integer':
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expecting an '),
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text('Int'))
+				]);
+		case 'FloatingPoint':
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I was expecting a '),
+					mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+					mdgriffith$elm_markup$Mark$Internal$Format$text('Float'))
+				]);
+		default:
+			return _List_fromArray(
+				[
+					mdgriffith$elm_markup$Mark$Internal$Format$text('I ran into an invalid number.')
+				]);
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$renderParserIssue = function (deadends) {
+	return A2(
+		elm$core$List$concatMap,
+		function (dead) {
+			return _Utils_ap(
+				mdgriffith$elm_markup$Mark$Internal$Error$renderParsingProblem(dead.problem),
+				_List_fromArray(
+					[
+						mdgriffith$elm_markup$Mark$Internal$Format$text('\n')
+					]));
+		},
+		deadends);
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$renderParsingErrors = F2(
+	function (source, issues) {
+		return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+			{
+				message: elm$core$List$concat(
+					_List_fromArray(
+						[
+							_List_fromArray(
+							[
+								mdgriffith$elm_markup$Mark$Internal$Format$text('\n')
+							]),
+							mdgriffith$elm_markup$Mark$Internal$Error$renderParserIssue(issues)
+						])),
+				problem: mdgriffith$elm_markup$Mark$Internal$Error$ParsingIssue(issues),
+				region: function () {
+					if (!issues.b) {
+						return {
+							end: {column: 0, line: 0, offset: 0},
+							start: {column: 0, line: 0, offset: 0}
+						};
+					} else {
+						var first = issues.a;
+						return {
+							end: {column: first.col, line: first.row, offset: 0},
+							start: {column: first.col, line: first.row, offset: 0}
+						};
+					}
+				}(),
+				title: 'PARSING ISSUE'
+			});
+	});
+var elm$core$Basics$abs = function (n) {
+	return (n < 0) ? (-n) : n;
+};
+var elm$core$String$foldr = _String_foldr;
+var elm$core$String$toList = function (string) {
+	return A3(elm$core$String$foldr, elm$core$List$cons, _List_Nil, string);
+};
+var elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$similarity = F2(
+	function (source, target) {
+		var lenSimilarity = 0 - A2(
+			elm$core$Basics$min,
+			2,
+			elm$core$Basics$abs(
+				elm$core$String$length(source) - elm$core$String$length(target)));
+		var addCompared = F2(
+			function (_n0, total) {
+				var x = _n0.a;
+				var y = _n0.b;
+				return _Utils_eq(x, y) ? (total + 1) : total;
+			});
+		return lenSimilarity + A3(
+			elm$core$List$foldl,
+			addCompared,
+			0,
+			A3(
+				elm$core$List$map2,
+				elm$core$Tuple$pair,
+				elm$core$String$toList(source),
+				elm$core$String$toList(target)));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$styleChars = function (styles) {
+	var strike = styles.strike;
+	var italic = styles.italic;
+	var isBold = styles.bold;
+	var _n0 = _Utils_Tuple3(italic, isBold, strike);
+	if (_n0.a) {
+		if (_n0.b) {
+			if (!_n0.c) {
+				return '/ and *';
+			} else {
+				return '/, *, and ~';
+			}
+		} else {
+			if (_n0.c) {
+				return '/ and ~';
+			} else {
+				return '/';
+			}
+		}
+	} else {
+		if (_n0.b) {
+			if (_n0.c) {
+				return '* and ~';
+			} else {
+				return '*';
+			}
+		} else {
+			if (!_n0.c) {
+				return 'Some formatting is';
+			} else {
+				return '~';
+			}
+		}
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$styleNames = function (styles) {
+	var strike = styles.strike;
+	var italic = styles.italic;
+	var isBold = styles.bold;
+	var _n0 = _Utils_Tuple3(italic, isBold, strike);
+	if (_n0.a) {
+		if (_n0.b) {
+			if (!_n0.c) {
+				return 'Italic and bold formatting are';
+			} else {
+				return 'Italic, strike, and bold formatting are';
+			}
+		} else {
+			if (_n0.c) {
+				return 'Italic and strike formatting are';
+			} else {
+				return 'Italic formatting is';
+			}
+		}
+	} else {
+		if (_n0.b) {
+			if (_n0.c) {
+				return 'Strike, and bold formatting are';
+			} else {
+				return 'Bold formatting is';
+			}
+		} else {
+			if (!_n0.c) {
+				return 'Some formatting is';
+			} else {
+				return 'Strike formatting is';
+			}
+		}
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Error$render = F2(
+	function (source, current) {
+		var _n0 = current.problem;
+		switch (_n0.$) {
+			case 'CompilerError':
+				return mdgriffith$elm_markup$Mark$Internal$Error$compilerError;
+			case 'DocumentMismatch':
+				return mdgriffith$elm_markup$Mark$Internal$Error$documentMismatch;
+			case 'EditingError':
+				var editErr = _n0.a;
+				return mdgriffith$elm_markup$Mark$Internal$Error$renderEditError(editErr);
+			case 'ParsingIssue':
+				var issues = _n0.a;
+				return A2(mdgriffith$elm_markup$Mark$Internal$Error$renderParsingErrors, source, issues);
+			case 'UnknownBlock':
+				var expecting = _n0.a;
+				var target = A3(elm$core$String$slice, current.range.start.offset, current.range.end.offset, source);
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: elm$core$List$concat(
+							_List_fromArray(
+								[
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('I don\'t recognize this block name.\n\n')
+									]),
+									A2(mdgriffith$elm_markup$Mark$Internal$Error$highlight, current.range, source),
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('Do you mean one of these instead?\n\n'),
+										mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+										mdgriffith$elm_markup$Mark$Internal$Format$text(
+											A2(
+												elm$core$String$join,
+												'\n',
+												A2(
+													elm$core$List$map,
+													mdgriffith$elm_markup$Mark$Internal$Error$addIndent(4),
+													A2(
+														elm$core$List$sortBy,
+														function (exp) {
+															return 0 - A2(mdgriffith$elm_markup$Mark$Internal$Error$similarity, target, exp);
+														},
+														expecting)))))
+									])
+								])),
+						problem: current.problem,
+						region: current.range,
+						title: 'UNKNOWN BLOCK'
+					});
+			case 'UnknownInline':
+				var expecting = _n0.a;
+				var target = A3(elm$core$String$slice, current.range.start.offset, current.range.end.offset, source);
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: elm$core$List$concat(
+							_List_fromArray(
+								[
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('I ran into an unexpected inline name.\n\n')
+									]),
+									A2(mdgriffith$elm_markup$Mark$Internal$Error$highlight, current.range, source),
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('But I was expecting one of these instead:\n\n'),
+										mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+										mdgriffith$elm_markup$Mark$Internal$Format$text(
+											A2(
+												elm$core$String$join,
+												'\n',
+												A2(
+													elm$core$List$map,
+													mdgriffith$elm_markup$Mark$Internal$Error$addIndent(4),
+													A2(
+														elm$core$List$sortBy,
+														function (exp) {
+															return 0 - A2(mdgriffith$elm_markup$Mark$Internal$Error$similarity, target, exp);
+														},
+														expecting)))))
+									])
+								])),
+						problem: current.problem,
+						region: current.range,
+						title: 'UNKNOWN INLINE'
+					});
+			case 'FailMatchOneOf':
+				var expecting = _n0.a;
+				var target = A3(elm$core$String$slice, current.range.start.offset, current.range.end.offset, source);
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: elm$core$List$concat(
+							_List_fromArray(
+								[
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('I wasn\'t able to match this.\n\n')
+									]),
+									A2(mdgriffith$elm_markup$Mark$Internal$Error$highlight, current.range, source),
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('to one of the following:\n\n'),
+										mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+										mdgriffith$elm_markup$Mark$Internal$Format$text(
+											A2(
+												elm$core$String$join,
+												'\n',
+												A2(
+													elm$core$List$map,
+													mdgriffith$elm_markup$Mark$Internal$Error$addIndent(4),
+													expecting))))
+									])
+								])),
+						problem: current.problem,
+						region: current.range,
+						title: 'NO MATCH'
+					});
+			case 'ExpectingIndent':
+				var indentation = _n0.a;
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: _Utils_ap(
+							_List_fromArray(
+								[
+									mdgriffith$elm_markup$Mark$Internal$Format$text(
+									'I was expecting ' + (elm$core$String$fromInt(indentation) + ' spaces of indentation.\n\n'))
+								]),
+							_Utils_ap(
+								A2(mdgriffith$elm_markup$Mark$Internal$Error$highlight, current.range, source),
+								mdgriffith$elm_markup$Mark$Internal$Error$hint('All indentation in `elm-markup` is a multiple of 4.'))),
+						problem: current.problem,
+						region: current.range,
+						title: 'MISMATCHED INDENTATION'
+					});
+			case 'CantStartTextWithSpace':
+				var line = A3(elm$core$String$slice, current.range.start.offset, current.range.end.offset, source);
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: elm$core$List$concat(
+							_List_fromArray(
+								[
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('This line of text starts with extra space.\n\n')
+									]),
+									A2(mdgriffith$elm_markup$Mark$Internal$Error$highlight, current.range, source),
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('Beyond the required indentation, text should start with non-whitespace characters.')
+									])
+								])),
+						problem: current.problem,
+						region: current.range,
+						title: 'TOO MUCH SPACE'
+					});
+			case 'UnclosedStyle':
+				var styles = _n0.a;
+				var line = A3(elm$core$String$slice, current.range.start.offset, current.range.end.offset, source);
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: _Utils_ap(
+							elm$core$List$concat(
+								_List_fromArray(
+									[
+										_List_fromArray(
+										[
+											mdgriffith$elm_markup$Mark$Internal$Format$text(
+											mdgriffith$elm_markup$Mark$Internal$Error$styleNames(styles) + (' still open.  Add ' + (mdgriffith$elm_markup$Mark$Internal$Error$styleChars(styles) + ' to close it.\n\n')))
+										])
+									])),
+							_Utils_ap(
+								A2(mdgriffith$elm_markup$Mark$Internal$Error$highlight, current.range, source),
+								mdgriffith$elm_markup$Mark$Internal$Error$hint('`*` is used for bold and `/` is used for italic.'))),
+						problem: current.problem,
+						region: current.range,
+						title: 'UNCLOSED STYLE'
+					});
+			case 'UnexpectedField':
+				var msgUnexpectedField = _n0.a;
+				var target = A3(elm$core$String$slice, current.range.start.offset, current.range.end.offset, source);
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: elm$core$List$concat(
+							_List_fromArray(
+								[
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('I ran into an unexpected field name for a '),
+										mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+										mdgriffith$elm_markup$Mark$Internal$Format$text(msgUnexpectedField.recordName)),
+										mdgriffith$elm_markup$Mark$Internal$Format$text(' record\n\n')
+									]),
+									A2(mdgriffith$elm_markup$Mark$Internal$Error$highlight, current.range, source),
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('\nDo you mean one of these instead?\n\n'),
+										mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+										mdgriffith$elm_markup$Mark$Internal$Format$text(
+											A2(
+												elm$core$String$join,
+												'\n',
+												A2(
+													elm$core$List$map,
+													mdgriffith$elm_markup$Mark$Internal$Error$addIndent(4),
+													A2(
+														elm$core$List$sortBy,
+														function (exp) {
+															return 0 - A2(mdgriffith$elm_markup$Mark$Internal$Error$similarity, target, exp);
+														},
+														msgUnexpectedField.options)))))
+									])
+								])),
+						problem: current.problem,
+						region: current.range,
+						title: 'UNKNOWN FIELD'
+					});
+			case 'BadFloat':
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: elm$core$List$concat(
+							_List_fromArray(
+								[
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('I was trying to parse a float, but this format looks off.\n\n')
+									]),
+									A2(mdgriffith$elm_markup$Mark$Internal$Error$highlight, current.range, source)
+								])),
+						problem: current.problem,
+						region: current.range,
+						title: 'BAD FLOAT'
+					});
+			case 'BadInt':
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: elm$core$List$concat(
+							_List_fromArray(
+								[
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('I was trying to parse an integer, but this format looks off.\n\n')
+									]),
+									A2(mdgriffith$elm_markup$Mark$Internal$Error$highlight, current.range, source)
+								])),
+						problem: current.problem,
+						region: current.range,
+						title: 'BAD INT'
+					});
+			case 'BadBool':
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: elm$core$List$concat(
+							_List_fromArray(
+								[
+									_List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('I was trying to parse a boolean, but this format looks off.\n\n')
+									]),
+									A2(mdgriffith$elm_markup$Mark$Internal$Error$highlight, current.range, source)
+								])),
+						problem: current.problem,
+						region: current.range,
+						title: 'BAD INT'
+					});
+			case 'NonMatchingFields':
+				var fields = _n0.a;
+				var remaining = A2(
+					elm$core$List$filter,
+					function (f) {
+						return !A2(elm$core$List$member, f, fields.found);
+					},
+					fields.expecting);
+				var line = A3(elm$core$String$slice, current.range.start.offset, current.range.end.offset, source);
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: function () {
+							if (!remaining.b) {
+								return _List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('It looks like a field is missing.')
+									]);
+							} else {
+								if (!remaining.b.b) {
+									var single = remaining.a;
+									return _List_fromArray(
+										[
+											mdgriffith$elm_markup$Mark$Internal$Format$text('It looks like a field is missing.\n\n'),
+											mdgriffith$elm_markup$Mark$Internal$Format$text('You need to add the '),
+											mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+											mdgriffith$elm_markup$Mark$Internal$Format$text(single)),
+											mdgriffith$elm_markup$Mark$Internal$Format$text(' field.')
+										]);
+								} else {
+									var multiple = remaining;
+									return _List_fromArray(
+										[
+											mdgriffith$elm_markup$Mark$Internal$Format$text('It looks like a field is missing.\n\n'),
+											mdgriffith$elm_markup$Mark$Internal$Format$text('You still need to add:\n'),
+											mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+											mdgriffith$elm_markup$Mark$Internal$Format$text(
+												A2(
+													elm$core$String$join,
+													'\n',
+													A2(
+														elm$core$List$map,
+														mdgriffith$elm_markup$Mark$Internal$Error$addIndent(4),
+														A2(
+															elm$core$List$sortBy,
+															function (exp) {
+																return 0 - A2(mdgriffith$elm_markup$Mark$Internal$Error$similarity, line, exp);
+															},
+															remaining)))))
+										]);
+								}
+							}
+						}(),
+						problem: current.problem,
+						region: current.range,
+						title: 'MISSING FIELD'
+					});
+			case 'MissingFields':
+				var remaining = _n0.a;
+				var line = A3(elm$core$String$slice, current.range.start.offset, current.range.end.offset, source);
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: function () {
+							if (!remaining.b) {
+								return _List_fromArray(
+									[
+										mdgriffith$elm_markup$Mark$Internal$Format$text('It looks like a field is missing.')
+									]);
+							} else {
+								if (!remaining.b.b) {
+									var single = remaining.a;
+									return _List_fromArray(
+										[
+											mdgriffith$elm_markup$Mark$Internal$Format$text('It looks like a field is missing.\n\n'),
+											mdgriffith$elm_markup$Mark$Internal$Format$text('You need to add the '),
+											mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+											mdgriffith$elm_markup$Mark$Internal$Format$text(single)),
+											mdgriffith$elm_markup$Mark$Internal$Format$text(' field.')
+										]);
+								} else {
+									var multiple = remaining;
+									return _List_fromArray(
+										[
+											mdgriffith$elm_markup$Mark$Internal$Format$text('It looks like a field is missing.\n\n'),
+											mdgriffith$elm_markup$Mark$Internal$Format$text('You still need to add:\n'),
+											mdgriffith$elm_markup$Mark$Internal$Format$yellow(
+											mdgriffith$elm_markup$Mark$Internal$Format$text(
+												A2(
+													elm$core$String$join,
+													'\n',
+													A2(
+														elm$core$List$map,
+														mdgriffith$elm_markup$Mark$Internal$Error$addIndent(4),
+														A2(
+															elm$core$List$sortBy,
+															function (exp) {
+																return 0 - A2(mdgriffith$elm_markup$Mark$Internal$Error$similarity, line, exp);
+															},
+															remaining)))))
+										]);
+								}
+							}
+						}(),
+						problem: current.problem,
+						region: current.range,
+						title: 'MISSING FIELD'
+					});
+			default:
+				var custom = _n0.a;
+				return mdgriffith$elm_markup$Mark$Internal$Error$Rendered(
+					{
+						message: A2(elm$core$List$map, mdgriffith$elm_markup$Mark$Internal$Format$text, custom.message),
+						problem: current.problem,
+						region: current.range,
+						title: elm$core$String$toUpper(custom.title)
+					});
+		}
+	});
+var mdgriffith$elm_markup$Mark$Internal$Error$BlockStart = {$: 'BlockStart'};
+var mdgriffith$elm_markup$Mark$Internal$Error$UnknownBlock = function (a) {
+	return {$: 'UnknownBlock', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$word = elm$parser$Parser$Advanced$getChompedString(
+	elm$parser$Parser$Advanced$chompWhile(elm$core$Char$isAlphaNum));
+var mdgriffith$elm_markup$Mark$Internal$Parser$failableBlocks = function (blocks) {
+	return A2(
+		elm$parser$Parser$Advanced$keeper,
+		A2(
+			elm$parser$Parser$Advanced$ignorer,
+			A2(
+				elm$parser$Parser$Advanced$ignorer,
+				elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+				elm$parser$Parser$Advanced$token(
+					A2(elm$parser$Parser$Advanced$Token, '|>', mdgriffith$elm_markup$Mark$Internal$Error$BlockStart))),
+			elm$parser$Parser$Advanced$chompWhile(
+				function (c) {
+					return _Utils_eq(
+						c,
+						_Utils_chr(' '));
+				})),
+		elm$parser$Parser$Advanced$oneOf(
+			_Utils_ap(
+				A2(
+					elm$core$List$map,
+					elm$parser$Parser$Advanced$map(elm$core$Result$Ok),
+					blocks.parsers),
+				_List_fromArray(
+					[
+						mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+						function (indentation) {
+							return A2(
+								elm$parser$Parser$Advanced$ignorer,
+								A2(
+									elm$parser$Parser$Advanced$ignorer,
+									A2(
+										elm$parser$Parser$Advanced$ignorer,
+										A2(
+											elm$parser$Parser$Advanced$ignorer,
+											elm$parser$Parser$Advanced$succeed(
+												elm$core$Result$Err(
+													mdgriffith$elm_markup$Mark$Internal$Error$UnknownBlock(blocks.names))),
+											mdgriffith$elm_markup$Mark$Internal$Parser$word),
+										elm$parser$Parser$Advanced$chompWhile(
+											function (c) {
+												return _Utils_eq(
+													c,
+													_Utils_chr(' '));
+											})),
+									mdgriffith$elm_markup$Mark$Internal$Parser$newline),
+								A2(
+									elm$parser$Parser$Advanced$loop,
+									'',
+									mdgriffith$elm_markup$Mark$Internal$Parser$raggedIndentedStringAbove(indentation)));
+						})
+					]))));
+};
+var mdgriffith$elm_markup$Mark$Internal$Parser$getFailableBlock = F3(
+	function (context, seed, _n0) {
+		var details = _n0.a;
+		var _n1 = details.kind;
+		switch (_n1.$) {
+			case 'Named':
+				var name = _n1.a;
+				var _n2 = A2(details.parser, context, seed);
+				var newSeed = _n2.a;
+				var blockParser = _n2.b;
+				return _Utils_Tuple2(
+					newSeed,
+					mdgriffith$elm_markup$Mark$Internal$Parser$failableBlocks(
+						{
+							names: _List_fromArray(
+								[name]),
+							parsers: _List_fromArray(
+								[blockParser])
+						}));
+			case 'Value':
+				return A2(
+					elm$core$Tuple$mapSecond,
+					elm$parser$Parser$Advanced$map(elm$core$Result$Ok),
+					A2(details.parser, context, seed));
+			case 'VerbatimNamed':
+				var name = _n1.a;
+				return A2(
+					elm$core$Tuple$mapSecond,
+					elm$parser$Parser$Advanced$map(elm$core$Result$Ok),
+					A2(details.parser, mdgriffith$elm_markup$Mark$Internal$Description$ParseInline, seed));
+			default:
+				var name = _n1.a;
+				return A2(
+					elm$core$Tuple$mapSecond,
+					elm$parser$Parser$Advanced$map(elm$core$Result$Ok),
+					A2(details.parser, mdgriffith$elm_markup$Mark$Internal$Description$ParseInline, seed));
+		}
+	});
+var mdgriffith$elm_markup$Mark$document = F2(
+	function (view, child) {
+		var seed = mdgriffith$elm_markup$Mark$Internal$Id$initialSeed;
+		var expectation = mdgriffith$elm_markup$Mark$Internal$Description$getBlockExpectation(child);
+		var _n0 = A3(mdgriffith$elm_markup$Mark$Internal$Parser$getFailableBlock, mdgriffith$elm_markup$Mark$Internal$Description$ParseBlock, seed, child);
+		var currentSeed = _n0.a;
+		var blockParser = _n0.b;
+		return mdgriffith$elm_markup$Mark$Internal$Description$Document(
+			{
+				converter: function (_n1) {
+					var parsed = _n1.a;
+					var _n2 = parsed.found;
+					if (_n2.$ === 'Found') {
+						var range = _n2.a;
+						var childDesc = _n2.b;
+						var _n3 = A2(mdgriffith$elm_markup$Mark$Internal$Description$renderBlock, child, childDesc);
+						switch (_n3.$) {
+							case 'Success':
+								var renderedChild = _n3.a;
+								return mdgriffith$elm_markup$Mark$Internal$Outcome$Success(
+									view(renderedChild));
+							case 'Failure':
+								var err = _n3.a;
+								return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(err);
+							default:
+								if (_n3.a.$ === 'Uncertain') {
+									var unexpected = _n3.a.a;
+									return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+										mdgriffith$elm_markup$Mark$Internal$Description$Uncertain(unexpected));
+								} else {
+									var _n4 = _n3.a;
+									var errors = _n4.a;
+									var renderedChild = _n4.b;
+									return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+										A2(
+											mdgriffith$elm_markup$Mark$Internal$Description$Recovered,
+											errors,
+											view(renderedChild)));
+								}
+						}
+					} else {
+						var unexpected = _n2.a;
+						return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+							mdgriffith$elm_markup$Mark$Internal$Description$Uncertain(
+								_Utils_Tuple2(unexpected, _List_Nil)));
+					}
+				},
+				currentSeed: currentSeed,
+				expect: expectation,
+				initialSeed: seed,
+				parser: A2(
+					elm$parser$Parser$Advanced$keeper,
+					A2(
+						elm$parser$Parser$Advanced$keeper,
+						A2(
+							elm$parser$Parser$Advanced$ignorer,
+							elm$parser$Parser$Advanced$succeed(
+								F2(
+									function (source, result) {
+										if (result.$ === 'Ok') {
+											var details = result.a;
+											return mdgriffith$elm_markup$Mark$Internal$Description$Parsed(
+												{
+													currentSeed: currentSeed,
+													errors: A2(
+														elm$core$List$map,
+														mdgriffith$elm_markup$Mark$Internal$Error$render(source),
+														mdgriffith$elm_markup$Mark$getUnexpecteds(details.value)),
+													expected: mdgriffith$elm_markup$Mark$Internal$Description$getBlockExpectation(child),
+													found: A2(mdgriffith$elm_markup$Mark$Internal$Description$Found, details.range, details.value),
+													initialSeed: seed
+												});
+										} else {
+											var details = result.a;
+											return mdgriffith$elm_markup$Mark$Internal$Description$Parsed(
+												{
+													currentSeed: currentSeed,
+													errors: _List_fromArray(
+														[
+															A2(
+															mdgriffith$elm_markup$Mark$Internal$Error$render,
+															source,
+															{problem: details.error, range: details.range})
+														]),
+													expected: mdgriffith$elm_markup$Mark$Internal$Description$getBlockExpectation(child),
+													found: mdgriffith$elm_markup$Mark$Internal$Description$Unexpected(
+														{problem: details.error, range: details.range}),
+													initialSeed: seed
+												});
+										}
+									})),
+							elm$parser$Parser$Advanced$chompWhile(
+								function (c) {
+									return _Utils_eq(
+										c,
+										_Utils_chr('\n'));
+								})),
+						elm$parser$Parser$Advanced$getSource),
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						A2(
+							elm$parser$Parser$Advanced$ignorer,
+							mdgriffith$elm_markup$Mark$Internal$Parser$withRangeResult(
+								A2(elm$parser$Parser$Advanced$withIndent, 0, blockParser)),
+							elm$parser$Parser$Advanced$chompWhile(
+								function (c) {
+									return _Utils_eq(
+										c,
+										_Utils_chr(' ')) || _Utils_eq(
+										c,
+										_Utils_chr('\n'));
+								})),
+						elm$parser$Parser$Advanced$end(mdgriffith$elm_markup$Mark$Internal$Error$End)))
+			});
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$ExpectManyOf = function (a) {
+	return {$: 'ExpectManyOf', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$ManyOf = function (a) {
+	return {$: 'ManyOf', a: a};
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$resultToFound = function (result) {
+	if (result.$ === 'Ok') {
+		var _n1 = result.a;
+		var range = _n1.a;
+		var desc = _n1.b;
+		return A2(mdgriffith$elm_markup$Mark$Internal$Description$Found, range, desc);
+	} else {
+		var _n2 = result.a;
+		var range = _n2.a;
+		var prob = _n2.b;
+		return mdgriffith$elm_markup$Mark$Internal$Description$Unexpected(
+			{problem: prob, range: range});
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Id$reseed = function (_n0) {
+	var seed = _n0.a;
+	return mdgriffith$elm_markup$Mark$Internal$Id$Seed(
+		A2(elm$core$List$cons, 0, seed));
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$blockName = function (_n0) {
+	var details = _n0.a;
+	var _n1 = details.kind;
+	switch (_n1.$) {
+		case 'Named':
+			var name = _n1.a;
+			return elm$core$Maybe$Just(name);
+		case 'Value':
+			return elm$core$Maybe$Nothing;
+		case 'VerbatimNamed':
+			var name = _n1.a;
+			return elm$core$Maybe$Just(name);
+		default:
+			var name = _n1.a;
+			return elm$core$Maybe$Just(name);
+	}
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$getParserNoBar = F3(
+	function (context, seed, _n0) {
+		var details = _n0.a;
+		var _n1 = details.kind;
+		switch (_n1.$) {
+			case 'Named':
+				var name = _n1.a;
+				return A2(details.parser, context, seed);
+			case 'Value':
+				return A2(details.parser, context, seed);
+			case 'VerbatimNamed':
+				var name = _n1.a;
+				return A2(details.parser, context, seed);
+			default:
+				var name = _n1.a;
+				return A2(details.parser, context, seed);
+		}
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$makeBlocksParser = F2(
+	function (blocks, seed) {
+		var gatherParsers = F2(
+			function (myBlock, details) {
+				var _n2 = A3(mdgriffith$elm_markup$Mark$Internal$Description$getParserNoBar, mdgriffith$elm_markup$Mark$Internal$Description$ParseBlock, seed, myBlock);
+				var parser = _n2.b;
+				var _n3 = mdgriffith$elm_markup$Mark$Internal$Description$blockName(myBlock);
+				if (_n3.$ === 'Just') {
+					var name = _n3.a;
+					return {
+						blockNames: A2(elm$core$List$cons, name, details.blockNames),
+						childBlocks: A2(
+							elm$core$List$cons,
+							A2(elm$parser$Parser$Advanced$map, elm$core$Result$Ok, parser),
+							details.childBlocks),
+						childValues: details.childValues
+					};
+				} else {
+					return {
+						blockNames: details.blockNames,
+						childBlocks: details.childBlocks,
+						childValues: A2(
+							elm$core$List$cons,
+							A2(
+								elm$parser$Parser$Advanced$map,
+								elm$core$Result$Ok,
+								mdgriffith$elm_markup$Mark$Internal$Parser$withRange(parser)),
+							details.childValues)
+					};
+				}
+			});
+		var children = A3(
+			elm$core$List$foldl,
+			gatherParsers,
+			{blockNames: _List_Nil, childBlocks: _List_Nil, childValues: _List_Nil},
+			blocks);
+		var blockParser = A2(
+			elm$parser$Parser$Advanced$map,
+			function (_n0) {
+				var pos = _n0.a;
+				var result = _n0.b;
+				return A2(
+					elm$core$Result$map,
+					function (desc) {
+						return _Utils_Tuple2(pos, desc);
+					},
+					result);
+			},
+			mdgriffith$elm_markup$Mark$Internal$Parser$withRange(
+				A2(
+					elm$parser$Parser$Advanced$keeper,
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						A2(
+							elm$parser$Parser$Advanced$ignorer,
+							elm$parser$Parser$Advanced$succeed(elm$core$Basics$identity),
+							elm$parser$Parser$Advanced$token(
+								A2(elm$parser$Parser$Advanced$Token, '|>', mdgriffith$elm_markup$Mark$Internal$Error$BlockStart))),
+						elm$parser$Parser$Advanced$chompWhile(
+							function (c) {
+								return _Utils_eq(
+									c,
+									_Utils_chr(' '));
+							})),
+					elm$parser$Parser$Advanced$oneOf(
+						_Utils_ap(
+							elm$core$List$reverse(children.childBlocks),
+							_List_fromArray(
+								[
+									mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+									function (indentation) {
+										return A2(
+											elm$parser$Parser$Advanced$keeper,
+											elm$parser$Parser$Advanced$succeed(
+												function (_n1) {
+													var pos = _n1.a;
+													var foundWord = _n1.b;
+													return elm$core$Result$Err(
+														_Utils_Tuple2(
+															pos,
+															mdgriffith$elm_markup$Mark$Internal$Error$UnknownBlock(children.blockNames)));
+												}),
+											A2(
+												elm$parser$Parser$Advanced$ignorer,
+												A2(
+													elm$parser$Parser$Advanced$ignorer,
+													mdgriffith$elm_markup$Mark$Internal$Parser$withRange(mdgriffith$elm_markup$Mark$Internal$Parser$word),
+													mdgriffith$elm_markup$Mark$Internal$Parser$newline),
+												A2(
+													elm$parser$Parser$Advanced$loop,
+													'',
+													mdgriffith$elm_markup$Mark$Internal$Parser$raggedIndentedStringAbove(indentation))));
+									})
+								]))))));
+		return elm$parser$Parser$Advanced$oneOf(
+			A2(
+				elm$core$List$cons,
+				blockParser,
+				elm$core$List$reverse(children.childValues)));
+	});
+var mdgriffith$elm_markup$Mark$Internal$Parser$blocksOrNewlines = F3(
+	function (indentation, blocks, cursor) {
+		return elm$parser$Parser$Advanced$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					elm$parser$Parser$Advanced$map,
+					function (_n0) {
+						return elm$parser$Parser$Advanced$Done(
+							elm$core$List$reverse(cursor.found));
+					},
+					elm$parser$Parser$Advanced$end(mdgriffith$elm_markup$Mark$Internal$Error$End)),
+					A2(
+					elm$parser$Parser$Advanced$ignorer,
+					elm$parser$Parser$Advanced$succeed(
+						elm$parser$Parser$Advanced$Loop(
+							{found: cursor.found, parsedSomething: true, seed: cursor.seed})),
+					mdgriffith$elm_markup$Mark$Internal$Parser$newlineWith('empty newline')),
+					(!cursor.parsedSomething) ? A2(
+					elm$parser$Parser$Advanced$map,
+					function (foundBlock) {
+						var _n1 = mdgriffith$elm_markup$Mark$Internal$Id$step(cursor.seed);
+						var newSeed = _n1.b;
+						return elm$parser$Parser$Advanced$Loop(
+							{
+								found: A2(elm$core$List$cons, foundBlock, cursor.found),
+								parsedSomething: true,
+								seed: newSeed
+							});
+					},
+					A2(mdgriffith$elm_markup$Mark$Internal$Parser$makeBlocksParser, blocks, cursor.seed)) : elm$parser$Parser$Advanced$oneOf(
+					_List_fromArray(
+						[
+							A2(
+							elm$parser$Parser$Advanced$keeper,
+							A2(
+								elm$parser$Parser$Advanced$ignorer,
+								elm$parser$Parser$Advanced$succeed(
+									function (foundBlock) {
+										var _n2 = mdgriffith$elm_markup$Mark$Internal$Id$step(cursor.seed);
+										var newSeed = _n2.b;
+										return elm$parser$Parser$Advanced$Loop(
+											{
+												found: A2(elm$core$List$cons, foundBlock, cursor.found),
+												parsedSomething: true,
+												seed: newSeed
+											});
+									}),
+								elm$parser$Parser$Advanced$token(
+									A2(
+										elm$parser$Parser$Advanced$Token,
+										A2(elm$core$String$repeat, indentation, ' '),
+										mdgriffith$elm_markup$Mark$Internal$Error$ExpectingIndentation(indentation)))),
+							A2(mdgriffith$elm_markup$Mark$Internal$Parser$makeBlocksParser, blocks, cursor.seed)),
+							A2(
+							elm$parser$Parser$Advanced$ignorer,
+							A2(
+								elm$parser$Parser$Advanced$ignorer,
+								elm$parser$Parser$Advanced$succeed(
+									elm$parser$Parser$Advanced$Loop(
+										{found: cursor.found, parsedSomething: true, seed: cursor.seed})),
+								elm$parser$Parser$Advanced$backtrackable(
+									elm$parser$Parser$Advanced$chompWhile(
+										function (c) {
+											return _Utils_eq(
+												c,
+												_Utils_chr(' '));
+										}))),
+							elm$parser$Parser$Advanced$backtrackable(mdgriffith$elm_markup$Mark$Internal$Parser$newline)),
+							elm$parser$Parser$Advanced$succeed(
+							elm$parser$Parser$Advanced$Done(
+								elm$core$List$reverse(cursor.found)))
+						])),
+					A2(
+					elm$parser$Parser$Advanced$ignorer,
+					A2(
+						elm$parser$Parser$Advanced$ignorer,
+						elm$parser$Parser$Advanced$succeed(
+							elm$parser$Parser$Advanced$Loop(
+								{found: cursor.found, parsedSomething: true, seed: cursor.seed})),
+						elm$parser$Parser$Advanced$chompWhile(
+							function (c) {
+								return _Utils_eq(
+									c,
+									_Utils_chr(' '));
+							})),
+					mdgriffith$elm_markup$Mark$Internal$Parser$newlineWith('ws-line'))
+				]));
+	});
+var mdgriffith$elm_markup$Mark$manyOf = function (blocks) {
+	var expectations = A2(elm$core$List$map, mdgriffith$elm_markup$Mark$Internal$Description$getBlockExpectation, blocks);
+	return mdgriffith$elm_markup$Mark$Internal$Description$Block(
+		{
+			converter: function (desc) {
+				var matchBlock = F3(
+					function (description, blck, found) {
+						if (found.$ === 'Failure') {
+							var _n4 = A2(mdgriffith$elm_markup$Mark$Internal$Description$renderBlock, blck, description);
+							if (_n4.$ === 'Failure') {
+								return found;
+							} else {
+								var otherwise = _n4;
+								return otherwise;
+							}
+						} else {
+							return found;
+						}
+					});
+				var getRendered = F4(
+					function (id, choices, found, _n2) {
+						var existingResult = _n2.a;
+						var index = _n2.b;
+						if (found.$ === 'Unexpected') {
+							var unexpected = found.a;
+							return _Utils_Tuple2(
+								mdgriffith$elm_markup$Mark$Internal$Description$uncertain(unexpected),
+								index + 1);
+						} else {
+							var range = found.a;
+							var child = found.b;
+							return _Utils_Tuple2(
+								A3(
+									mdgriffith$elm_markup$Mark$Internal$Description$mergeWith,
+									elm$core$List$cons,
+									A3(
+										elm$core$List$foldl,
+										matchBlock(child),
+										mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(mdgriffith$elm_markup$Mark$Internal$Error$NoMatch),
+										blocks),
+									existingResult),
+								index + 1);
+						}
+					});
+				if (desc.$ === 'ManyOf') {
+					var many = desc.a;
+					return A2(
+						mdgriffith$elm_markup$Mark$Internal$Description$mapSuccessAndRecovered,
+						elm$core$List$reverse,
+						A3(
+							elm$core$List$foldl,
+							A2(getRendered, many.id, many.choices),
+							_Utils_Tuple2(
+								mdgriffith$elm_markup$Mark$Internal$Outcome$Success(_List_Nil),
+								0),
+							many.children).a);
+				} else {
+					return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(mdgriffith$elm_markup$Mark$Internal$Error$NoMatch);
+				}
+			},
+			expect: mdgriffith$elm_markup$Mark$Internal$Description$ExpectManyOf(expectations),
+			kind: mdgriffith$elm_markup$Mark$Internal$Description$Value,
+			parser: F2(
+				function (context, seed) {
+					var _n5 = mdgriffith$elm_markup$Mark$Internal$Id$step(seed);
+					var parentId = _n5.a;
+					var newSeed = _n5.b;
+					var _n6 = mdgriffith$elm_markup$Mark$Internal$Id$step(newSeed);
+					var childStart = _n6.b;
+					var reseeded = mdgriffith$elm_markup$Mark$Internal$Id$reseed(childStart);
+					return _Utils_Tuple2(
+						reseeded,
+						A2(
+							elm$parser$Parser$Advanced$keeper,
+							elm$parser$Parser$Advanced$succeed(
+								function (_n7) {
+									var range = _n7.a;
+									var results = _n7.b;
+									return mdgriffith$elm_markup$Mark$Internal$Description$ManyOf(
+										{
+											children: A2(elm$core$List$map, mdgriffith$elm_markup$Mark$Internal$Description$resultToFound, results),
+											choices: expectations,
+											id: parentId,
+											range: range
+										});
+								}),
+							mdgriffith$elm_markup$Mark$Internal$Parser$withRange(
+								mdgriffith$elm_markup$Mark$Internal$Parser$withIndent(
+									function (indentation) {
+										return A2(
+											elm$parser$Parser$Advanced$loop,
+											{found: _List_Nil, parsedSomething: false, seed: childStart},
+											A2(mdgriffith$elm_markup$Mark$Internal$Parser$blocksOrNewlines, indentation, blocks));
+									}))));
+				})
+		});
+};
+var mdgriffith$elm_markup$Mark$map = F2(
+	function (fn, _n0) {
+		var details = _n0.a;
+		return mdgriffith$elm_markup$Mark$Internal$Description$Block(
+			{
+				converter: A2(
+					elm$core$Basics$composeL,
+					mdgriffith$elm_markup$Mark$Internal$Description$mapSuccessAndRecovered(fn),
+					details.converter),
+				expect: details.expect,
+				kind: details.kind,
+				parser: details.parser
+			});
+	});
+var author$project$View$BlogPost$document = A2(
+	mdgriffith$elm_markup$Mark$document,
+	function (elements) {
+		return A2(
+			mdgriffith$elm_ui$Element$column,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+				]),
+			elements);
+	},
+	mdgriffith$elm_markup$Mark$manyOf(
+		_List_fromArray(
+			[
+				author$project$View$BlogPost$header,
+				author$project$View$BlogPost$readmeBlock,
+				A2(
+				mdgriffith$elm_markup$Mark$map,
+				mdgriffith$elm_ui$Element$paragraph(_List_Nil),
+				author$project$View$BlogPost$text)
+			])));
+var mdgriffith$elm_markup$Mark$Error$Light = {$: 'Light'};
+var mdgriffith$elm_markup$Mark$Error$foregroundClr = function (theme) {
+	if (theme.$ === 'Dark') {
+		return '#eeeeec';
+	} else {
+		return 'rgba(16,16,16, 0.9)';
+	}
+};
+var mdgriffith$elm_markup$Mark$Error$monospaceFonts = '\"SFMono-Regular\",Consolas,\"Liberation Mono\",Menlo,Courier,monospace';
+var elm$html$Html$span = _VirtualDom_node('span');
+var mdgriffith$elm_markup$Mark$Error$redClr = function (theme) {
+	if (theme.$ === 'Dark') {
+		return '#ef2929';
+	} else {
+		return '#cc0000';
+	}
+};
+var mdgriffith$elm_markup$Mark$Error$yellowClr = function (theme) {
+	if (theme.$ === 'Dark') {
+		return '#edd400';
+	} else {
+		return '#c4a000';
+	}
+};
+var mdgriffith$elm_markup$Mark$Error$renderMessageHtml = F2(
+	function (theme, message) {
+		return A2(
+			elm$html$Html$span,
+			A2(
+				elm$core$List$filterMap,
+				elm$core$Basics$identity,
+				_List_fromArray(
+					[
+						message.bold ? elm$core$Maybe$Just(
+						A2(elm$html$Html$Attributes$style, 'font-weight', 'bold')) : elm$core$Maybe$Nothing,
+						message.underline ? elm$core$Maybe$Just(
+						A2(elm$html$Html$Attributes$style, 'text-decoration', 'underline')) : elm$core$Maybe$Nothing,
+						function () {
+						var _n0 = message.color;
+						if (_n0.$ === 'Nothing') {
+							return elm$core$Maybe$Just(
+								A2(
+									elm$html$Html$Attributes$style,
+									'color',
+									mdgriffith$elm_markup$Mark$Error$foregroundClr(theme)));
+						} else {
+							switch (_n0.a) {
+								case 'red':
+									return elm$core$Maybe$Just(
+										A2(
+											elm$html$Html$Attributes$style,
+											'color',
+											mdgriffith$elm_markup$Mark$Error$redClr(theme)));
+								case 'yellow':
+									return elm$core$Maybe$Just(
+										A2(
+											elm$html$Html$Attributes$style,
+											'color',
+											mdgriffith$elm_markup$Mark$Error$yellowClr(theme)));
+								default:
+									return elm$core$Maybe$Nothing;
+							}
+						}
+					}()
+					])),
+			_List_fromArray(
+				[
+					elm$html$Html$text(message.text)
+				]));
+	});
+var mdgriffith$elm_markup$Mark$Error$formatErrorHtml = F2(
+	function (theme, error) {
+		return A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$Attributes$style,
+					'color',
+					mdgriffith$elm_markup$Mark$Error$foregroundClr(theme)),
+					A2(elm$html$Html$Attributes$style, 'white-space', 'pre'),
+					A2(elm$html$Html$Attributes$style, 'font-family', mdgriffith$elm_markup$Mark$Error$monospaceFonts)
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2(elm$html$Html$Attributes$style, 'font-size', '1.4em'),
+							A2(elm$html$Html$Attributes$style, 'line-height', '2.1em')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(
+							elm$core$String$toUpper(error.title))
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2(elm$html$Html$Attributes$style, 'line-height', '1.4')
+						]),
+					A2(
+						elm$core$List$map,
+						mdgriffith$elm_markup$Mark$Error$renderMessageHtml(theme),
+						error.message))
+				]));
+	});
+var mdgriffith$elm_markup$Mark$Error$toHtml = F2(
+	function (theme, error) {
+		if (error.$ === 'Rendered') {
+			var details = error.a;
+			return A2(
+				mdgriffith$elm_markup$Mark$Error$formatErrorHtml,
+				theme,
+				{message: details.message, title: details.title});
+		} else {
+			var global = error.a;
+			return A2(
+				mdgriffith$elm_markup$Mark$Error$formatErrorHtml,
+				theme,
+				{message: global.message, title: global.title});
+		}
+	});
+var author$project$View$BlogPost$viewErrors = function (errors) {
+	return A2(
+		elm$core$List$map,
+		A2(
+			elm$core$Basics$composeR,
+			mdgriffith$elm_markup$Mark$Error$toHtml(mdgriffith$elm_markup$Mark$Error$Light),
+			mdgriffith$elm_ui$Element$html),
+		errors);
+};
+var mdgriffith$elm_markup$Mark$flattenErrors = function (result) {
+	if (result.$ === 'Ok') {
+		var _n1 = result.a;
+		var parsed = _n1.a;
+		var outcome = _n1.b;
+		return outcome;
+	} else {
+		var outcome = result.a;
+		return outcome;
+	}
+};
+var mdgriffith$elm_markup$Mark$Almost = function (a) {
+	return {$: 'Almost', a: a};
+};
+var mdgriffith$elm_markup$Mark$Failure = function (a) {
+	return {$: 'Failure', a: a};
+};
+var mdgriffith$elm_markup$Mark$Success = function (a) {
+	return {$: 'Success', a: a};
+};
+var mdgriffith$elm_markup$Mark$rewrapOutcome = function (outcome) {
+	switch (outcome.$) {
+		case 'Success':
+			var s = outcome.a;
+			return mdgriffith$elm_markup$Mark$Success(s);
+		case 'Almost':
+			var x = outcome.a;
+			return mdgriffith$elm_markup$Mark$Almost(x);
+		default:
+			var f = outcome.a;
+			return mdgriffith$elm_markup$Mark$Failure(f);
+	}
+};
+var elm$parser$Parser$Advanced$bagToList = F2(
+	function (bag, list) {
+		bagToList:
+		while (true) {
+			switch (bag.$) {
+				case 'Empty':
+					return list;
+				case 'AddRight':
+					var bag1 = bag.a;
+					var x = bag.b;
+					var $temp$bag = bag1,
+						$temp$list = A2(elm$core$List$cons, x, list);
+					bag = $temp$bag;
+					list = $temp$list;
+					continue bagToList;
+				default:
+					var bag1 = bag.a;
+					var bag2 = bag.b;
+					var $temp$bag = bag1,
+						$temp$list = A2(elm$parser$Parser$Advanced$bagToList, bag2, list);
+					bag = $temp$bag;
+					list = $temp$list;
+					continue bagToList;
+			}
+		}
+	});
+var elm$parser$Parser$Advanced$run = F2(
+	function (_n0, src) {
+		var parse = _n0.a;
+		var _n1 = parse(
+			{col: 1, context: _List_Nil, indent: 1, offset: 0, row: 1, src: src});
+		if (_n1.$ === 'Good') {
+			var value = _n1.b;
+			return elm$core$Result$Ok(value);
+		} else {
+			var bag = _n1.b;
+			return elm$core$Result$Err(
+				A2(elm$parser$Parser$Advanced$bagToList, bag, _List_Nil));
+		}
+	});
+var mdgriffith$elm_markup$Mark$Internal$Description$errorsToList = function (_n0) {
+	var fst = _n0.a;
+	var remain = _n0.b;
+	return A2(elm$core$List$cons, fst, remain);
+};
+var mdgriffith$elm_markup$Mark$Internal$Description$compile = F2(
+	function (_n0, source) {
+		var blocks = _n0.a;
+		var _n1 = A2(elm$parser$Parser$Advanced$run, blocks.parser, source);
+		if (_n1.$ === 'Ok') {
+			var parsed = _n1.a;
+			var parsedDetails = parsed.a;
+			return A3(
+				elm$core$Basics$composeL,
+				elm$core$Result$Ok,
+				elm$core$Tuple$pair(parsed),
+				function () {
+					var _n2 = parsedDetails.errors;
+					if (!_n2.b) {
+						var _n3 = blocks.converter(parsed);
+						switch (_n3.$) {
+							case 'Success':
+								var rendered = _n3.a;
+								return mdgriffith$elm_markup$Mark$Internal$Outcome$Success(rendered);
+							case 'Almost':
+								if (_n3.a.$ === 'Recovered') {
+									var _n4 = _n3.a;
+									var errors = _n4.a;
+									var rendered = _n4.b;
+									return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+										{
+											errors: A2(
+												elm$core$List$map,
+												mdgriffith$elm_markup$Mark$Internal$Error$render(source),
+												mdgriffith$elm_markup$Mark$Internal$Description$errorsToList(errors)),
+											result: rendered
+										});
+								} else {
+									var errors = _n3.a.a;
+									return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(
+										A2(
+											elm$core$List$map,
+											mdgriffith$elm_markup$Mark$Internal$Error$render(source),
+											mdgriffith$elm_markup$Mark$Internal$Description$errorsToList(errors)));
+								}
+							default:
+								var _n5 = _n3.a;
+								return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(
+									_List_fromArray(
+										[mdgriffith$elm_markup$Mark$Internal$Error$documentMismatch]));
+						}
+					} else {
+						var _n6 = blocks.converter(parsed);
+						switch (_n6.$) {
+							case 'Success':
+								var rendered = _n6.a;
+								return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+									{errors: parsedDetails.errors, result: rendered});
+							case 'Almost':
+								if (_n6.a.$ === 'Uncertain') {
+									var _n7 = _n6.a.a;
+									var err = _n7.a;
+									var remainError = _n7.b;
+									return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(
+										A2(
+											elm$core$List$map,
+											mdgriffith$elm_markup$Mark$Internal$Error$render(source),
+											A2(elm$core$List$cons, err, remainError)));
+								} else {
+									var _n8 = _n6.a;
+									var _n9 = _n8.a;
+									var err = _n9.a;
+									var remainError = _n9.b;
+									var result = _n8.b;
+									return mdgriffith$elm_markup$Mark$Internal$Outcome$Almost(
+										{
+											errors: A2(
+												elm$core$List$map,
+												mdgriffith$elm_markup$Mark$Internal$Error$render(source),
+												A2(elm$core$List$cons, err, remainError)),
+											result: result
+										});
+								}
+							default:
+								var noMatch = _n6.a;
+								return mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(
+									A2(elm$core$List$cons, mdgriffith$elm_markup$Mark$Internal$Error$documentMismatch, parsedDetails.errors));
+						}
+					}
+				}());
+		} else {
+			var deadEnds = _n1.a;
+			return elm$core$Result$Err(
+				mdgriffith$elm_markup$Mark$Internal$Outcome$Failure(
+					_List_fromArray(
+						[
+							A2(mdgriffith$elm_markup$Mark$Internal$Error$renderParsingErrors, source, deadEnds)
+						])));
+		}
+	});
+var mdgriffith$elm_markup$Mark$compile = F2(
+	function (doc, source) {
+		return mdgriffith$elm_markup$Mark$rewrapOutcome(
+			mdgriffith$elm_markup$Mark$flattenErrors(
+				A2(mdgriffith$elm_markup$Mark$Internal$Description$compile, doc, source)));
+	});
+var author$project$View$BlogPost$fromMarkup = function (markupString) {
+	var _n0 = A2(mdgriffith$elm_markup$Mark$compile, author$project$View$BlogPost$document, markupString);
+	switch (_n0.$) {
+		case 'Success':
+			var element = _n0.a;
+			return element;
+		case 'Almost':
+			var result = _n0.a.result;
+			var errors = _n0.a.errors;
+			return A2(
+				mdgriffith$elm_ui$Element$column,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						mdgriffith$elm_ui$Element$column,
+						_List_Nil,
+						author$project$View$BlogPost$viewErrors(errors)),
+						A2(mdgriffith$elm_ui$Element$el, _List_Nil, result)
+					]));
+		default:
+			var errors = _n0.a;
+			return A2(
+				mdgriffith$elm_ui$Element$column,
+				_List_Nil,
+				author$project$View$BlogPost$viewErrors(errors));
+	}
+};
+var author$project$View$Post$view = function (model) {
+	var _n0 = model.blogSource;
+	if (_n0.$ === 'Nothing') {
+		return mdgriffith$elm_ui$Element$text('Source not received yet');
+	} else {
+		var source = _n0.a;
+		return author$project$View$BlogPost$fromMarkup(source);
+	}
+};
 var mdgriffith$elm_ui$Internal$Model$Rgba = F4(
 	function (a, b, c, d) {
 		return {$: 'Rgba', a: a, b: b, c: c, d: d};
@@ -11378,11 +18425,6 @@ var author$project$View$Project$header = function (project) {
 					elm$core$String$fromInt(project.year)))
 			]));
 };
-var elm$core$Basics$composeR = F3(
-	function (f, g, x) {
-		return g(
-			f(x));
-	});
 var lattyware$elm_fontawesome$FontAwesome$Icon$Presentation = function (a) {
 	return {$: 'Presentation', a: a};
 };
@@ -11390,10 +18432,6 @@ var lattyware$elm_fontawesome$FontAwesome$Icon$present = function (icon) {
 	return lattyware$elm_fontawesome$FontAwesome$Icon$Presentation(
 		{attributes: _List_Nil, icon: icon, id: elm$core$Maybe$Nothing, outer: elm$core$Maybe$Nothing, role: 'img', title: elm$core$Maybe$Nothing, transforms: _List_Nil});
 };
-var elm$core$Basics$always = F2(
-	function (a, _n0) {
-		return a;
-	});
 var elm$html$Html$Attributes$attribute = elm$virtual_dom$VirtualDom$attribute;
 var elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var elm$svg$Svg$svg = elm$svg$Svg$trustedNode('svg');
@@ -11737,31 +18775,18 @@ var lattyware$elm_fontawesome$FontAwesome$Icon$view = function (presentation) {
 	return lattyware$elm_fontawesome$FontAwesome$Icon$internalView(presentation);
 };
 var lattyware$elm_fontawesome$FontAwesome$Icon$viewIcon = A2(elm$core$Basics$composeR, lattyware$elm_fontawesome$FontAwesome$Icon$present, lattyware$elm_fontawesome$FontAwesome$Icon$view);
-var elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
-var mdgriffith$elm_ui$Internal$Model$unstyled = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Unstyled, elm$core$Basics$always);
-var mdgriffith$elm_ui$Element$html = mdgriffith$elm_ui$Internal$Model$unstyled;
 var author$project$Icon$view = function (icon) {
 	return mdgriffith$elm_ui$Element$html(
 		lattyware$elm_fontawesome$FontAwesome$Icon$viewIcon(icon));
-};
-var mdgriffith$elm_ui$Internal$Model$CenterY = {$: 'CenterY'};
-var mdgriffith$elm_ui$Element$centerY = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$CenterY);
-var author$project$View$Project$iconWrapper = function (icon) {
-	return A2(
-		mdgriffith$elm_ui$Element$el,
-		_List_fromArray(
-			[mdgriffith$elm_ui$Element$centerX, mdgriffith$elm_ui$Element$centerY]),
-		icon);
 };
 var mdgriffith$elm_ui$Element$rgb255 = F3(
 	function (red, green, blue) {
 		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, 1);
 	});
 var author$project$Colour$gray = A3(mdgriffith$elm_ui$Element$rgb255, 175, 175, 175);
+var author$project$Model$Request = function (a) {
+	return {$: 'Request', a: a};
+};
 var mdgriffith$elm_ui$Internal$Flag$hover = mdgriffith$elm_ui$Internal$Flag$flag(33);
 var mdgriffith$elm_ui$Internal$Model$Hover = {$: 'Hover'};
 var mdgriffith$elm_ui$Internal$Model$PseudoSelector = F2(
@@ -11901,13 +18926,76 @@ var mdgriffith$elm_ui$Element$mouseOver = function (decs) {
 			mdgriffith$elm_ui$Internal$Model$Hover,
 			mdgriffith$elm_ui$Internal$Model$unwrapDecorations(decs)));
 };
-var elm$html$Html$Attributes$href = function (url) {
-	return A2(
-		elm$html$Html$Attributes$stringProperty,
-		'href',
-		_VirtualDom_noJavaScriptUri(url));
+var mdgriffith$elm_ui$Internal$Flag$cursor = mdgriffith$elm_ui$Internal$Flag$flag(21);
+var mdgriffith$elm_ui$Element$pointer = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$cursor, mdgriffith$elm_ui$Internal$Style$classes.cursorPointer);
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
 };
-var elm$html$Html$Attributes$rel = _VirtualDom_attribute('rel');
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'click',
+		elm$json$Json$Decode$succeed(msg));
+};
+var mdgriffith$elm_ui$Element$Events$onClick = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Attr, elm$html$Html$Events$onClick);
+var mdgriffith$elm_ui$Internal$Flag$fontColor = mdgriffith$elm_ui$Internal$Flag$flag(14);
+var mdgriffith$elm_ui$Internal$Model$Colored = F3(
+	function (a, b, c) {
+		return {$: 'Colored', a: a, b: b, c: c};
+	});
+var mdgriffith$elm_ui$Internal$Model$formatColorClass = function (_n0) {
+	var red = _n0.a;
+	var green = _n0.b;
+	var blue = _n0.c;
+	var alpha = _n0.d;
+	return mdgriffith$elm_ui$Internal$Model$floatClass(red) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(green) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(blue) + ('-' + mdgriffith$elm_ui$Internal$Model$floatClass(alpha))))));
+};
+var mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$fontColor,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$Colored,
+			'fc-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(fontColor),
+			'color',
+			fontColor));
+};
+var author$project$View$Project$blogLinkWrap = F2(
+	function (link, icon) {
+		return A2(
+			mdgriffith$elm_ui$Element$el,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$pointer,
+					mdgriffith$elm_ui$Element$Events$onClick(
+					author$project$Model$Request(link)),
+					mdgriffith$elm_ui$Element$mouseOver(
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$Font$color(author$project$Colour$gray)
+						]))
+				]),
+			icon);
+	});
+var mdgriffith$elm_ui$Internal$Model$CenterY = {$: 'CenterY'};
+var mdgriffith$elm_ui$Element$centerY = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$CenterY);
+var author$project$View$Project$iconWrapper = function (icon) {
+	return A2(
+		mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[mdgriffith$elm_ui$Element$centerX, mdgriffith$elm_ui$Element$centerY]),
+		icon);
+};
 var elm$html$Html$Attributes$target = elm$html$Html$Attributes$stringProperty('target');
 var mdgriffith$elm_ui$Element$newTabLink = F2(
 	function (attrs, _n0) {
@@ -11943,28 +19031,6 @@ var mdgriffith$elm_ui$Element$newTabLink = F2(
 				_List_fromArray(
 					[label])));
 	});
-var mdgriffith$elm_ui$Internal$Flag$fontColor = mdgriffith$elm_ui$Internal$Flag$flag(14);
-var mdgriffith$elm_ui$Internal$Model$Colored = F3(
-	function (a, b, c) {
-		return {$: 'Colored', a: a, b: b, c: c};
-	});
-var mdgriffith$elm_ui$Internal$Model$formatColorClass = function (_n0) {
-	var red = _n0.a;
-	var green = _n0.b;
-	var blue = _n0.c;
-	var alpha = _n0.d;
-	return mdgriffith$elm_ui$Internal$Model$floatClass(red) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(green) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(blue) + ('-' + mdgriffith$elm_ui$Internal$Model$floatClass(alpha))))));
-};
-var mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
-	return A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$fontColor,
-		A3(
-			mdgriffith$elm_ui$Internal$Model$Colored,
-			'fc-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(fontColor),
-			'color',
-			fontColor));
-};
 var author$project$View$Project$linkWrap = F2(
 	function (link, icon) {
 		return A2(
@@ -12004,8 +19070,8 @@ var author$project$View$Project$iconRow = function (project) {
 				author$project$View$Project$iconWrapper(
 					author$project$Icon$view(lattyware$elm_fontawesome$FontAwesome$Brands$github))),
 				A2(
-				author$project$View$Project$linkWrap,
-				'http://google.com',
+				author$project$View$Project$blogLinkWrap,
+				project.aboutLink,
 				author$project$View$Project$iconWrapper(
 					author$project$Icon$view(lattyware$elm_fontawesome$FontAwesome$Solid$info))),
 				A2(
@@ -12089,10 +19155,10 @@ var author$project$View$Project$view = function (project) {
 };
 var author$project$View$Projects$projectList = _List_fromArray(
 	[
-		{aboutLink: '', blurb: 'A colour-coded periodic table app with a molar mass calculator.', githubLink: 'https://github.com/joshuanianji/Compsci-IA', imgLink: 'src/img/ptable_ss.png', link: 'http://joshuaji.com/projects/ptable', name: 'Periodic Table', year: 2019},
-		{aboutLink: '', blurb: 'An application that parses and displays information from 5 text files.', githubLink: 'https://github.com/joshuanianji/Country-Fact-Finder', imgLink: 'src/img/country_fact_finder.png', link: 'http://joshuaji.com/projects/fact-finder', name: 'Country Fact Finder', year: 2019},
-		{aboutLink: '', blurb: 'An application that ranks words based on usage from a string input or a text file.', githubLink: 'https://github.com/joshuanianji/Wordrank', imgLink: 'src/img/word_rank_ss.png', link: 'http://joshuaji.com/projects/word-rank', name: 'WordRank', year: 2019},
-		{aboutLink: '', blurb: 'An app that deals with Caesar and Viginere cyphers, and can calculate hashes.', githubLink: 'https://github.com/joshuanianji/Cryptography', imgLink: 'src/img/cryptography.png', link: 'http://joshuaji.com/projects/cryptography', name: 'Cryptography', year: 2019}
+		{aboutLink: 'http://joshuaji.com/src/post/ptable.emu', blurb: 'A colour-coded periodic table app with a molar mass calculator.', githubLink: 'https://github.com/joshuanianji/Compsci-IA', imgLink: 'src/img/ptable_ss.png', link: 'http://joshuaji.com/projects/ptable', name: 'Periodic Table', year: 2019},
+		{aboutLink: 'http://joshuaji.com/src/post/factFinder.emu', blurb: 'An application that parses and displays information from 5 text files.', githubLink: 'https://github.com/joshuanianji/Country-Fact-Finder', imgLink: 'src/img/country_fact_finder.png', link: 'http://joshuaji.com/projects/fact-finder', name: 'Country Fact Finder', year: 2019},
+		{aboutLink: 'http://joshuaji.com/src/post/factFinder.emu', blurb: 'An application that ranks words based on usage from a string input or a text file.', githubLink: 'https://github.com/joshuanianji/Wordrank', imgLink: 'src/img/word_rank_ss.png', link: 'http://joshuaji.com/projects/word-rank', name: 'WordRank', year: 2019},
+		{aboutLink: 'http://joshuaji.com/src/post/cryptography.emu', blurb: 'An app that deals with Caesar and Viginere cyphers, and can calculate hashes.', githubLink: 'https://github.com/joshuanianji/Cryptography', imgLink: 'src/img/cryptography.png', link: 'http://joshuaji.com/projects/cryptography', name: 'Cryptography', year: 2019}
 	]);
 var author$project$View$Projects$toPairs = function (list) {
 	if (!list.b) {
@@ -12290,8 +19356,10 @@ var author$project$View$content = function (model) {
 			return author$project$View$Home$view(model);
 		case 'Resume':
 			return author$project$View$Resume$view(model);
-		default:
+		case 'Projects':
 			return author$project$View$Projects$view(model);
+		default:
+			return author$project$View$Post$view(model);
 	}
 };
 var author$project$Text$title = mdgriffith$elm_ui$Element$Font$family(
@@ -12331,9 +19399,6 @@ var author$project$View$title = function (model) {
 				author$project$Text$title
 			]),
 		mdgriffith$elm_ui$Element$text('Joshua Ji'));
-};
-var author$project$Model$ChangeDirectory = function (a) {
-	return {$: 'ChangeDirectory', a: a};
 };
 var author$project$Colour$black = A3(mdgriffith$elm_ui$Element$rgb255, 0, 0, 0);
 var mdgriffith$elm_ui$Internal$Model$BorderWidth = F5(
@@ -12401,26 +19466,6 @@ var elm$html$Html$Attributes$tabindex = function (n) {
 		'tabIndex',
 		elm$core$String$fromInt(n));
 };
-var mdgriffith$elm_ui$Internal$Flag$cursor = mdgriffith$elm_ui$Internal$Flag$flag(21);
-var mdgriffith$elm_ui$Element$pointer = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$cursor, mdgriffith$elm_ui$Internal$Style$classes.cursorPointer);
-var elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			elm$virtual_dom$VirtualDom$on,
-			event,
-			elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		elm$html$Html$Events$on,
-		'click',
-		elm$json$Json$Decode$succeed(msg));
-};
-var mdgriffith$elm_ui$Element$Events$onClick = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Attr, elm$html$Html$Events$onClick);
 var mdgriffith$elm_ui$Element$Input$hasFocusStyle = function (attr) {
 	if (((attr.$ === 'StyleClass') && (attr.b.$ === 'PseudoSelector')) && (attr.b.a.$ === 'Focus')) {
 		var _n1 = attr.b;
@@ -12540,7 +19585,7 @@ var author$project$View$Navbar$navbarFramework = F2(
 					author$project$Model$ChangeDirectory(directory))
 			});
 	});
-var author$project$Model$Home = {$: 'Home'};
+var author$project$Model$Projects = {$: 'Projects'};
 var author$project$Model$Resume = {$: 'Resume'};
 var author$project$View$Navbar$navbarMapList = _List_fromArray(
 	[
