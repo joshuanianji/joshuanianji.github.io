@@ -4347,7 +4347,11 @@ var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 {
 	return a >>> offset;
 });
-var author$project$Model$Home = {$: 'Home'};
+var author$project$Model$Projects = {$: 'Projects'};
+var elm$core$Basics$apR = F2(
+	function (x, f) {
+		return f(x);
+	});
 var elm$core$Basics$EQ = {$: 'EQ'};
 var elm$core$Basics$GT = {$: 'GT'};
 var elm$core$Basics$LT = {$: 'LT'};
@@ -4428,6 +4432,7 @@ var elm$core$Array$foldr = F3(
 var elm$core$Array$toList = function (array) {
 	return A3(elm$core$Array$foldr, elm$core$List$cons, _List_Nil, array);
 };
+var elm$core$Debug$log = _Debug_log;
 var elm$core$Basics$and = _Basics_and;
 var elm$core$Basics$gt = _Utils_gt;
 var elm$core$Basics$le = _Utils_le;
@@ -4446,8 +4451,11 @@ var mdgriffith$elm_ui$Element$classifyDevice = function (window) {
 };
 var author$project$Model$initModel = function (flags) {
 	return {
-		device: mdgriffith$elm_ui$Element$classifyDevice(flags),
-		directory: author$project$Model$Home
+		device: A2(
+			elm$core$Debug$log,
+			'device',
+			mdgriffith$elm_ui$Element$classifyDevice(flags)),
+		directory: author$project$Model$Projects
 	};
 };
 var elm$core$Basics$False = {$: 'False'};
@@ -4525,10 +4533,6 @@ var elm$core$Array$compressNodes = F2(
 				continue compressNodes;
 			}
 		}
-	});
-var elm$core$Basics$apR = F2(
-	function (x, f) {
-		return f(x);
 	});
 var elm$core$Basics$eq = _Utils_equal;
 var elm$core$Tuple$first = function (_n0) {
@@ -5600,7 +5604,10 @@ var author$project$Model$update = F2(
 				_Utils_update(
 					model,
 					{
-						device: mdgriffith$elm_ui$Element$classifyDevice(windowSize)
+						device: A2(
+							elm$core$Debug$log,
+							'Device',
+							mdgriffith$elm_ui$Element$classifyDevice(windowSize))
 					}),
 				elm$core$Platform$Cmd$none);
 		} else {
@@ -11313,8 +11320,965 @@ var author$project$View$Home$view = function (model) {
 			return A2(author$project$View$Home$handheldDisplay, author$project$View$Home$Small, model);
 	}
 };
+var mdgriffith$elm_ui$Internal$Model$Rgba = F4(
+	function (a, b, c, d) {
+		return {$: 'Rgba', a: a, b: b, c: c, d: d};
+	});
+var mdgriffith$elm_ui$Element$rgba255 = F4(
+	function (red, green, blue, a) {
+		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, a);
+	});
+var author$project$Colour$shaded = A4(mdgriffith$elm_ui$Element$rgba255, 0, 0, 0, 0.5);
+var mdgriffith$elm_ui$Element$rgb = F3(
+	function (r, g, b) {
+		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, r, g, b, 1);
+	});
+var author$project$Colour$white = A3(mdgriffith$elm_ui$Element$rgb, 1, 1, 1);
+var mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
+	return {$: 'AlignY', a: a};
+};
+var mdgriffith$elm_ui$Internal$Model$Bottom = {$: 'Bottom'};
+var mdgriffith$elm_ui$Element$alignBottom = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$Bottom);
+var author$project$View$Project$description = function (project) {
+	return A2(
+		mdgriffith$elm_ui$Element$paragraph,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$Font$size(20),
+				mdgriffith$elm_ui$Element$alignBottom
+			]),
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$text(project.blurb)
+			]));
+};
+var author$project$View$Project$header = function (project) {
+	return A2(
+		mdgriffith$elm_ui$Element$column,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$spacing(20)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$Font$size(30)
+					]),
+				mdgriffith$elm_ui$Element$text(project.name)),
+				A2(
+				mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$Font$size(15)
+					]),
+				mdgriffith$elm_ui$Element$text(
+					elm$core$String$fromInt(project.year)))
+			]));
+};
+var elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var lattyware$elm_fontawesome$FontAwesome$Icon$Presentation = function (a) {
+	return {$: 'Presentation', a: a};
+};
+var lattyware$elm_fontawesome$FontAwesome$Icon$present = function (icon) {
+	return lattyware$elm_fontawesome$FontAwesome$Icon$Presentation(
+		{attributes: _List_Nil, icon: icon, id: elm$core$Maybe$Nothing, outer: elm$core$Maybe$Nothing, role: 'img', title: elm$core$Maybe$Nothing, transforms: _List_Nil});
+};
+var elm$core$Basics$always = F2(
+	function (a, _n0) {
+		return a;
+	});
+var elm$html$Html$Attributes$attribute = elm$virtual_dom$VirtualDom$attribute;
+var elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var elm$svg$Svg$svg = elm$svg$Svg$trustedNode('svg');
+var elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
+var elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
+var elm$svg$Svg$text = elm$virtual_dom$VirtualDom$text;
+var elm$svg$Svg$title = elm$svg$Svg$trustedNode('title');
+var elm$svg$Svg$Attributes$id = _VirtualDom_attribute('id');
+var lattyware$elm_fontawesome$FontAwesome$Icon$titledContents = F3(
+	function (titleId, contents, title) {
+		return A2(
+			elm$core$List$cons,
+			A2(
+				elm$svg$Svg$title,
+				_List_fromArray(
+					[
+						elm$svg$Svg$Attributes$id(titleId)
+					]),
+				_List_fromArray(
+					[
+						elm$svg$Svg$text(title)
+					])),
+			contents);
+	});
+var elm$svg$Svg$clipPath = elm$svg$Svg$trustedNode('clipPath');
+var elm$svg$Svg$defs = elm$svg$Svg$trustedNode('defs');
+var elm$svg$Svg$g = elm$svg$Svg$trustedNode('g');
+var elm$svg$Svg$mask = elm$svg$Svg$trustedNode('mask');
+var elm$svg$Svg$path = elm$svg$Svg$trustedNode('path');
+var elm$svg$Svg$rect = elm$svg$Svg$trustedNode('rect');
+var elm$svg$Svg$Attributes$clipPath = _VirtualDom_attribute('clip-path');
+var elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
+var elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var elm$svg$Svg$Attributes$mask = _VirtualDom_attribute('mask');
+var elm$svg$Svg$Attributes$maskContentUnits = _VirtualDom_attribute('maskContentUnits');
+var elm$svg$Svg$Attributes$maskUnits = _VirtualDom_attribute('maskUnits');
+var elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
+var elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
+var lattyware$elm_fontawesome$FontAwesome$Icon$allSpace = _List_fromArray(
+	[
+		elm$svg$Svg$Attributes$x('0'),
+		elm$svg$Svg$Attributes$y('0'),
+		elm$svg$Svg$Attributes$width('100%'),
+		elm$svg$Svg$Attributes$height('100%')
+	]);
+var lattyware$elm_fontawesome$FontAwesome$Icon$corePath = F2(
+	function (attrs, icon) {
+		return A2(
+			elm$svg$Svg$path,
+			A2(
+				elm$core$List$cons,
+				elm$svg$Svg$Attributes$fill('currentColor'),
+				A2(
+					elm$core$List$cons,
+					elm$svg$Svg$Attributes$d(icon.path),
+					attrs)),
+			_List_Nil);
+	});
+var lattyware$elm_fontawesome$FontAwesome$Icon$viewMaskedWithTransform = F4(
+	function (id, transforms, inner, outer) {
+		var maskInnerGroup = A2(
+			elm$svg$Svg$g,
+			_List_fromArray(
+				[transforms.inner]),
+			_List_fromArray(
+				[
+					A2(
+					elm$svg$Svg$path,
+					_List_fromArray(
+						[
+							transforms.path,
+							elm$svg$Svg$Attributes$fill('black'),
+							elm$svg$Svg$Attributes$d(inner.path)
+						]),
+					_List_Nil)
+				]));
+		var maskId = 'mask-' + (inner.name + ('-' + id));
+		var maskTag = A2(
+			elm$svg$Svg$mask,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						elm$svg$Svg$Attributes$id(maskId),
+						elm$svg$Svg$Attributes$maskUnits('userSpaceOnUse'),
+						elm$svg$Svg$Attributes$maskContentUnits('userSpaceOnUse')
+					]),
+				lattyware$elm_fontawesome$FontAwesome$Icon$allSpace),
+			_List_fromArray(
+				[
+					A2(
+					elm$svg$Svg$rect,
+					A2(
+						elm$core$List$cons,
+						elm$svg$Svg$Attributes$fill('white'),
+						lattyware$elm_fontawesome$FontAwesome$Icon$allSpace),
+					_List_Nil),
+					A2(
+					elm$svg$Svg$g,
+					_List_fromArray(
+						[transforms.outer]),
+					_List_fromArray(
+						[maskInnerGroup]))
+				]));
+		var clipId = 'clip-' + (outer.name + ('-' + id));
+		var defs = A2(
+			elm$svg$Svg$defs,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					elm$svg$Svg$clipPath,
+					_List_fromArray(
+						[
+							elm$svg$Svg$Attributes$id(clipId)
+						]),
+					_List_fromArray(
+						[
+							A2(lattyware$elm_fontawesome$FontAwesome$Icon$corePath, _List_Nil, outer)
+						])),
+					maskTag
+				]));
+		return _List_fromArray(
+			[
+				defs,
+				A2(
+				elm$svg$Svg$rect,
+				elm$core$List$concat(
+					_List_fromArray(
+						[
+							_List_fromArray(
+							[
+								elm$svg$Svg$Attributes$fill('currentColor'),
+								elm$svg$Svg$Attributes$clipPath('url(#' + (clipId + ')')),
+								elm$svg$Svg$Attributes$mask('url(#' + (maskId + ')'))
+							]),
+							lattyware$elm_fontawesome$FontAwesome$Icon$allSpace
+						])),
+				_List_Nil)
+			]);
+	});
+var lattyware$elm_fontawesome$FontAwesome$Icon$viewWithTransform = F2(
+	function (transforms, icon) {
+		if (transforms.$ === 'Just') {
+			var ts = transforms.a;
+			return A2(
+				elm$svg$Svg$g,
+				_List_fromArray(
+					[ts.outer]),
+				_List_fromArray(
+					[
+						A2(
+						elm$svg$Svg$g,
+						_List_fromArray(
+							[ts.inner]),
+						_List_fromArray(
+							[
+								A2(
+								lattyware$elm_fontawesome$FontAwesome$Icon$corePath,
+								_List_fromArray(
+									[ts.path]),
+								icon)
+							]))
+					]));
+		} else {
+			return A2(lattyware$elm_fontawesome$FontAwesome$Icon$corePath, _List_Nil, icon);
+		}
+	});
+var lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$add = F2(
+	function (transform, combined) {
+		switch (transform.$) {
+			case 'Scale':
+				var direction = transform.a;
+				var amount = function () {
+					if (direction.$ === 'Grow') {
+						var by = direction.a;
+						return by;
+					} else {
+						var by = direction.a;
+						return -by;
+					}
+				}();
+				return _Utils_update(
+					combined,
+					{size: combined.size + amount});
+			case 'Reposition':
+				var direction = transform.a;
+				var _n2 = function () {
+					switch (direction.$) {
+						case 'Up':
+							var by = direction.a;
+							return _Utils_Tuple2(0, -by);
+						case 'Down':
+							var by = direction.a;
+							return _Utils_Tuple2(0, by);
+						case 'Left':
+							var by = direction.a;
+							return _Utils_Tuple2(-by, 0);
+						default:
+							var by = direction.a;
+							return _Utils_Tuple2(by, 0);
+					}
+				}();
+				var x = _n2.a;
+				var y = _n2.b;
+				return _Utils_update(
+					combined,
+					{x: combined.x + x, y: combined.y + y});
+			case 'Rotate':
+				var rotation = transform.a;
+				return _Utils_update(
+					combined,
+					{rotate: combined.rotate + rotation});
+			default:
+				if (transform.a.$ === 'Vertical') {
+					var _n4 = transform.a;
+					return _Utils_update(
+						combined,
+						{flipX: true});
+				} else {
+					var _n5 = transform.a;
+					return _Utils_update(
+						combined,
+						{flipY: true});
+				}
+		}
+	});
+var lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize = 16;
+var lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform = {flipX: false, flipY: false, rotate: 0, size: lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize, x: 0, y: 0};
+var lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$combine = function (transforms) {
+	return A3(elm$core$List$foldl, lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$add, lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform, transforms);
+};
+var lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaningfulTransform = function (transforms) {
+	var combined = lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$combine(transforms);
+	return _Utils_eq(combined, lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform) ? elm$core$Maybe$Nothing : elm$core$Maybe$Just(combined);
+};
+var elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
+var lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$transformForSvg = F3(
+	function (containerWidth, iconWidth, transform) {
+		var path = 'translate(' + (elm$core$String$fromFloat((iconWidth / 2) * (-1)) + ' -256)');
+		var outer = 'translate(' + (elm$core$String$fromFloat(containerWidth / 2) + ' 256)');
+		var innerTranslate = 'translate(' + (elm$core$String$fromFloat(transform.x * 32) + (',' + (elm$core$String$fromFloat(transform.y * 32) + ') ')));
+		var innerRotate = 'rotate(' + (elm$core$String$fromFloat(transform.rotate) + ' 0 0)');
+		var flipY = transform.flipY ? (-1) : 1;
+		var scaleY = (transform.size / lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize) * flipY;
+		var flipX = transform.flipX ? (-1) : 1;
+		var scaleX = (transform.size / lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$baseSize) * flipX;
+		var innerScale = 'scale(' + (elm$core$String$fromFloat(scaleX) + (', ' + (elm$core$String$fromFloat(scaleY) + ') ')));
+		return {
+			inner: elm$svg$Svg$Attributes$transform(
+				_Utils_ap(
+					innerTranslate,
+					_Utils_ap(innerScale, innerRotate))),
+			outer: elm$svg$Svg$Attributes$transform(outer),
+			path: elm$svg$Svg$Attributes$transform(path)
+		};
+	});
+var lattyware$elm_fontawesome$FontAwesome$Icon$internalView = function (_n0) {
+	var icon = _n0.a.icon;
+	var attributes = _n0.a.attributes;
+	var transforms = _n0.a.transforms;
+	var role = _n0.a.role;
+	var id = _n0.a.id;
+	var title = _n0.a.title;
+	var outer = _n0.a.outer;
+	var alwaysId = A2(elm$core$Maybe$withDefault, icon.name, id);
+	var titleId = alwaysId + '-title';
+	var semantics = A2(
+		elm$core$Maybe$withDefault,
+		A2(elm$html$Html$Attributes$attribute, 'aria-hidden', 'true'),
+		A2(
+			elm$core$Maybe$map,
+			elm$core$Basics$always(
+				A2(elm$html$Html$Attributes$attribute, 'aria-labelledby', titleId)),
+			title));
+	var _n1 = A2(
+		elm$core$Maybe$withDefault,
+		_Utils_Tuple2(icon.width, icon.height),
+		A2(
+			elm$core$Maybe$map,
+			function (o) {
+				return _Utils_Tuple2(o.width, o.height);
+			},
+			outer));
+	var width = _n1.a;
+	var height = _n1.b;
+	var classes = _List_fromArray(
+		[
+			'svg-inline--fa',
+			'fa-' + icon.name,
+			'fa-w-' + elm$core$String$fromInt(
+			elm$core$Basics$ceiling((width / height) * 16))
+		]);
+	var svgTransform = A2(
+		elm$core$Maybe$map,
+		A2(lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$transformForSvg, width, icon.width),
+		lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaningfulTransform(transforms));
+	var contents = function () {
+		var resolvedSvgTransform = A2(
+			elm$core$Maybe$withDefault,
+			A3(lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$transformForSvg, width, icon.width, lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform),
+			svgTransform);
+		return A2(
+			elm$core$Maybe$withDefault,
+			_List_fromArray(
+				[
+					A2(lattyware$elm_fontawesome$FontAwesome$Icon$viewWithTransform, svgTransform, icon)
+				]),
+			A2(
+				elm$core$Maybe$map,
+				A3(lattyware$elm_fontawesome$FontAwesome$Icon$viewMaskedWithTransform, alwaysId, resolvedSvgTransform, icon),
+				outer));
+	}();
+	var potentiallyTitledContents = A2(
+		elm$core$Maybe$withDefault,
+		contents,
+		A2(
+			elm$core$Maybe$map,
+			A2(lattyware$elm_fontawesome$FontAwesome$Icon$titledContents, titleId, contents),
+			title));
+	return A2(
+		elm$svg$Svg$svg,
+		elm$core$List$concat(
+			_List_fromArray(
+				[
+					_List_fromArray(
+					[
+						A2(elm$html$Html$Attributes$attribute, 'role', role),
+						A2(elm$html$Html$Attributes$attribute, 'xmlns', 'http://www.w3.org/2000/svg'),
+						elm$svg$Svg$Attributes$viewBox(
+						'0 0 ' + (elm$core$String$fromInt(width) + (' ' + elm$core$String$fromInt(height)))),
+						semantics
+					]),
+					A2(elm$core$List$map, elm$svg$Svg$Attributes$class, classes),
+					attributes
+				])),
+		potentiallyTitledContents);
+};
+var lattyware$elm_fontawesome$FontAwesome$Icon$view = function (presentation) {
+	return lattyware$elm_fontawesome$FontAwesome$Icon$internalView(presentation);
+};
+var lattyware$elm_fontawesome$FontAwesome$Icon$viewIcon = A2(elm$core$Basics$composeR, lattyware$elm_fontawesome$FontAwesome$Icon$present, lattyware$elm_fontawesome$FontAwesome$Icon$view);
+var elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var mdgriffith$elm_ui$Internal$Model$unstyled = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Unstyled, elm$core$Basics$always);
+var mdgriffith$elm_ui$Element$html = mdgriffith$elm_ui$Internal$Model$unstyled;
+var author$project$Icon$view = function (icon) {
+	return mdgriffith$elm_ui$Element$html(
+		lattyware$elm_fontawesome$FontAwesome$Icon$viewIcon(icon));
+};
+var mdgriffith$elm_ui$Internal$Model$CenterY = {$: 'CenterY'};
+var mdgriffith$elm_ui$Element$centerY = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$CenterY);
+var author$project$View$Project$iconWrapper = function (icon) {
+	return A2(
+		mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[mdgriffith$elm_ui$Element$centerX, mdgriffith$elm_ui$Element$centerY]),
+		icon);
+};
+var mdgriffith$elm_ui$Element$rgb255 = F3(
+	function (red, green, blue) {
+		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, 1);
+	});
+var author$project$Colour$gray = A3(mdgriffith$elm_ui$Element$rgb255, 175, 175, 175);
+var mdgriffith$elm_ui$Internal$Flag$hover = mdgriffith$elm_ui$Internal$Flag$flag(33);
+var mdgriffith$elm_ui$Internal$Model$Hover = {$: 'Hover'};
+var mdgriffith$elm_ui$Internal$Model$PseudoSelector = F2(
+	function (a, b) {
+		return {$: 'PseudoSelector', a: a, b: b};
+	});
+var elm$virtual_dom$VirtualDom$mapAttribute = _VirtualDom_mapAttribute;
+var mdgriffith$elm_ui$Internal$Model$Nearby = F2(
+	function (a, b) {
+		return {$: 'Nearby', a: a, b: b};
+	});
+var mdgriffith$elm_ui$Internal$Model$NoAttribute = {$: 'NoAttribute'};
+var mdgriffith$elm_ui$Internal$Model$TransformComponent = F2(
+	function (a, b) {
+		return {$: 'TransformComponent', a: a, b: b};
+	});
+var elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
+var mdgriffith$elm_ui$Internal$Model$Empty = {$: 'Empty'};
+var mdgriffith$elm_ui$Internal$Model$map = F2(
+	function (fn, el) {
+		switch (el.$) {
+			case 'Styled':
+				var styled = el.a;
+				return mdgriffith$elm_ui$Internal$Model$Styled(
+					{
+						html: F2(
+							function (add, context) {
+								return A2(
+									elm$virtual_dom$VirtualDom$map,
+									fn,
+									A2(styled.html, add, context));
+							}),
+						styles: styled.styles
+					});
+			case 'Unstyled':
+				var html = el.a;
+				return mdgriffith$elm_ui$Internal$Model$Unstyled(
+					A2(
+						elm$core$Basics$composeL,
+						elm$virtual_dom$VirtualDom$map(fn),
+						html));
+			case 'Text':
+				var str = el.a;
+				return mdgriffith$elm_ui$Internal$Model$Text(str);
+			default:
+				return mdgriffith$elm_ui$Internal$Model$Empty;
+		}
+	});
+var mdgriffith$elm_ui$Internal$Model$mapAttrFromStyle = F2(
+	function (fn, attr) {
+		switch (attr.$) {
+			case 'NoAttribute':
+				return mdgriffith$elm_ui$Internal$Model$NoAttribute;
+			case 'Describe':
+				var description = attr.a;
+				return mdgriffith$elm_ui$Internal$Model$Describe(description);
+			case 'AlignX':
+				var x = attr.a;
+				return mdgriffith$elm_ui$Internal$Model$AlignX(x);
+			case 'AlignY':
+				var y = attr.a;
+				return mdgriffith$elm_ui$Internal$Model$AlignY(y);
+			case 'Width':
+				var x = attr.a;
+				return mdgriffith$elm_ui$Internal$Model$Width(x);
+			case 'Height':
+				var x = attr.a;
+				return mdgriffith$elm_ui$Internal$Model$Height(x);
+			case 'Class':
+				var x = attr.a;
+				var y = attr.b;
+				return A2(mdgriffith$elm_ui$Internal$Model$Class, x, y);
+			case 'StyleClass':
+				var flag = attr.a;
+				var style = attr.b;
+				return A2(mdgriffith$elm_ui$Internal$Model$StyleClass, flag, style);
+			case 'Nearby':
+				var location = attr.a;
+				var elem = attr.b;
+				return A2(
+					mdgriffith$elm_ui$Internal$Model$Nearby,
+					location,
+					A2(mdgriffith$elm_ui$Internal$Model$map, fn, elem));
+			case 'Attr':
+				var htmlAttr = attr.a;
+				return mdgriffith$elm_ui$Internal$Model$Attr(
+					A2(elm$virtual_dom$VirtualDom$mapAttribute, fn, htmlAttr));
+			default:
+				var fl = attr.a;
+				var trans = attr.b;
+				return A2(mdgriffith$elm_ui$Internal$Model$TransformComponent, fl, trans);
+		}
+	});
+var mdgriffith$elm_ui$Internal$Model$removeNever = function (style) {
+	return A2(mdgriffith$elm_ui$Internal$Model$mapAttrFromStyle, elm$core$Basics$never, style);
+};
+var mdgriffith$elm_ui$Internal$Model$unwrapDecsHelper = F2(
+	function (attr, _n0) {
+		var styles = _n0.a;
+		var trans = _n0.b;
+		var _n1 = mdgriffith$elm_ui$Internal$Model$removeNever(attr);
+		switch (_n1.$) {
+			case 'StyleClass':
+				var style = _n1.b;
+				return _Utils_Tuple2(
+					A2(elm$core$List$cons, style, styles),
+					trans);
+			case 'TransformComponent':
+				var flag = _n1.a;
+				var component = _n1.b;
+				return _Utils_Tuple2(
+					styles,
+					A2(mdgriffith$elm_ui$Internal$Model$composeTransformation, trans, component));
+			default:
+				return _Utils_Tuple2(styles, trans);
+		}
+	});
+var mdgriffith$elm_ui$Internal$Model$unwrapDecorations = function (attrs) {
+	var _n0 = A3(
+		elm$core$List$foldl,
+		mdgriffith$elm_ui$Internal$Model$unwrapDecsHelper,
+		_Utils_Tuple2(_List_Nil, mdgriffith$elm_ui$Internal$Model$Untransformed),
+		attrs);
+	var styles = _n0.a;
+	var transform = _n0.b;
+	return A2(
+		elm$core$List$cons,
+		mdgriffith$elm_ui$Internal$Model$Transform(transform),
+		styles);
+};
+var mdgriffith$elm_ui$Element$mouseOver = function (decs) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$hover,
+		A2(
+			mdgriffith$elm_ui$Internal$Model$PseudoSelector,
+			mdgriffith$elm_ui$Internal$Model$Hover,
+			mdgriffith$elm_ui$Internal$Model$unwrapDecorations(decs)));
+};
+var elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
+};
+var elm$html$Html$Attributes$rel = _VirtualDom_attribute('rel');
+var elm$html$Html$Attributes$target = elm$html$Html$Attributes$stringProperty('target');
+var mdgriffith$elm_ui$Element$newTabLink = F2(
+	function (attrs, _n0) {
+		var url = _n0.url;
+		var label = _n0.label;
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asEl,
+			mdgriffith$elm_ui$Internal$Model$NodeName('a'),
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Internal$Model$Attr(
+					elm$html$Html$Attributes$href(url)),
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Internal$Model$Attr(
+						elm$html$Html$Attributes$rel('noopener noreferrer')),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Internal$Model$Attr(
+							elm$html$Html$Attributes$target('_blank')),
+						A2(
+							elm$core$List$cons,
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
+							A2(
+								elm$core$List$cons,
+								mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+								A2(
+									elm$core$List$cons,
+									mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentCenterX + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
+									attrs)))))),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(
+				_List_fromArray(
+					[label])));
+	});
+var mdgriffith$elm_ui$Internal$Flag$fontColor = mdgriffith$elm_ui$Internal$Flag$flag(14);
+var mdgriffith$elm_ui$Internal$Model$Colored = F3(
+	function (a, b, c) {
+		return {$: 'Colored', a: a, b: b, c: c};
+	});
+var mdgriffith$elm_ui$Internal$Model$formatColorClass = function (_n0) {
+	var red = _n0.a;
+	var green = _n0.b;
+	var blue = _n0.c;
+	var alpha = _n0.d;
+	return mdgriffith$elm_ui$Internal$Model$floatClass(red) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(green) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(blue) + ('-' + mdgriffith$elm_ui$Internal$Model$floatClass(alpha))))));
+};
+var mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$fontColor,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$Colored,
+			'fc-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(fontColor),
+			'color',
+			fontColor));
+};
+var author$project$View$Project$linkWrap = F2(
+	function (link, icon) {
+		return A2(
+			mdgriffith$elm_ui$Element$newTabLink,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$mouseOver(
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$Font$color(author$project$Colour$gray)
+						]))
+				]),
+			{label: icon, url: link});
+	});
+var lattyware$elm_fontawesome$FontAwesome$Icon$Icon = F5(
+	function (prefix, name, width, height, path) {
+		return {height: height, name: name, path: path, prefix: prefix, width: width};
+	});
+var lattyware$elm_fontawesome$FontAwesome$Brands$github = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fab', 'github', 496, 512, 'M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z');
+var lattyware$elm_fontawesome$FontAwesome$Solid$info = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'info', 192, 512, 'M20 424.229h20V279.771H20c-11.046 0-20-8.954-20-20V212c0-11.046 8.954-20 20-20h112c11.046 0 20 8.954 20 20v212.229h20c11.046 0 20 8.954 20 20V492c0 11.046-8.954 20-20 20H20c-11.046 0-20-8.954-20-20v-47.771c0-11.046 8.954-20 20-20zM96 0C56.235 0 24 32.235 24 72s32.235 72 72 72 72-32.235 72-72S135.764 0 96 0z');
+var lattyware$elm_fontawesome$FontAwesome$Solid$link = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'link', 512, 512, 'M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z');
+var author$project$View$Project$iconRow = function (project) {
+	return A2(
+		mdgriffith$elm_ui$Element$row,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				author$project$View$Project$linkWrap,
+				project.githubLink,
+				author$project$View$Project$iconWrapper(
+					author$project$Icon$view(lattyware$elm_fontawesome$FontAwesome$Brands$github))),
+				A2(
+				author$project$View$Project$linkWrap,
+				'http://google.com',
+				author$project$View$Project$iconWrapper(
+					author$project$Icon$view(lattyware$elm_fontawesome$FontAwesome$Solid$info))),
+				A2(
+				author$project$View$Project$linkWrap,
+				project.link,
+				author$project$View$Project$iconWrapper(
+					author$project$Icon$view(lattyware$elm_fontawesome$FontAwesome$Solid$link)))
+			]));
+};
+var mdgriffith$elm_ui$Internal$Model$InFront = {$: 'InFront'};
+var mdgriffith$elm_ui$Element$inFront = function (element) {
+	return A2(mdgriffith$elm_ui$Internal$Model$Nearby, mdgriffith$elm_ui$Internal$Model$InFront, element);
+};
+var mdgriffith$elm_ui$Internal$Flag$transparency = mdgriffith$elm_ui$Internal$Flag$flag(0);
+var mdgriffith$elm_ui$Internal$Model$Transparency = F2(
+	function (a, b) {
+		return {$: 'Transparency', a: a, b: b};
+	});
+var mdgriffith$elm_ui$Element$transparent = function (on) {
+	return on ? A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$transparency,
+		A2(mdgriffith$elm_ui$Internal$Model$Transparency, 'transparent', 1.0)) : A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$transparency,
+		A2(mdgriffith$elm_ui$Internal$Model$Transparency, 'visible', 0.0));
+};
+var mdgriffith$elm_ui$Internal$Flag$bgColor = mdgriffith$elm_ui$Internal$Flag$flag(8);
+var mdgriffith$elm_ui$Element$Background$color = function (clr) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$bgColor,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$Colored,
+			'bg-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
+			'background-color',
+			clr));
+};
+var author$project$View$Project$textBox = function (project) {
+	return A2(
+		mdgriffith$elm_ui$Element$column,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$Font$color(author$project$Colour$white),
+				mdgriffith$elm_ui$Element$spacing(15),
+				mdgriffith$elm_ui$Element$padding(40),
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$Background$color(author$project$Colour$shaded),
+				mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$transparent(true),
+				mdgriffith$elm_ui$Element$mouseOver(
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$transparent(false)
+					])),
+				mdgriffith$elm_ui$Element$inFront(
+				author$project$View$Project$iconRow(project))
+			]),
+		_List_fromArray(
+			[
+				author$project$View$Project$header(project),
+				author$project$View$Project$description(project)
+			]));
+};
+var author$project$View$Project$view = function (project) {
+	return A2(
+		mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$inFront(
+				author$project$View$Project$textBox(project)),
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+			]),
+		A2(
+			mdgriffith$elm_ui$Element$image,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+				]),
+			{description: 'project image for ' + project.name, src: project.imgLink}));
+};
+var author$project$View$Projects$projectList = _List_fromArray(
+	[
+		{aboutLink: '', blurb: 'A colour-coded periodic table app with a molar mass calculator.', githubLink: 'https://github.com/joshuanianji/Compsci-IA', imgLink: 'src/img/ptable_ss.png', link: 'http://joshuaji.com/projects/ptable', name: 'Periodic Table', year: 2019},
+		{aboutLink: '', blurb: 'An application that parses and displays information from 5 text files.', githubLink: 'https://github.com/joshuanianji/Country-Fact-Finder', imgLink: 'src/img/country_fact_finder.png', link: 'http://joshuaji.com/projects/fact-finder', name: 'Country Fact Finder', year: 2019},
+		{aboutLink: '', blurb: 'An application that ranks words based on usage from a string input or a text file.', githubLink: 'https://github.com/joshuanianji/Wordrank', imgLink: 'src/img/word_rank_ss.png', link: 'http://joshuaji.com/projects/word-rank', name: 'WordRank', year: 2019},
+		{aboutLink: '', blurb: 'An app that deals with Caesar and Viginere cyphers, and can calculate hashes.', githubLink: 'https://github.com/joshuanianji/Cryptography', imgLink: 'src/img/cryptography.png', link: 'http://joshuaji.com/projects/cryptography', name: 'Cryptography', year: 2019}
+	]);
+var author$project$View$Projects$toPairs = function (list) {
+	if (!list.b) {
+		return _List_Nil;
+	} else {
+		if (!list.b.b) {
+			var a = list.a;
+			return _List_fromArray(
+				[
+					_Utils_Tuple2(a, elm$core$Maybe$Nothing)
+				]);
+		} else {
+			var a = list.a;
+			var _n1 = list.b;
+			var b = _n1.a;
+			var c = _n1.b;
+			return A2(
+				elm$core$List$cons,
+				_Utils_Tuple2(
+					a,
+					elm$core$Maybe$Just(b)),
+				author$project$View$Projects$toPairs(c));
+		}
+	}
+};
+var mdgriffith$elm_ui$Element$none = mdgriffith$elm_ui$Internal$Model$Empty;
+var author$project$View$Projects$projectView = function (model) {
+	var projectsPerRow = function () {
+		var _n1 = model.device._class;
+		switch (_n1.$) {
+			case 'BigDesktop':
+				return 2;
+			case 'Desktop':
+				return 2;
+			case 'Tablet':
+				var _n2 = model.device.orientation;
+				if (_n2.$ === 'Portrait') {
+					return 1;
+				} else {
+					return 2;
+				}
+			default:
+				return 1;
+		}
+	}();
+	return (projectsPerRow === 1) ? A2(
+		mdgriffith$elm_ui$Element$column,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+			]),
+		A2(elm$core$List$map, author$project$View$Project$view, author$project$View$Projects$projectList)) : A2(
+		mdgriffith$elm_ui$Element$column,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink)
+			]),
+		A2(
+			elm$core$List$map,
+			function (_n0) {
+				var p = _n0.a;
+				var maybeP = _n0.b;
+				return A2(
+					mdgriffith$elm_ui$Element$row,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+						]),
+					_List_fromArray(
+						[
+							author$project$View$Project$view(p),
+							A2(
+							mdgriffith$elm_ui$Element$el,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+								]),
+							A2(
+								elm$core$Maybe$withDefault,
+								mdgriffith$elm_ui$Element$none,
+								A2(elm$core$Maybe$map, author$project$View$Project$view, maybeP)))
+						]));
+			},
+			author$project$View$Projects$toPairs(author$project$View$Projects$projectList)));
+};
+var mdgriffith$elm_ui$Element$paddingXY = F2(
+	function (x, y) {
+		return _Utils_eq(x, y) ? A2(
+			mdgriffith$elm_ui$Internal$Model$StyleClass,
+			mdgriffith$elm_ui$Internal$Flag$padding,
+			A5(
+				mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+				'p-' + elm$core$String$fromInt(x),
+				x,
+				x,
+				x,
+				x)) : A2(
+			mdgriffith$elm_ui$Internal$Model$StyleClass,
+			mdgriffith$elm_ui$Internal$Flag$padding,
+			A5(
+				mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+				'p-' + (elm$core$String$fromInt(x) + ('-' + elm$core$String$fromInt(y))),
+				y,
+				x,
+				y,
+				x));
+	});
+var author$project$View$Projects$text = A2(
+	mdgriffith$elm_ui$Element$paragraph,
+	_List_fromArray(
+		[
+			A2(mdgriffith$elm_ui$Element$paddingXY, 0, 30)
+		]),
+	_List_fromArray(
+		[
+			mdgriffith$elm_ui$Element$text('Welcome to my projects page! Here are my projects from the past year, created in my Computer Science Class. Stay tuned as I add in more!')
+		]));
 var author$project$View$Projects$view = function (model) {
-	return mdgriffith$elm_ui$Element$text('Here are my 0 projects lmao');
+	var _n0 = function () {
+		var _n1 = model.device._class;
+		switch (_n1.$) {
+			case 'BigDesktop':
+				return _Utils_Tuple2(1, 4);
+			case 'Desktop':
+				return _Utils_Tuple2(1, 6);
+			case 'Tablet':
+				var _n2 = model.device.orientation;
+				if (_n2.$ === 'Portrait') {
+					return _Utils_Tuple2(1, 8);
+				} else {
+					return _Utils_Tuple2(0, 1);
+				}
+			default:
+				return _Utils_Tuple2(0, 1);
+		}
+	}();
+	var fillPadding = _n0.a;
+	var fillContent = _n0.b;
+	var addPadding = function (content) {
+		return A2(
+			mdgriffith$elm_ui$Element$row,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+				]),
+			_List_fromArray(
+				[
+					A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(
+							mdgriffith$elm_ui$Element$fillPortion(fillPadding))
+						]),
+					mdgriffith$elm_ui$Element$none),
+					A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(
+							mdgriffith$elm_ui$Element$fillPortion(fillContent))
+						]),
+					content),
+					A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(
+							mdgriffith$elm_ui$Element$fillPortion(fillPadding))
+						]),
+					mdgriffith$elm_ui$Element$none)
+				]));
+	};
+	return addPadding(
+		A2(
+			mdgriffith$elm_ui$Element$column,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$spacing(50)
+				]),
+			_List_fromArray(
+				[
+					author$project$View$Projects$text,
+					author$project$View$Projects$projectView(model)
+				])));
 };
 var author$project$View$Resume$view = function (model) {
 	return mdgriffith$elm_ui$Element$text('Lol nothing\'s here yet');
@@ -11371,16 +12335,7 @@ var author$project$View$title = function (model) {
 var author$project$Model$ChangeDirectory = function (a) {
 	return {$: 'ChangeDirectory', a: a};
 };
-var mdgriffith$elm_ui$Internal$Model$Rgba = F4(
-	function (a, b, c, d) {
-		return {$: 'Rgba', a: a, b: b, c: c, d: d};
-	});
-var mdgriffith$elm_ui$Element$rgb255 = F3(
-	function (red, green, blue) {
-		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, 1);
-	});
 var author$project$Colour$black = A3(mdgriffith$elm_ui$Element$rgb255, 0, 0, 0);
-var author$project$Colour$gray = A3(mdgriffith$elm_ui$Element$rgb255, 175, 175, 175);
 var mdgriffith$elm_ui$Internal$Model$BorderWidth = F5(
 	function (a, b, c, d, e) {
 		return {$: 'BorderWidth', a: a, b: b, c: c, d: d, e: e};
@@ -11396,28 +12351,6 @@ var mdgriffith$elm_ui$Element$Border$width = function (v) {
 			v,
 			v,
 			v));
-};
-var mdgriffith$elm_ui$Internal$Flag$fontColor = mdgriffith$elm_ui$Internal$Flag$flag(14);
-var mdgriffith$elm_ui$Internal$Model$Colored = F3(
-	function (a, b, c) {
-		return {$: 'Colored', a: a, b: b, c: c};
-	});
-var mdgriffith$elm_ui$Internal$Model$formatColorClass = function (_n0) {
-	var red = _n0.a;
-	var green = _n0.b;
-	var blue = _n0.c;
-	var alpha = _n0.d;
-	return mdgriffith$elm_ui$Internal$Model$floatClass(red) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(green) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(blue) + ('-' + mdgriffith$elm_ui$Internal$Model$floatClass(alpha))))));
-};
-var mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
-	return A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$fontColor,
-		A3(
-			mdgriffith$elm_ui$Internal$Model$Colored,
-			'fc-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(fontColor),
-			'color',
-			fontColor));
 };
 var author$project$View$Navbar$navbarElementAttributes = F2(
 	function (model, dir) {
@@ -11470,11 +12403,6 @@ var elm$html$Html$Attributes$tabindex = function (n) {
 };
 var mdgriffith$elm_ui$Internal$Flag$cursor = mdgriffith$elm_ui$Internal$Flag$flag(21);
 var mdgriffith$elm_ui$Element$pointer = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$cursor, mdgriffith$elm_ui$Internal$Style$classes.cursorPointer);
-var elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
 var elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -11502,7 +12430,6 @@ var mdgriffith$elm_ui$Element$Input$hasFocusStyle = function (attr) {
 		return false;
 	}
 };
-var mdgriffith$elm_ui$Internal$Model$NoAttribute = {$: 'NoAttribute'};
 var mdgriffith$elm_ui$Element$Input$focusDefault = function (attrs) {
 	return A2(elm$core$List$any, mdgriffith$elm_ui$Element$Input$hasFocusStyle, attrs) ? mdgriffith$elm_ui$Internal$Model$NoAttribute : mdgriffith$elm_ui$Internal$Model$htmlClass('focusable');
 };
@@ -11613,7 +12540,7 @@ var author$project$View$Navbar$navbarFramework = F2(
 					author$project$Model$ChangeDirectory(directory))
 			});
 	});
-var author$project$Model$Projects = {$: 'Projects'};
+var author$project$Model$Home = {$: 'Home'};
 var author$project$Model$Resume = {$: 'Resume'};
 var author$project$View$Navbar$navbarMapList = _List_fromArray(
 	[
@@ -11631,6 +12558,15 @@ var author$project$View$Navbar$navbar = function (model) {
 			author$project$View$Navbar$navbarFramework(model),
 			author$project$View$Navbar$navbarMapList));
 };
+var elm$html$Html$node = elm$virtual_dom$VirtualDom$node;
+var lattyware$elm_fontawesome$FontAwesome$Styles$css = A3(
+	elm$html$Html$node,
+	'style',
+	_List_Nil,
+	_List_fromArray(
+		[
+			elm$html$Html$text('svg:not(:root).svg-inline--fa {  overflow: visible;}.svg-inline--fa {  display: inline-block;  font-size: inherit;  height: 1em;  overflow: visible;  vertical-align: -0.125em;}.svg-inline--fa.fa-lg {  vertical-align: -0.225em;}.svg-inline--fa.fa-w-1 {  width: 0.0625em;}.svg-inline--fa.fa-w-2 {  width: 0.125em;}.svg-inline--fa.fa-w-3 {  width: 0.1875em;}.svg-inline--fa.fa-w-4 {  width: 0.25em;}.svg-inline--fa.fa-w-5 {  width: 0.3125em;}.svg-inline--fa.fa-w-6 {  width: 0.375em;}.svg-inline--fa.fa-w-7 {  width: 0.4375em;}.svg-inline--fa.fa-w-8 {  width: 0.5em;}.svg-inline--fa.fa-w-9 {  width: 0.5625em;}.svg-inline--fa.fa-w-10 {  width: 0.625em;}.svg-inline--fa.fa-w-11 {  width: 0.6875em;}.svg-inline--fa.fa-w-12 {  width: 0.75em;}.svg-inline--fa.fa-w-13 {  width: 0.8125em;}.svg-inline--fa.fa-w-14 {  width: 0.875em;}.svg-inline--fa.fa-w-15 {  width: 0.9375em;}.svg-inline--fa.fa-w-16 {  width: 1em;}.svg-inline--fa.fa-w-17 {  width: 1.0625em;}.svg-inline--fa.fa-w-18 {  width: 1.125em;}.svg-inline--fa.fa-w-19 {  width: 1.1875em;}.svg-inline--fa.fa-w-20 {  width: 1.25em;}.svg-inline--fa.fa-pull-left {  margin-right: 0.3em;  width: auto;}.svg-inline--fa.fa-pull-right {  margin-left: 0.3em;  width: auto;}.svg-inline--fa.fa-border {  height: 1.5em;}.svg-inline--fa.fa-li {  width: 2em;}.svg-inline--fa.fa-fw {  width: 1.25em;}.fa-layers svg.svg-inline--fa {  bottom: 0;  left: 0;  margin: auto;  position: absolute;  right: 0;  top: 0;}.fa-layers {  display: inline-block;  height: 1em;  position: relative;  text-align: center;  vertical-align: -0.125em;  width: 1em;}.fa-layers svg.svg-inline--fa {  -webkit-transform-origin: center center;          transform-origin: center center;}.fa-layers-counter, .fa-layers-text {  display: inline-block;  position: absolute;  text-align: center;}.fa-layers-text {  left: 50%;  top: 50%;  -webkit-transform: translate(-50%, -50%);          transform: translate(-50%, -50%);  -webkit-transform-origin: center center;          transform-origin: center center;}.fa-layers-counter {  background-color: #ff253a;  border-radius: 1em;  -webkit-box-sizing: border-box;          box-sizing: border-box;  color: #fff;  height: 1.5em;  line-height: 1;  max-width: 5em;  min-width: 1.5em;  overflow: hidden;  padding: 0.25em;  right: 0;  text-overflow: ellipsis;  top: 0;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: top right;          transform-origin: top right;}.fa-layers-bottom-right {  bottom: 0;  right: 0;  top: auto;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: bottom right;          transform-origin: bottom right;}.fa-layers-bottom-left {  bottom: 0;  left: 0;  right: auto;  top: auto;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: bottom left;          transform-origin: bottom left;}.fa-layers-top-right {  right: 0;  top: 0;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: top right;          transform-origin: top right;}.fa-layers-top-left {  left: 0;  right: auto;  top: 0;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: top left;          transform-origin: top left;}.fa-lg {  font-size: 1.3333333333em;  line-height: 0.75em;  vertical-align: -0.0667em;}.fa-xs {  font-size: 0.75em;}.fa-sm {  font-size: 0.875em;}.fa-1x {  font-size: 1em;}.fa-2x {  font-size: 2em;}.fa-3x {  font-size: 3em;}.fa-4x {  font-size: 4em;}.fa-5x {  font-size: 5em;}.fa-6x {  font-size: 6em;}.fa-7x {  font-size: 7em;}.fa-8x {  font-size: 8em;}.fa-9x {  font-size: 9em;}.fa-10x {  font-size: 10em;}.fa-fw {  text-align: center;  width: 1.25em;}.fa-ul {  list-style-type: none;  margin-left: 2.5em;  padding-left: 0;}.fa-ul > li {  position: relative;}.fa-li {  left: -2em;  position: absolute;  text-align: center;  width: 2em;  line-height: inherit;}.fa-border {  border: solid 0.08em #eee;  border-radius: 0.1em;  padding: 0.2em 0.25em 0.15em;}.fa-pull-left {  float: left;}.fa-pull-right {  float: right;}.fa.fa-pull-left,.fas.fa-pull-left,.far.fa-pull-left,.fal.fa-pull-left,.fab.fa-pull-left {  margin-right: 0.3em;}.fa.fa-pull-right,.fas.fa-pull-right,.far.fa-pull-right,.fal.fa-pull-right,.fab.fa-pull-right {  margin-left: 0.3em;}.fa-spin {  -webkit-animation: fa-spin 2s infinite linear;          animation: fa-spin 2s infinite linear;}.fa-pulse {  -webkit-animation: fa-spin 1s infinite steps(8);          animation: fa-spin 1s infinite steps(8);}@-webkit-keyframes fa-spin {  0% {    -webkit-transform: rotate(0deg);            transform: rotate(0deg);  }  100% {    -webkit-transform: rotate(360deg);            transform: rotate(360deg);  }}@keyframes fa-spin {  0% {    -webkit-transform: rotate(0deg);            transform: rotate(0deg);  }  100% {    -webkit-transform: rotate(360deg);            transform: rotate(360deg);  }}.fa-rotate-90 {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=1)\";  -webkit-transform: rotate(90deg);          transform: rotate(90deg);}.fa-rotate-180 {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=2)\";  -webkit-transform: rotate(180deg);          transform: rotate(180deg);}.fa-rotate-270 {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=3)\";  -webkit-transform: rotate(270deg);          transform: rotate(270deg);}.fa-flip-horizontal {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1)\";  -webkit-transform: scale(-1, 1);          transform: scale(-1, 1);}.fa-flip-vertical {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)\";  -webkit-transform: scale(1, -1);          transform: scale(1, -1);}.fa-flip-both, .fa-flip-horizontal.fa-flip-vertical {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)\";  -webkit-transform: scale(-1, -1);          transform: scale(-1, -1);}:root .fa-rotate-90,:root .fa-rotate-180,:root .fa-rotate-270,:root .fa-flip-horizontal,:root .fa-flip-vertical,:root .fa-flip-both {  -webkit-filter: none;          filter: none;}.fa-stack {  display: inline-block;  height: 2em;  position: relative;  width: 2.5em;}.fa-stack-1x,.fa-stack-2x {  bottom: 0;  left: 0;  margin: auto;  position: absolute;  right: 0;  top: 0;}.svg-inline--fa.fa-stack-1x {  height: 1em;  width: 1.25em;}.svg-inline--fa.fa-stack-2x {  height: 2em;  width: 2.5em;}.fa-inverse {  color: #fff;}.sr-only {  border: 0;  clip: rect(0, 0, 0, 0);  height: 1px;  margin: -1px;  overflow: hidden;  padding: 0;  position: absolute;  width: 1px;}.sr-only-focusable:active, .sr-only-focusable:focus {  clip: auto;  height: auto;  margin: 0;  overflow: visible;  position: static;  width: auto;}')
+		]));
 var author$project$View$page = function (model) {
 	return A2(
 		mdgriffith$elm_ui$Element$column,
@@ -11643,6 +12579,7 @@ var author$project$View$page = function (model) {
 			]),
 		_List_fromArray(
 			[
+				mdgriffith$elm_ui$Element$html(lattyware$elm_fontawesome$FontAwesome$Styles$css),
 				author$project$View$title(model),
 				author$project$View$Navbar$navbar(model),
 				author$project$View$content(model)
@@ -11796,7 +12733,6 @@ var mdgriffith$elm_ui$Internal$Model$renderRoot = F3(
 					_List_fromArray(
 						[child]))));
 	});
-var mdgriffith$elm_ui$Internal$Flag$bgColor = mdgriffith$elm_ui$Internal$Flag$flag(8);
 var mdgriffith$elm_ui$Internal$Model$Typeface = function (a) {
 	return {$: 'Typeface', a: a};
 };
