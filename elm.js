@@ -19155,10 +19155,10 @@ var author$project$View$Project$view = function (project) {
 };
 var author$project$View$Projects$projectList = _List_fromArray(
 	[
-		{aboutLink: 'http://joshuaji.com/src/post/ptable.emu', blurb: 'A colour-coded periodic table app with a molar mass calculator.', githubLink: 'https://github.com/joshuanianji/Compsci-IA', imgLink: 'src/img/ptable_ss.png', link: 'http://joshuaji.com/projects/ptable', name: 'Periodic Table', year: 2019},
-		{aboutLink: 'http://joshuaji.com/src/post/factFinder.emu', blurb: 'An application that parses and displays information from 5 text files.', githubLink: 'https://github.com/joshuanianji/Country-Fact-Finder', imgLink: 'src/img/country_fact_finder.png', link: 'http://joshuaji.com/projects/fact-finder', name: 'Country Fact Finder', year: 2019},
-		{aboutLink: 'http://joshuaji.com/src/post/factFinder.emu', blurb: 'An application that ranks words based on usage from a string input or a text file.', githubLink: 'https://github.com/joshuanianji/Wordrank', imgLink: 'src/img/word_rank_ss.png', link: 'http://joshuaji.com/projects/word-rank', name: 'WordRank', year: 2019},
-		{aboutLink: 'http://joshuaji.com/src/post/cryptography.emu', blurb: 'An app that deals with Caesar and Viginere cyphers, and can calculate hashes.', githubLink: 'https://github.com/joshuanianji/Cryptography', imgLink: 'src/img/cryptography.png', link: 'http://joshuaji.com/projects/cryptography', name: 'Cryptography', year: 2019}
+		{aboutLink: 'https://joshuaji.com/src/post/ptable.emu', blurb: 'A colour-coded periodic table app with a molar mass calculator.', githubLink: 'https://github.com/joshuanianji/Compsci-IA', imgLink: 'src/img/ptable_ss.png', link: 'https://joshuaji.com/projects/ptable', name: 'Periodic Table', year: 2019},
+		{aboutLink: 'https://joshuaji.com/src/post/factFinder.emu', blurb: 'An application that parses and displays information from 5 text files.', githubLink: 'https://github.com/joshuanianji/Country-Fact-Finder', imgLink: 'src/img/country_fact_finder.png', link: 'https://joshuaji.com/projects/fact-finder', name: 'Country Fact Finder', year: 2019},
+		{aboutLink: 'https://joshuaji.com/src/post/factFinder.emu', blurb: 'An application that ranks words based on usage from a string input or a text file.', githubLink: 'https://github.com/joshuanianji/Wordrank', imgLink: 'src/img/word_rank_ss.png', link: 'https://joshuaji.com/projects/word-rank', name: 'WordRank', year: 2019},
+		{aboutLink: 'https://joshuaji.com/src/post/cryptography.emu', blurb: 'An app that deals with Caesar and Viginere cyphers, and can calculate hashes.', githubLink: 'https://github.com/joshuanianji/Cryptography', imgLink: 'src/img/cryptography.png', link: 'https://joshuaji.com/projects/cryptography', name: 'Cryptography', year: 2019}
 	]);
 var author$project$View$Projects$toPairs = function (list) {
 	if (!list.b) {
