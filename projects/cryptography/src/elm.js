@@ -1,13 +1,3 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Word Rank</title>
-</head>
-
-<body>
-<div id="elm-f0111bc4e658d0f98db96260c16f7e49"></div>
-<script>
 (function(scope){
 'use strict';
 
@@ -2324,148 +2314,40 @@ function _Platform_mergeExportsDebug(moduleName, obj, exports)
 
 
 
-// DECODER
-
-var _File_decoder = _Json_decodePrim(function(value) {
-	// NOTE: checks if `File` exists in case this is run on node
-	return (typeof File === 'function' && value instanceof File)
-		? elm$core$Result$Ok(value)
-		: _Json_expecting('a FILE', value);
+var _Bitwise_and = F2(function(a, b)
+{
+	return a & b;
 });
 
-
-// METADATA
-
-function _File_name(file) { return file.name; }
-function _File_mime(file) { return file.type; }
-function _File_size(file) { return file.size; }
-
-function _File_lastModified(file)
+var _Bitwise_or = F2(function(a, b)
 {
-	return elm$time$Time$millisToPosix(file.lastModified);
-}
-
-
-// DOWNLOAD
-
-var _File_downloadNode;
-
-function _File_getDownloadNode()
-{
-	return _File_downloadNode || (_File_downloadNode = document.createElementNS('http://www.w3.org/1999/xhtml', 'a'));
-}
-
-var _File_download = F3(function(name, mime, content)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		var blob = new Blob([content], {type: mime});
-
-		// for IE10+
-		if (navigator.msSaveOrOpenBlob)
-		{
-			navigator.msSaveOrOpenBlob(blob, name);
-			return;
-		}
-
-		// for HTML5
-		var node = _File_getDownloadNode();
-		var objectUrl = URL.createObjectURL(blob);
-		node.setAttribute('href', objectUrl);
-		node.setAttribute('download', name);
-		node.dispatchEvent(new MouseEvent('click'));
-		URL.revokeObjectURL(objectUrl);
-	});
+	return a | b;
 });
 
-function _File_downloadUrl(href)
+var _Bitwise_xor = F2(function(a, b)
 {
-	return _Scheduler_binding(function(callback)
-	{
-		var node = _File_getDownloadNode();
-		node.setAttribute('href', href);
-		node.setAttribute('download', '');
-		node.dispatchEvent(new MouseEvent('click'));
-	});
-}
+	return a ^ b;
+});
 
-
-// UPLOAD
-
-function _File_uploadOne(mimes)
+function _Bitwise_complement(a)
 {
-	return _Scheduler_binding(function(callback)
-	{
-		var node = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
-		node.setAttribute('type', 'file');
-		node.setAttribute('accept', A2(elm$core$String$join, ',', mimes));
-		node.addEventListener('change', function(event)
-		{
-			callback(_Scheduler_succeed(event.target.files[0]));
-		});
-		node.dispatchEvent(new MouseEvent('click'));
-	});
-}
+	return ~a;
+};
 
-function _File_uploadOneOrMore(mimes)
+var _Bitwise_shiftLeftBy = F2(function(offset, a)
 {
-	return _Scheduler_binding(function(callback)
-	{
-		var node = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
-		node.setAttribute('type', 'file');
-		node.setAttribute('accept', A2(elm$core$String$join, ',', mimes));
-		node.setAttribute('multiple', '');
-		node.addEventListener('change', function(event)
-		{
-			var elmFiles = _List_fromArray(event.target.files);
-			callback(_Scheduler_succeed(_Utils_Tuple2(elmFiles.a, elmFiles.b)));
-		});
-		node.dispatchEvent(new MouseEvent('click'));
-	});
-}
+	return a << offset;
+});
 
-
-// CONTENT
-
-function _File_toString(blob)
+var _Bitwise_shiftRightBy = F2(function(offset, a)
 {
-	return _Scheduler_binding(function(callback)
-	{
-		var reader = new FileReader();
-		reader.addEventListener('loadend', function() {
-			callback(_Scheduler_succeed(reader.result));
-		});
-		reader.readAsText(blob);
-		return function() { reader.abort(); };
-	});
-}
+	return a >> offset;
+});
 
-function _File_toBytes(blob)
+var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 {
-	return _Scheduler_binding(function(callback)
-	{
-		var reader = new FileReader();
-		reader.addEventListener('loadend', function() {
-			callback(_Scheduler_succeed(new DataView(reader.result)));
-		});
-		reader.readAsArrayBuffer(blob);
-		return function() { reader.abort(); };
-	});
-}
-
-function _File_toUrl(blob)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		var reader = new FileReader();
-		reader.addEventListener('loadend', function() {
-			callback(_Scheduler_succeed(reader.result));
-		});
-		reader.readAsDataURL(blob);
-		return function() { reader.abort(); };
-	});
-}
-
+	return a >>> offset;
+});
 
 
 
@@ -4027,43 +3909,6 @@ function _VirtualDom_dekey(keyedNode)
 
 
 
-var _Bitwise_and = F2(function(a, b)
-{
-	return a & b;
-});
-
-var _Bitwise_or = F2(function(a, b)
-{
-	return a | b;
-});
-
-var _Bitwise_xor = F2(function(a, b)
-{
-	return a ^ b;
-});
-
-function _Bitwise_complement(a)
-{
-	return ~a;
-};
-
-var _Bitwise_shiftLeftBy = F2(function(offset, a)
-{
-	return a << offset;
-});
-
-var _Bitwise_shiftRightBy = F2(function(offset, a)
-{
-	return a >> offset;
-});
-
-var _Bitwise_shiftRightZfBy = F2(function(offset, a)
-{
-	return a >>> offset;
-});
-
-
-
 
 // ELEMENT
 
@@ -4502,22 +4347,28 @@ function _Browser_load(url)
 		}
 	}));
 }
-var author$project$Model$FileContent = F4(
-	function (file, fileText, tupleList, showingFileContents) {
-		return {file: file, fileText: fileText, showingFileContents: showingFileContents, tupleList: tupleList};
+var author$project$Model$CaesarModel = F3(
+	function (plainText, key, cypheredText) {
+		return {cypheredText: cypheredText, key: key, plainText: plainText};
+	});
+var author$project$Model$HashModel = F3(
+	function (plainText, algorithm, outputHash) {
+		return {algorithm: algorithm, outputHash: outputHash, plainText: plainText};
 	});
 var author$project$Model$HomePage = {$: 'HomePage'};
-var author$project$Model$InputContent = F2(
-	function (text, tupleList) {
-		return {text: text, tupleList: tupleList};
+var author$project$Model$Sha224 = {$: 'Sha224'};
+var author$project$Model$ViginereModel = F3(
+	function (plainText, key, cypheredText) {
+		return {cypheredText: cypheredText, key: key, plainText: plainText};
 	});
-var elm$core$Basics$False = {$: 'False'};
-var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var author$project$Main$initModel = {
+	caesarModel: A3(author$project$Model$CaesarModel, '', 0, ''),
 	directory: author$project$Model$HomePage,
-	fileContent: A4(author$project$Model$FileContent, elm$core$Maybe$Nothing, elm$core$Maybe$Nothing, elm$core$Maybe$Nothing, false),
-	inputContent: A2(author$project$Model$InputContent, elm$core$Maybe$Nothing, elm$core$Maybe$Nothing)
+	hashModel: A3(author$project$Model$HashModel, '', author$project$Model$Sha224, ''),
+	test: '',
+	viginereModel: A3(author$project$Model$ViginereModel, '', '', '')
 };
+var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
@@ -4780,6 +4631,7 @@ var elm$core$Array$initialize = F2(
 var elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
+var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -4996,121 +4848,11 @@ var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(author$project$Main$initModel, elm$core$Platform$Cmd$none);
 };
-var author$project$Msg$GotFile = function (a) {
-	return {$: 'GotFile', a: a};
-};
-var author$project$Msg$UploadFileContent = function (a) {
-	return {$: 'UploadFileContent', a: a};
-};
-var author$project$StringParse$group_helper = F3(
-	function (v, run, xs) {
-		group_helper:
-		while (true) {
-			if (!xs.b) {
-				return _List_fromArray(
-					[run]);
-			} else {
-				var y = xs.a;
-				var ys = xs.b;
-				if (_Utils_eq(y, v)) {
-					var $temp$v = y,
-						$temp$run = A2(elm$core$List$cons, y, run),
-						$temp$xs = ys;
-					v = $temp$v;
-					run = $temp$run;
-					xs = $temp$xs;
-					continue group_helper;
-				} else {
-					return A2(
-						elm$core$List$cons,
-						run,
-						A3(
-							author$project$StringParse$group_helper,
-							y,
-							_List_fromArray(
-								[y]),
-							ys));
-				}
-			}
-		}
+var author$project$Cypher$CaesarCypher$add = F2(
+	function (x, y) {
+		return x + y;
 	});
-var author$project$StringParse$groupDuplicates = function (xs) {
-	if (!xs.b) {
-		return _List_Nil;
-	} else {
-		var y = xs.a;
-		var ys = xs.b;
-		return A3(
-			author$project$StringParse$group_helper,
-			y,
-			_List_fromArray(
-				[y]),
-			ys);
-	}
-};
-var elm$core$String$replace = F3(
-	function (before, after, string) {
-		return A2(
-			elm$core$String$join,
-			after,
-			A2(elm$core$String$split, before, string));
-	});
-var author$project$StringParse$removePunctuation = function (string) {
-	return A3(
-		elm$core$String$replace,
-		'_',
-		'',
-		A3(
-			elm$core$String$replace,
-			'-',
-			'',
-			A3(
-				elm$core$String$replace,
-				'?',
-				'',
-				A3(
-					elm$core$String$replace,
-					']',
-					'',
-					A3(
-						elm$core$String$replace,
-						'[',
-						'',
-						A3(
-							elm$core$String$replace,
-							'}',
-							'',
-							A3(
-								elm$core$String$replace,
-								'{',
-								'',
-								A3(
-									elm$core$String$replace,
-									')',
-									'',
-									A3(
-										elm$core$String$replace,
-										'(',
-										'',
-										A3(
-											elm$core$String$replace,
-											'!',
-											'',
-											A3(
-												elm$core$String$replace,
-												';',
-												'',
-												A3(
-													elm$core$String$replace,
-													':',
-													'',
-													A3(
-														elm$core$String$replace,
-														',',
-														'',
-														A3(elm$core$String$replace, '.', '', string))))))))))))));
-};
-var elm$core$Basics$neq = _Utils_notEqual;
+var elm$core$Char$fromCode = _Char_fromCode;
 var elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -5166,17 +4908,6 @@ var elm$core$List$foldr = F3(
 	function (fn, acc, ls) {
 		return A4(elm$core$List$foldrHelper, fn, acc, 0, ls);
 	});
-var elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var elm$core$List$map = F2(
 	function (f, xs) {
 		return A3(
@@ -5191,17 +4922,896 @@ var elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
-var elm$core$String$trim = _String_trim;
-var elm$core$Char$toLower = _Char_toLower;
-var elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return elm$core$Maybe$Nothing;
+var elm$core$String$fromList = _String_fromList;
+var author$project$Cypher$CaesarCypher$ascii2string = function (nums) {
+	return elm$core$String$fromList(
+		A2(elm$core$List$map, elm$core$Char$fromCode, nums));
+};
+var elm$core$String$foldr = _String_foldr;
+var elm$core$String$toList = function (string) {
+	return A3(elm$core$String$foldr, elm$core$List$cons, _List_Nil, string);
+};
+var author$project$Cypher$CaesarCypher$string2ascii = function (message) {
+	return A2(
+		elm$core$List$map,
+		elm$core$Char$toCode,
+		elm$core$String$toList(message));
+};
+var elm$core$String$toUpper = _String_toUpper;
+var author$project$Cypher$CaesarCypher$caesarEncrypt = F2(
+	function (k, str) {
+		return author$project$Cypher$CaesarCypher$ascii2string(
+			A2(
+				elm$core$List$map,
+				author$project$Cypher$CaesarCypher$add(k),
+				author$project$Cypher$CaesarCypher$string2ascii(
+					elm$core$String$toUpper(str))));
+	});
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var author$project$Cypher$CaesarCypher$caesarDecrypt = F2(
+	function (k, str) {
+		return A2(author$project$Cypher$CaesarCypher$caesarEncrypt, -k, str);
+	});
+var elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var ktonon$elm_crypto$Crypto$SHA$Alg$SHA256 = {$: 'SHA256'};
+var ktonon$elm_crypto$Crypto$SHA$Alg$SHA512 = {$: 'SHA512'};
+var ktonon$elm_word$Word$Bit32 = {$: 'Bit32'};
+var ktonon$elm_word$Word$Bit64 = {$: 'Bit64'};
+var ktonon$elm_crypto$Crypto$SHA$Alg$wordSize = function (alg) {
+	wordSize:
+	while (true) {
+		switch (alg.$) {
+			case 'SHA224':
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA256;
+				alg = $temp$alg;
+				continue wordSize;
+			case 'SHA256':
+				return ktonon$elm_word$Word$Bit32;
+			case 'SHA384':
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512;
+				alg = $temp$alg;
+				continue wordSize;
+			case 'SHA512':
+				return ktonon$elm_word$Word$Bit64;
+			case 'SHA512_224':
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512;
+				alg = $temp$alg;
+				continue wordSize;
+			default:
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512;
+				alg = $temp$alg;
+				continue wordSize;
 		}
+	}
+};
+var elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
+		}
+	});
+var elm$core$List$concat = function (lists) {
+	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
+};
+var elm$core$List$repeatHelp = F3(
+	function (result, n, value) {
+		repeatHelp:
+		while (true) {
+			if (n <= 0) {
+				return result;
+			} else {
+				var $temp$result = A2(elm$core$List$cons, value, result),
+					$temp$n = n - 1,
+					$temp$value = value;
+				result = $temp$result;
+				n = $temp$n;
+				value = $temp$value;
+				continue repeatHelp;
+			}
+		}
+	});
+var elm$core$List$repeat = F2(
+	function (n, value) {
+		return A3(elm$core$List$repeatHelp, _List_Nil, n, value);
+	});
+var elm$core$Basics$modBy = _Basics_modBy;
+var ktonon$elm_crypto$Crypto$SHA$Chunk$sizeInBytes = function (alg) {
+	sizeInBytes:
+	while (true) {
+		switch (alg.$) {
+			case 'SHA224':
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA256;
+				alg = $temp$alg;
+				continue sizeInBytes;
+			case 'SHA256':
+				return 64;
+			case 'SHA384':
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512;
+				alg = $temp$alg;
+				continue sizeInBytes;
+			case 'SHA512':
+				return 128;
+			case 'SHA512_224':
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512;
+				alg = $temp$alg;
+				continue sizeInBytes;
+			default:
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512;
+				alg = $temp$alg;
+				continue sizeInBytes;
+		}
+	}
+};
+var ktonon$elm_crypto$Crypto$SHA$Chunk$sizeInBits = A2(
+	elm$core$Basics$composeR,
+	ktonon$elm_crypto$Crypto$SHA$Chunk$sizeInBytes,
+	elm$core$Basics$mul(8));
+var ktonon$elm_crypto$Crypto$SHA$Preprocess$messageSizeBytes = function (alg) {
+	messageSizeBytes:
+	while (true) {
+		switch (alg.$) {
+			case 'SHA224':
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA256;
+				alg = $temp$alg;
+				continue messageSizeBytes;
+			case 'SHA256':
+				return 8;
+			case 'SHA384':
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512;
+				alg = $temp$alg;
+				continue messageSizeBytes;
+			case 'SHA512':
+				return 16;
+			case 'SHA512_224':
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512;
+				alg = $temp$alg;
+				continue messageSizeBytes;
+			default:
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512;
+				alg = $temp$alg;
+				continue messageSizeBytes;
+		}
+	}
+};
+var ktonon$elm_crypto$Crypto$SHA$Preprocess$calculateK = F2(
+	function (alg, l) {
+		var c = ktonon$elm_crypto$Crypto$SHA$Chunk$sizeInBits(alg);
+		return A2(
+			elm$core$Basics$modBy,
+			c,
+			((c - 1) - (8 * ktonon$elm_crypto$Crypto$SHA$Preprocess$messageSizeBytes(alg))) - A2(elm$core$Basics$modBy, c, l));
+	});
+var elm$core$Basics$pow = _Basics_pow;
+var elm$core$Bitwise$and = _Bitwise_and;
+var elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var ktonon$elm_word$Word$Bytes$fromInt = F2(
+	function (byteCount, value) {
+		return (byteCount > 4) ? A2(
+			elm$core$List$append,
+			A2(
+				ktonon$elm_word$Word$Bytes$fromInt,
+				byteCount - 4,
+				(value / A2(elm$core$Basics$pow, 2, 32)) | 0),
+			A2(ktonon$elm_word$Word$Bytes$fromInt, 4, 4294967295 & value)) : A2(
+			elm$core$List$map,
+			function (i) {
+				return 255 & (value >>> ((byteCount - i) * A2(elm$core$Basics$pow, 2, 3)));
+			},
+			A2(elm$core$List$range, 1, byteCount));
+	});
+var ktonon$elm_crypto$Crypto$SHA$Preprocess$postfix = F2(
+	function (alg, messageSize) {
+		return elm$core$List$concat(
+			_List_fromArray(
+				[
+					_List_fromArray(
+					[128]),
+					A2(
+					elm$core$List$repeat,
+					((A2(ktonon$elm_crypto$Crypto$SHA$Preprocess$calculateK, alg, messageSize) - 7) / 8) | 0,
+					0),
+					A2(
+					ktonon$elm_word$Word$Bytes$fromInt,
+					ktonon$elm_crypto$Crypto$SHA$Preprocess$messageSizeBytes(alg),
+					messageSize)
+				]));
+	});
+var ktonon$elm_crypto$Crypto$SHA$Preprocess$preprocess = F2(
+	function (alg, message) {
+		return A2(
+			elm$core$List$append,
+			message,
+			A2(
+				ktonon$elm_crypto$Crypto$SHA$Preprocess$postfix,
+				alg,
+				8 * elm$core$List$length(message)));
+	});
+var ktonon$elm_crypto$Crypto$SHA$Types$WorkingVars = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {a: a, b: b, c: c, d: d, e: e, f: f, g: g, h: h};
+	});
+var ktonon$elm_word$Word$D = F2(
+	function (a, b) {
+		return {$: 'D', a: a, b: b};
+	});
+var ktonon$elm_word$Word$W = function (a) {
+	return {$: 'W', a: a};
+};
+var ktonon$elm_crypto$Crypto$SHA$Constants$initialHashValues = function (alg) {
+	switch (alg.$) {
+		case 'SHA224':
+			return A8(
+				ktonon$elm_crypto$Crypto$SHA$Types$WorkingVars,
+				ktonon$elm_word$Word$W(3238371032),
+				ktonon$elm_word$Word$W(914150663),
+				ktonon$elm_word$Word$W(812702999),
+				ktonon$elm_word$Word$W(4144912697),
+				ktonon$elm_word$Word$W(4290775857),
+				ktonon$elm_word$Word$W(1750603025),
+				ktonon$elm_word$Word$W(1694076839),
+				ktonon$elm_word$Word$W(3204075428));
+		case 'SHA256':
+			return A8(
+				ktonon$elm_crypto$Crypto$SHA$Types$WorkingVars,
+				ktonon$elm_word$Word$W(1779033703),
+				ktonon$elm_word$Word$W(3144134277),
+				ktonon$elm_word$Word$W(1013904242),
+				ktonon$elm_word$Word$W(2773480762),
+				ktonon$elm_word$Word$W(1359893119),
+				ktonon$elm_word$Word$W(2600822924),
+				ktonon$elm_word$Word$W(528734635),
+				ktonon$elm_word$Word$W(1541459225));
+		case 'SHA384':
+			return A8(
+				ktonon$elm_crypto$Crypto$SHA$Types$WorkingVars,
+				A2(ktonon$elm_word$Word$D, 3418070365, 3238371032),
+				A2(ktonon$elm_word$Word$D, 1654270250, 914150663),
+				A2(ktonon$elm_word$Word$D, 2438529370, 812702999),
+				A2(ktonon$elm_word$Word$D, 355462360, 4144912697),
+				A2(ktonon$elm_word$Word$D, 1731405415, 4290775857),
+				A2(ktonon$elm_word$Word$D, 2394180231, 1750603025),
+				A2(ktonon$elm_word$Word$D, 3675008525, 1694076839),
+				A2(ktonon$elm_word$Word$D, 1203062813, 3204075428));
+		case 'SHA512':
+			return A8(
+				ktonon$elm_crypto$Crypto$SHA$Types$WorkingVars,
+				A2(ktonon$elm_word$Word$D, 1779033703, 4089235720),
+				A2(ktonon$elm_word$Word$D, 3144134277, 2227873595),
+				A2(ktonon$elm_word$Word$D, 1013904242, 4271175723),
+				A2(ktonon$elm_word$Word$D, 2773480762, 1595750129),
+				A2(ktonon$elm_word$Word$D, 1359893119, 2917565137),
+				A2(ktonon$elm_word$Word$D, 2600822924, 725511199),
+				A2(ktonon$elm_word$Word$D, 528734635, 4215389547),
+				A2(ktonon$elm_word$Word$D, 1541459225, 327033209));
+		case 'SHA512_224':
+			return A8(
+				ktonon$elm_crypto$Crypto$SHA$Types$WorkingVars,
+				A2(ktonon$elm_word$Word$D, 2352822216, 424955298),
+				A2(ktonon$elm_word$Word$D, 1944164710, 2312950998),
+				A2(ktonon$elm_word$Word$D, 502970286, 855612546),
+				A2(ktonon$elm_word$Word$D, 1738396948, 1479516111),
+				A2(ktonon$elm_word$Word$D, 258812777, 2077511080),
+				A2(ktonon$elm_word$Word$D, 2011393907, 79989058),
+				A2(ktonon$elm_word$Word$D, 1067287976, 1780299464),
+				A2(ktonon$elm_word$Word$D, 286451373, 2446758561));
+		default:
+			return A8(
+				ktonon$elm_crypto$Crypto$SHA$Types$WorkingVars,
+				A2(ktonon$elm_word$Word$D, 573645204, 4230739756),
+				A2(ktonon$elm_word$Word$D, 2673172387, 3360449730),
+				A2(ktonon$elm_word$Word$D, 596883563, 1867755857),
+				A2(ktonon$elm_word$Word$D, 2520282905, 1497426621),
+				A2(ktonon$elm_word$Word$D, 2519219938, 2827943907),
+				A2(ktonon$elm_word$Word$D, 3193839141, 1401305490),
+				A2(ktonon$elm_word$Word$D, 721525244, 746961066),
+				A2(ktonon$elm_word$Word$D, 246885852, 2177182882));
+	}
+};
+var elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
+var elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2(elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return elm$core$List$reverse(
+			A3(elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _n0 = _Utils_Tuple2(n, list);
+			_n0$1:
+			while (true) {
+				_n0$5:
+				while (true) {
+					if (!_n0.b.b) {
+						return list;
+					} else {
+						if (_n0.b.b.b) {
+							switch (_n0.a) {
+								case 1:
+									break _n0$1;
+								case 2:
+									var _n2 = _n0.b;
+									var x = _n2.a;
+									var _n3 = _n2.b;
+									var y = _n3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_n0.b.b.b.b) {
+										var _n4 = _n0.b;
+										var x = _n4.a;
+										var _n5 = _n4.b;
+										var y = _n5.a;
+										var _n6 = _n5.b;
+										var z = _n6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _n0$5;
+									}
+								default:
+									if (_n0.b.b.b.b && _n0.b.b.b.b.b) {
+										var _n7 = _n0.b;
+										var x = _n7.a;
+										var _n8 = _n7.b;
+										var y = _n8.a;
+										var _n9 = _n8.b;
+										var z = _n9.a;
+										var _n10 = _n9.b;
+										var w = _n10.a;
+										var tl = _n10.b;
+										return (ctr > 1000) ? A2(
+											elm$core$List$cons,
+											x,
+											A2(
+												elm$core$List$cons,
+												y,
+												A2(
+													elm$core$List$cons,
+													z,
+													A2(
+														elm$core$List$cons,
+														w,
+														A2(elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											elm$core$List$cons,
+											x,
+											A2(
+												elm$core$List$cons,
+												y,
+												A2(
+													elm$core$List$cons,
+													z,
+													A2(
+														elm$core$List$cons,
+														w,
+														A3(elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _n0$5;
+									}
+							}
+						} else {
+							if (_n0.a === 1) {
+								break _n0$1;
+							} else {
+								break _n0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _n1 = _n0.b;
+			var x = _n1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var elm$core$List$take = F2(
+	function (n, list) {
+		return A3(elm$core$List$takeFast, 0, n, list);
+	});
+var ktonon$elm_word$Word$sizeInBytes = function (s) {
+	if (s.$ === 'Bit32') {
+		return 4;
+	} else {
+		return 8;
+	}
+};
+var ktonon$elm_crypto$Crypto$SHA$Chunk$sizeInWords = function (alg) {
+	return (ktonon$elm_crypto$Crypto$SHA$Chunk$sizeInBytes(alg) / ktonon$elm_word$Word$sizeInBytes(
+		ktonon$elm_crypto$Crypto$SHA$Alg$wordSize(alg))) | 0;
+};
+var ktonon$elm_crypto$Crypto$SHA$Chunk$next = F2(
+	function (alg, words) {
+		var n = ktonon$elm_crypto$Crypto$SHA$Chunk$sizeInWords(alg);
+		var chunk = A2(elm$core$List$take, n, words);
+		return _Utils_Tuple2(
+			elm$core$List$isEmpty(chunk) ? elm$core$Maybe$Nothing : elm$core$Maybe$Just(chunk),
+			A2(elm$core$List$drop, n, words));
+	});
+var elm$core$Array$fromListHelp = F3(
+	function (list, nodeList, nodeListSize) {
+		fromListHelp:
+		while (true) {
+			var _n0 = A2(elm$core$Elm$JsArray$initializeFromList, elm$core$Array$branchFactor, list);
+			var jsArray = _n0.a;
+			var remainingItems = _n0.b;
+			if (_Utils_cmp(
+				elm$core$Elm$JsArray$length(jsArray),
+				elm$core$Array$branchFactor) < 0) {
+				return A2(
+					elm$core$Array$builderToArray,
+					true,
+					{nodeList: nodeList, nodeListSize: nodeListSize, tail: jsArray});
+			} else {
+				var $temp$list = remainingItems,
+					$temp$nodeList = A2(
+					elm$core$List$cons,
+					elm$core$Array$Leaf(jsArray),
+					nodeList),
+					$temp$nodeListSize = nodeListSize + 1;
+				list = $temp$list;
+				nodeList = $temp$nodeList;
+				nodeListSize = $temp$nodeListSize;
+				continue fromListHelp;
+			}
+		}
+	});
+var elm$core$Array$fromList = function (list) {
+	if (!list.b) {
+		return elm$core$Array$empty;
+	} else {
+		return A3(elm$core$Array$fromListHelp, list, _List_Nil, 0);
+	}
+};
+var ktonon$elm_crypto$Crypto$SHA$Constants$roundConstants = function (alg) {
+	roundConstants:
+	while (true) {
+		switch (alg.$) {
+			case 'SHA224':
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA256;
+				alg = $temp$alg;
+				continue roundConstants;
+			case 'SHA256':
+				return _List_fromArray(
+					[
+						ktonon$elm_word$Word$W(1116352408),
+						ktonon$elm_word$Word$W(1899447441),
+						ktonon$elm_word$Word$W(3049323471),
+						ktonon$elm_word$Word$W(3921009573),
+						ktonon$elm_word$Word$W(961987163),
+						ktonon$elm_word$Word$W(1508970993),
+						ktonon$elm_word$Word$W(2453635748),
+						ktonon$elm_word$Word$W(2870763221),
+						ktonon$elm_word$Word$W(3624381080),
+						ktonon$elm_word$Word$W(310598401),
+						ktonon$elm_word$Word$W(607225278),
+						ktonon$elm_word$Word$W(1426881987),
+						ktonon$elm_word$Word$W(1925078388),
+						ktonon$elm_word$Word$W(2162078206),
+						ktonon$elm_word$Word$W(2614888103),
+						ktonon$elm_word$Word$W(3248222580),
+						ktonon$elm_word$Word$W(3835390401),
+						ktonon$elm_word$Word$W(4022224774),
+						ktonon$elm_word$Word$W(264347078),
+						ktonon$elm_word$Word$W(604807628),
+						ktonon$elm_word$Word$W(770255983),
+						ktonon$elm_word$Word$W(1249150122),
+						ktonon$elm_word$Word$W(1555081692),
+						ktonon$elm_word$Word$W(1996064986),
+						ktonon$elm_word$Word$W(2554220882),
+						ktonon$elm_word$Word$W(2821834349),
+						ktonon$elm_word$Word$W(2952996808),
+						ktonon$elm_word$Word$W(3210313671),
+						ktonon$elm_word$Word$W(3336571891),
+						ktonon$elm_word$Word$W(3584528711),
+						ktonon$elm_word$Word$W(113926993),
+						ktonon$elm_word$Word$W(338241895),
+						ktonon$elm_word$Word$W(666307205),
+						ktonon$elm_word$Word$W(773529912),
+						ktonon$elm_word$Word$W(1294757372),
+						ktonon$elm_word$Word$W(1396182291),
+						ktonon$elm_word$Word$W(1695183700),
+						ktonon$elm_word$Word$W(1986661051),
+						ktonon$elm_word$Word$W(2177026350),
+						ktonon$elm_word$Word$W(2456956037),
+						ktonon$elm_word$Word$W(2730485921),
+						ktonon$elm_word$Word$W(2820302411),
+						ktonon$elm_word$Word$W(3259730800),
+						ktonon$elm_word$Word$W(3345764771),
+						ktonon$elm_word$Word$W(3516065817),
+						ktonon$elm_word$Word$W(3600352804),
+						ktonon$elm_word$Word$W(4094571909),
+						ktonon$elm_word$Word$W(275423344),
+						ktonon$elm_word$Word$W(430227734),
+						ktonon$elm_word$Word$W(506948616),
+						ktonon$elm_word$Word$W(659060556),
+						ktonon$elm_word$Word$W(883997877),
+						ktonon$elm_word$Word$W(958139571),
+						ktonon$elm_word$Word$W(1322822218),
+						ktonon$elm_word$Word$W(1537002063),
+						ktonon$elm_word$Word$W(1747873779),
+						ktonon$elm_word$Word$W(1955562222),
+						ktonon$elm_word$Word$W(2024104815),
+						ktonon$elm_word$Word$W(2227730452),
+						ktonon$elm_word$Word$W(2361852424),
+						ktonon$elm_word$Word$W(2428436474),
+						ktonon$elm_word$Word$W(2756734187),
+						ktonon$elm_word$Word$W(3204031479),
+						ktonon$elm_word$Word$W(3329325298)
+					]);
+			case 'SHA384':
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512;
+				alg = $temp$alg;
+				continue roundConstants;
+			case 'SHA512':
+				return _List_fromArray(
+					[
+						A2(ktonon$elm_word$Word$D, 1116352408, 3609767458),
+						A2(ktonon$elm_word$Word$D, 1899447441, 602891725),
+						A2(ktonon$elm_word$Word$D, 3049323471, 3964484399),
+						A2(ktonon$elm_word$Word$D, 3921009573, 2173295548),
+						A2(ktonon$elm_word$Word$D, 961987163, 4081628472),
+						A2(ktonon$elm_word$Word$D, 1508970993, 3053834265),
+						A2(ktonon$elm_word$Word$D, 2453635748, 2937671579),
+						A2(ktonon$elm_word$Word$D, 2870763221, 3664609560),
+						A2(ktonon$elm_word$Word$D, 3624381080, 2734883394),
+						A2(ktonon$elm_word$Word$D, 310598401, 1164996542),
+						A2(ktonon$elm_word$Word$D, 607225278, 1323610764),
+						A2(ktonon$elm_word$Word$D, 1426881987, 3590304994),
+						A2(ktonon$elm_word$Word$D, 1925078388, 4068182383),
+						A2(ktonon$elm_word$Word$D, 2162078206, 991336113),
+						A2(ktonon$elm_word$Word$D, 2614888103, 633803317),
+						A2(ktonon$elm_word$Word$D, 3248222580, 3479774868),
+						A2(ktonon$elm_word$Word$D, 3835390401, 2666613458),
+						A2(ktonon$elm_word$Word$D, 4022224774, 944711139),
+						A2(ktonon$elm_word$Word$D, 264347078, 2341262773),
+						A2(ktonon$elm_word$Word$D, 604807628, 2007800933),
+						A2(ktonon$elm_word$Word$D, 770255983, 1495990901),
+						A2(ktonon$elm_word$Word$D, 1249150122, 1856431235),
+						A2(ktonon$elm_word$Word$D, 1555081692, 3175218132),
+						A2(ktonon$elm_word$Word$D, 1996064986, 2198950837),
+						A2(ktonon$elm_word$Word$D, 2554220882, 3999719339),
+						A2(ktonon$elm_word$Word$D, 2821834349, 766784016),
+						A2(ktonon$elm_word$Word$D, 2952996808, 2566594879),
+						A2(ktonon$elm_word$Word$D, 3210313671, 3203337956),
+						A2(ktonon$elm_word$Word$D, 3336571891, 1034457026),
+						A2(ktonon$elm_word$Word$D, 3584528711, 2466948901),
+						A2(ktonon$elm_word$Word$D, 113926993, 3758326383),
+						A2(ktonon$elm_word$Word$D, 338241895, 168717936),
+						A2(ktonon$elm_word$Word$D, 666307205, 1188179964),
+						A2(ktonon$elm_word$Word$D, 773529912, 1546045734),
+						A2(ktonon$elm_word$Word$D, 1294757372, 1522805485),
+						A2(ktonon$elm_word$Word$D, 1396182291, 2643833823),
+						A2(ktonon$elm_word$Word$D, 1695183700, 2343527390),
+						A2(ktonon$elm_word$Word$D, 1986661051, 1014477480),
+						A2(ktonon$elm_word$Word$D, 2177026350, 1206759142),
+						A2(ktonon$elm_word$Word$D, 2456956037, 344077627),
+						A2(ktonon$elm_word$Word$D, 2730485921, 1290863460),
+						A2(ktonon$elm_word$Word$D, 2820302411, 3158454273),
+						A2(ktonon$elm_word$Word$D, 3259730800, 3505952657),
+						A2(ktonon$elm_word$Word$D, 3345764771, 106217008),
+						A2(ktonon$elm_word$Word$D, 3516065817, 3606008344),
+						A2(ktonon$elm_word$Word$D, 3600352804, 1432725776),
+						A2(ktonon$elm_word$Word$D, 4094571909, 1467031594),
+						A2(ktonon$elm_word$Word$D, 275423344, 851169720),
+						A2(ktonon$elm_word$Word$D, 430227734, 3100823752),
+						A2(ktonon$elm_word$Word$D, 506948616, 1363258195),
+						A2(ktonon$elm_word$Word$D, 659060556, 3750685593),
+						A2(ktonon$elm_word$Word$D, 883997877, 3785050280),
+						A2(ktonon$elm_word$Word$D, 958139571, 3318307427),
+						A2(ktonon$elm_word$Word$D, 1322822218, 3812723403),
+						A2(ktonon$elm_word$Word$D, 1537002063, 2003034995),
+						A2(ktonon$elm_word$Word$D, 1747873779, 3602036899),
+						A2(ktonon$elm_word$Word$D, 1955562222, 1575990012),
+						A2(ktonon$elm_word$Word$D, 2024104815, 1125592928),
+						A2(ktonon$elm_word$Word$D, 2227730452, 2716904306),
+						A2(ktonon$elm_word$Word$D, 2361852424, 442776044),
+						A2(ktonon$elm_word$Word$D, 2428436474, 593698344),
+						A2(ktonon$elm_word$Word$D, 2756734187, 3733110249),
+						A2(ktonon$elm_word$Word$D, 3204031479, 2999351573),
+						A2(ktonon$elm_word$Word$D, 3329325298, 3815920427),
+						A2(ktonon$elm_word$Word$D, 3391569614, 3928383900),
+						A2(ktonon$elm_word$Word$D, 3515267271, 566280711),
+						A2(ktonon$elm_word$Word$D, 3940187606, 3454069534),
+						A2(ktonon$elm_word$Word$D, 4118630271, 4000239992),
+						A2(ktonon$elm_word$Word$D, 116418474, 1914138554),
+						A2(ktonon$elm_word$Word$D, 174292421, 2731055270),
+						A2(ktonon$elm_word$Word$D, 289380356, 3203993006),
+						A2(ktonon$elm_word$Word$D, 460393269, 320620315),
+						A2(ktonon$elm_word$Word$D, 685471733, 587496836),
+						A2(ktonon$elm_word$Word$D, 852142971, 1086792851),
+						A2(ktonon$elm_word$Word$D, 1017036298, 365543100),
+						A2(ktonon$elm_word$Word$D, 1126000580, 2618297676),
+						A2(ktonon$elm_word$Word$D, 1288033470, 3409855158),
+						A2(ktonon$elm_word$Word$D, 1501505948, 4234509866),
+						A2(ktonon$elm_word$Word$D, 1607167915, 987167468),
+						A2(ktonon$elm_word$Word$D, 1816402316, 1246189591)
+					]);
+			case 'SHA512_224':
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512;
+				alg = $temp$alg;
+				continue roundConstants;
+			default:
+				var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512;
+				alg = $temp$alg;
+				continue roundConstants;
+		}
+	}
+};
+var elm$core$Elm$JsArray$appendN = _JsArray_appendN;
+var elm$core$Elm$JsArray$slice = _JsArray_slice;
+var elm$core$Array$appendHelpBuilder = F2(
+	function (tail, builder) {
+		var tailLen = elm$core$Elm$JsArray$length(tail);
+		var notAppended = (elm$core$Array$branchFactor - elm$core$Elm$JsArray$length(builder.tail)) - tailLen;
+		var appended = A3(elm$core$Elm$JsArray$appendN, elm$core$Array$branchFactor, builder.tail, tail);
+		return (notAppended < 0) ? {
+			nodeList: A2(
+				elm$core$List$cons,
+				elm$core$Array$Leaf(appended),
+				builder.nodeList),
+			nodeListSize: builder.nodeListSize + 1,
+			tail: A3(elm$core$Elm$JsArray$slice, notAppended, tailLen, tail)
+		} : ((!notAppended) ? {
+			nodeList: A2(
+				elm$core$List$cons,
+				elm$core$Array$Leaf(appended),
+				builder.nodeList),
+			nodeListSize: builder.nodeListSize + 1,
+			tail: elm$core$Elm$JsArray$empty
+		} : {nodeList: builder.nodeList, nodeListSize: builder.nodeListSize, tail: appended});
+	});
+var elm$core$Array$bitMask = 4294967295 >>> (32 - elm$core$Array$shiftStep);
+var elm$core$Basics$ge = _Utils_ge;
+var elm$core$Elm$JsArray$push = _JsArray_push;
+var elm$core$Elm$JsArray$singleton = _JsArray_singleton;
+var elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
+var elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
+var elm$core$Array$insertTailInTree = F4(
+	function (shift, index, tail, tree) {
+		var pos = elm$core$Array$bitMask & (index >>> shift);
+		if (_Utils_cmp(
+			pos,
+			elm$core$Elm$JsArray$length(tree)) > -1) {
+			if (shift === 5) {
+				return A2(
+					elm$core$Elm$JsArray$push,
+					elm$core$Array$Leaf(tail),
+					tree);
+			} else {
+				var newSub = elm$core$Array$SubTree(
+					A4(elm$core$Array$insertTailInTree, shift - elm$core$Array$shiftStep, index, tail, elm$core$Elm$JsArray$empty));
+				return A2(elm$core$Elm$JsArray$push, newSub, tree);
+			}
+		} else {
+			var value = A2(elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (value.$ === 'SubTree') {
+				var subTree = value.a;
+				var newSub = elm$core$Array$SubTree(
+					A4(elm$core$Array$insertTailInTree, shift - elm$core$Array$shiftStep, index, tail, subTree));
+				return A3(elm$core$Elm$JsArray$unsafeSet, pos, newSub, tree);
+			} else {
+				var newSub = elm$core$Array$SubTree(
+					A4(
+						elm$core$Array$insertTailInTree,
+						shift - elm$core$Array$shiftStep,
+						index,
+						tail,
+						elm$core$Elm$JsArray$singleton(value)));
+				return A3(elm$core$Elm$JsArray$unsafeSet, pos, newSub, tree);
+			}
+		}
+	});
+var elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var elm$core$Array$unsafeReplaceTail = F2(
+	function (newTail, _n0) {
+		var len = _n0.a;
+		var startShift = _n0.b;
+		var tree = _n0.c;
+		var tail = _n0.d;
+		var originalTailLen = elm$core$Elm$JsArray$length(tail);
+		var newTailLen = elm$core$Elm$JsArray$length(newTail);
+		var newArrayLen = len + (newTailLen - originalTailLen);
+		if (_Utils_eq(newTailLen, elm$core$Array$branchFactor)) {
+			var overflow = _Utils_cmp(newArrayLen >>> elm$core$Array$shiftStep, 1 << startShift) > 0;
+			if (overflow) {
+				var newShift = startShift + elm$core$Array$shiftStep;
+				var newTree = A4(
+					elm$core$Array$insertTailInTree,
+					newShift,
+					len,
+					newTail,
+					elm$core$Elm$JsArray$singleton(
+						elm$core$Array$SubTree(tree)));
+				return A4(elm$core$Array$Array_elm_builtin, newArrayLen, newShift, newTree, elm$core$Elm$JsArray$empty);
+			} else {
+				return A4(
+					elm$core$Array$Array_elm_builtin,
+					newArrayLen,
+					startShift,
+					A4(elm$core$Array$insertTailInTree, startShift, len, newTail, tree),
+					elm$core$Elm$JsArray$empty);
+			}
+		} else {
+			return A4(elm$core$Array$Array_elm_builtin, newArrayLen, startShift, tree, newTail);
+		}
+	});
+var elm$core$Array$appendHelpTree = F2(
+	function (toAppend, array) {
+		var len = array.a;
+		var tree = array.c;
+		var tail = array.d;
+		var itemsToAppend = elm$core$Elm$JsArray$length(toAppend);
+		var notAppended = (elm$core$Array$branchFactor - elm$core$Elm$JsArray$length(tail)) - itemsToAppend;
+		var appended = A3(elm$core$Elm$JsArray$appendN, elm$core$Array$branchFactor, tail, toAppend);
+		var newArray = A2(elm$core$Array$unsafeReplaceTail, appended, array);
+		if (notAppended < 0) {
+			var nextTail = A3(elm$core$Elm$JsArray$slice, notAppended, itemsToAppend, toAppend);
+			return A2(elm$core$Array$unsafeReplaceTail, nextTail, newArray);
+		} else {
+			return newArray;
+		}
+	});
+var elm$core$Elm$JsArray$foldl = _JsArray_foldl;
+var elm$core$Array$builderFromArray = function (_n0) {
+	var len = _n0.a;
+	var tree = _n0.c;
+	var tail = _n0.d;
+	var helper = F2(
+		function (node, acc) {
+			if (node.$ === 'SubTree') {
+				var subTree = node.a;
+				return A3(elm$core$Elm$JsArray$foldl, helper, acc, subTree);
+			} else {
+				return A2(elm$core$List$cons, node, acc);
+			}
+		});
+	return {
+		nodeList: A3(elm$core$Elm$JsArray$foldl, helper, _List_Nil, tree),
+		nodeListSize: (len / elm$core$Array$branchFactor) | 0,
+		tail: tail
+	};
+};
+var elm$core$Array$append = F2(
+	function (a, _n0) {
+		var aTail = a.d;
+		var bLen = _n0.a;
+		var bTree = _n0.c;
+		var bTail = _n0.d;
+		if (_Utils_cmp(bLen, elm$core$Array$branchFactor * 4) < 1) {
+			var foldHelper = F2(
+				function (node, array) {
+					if (node.$ === 'SubTree') {
+						var tree = node.a;
+						return A3(elm$core$Elm$JsArray$foldl, foldHelper, array, tree);
+					} else {
+						var leaf = node.a;
+						return A2(elm$core$Array$appendHelpTree, leaf, array);
+					}
+				});
+			return A2(
+				elm$core$Array$appendHelpTree,
+				bTail,
+				A3(elm$core$Elm$JsArray$foldl, foldHelper, a, bTree));
+		} else {
+			var foldHelper = F2(
+				function (node, builder) {
+					if (node.$ === 'SubTree') {
+						var tree = node.a;
+						return A3(elm$core$Elm$JsArray$foldl, foldHelper, builder, tree);
+					} else {
+						var leaf = node.a;
+						return A2(elm$core$Array$appendHelpBuilder, leaf, builder);
+					}
+				});
+			return A2(
+				elm$core$Array$builderToArray,
+				true,
+				A2(
+					elm$core$Array$appendHelpBuilder,
+					bTail,
+					A3(
+						elm$core$Elm$JsArray$foldl,
+						foldHelper,
+						elm$core$Array$builderFromArray(a),
+						bTree)));
+		}
+	});
+var elm$core$Array$getHelp = F3(
+	function (shift, index, tree) {
+		getHelp:
+		while (true) {
+			var pos = elm$core$Array$bitMask & (index >>> shift);
+			var _n0 = A2(elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (_n0.$ === 'SubTree') {
+				var subTree = _n0.a;
+				var $temp$shift = shift - elm$core$Array$shiftStep,
+					$temp$index = index,
+					$temp$tree = subTree;
+				shift = $temp$shift;
+				index = $temp$index;
+				tree = $temp$tree;
+				continue getHelp;
+			} else {
+				var values = _n0.a;
+				return A2(elm$core$Elm$JsArray$unsafeGet, elm$core$Array$bitMask & index, values);
+			}
+		}
+	});
+var elm$core$Array$tailIndex = function (len) {
+	return (len >>> 5) << 5;
+};
+var elm$core$Array$get = F2(
+	function (index, _n0) {
+		var len = _n0.a;
+		var startShift = _n0.b;
+		var tree = _n0.c;
+		var tail = _n0.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? elm$core$Maybe$Nothing : ((_Utils_cmp(
+			index,
+			elm$core$Array$tailIndex(len)) > -1) ? elm$core$Maybe$Just(
+			A2(elm$core$Elm$JsArray$unsafeGet, elm$core$Array$bitMask & index, tail)) : elm$core$Maybe$Just(
+			A3(elm$core$Array$getHelp, startShift, index, tree)));
 	});
 var elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
@@ -5212,363 +5822,1477 @@ var elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
-var elm$core$String$cons = _String_cons;
-var elm_community$string_extra$String$Extra$changeCase = F2(
-	function (mutator, word) {
-		return A2(
-			elm$core$Maybe$withDefault,
-			'',
-			A2(
-				elm$core$Maybe$map,
-				function (_n0) {
-					var head = _n0.a;
-					var tail = _n0.b;
-					return A2(
-						elm$core$String$cons,
-						mutator(head),
-						tail);
-				},
-				elm$core$String$uncons(word)));
-	});
-var elm_community$string_extra$String$Extra$decapitalize = function (word) {
-	return A2(elm_community$string_extra$String$Extra$changeCase, elm$core$Char$toLower, word);
-};
-var author$project$StringParse$tame = function (list) {
-	var helper = function (string) {
-		return elm_community$string_extra$String$Extra$decapitalize(
-			elm$core$String$trim(string));
-	};
+var ktonon$elm_word$Word$Mismatch = {$: 'Mismatch'};
+var ktonon$elm_crypto$Crypto$SHA$MessageSchedule$at = function (i) {
 	return A2(
-		elm$core$List$filter,
-		function (x) {
-			return x !== '';
-		},
-		A2(elm$core$List$map, helper, list));
+		elm$core$Basics$composeR,
+		elm$core$Array$get(i),
+		elm$core$Maybe$withDefault(ktonon$elm_word$Word$Mismatch));
 };
-var author$project$StringParse$removeNothings = function (xs) {
-	removeNothings:
-	while (true) {
-		if (!xs.b) {
-			return _List_Nil;
-		} else {
-			if (xs.a.a.$ === 'Nothing') {
-				var _n1 = xs.a;
-				var _n2 = _n1.a;
-				var len = _n1.b;
-				var rest = xs.b;
-				var $temp$xs = rest;
-				xs = $temp$xs;
-				continue removeNothings;
-			} else {
-				var _n3 = xs.a;
-				var y = _n3.a.a;
-				var len = _n3.b;
-				var rest = xs.b;
-				return A2(
-					elm$core$List$cons,
-					_Utils_Tuple2(y, len),
-					author$project$StringParse$removeNothings(rest));
+var ktonon$elm_word$Word$Helpers$lowMask = function (n) {
+	switch (n) {
+		case 0:
+			return 0;
+		case 1:
+			return 1;
+		case 2:
+			return 3;
+		case 3:
+			return 7;
+		case 4:
+			return 15;
+		case 5:
+			return 31;
+		case 6:
+			return 63;
+		case 7:
+			return 127;
+		case 8:
+			return 255;
+		case 9:
+			return 511;
+		case 10:
+			return 1023;
+		case 11:
+			return 2047;
+		case 12:
+			return 4095;
+		case 13:
+			return 8191;
+		case 14:
+			return 16383;
+		case 15:
+			return 32767;
+		case 16:
+			return 65535;
+		case 17:
+			return 131071;
+		case 18:
+			return 262143;
+		case 19:
+			return 524287;
+		case 20:
+			return 1048575;
+		case 21:
+			return 2097151;
+		case 22:
+			return 4194303;
+		case 23:
+			return 8388607;
+		case 24:
+			return 16777215;
+		case 25:
+			return 33554431;
+		case 26:
+			return 67108863;
+		case 27:
+			return 134217727;
+		case 28:
+			return 268435455;
+		case 29:
+			return 536870911;
+		case 30:
+			return 1073741823;
+		case 31:
+			return 2147483647;
+		default:
+			return 4294967295;
+	}
+};
+var ktonon$elm_word$Word$Helpers$safeShiftRightZfBy = F2(
+	function (n, val) {
+		return (n >= 32) ? 0 : (val >>> n);
+	});
+var ktonon$elm_word$Word$dShiftRightZfBy = F2(
+	function (n, _n0) {
+		var xh = _n0.a;
+		var xl = _n0.b;
+		return (n > 32) ? _Utils_Tuple2(
+			0,
+			A2(ktonon$elm_word$Word$Helpers$safeShiftRightZfBy, n - 32, xh)) : _Utils_Tuple2(
+			A2(ktonon$elm_word$Word$Helpers$safeShiftRightZfBy, n, xh),
+			A2(ktonon$elm_word$Word$Helpers$safeShiftRightZfBy, n, xl) + ((ktonon$elm_word$Word$Helpers$lowMask(n) & xh) << (32 - n)));
+	});
+var ktonon$elm_word$Word$Helpers$rotatedLowBits = F2(
+	function (n, val) {
+		return elm$core$Basics$add(
+			(ktonon$elm_word$Word$Helpers$lowMask(n) & val) << (32 - n));
+	});
+var ktonon$elm_word$Word$rotateRightBy = F2(
+	function (unboundN, word) {
+		switch (word.$) {
+			case 'W':
+				var x = word.a;
+				var n = A2(elm$core$Basics$modBy, 32, unboundN);
+				return ktonon$elm_word$Word$W(
+					A3(
+						ktonon$elm_word$Word$Helpers$rotatedLowBits,
+						n,
+						x,
+						A2(ktonon$elm_word$Word$Helpers$safeShiftRightZfBy, n, x)));
+			case 'D':
+				var xh = word.a;
+				var xl = word.b;
+				var n = A2(elm$core$Basics$modBy, 64, unboundN);
+				if (n > 32) {
+					var n_ = n - 32;
+					var _n1 = A2(
+						ktonon$elm_word$Word$dShiftRightZfBy,
+						n_,
+						_Utils_Tuple2(xl, xh));
+					var zh = _n1.a;
+					var zl = _n1.b;
+					return A2(
+						ktonon$elm_word$Word$D,
+						A3(ktonon$elm_word$Word$Helpers$rotatedLowBits, n_, xh, zh),
+						zl);
+				} else {
+					var _n2 = A2(
+						ktonon$elm_word$Word$dShiftRightZfBy,
+						n,
+						_Utils_Tuple2(xh, xl));
+					var zh = _n2.a;
+					var zl = _n2.b;
+					return A2(
+						ktonon$elm_word$Word$D,
+						A3(ktonon$elm_word$Word$Helpers$rotatedLowBits, n, xl, zh),
+						zl);
+				}
+			default:
+				return ktonon$elm_word$Word$Mismatch;
+		}
+	});
+var ktonon$elm_word$Word$shiftRightZfBy = F2(
+	function (n, word) {
+		switch (word.$) {
+			case 'W':
+				var x = word.a;
+				return ktonon$elm_word$Word$W(
+					A2(ktonon$elm_word$Word$Helpers$safeShiftRightZfBy, n, x));
+			case 'D':
+				var xh = word.a;
+				var xl = word.b;
+				var _n1 = A2(
+					ktonon$elm_word$Word$dShiftRightZfBy,
+					n,
+					_Utils_Tuple2(xh, xl));
+				var zh = _n1.a;
+				var zl = _n1.b;
+				return A2(ktonon$elm_word$Word$D, zh, zl);
+			default:
+				return ktonon$elm_word$Word$Mismatch;
+		}
+	});
+var elm$core$Bitwise$xor = _Bitwise_xor;
+var ktonon$elm_word$Word$xor = F2(
+	function (wx, wy) {
+		var _n0 = _Utils_Tuple2(wx, wy);
+		_n0$2:
+		while (true) {
+			switch (_n0.a.$) {
+				case 'W':
+					if (_n0.b.$ === 'W') {
+						var x = _n0.a.a;
+						var y = _n0.b.a;
+						return ktonon$elm_word$Word$W(x ^ y);
+					} else {
+						break _n0$2;
+					}
+				case 'D':
+					if (_n0.b.$ === 'D') {
+						var _n1 = _n0.a;
+						var xh = _n1.a;
+						var xl = _n1.b;
+						var _n2 = _n0.b;
+						var yh = _n2.a;
+						var yl = _n2.b;
+						return A2(ktonon$elm_word$Word$D, xh ^ yh, xl ^ yl);
+					} else {
+						break _n0$2;
+					}
+				default:
+					break _n0$2;
 			}
 		}
-	}
-};
-var elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(x);
-	} else {
-		return elm$core$Maybe$Nothing;
-	}
-};
-var author$project$StringParse$toOccurenceTuple = function (list) {
-	var occurenceHelper = function (xs) {
-		return _Utils_Tuple2(
-			elm$core$List$head(xs),
-			elm$core$List$length(xs));
-	};
-	return author$project$StringParse$removeNothings(
-		A2(elm$core$List$map, occurenceHelper, list));
-};
-var elm$core$Basics$identity = function (x) {
-	return x;
-};
-var elm$core$List$sortBy = _List_sortBy;
-var elm$core$List$sort = function (xs) {
-	return A2(elm$core$List$sortBy, elm$core$Basics$identity, xs);
-};
-var author$project$StringParse$toDuplicateTuples = function (string) {
-	if (string.$ === 'Nothing') {
-		return elm$core$Maybe$Nothing;
-	} else {
-		var s = string.a;
-		var stringList = elm$core$List$sort(
-			author$project$StringParse$tame(
-				A2(
-					elm$core$String$split,
-					' ',
-					author$project$StringParse$removePunctuation(
-						A3(elm$core$String$replace, '\n', ' ', s)))));
-		return elm$core$Maybe$Just(
-			author$project$StringParse$toOccurenceTuple(
-				author$project$StringParse$groupDuplicates(stringList)));
-	}
-};
-var elm$core$Basics$not = _Basics_not;
-var elm$core$Debug$log = _Debug_log;
-var elm$core$String$slice = _String_slice;
-var elm$core$String$left = F2(
-	function (n, string) {
-		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
+		return ktonon$elm_word$Word$Mismatch;
 	});
-var elm$core$Task$Perform = function (a) {
-	return {$: 'Perform', a: a};
-};
-var elm$core$Task$succeed = _Scheduler_succeed;
-var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
-var elm$core$Task$andThen = _Scheduler_andThen;
-var elm$core$Task$map = F2(
-	function (func, taskA) {
-		return A2(
-			elm$core$Task$andThen,
-			function (a) {
-				return elm$core$Task$succeed(
-					func(a));
-			},
-			taskA);
-	});
-var elm$core$Task$map2 = F3(
-	function (func, taskA, taskB) {
-		return A2(
-			elm$core$Task$andThen,
-			function (a) {
-				return A2(
-					elm$core$Task$andThen,
-					function (b) {
-						return elm$core$Task$succeed(
-							A2(func, a, b));
-					},
-					taskB);
-			},
-			taskA);
-	});
-var elm$core$Task$sequence = function (tasks) {
-	return A3(
-		elm$core$List$foldr,
-		elm$core$Task$map2(elm$core$List$cons),
-		elm$core$Task$succeed(_List_Nil),
-		tasks);
-};
-var elm$core$Platform$sendToApp = _Platform_sendToApp;
-var elm$core$Task$spawnCmd = F2(
-	function (router, _n0) {
-		var task = _n0.a;
-		return _Scheduler_spawn(
-			A2(
-				elm$core$Task$andThen,
-				elm$core$Platform$sendToApp(router),
-				task));
-	});
-var elm$core$Task$onEffects = F3(
-	function (router, commands, state) {
-		return A2(
-			elm$core$Task$map,
-			function (_n0) {
-				return _Utils_Tuple0;
-			},
-			elm$core$Task$sequence(
-				A2(
-					elm$core$List$map,
-					elm$core$Task$spawnCmd(router),
-					commands)));
-	});
-var elm$core$Task$onSelfMsg = F3(
-	function (_n0, _n1, _n2) {
-		return elm$core$Task$succeed(_Utils_Tuple0);
-	});
-var elm$core$Task$cmdMap = F2(
-	function (tagger, _n0) {
-		var task = _n0.a;
-		return elm$core$Task$Perform(
-			A2(elm$core$Task$map, tagger, task));
-	});
-_Platform_effectManagers['Task'] = _Platform_createManager(elm$core$Task$init, elm$core$Task$onEffects, elm$core$Task$onSelfMsg, elm$core$Task$cmdMap);
-var elm$core$Task$command = _Platform_leaf('Task');
-var elm$core$Task$perform = F2(
-	function (toMessage, task) {
-		return elm$core$Task$command(
-			elm$core$Task$Perform(
-				A2(elm$core$Task$map, toMessage, task)));
-	});
-var elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var elm$time$Time$millisToPosix = elm$time$Time$Posix;
-var elm$file$File$mime = _File_mime;
-var elm$file$File$toString = _File_toString;
-var elm$file$File$Select$file = F2(
-	function (mimes, toMsg) {
-		return A2(
-			elm$core$Task$perform,
-			toMsg,
-			_File_uploadOne(mimes));
-	});
-var author$project$Update$update = F2(
-	function (msg, model) {
-		switch (msg.$) {
-			case 'ChangeDirectory':
-				var dir = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{directory: dir}),
-					elm$core$Platform$Cmd$none);
-			case 'ReqFile':
-				return _Utils_Tuple2(
-					model,
-					A2(
-						elm$file$File$Select$file,
-						_List_fromArray(
-							['*/*']),
-						author$project$Msg$GotFile));
-			case 'GotFile':
-				var uploadedFile = msg.a;
-				return A2(
-					elm$core$Debug$log,
-					'FileLoaded',
-					A2(
-						elm$core$String$left,
-						5,
-						elm$file$File$mime(uploadedFile)) === 'text/') ? _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							fileContent: A4(
-								author$project$Model$FileContent,
-								elm$core$Maybe$Just(uploadedFile),
-								elm$core$Maybe$Nothing,
-								elm$core$Maybe$Nothing,
-								false)
-						}),
-					A2(
-						elm$core$Task$perform,
-						author$project$Msg$UploadFileContent,
-						elm$file$File$toString(uploadedFile))) : _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
-			case 'UploadFileContent':
-				var fileContents = msg.a;
-				var c = model.fileContent;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							fileContent: _Utils_update(
-								c,
-								{
-									fileText: elm$core$Maybe$Just(fileContents)
-								})
-						}),
-					elm$core$Platform$Cmd$none);
-			case 'ToggleFileContents':
-				var currentState = model.fileContent.showingFileContents;
-				var c = model.fileContent;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							fileContent: _Utils_update(
-								c,
-								{showingFileContents: !currentState})
-						}),
-					elm$core$Platform$Cmd$none);
-			case 'EvalFileText':
-				var fileString = model.fileContent.fileText;
-				var c = model.fileContent;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							fileContent: _Utils_update(
-								c,
-								{
-									tupleList: author$project$StringParse$toDuplicateTuples(
-										A2(elm$core$Debug$log, 'Alrighty we\'re about to debug this', fileString))
-								})
-						}),
-					elm$core$Platform$Cmd$none);
-			case 'UpdateInputText':
-				var string = msg.a;
-				var c = model.inputContent;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							inputContent: _Utils_update(
-								c,
-								{
-									text: elm$core$Maybe$Just(string)
-								})
-						}),
-					elm$core$Platform$Cmd$none);
-			default:
-				var inputString = model.inputContent.text;
-				var c = model.inputContent;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							inputContent: _Utils_update(
-								c,
-								{
-									tupleList: author$project$StringParse$toDuplicateTuples(inputString)
-								})
-						}),
-					elm$core$Platform$Cmd$none);
+var ktonon$elm_crypto$Crypto$SHA$MessageSchedule$sigma0 = F2(
+	function (alg, word) {
+		sigma0:
+		while (true) {
+			switch (alg.$) {
+				case 'SHA224':
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA256,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sigma0;
+				case 'SHA384':
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sigma0;
+				case 'SHA256':
+					return A2(
+						ktonon$elm_word$Word$xor,
+						A2(ktonon$elm_word$Word$shiftRightZfBy, 3, word),
+						A2(
+							ktonon$elm_word$Word$xor,
+							A2(ktonon$elm_word$Word$rotateRightBy, 18, word),
+							A2(ktonon$elm_word$Word$rotateRightBy, 7, word)));
+				case 'SHA512':
+					return A2(
+						ktonon$elm_word$Word$xor,
+						A2(ktonon$elm_word$Word$shiftRightZfBy, 7, word),
+						A2(
+							ktonon$elm_word$Word$xor,
+							A2(ktonon$elm_word$Word$rotateRightBy, 8, word),
+							A2(ktonon$elm_word$Word$rotateRightBy, 1, word)));
+				case 'SHA512_224':
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sigma0;
+				default:
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sigma0;
+			}
 		}
 	});
+var ktonon$elm_crypto$Crypto$SHA$MessageSchedule$sigma1 = F2(
+	function (alg, word) {
+		sigma1:
+		while (true) {
+			switch (alg.$) {
+				case 'SHA224':
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA256,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sigma1;
+				case 'SHA384':
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sigma1;
+				case 'SHA256':
+					return A2(
+						ktonon$elm_word$Word$xor,
+						A2(ktonon$elm_word$Word$shiftRightZfBy, 10, word),
+						A2(
+							ktonon$elm_word$Word$xor,
+							A2(ktonon$elm_word$Word$rotateRightBy, 19, word),
+							A2(ktonon$elm_word$Word$rotateRightBy, 17, word)));
+				case 'SHA512':
+					return A2(
+						ktonon$elm_word$Word$xor,
+						A2(ktonon$elm_word$Word$shiftRightZfBy, 6, word),
+						A2(
+							ktonon$elm_word$Word$xor,
+							A2(ktonon$elm_word$Word$rotateRightBy, 61, word),
+							A2(ktonon$elm_word$Word$rotateRightBy, 19, word)));
+				case 'SHA512_224':
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sigma1;
+				default:
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sigma1;
+			}
+		}
+	});
+var ktonon$elm_word$Word$low31mask = 2147483647;
+var ktonon$elm_word$Word$carry32 = F2(
+	function (x, y) {
+		var _n0 = (x >>> 31) + (y >>> 31);
+		switch (_n0) {
+			case 0:
+				return 0;
+			case 2:
+				return 1;
+			default:
+				return (1 === (((ktonon$elm_word$Word$low31mask & x) + (ktonon$elm_word$Word$low31mask & y)) >>> 31)) ? 1 : 0;
+		}
+	});
+var ktonon$elm_word$Word$mod32 = function (val) {
+	return A2(
+		elm$core$Basics$modBy,
+		A2(elm$core$Basics$pow, 2, 32),
+		val);
+};
+var ktonon$elm_word$Word$add = F2(
+	function (wx, wy) {
+		var _n0 = _Utils_Tuple2(wx, wy);
+		_n0$2:
+		while (true) {
+			switch (_n0.a.$) {
+				case 'W':
+					if (_n0.b.$ === 'W') {
+						var x = _n0.a.a;
+						var y = _n0.b.a;
+						return ktonon$elm_word$Word$W(
+							ktonon$elm_word$Word$mod32(x + y));
+					} else {
+						break _n0$2;
+					}
+				case 'D':
+					if (_n0.b.$ === 'D') {
+						var _n1 = _n0.a;
+						var xh = _n1.a;
+						var xl = _n1.b;
+						var _n2 = _n0.b;
+						var yh = _n2.a;
+						var yl = _n2.b;
+						var zl = xl + yl;
+						var zh = (xh + yh) + A2(ktonon$elm_word$Word$carry32, xl, yl);
+						return A2(
+							ktonon$elm_word$Word$D,
+							ktonon$elm_word$Word$mod32(zh),
+							ktonon$elm_word$Word$mod32(zl));
+					} else {
+						break _n0$2;
+					}
+				default:
+					break _n0$2;
+			}
+		}
+		return ktonon$elm_word$Word$Mismatch;
+	});
+var ktonon$elm_crypto$Crypto$SHA$MessageSchedule$nextPart = F3(
+	function (alg, i, w) {
+		var i2 = A2(ktonon$elm_crypto$Crypto$SHA$MessageSchedule$at, i - 2, w);
+		var s1 = A2(ktonon$elm_crypto$Crypto$SHA$MessageSchedule$sigma1, alg, i2);
+		var i15 = A2(ktonon$elm_crypto$Crypto$SHA$MessageSchedule$at, i - 15, w);
+		var s0 = A2(ktonon$elm_crypto$Crypto$SHA$MessageSchedule$sigma0, alg, i15);
+		return A2(
+			elm$core$Array$append,
+			w,
+			elm$core$Array$fromList(
+				_List_fromArray(
+					[
+						A2(
+						ktonon$elm_word$Word$add,
+						s1,
+						A2(
+							ktonon$elm_word$Word$add,
+							A2(ktonon$elm_crypto$Crypto$SHA$MessageSchedule$at, i - 7, w),
+							A2(
+								ktonon$elm_word$Word$add,
+								s0,
+								A2(ktonon$elm_crypto$Crypto$SHA$MessageSchedule$at, i - 16, w))))
+					])));
+	});
+var ktonon$elm_crypto$Crypto$SHA$MessageSchedule$fromChunk = F2(
+	function (alg, chunk) {
+		var n = elm$core$List$length(
+			ktonon$elm_crypto$Crypto$SHA$Constants$roundConstants(alg));
+		return A3(
+			elm$core$List$foldl,
+			ktonon$elm_crypto$Crypto$SHA$MessageSchedule$nextPart(alg),
+			elm$core$Array$fromList(chunk),
+			A2(elm$core$List$range, 16, n - 1));
+	});
+var ktonon$elm_crypto$Crypto$SHA$Process$sum0 = F2(
+	function (alg, word) {
+		sum0:
+		while (true) {
+			switch (alg.$) {
+				case 'SHA224':
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA256,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sum0;
+				case 'SHA384':
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sum0;
+				case 'SHA256':
+					return A2(
+						ktonon$elm_word$Word$xor,
+						A2(ktonon$elm_word$Word$rotateRightBy, 22, word),
+						A2(
+							ktonon$elm_word$Word$xor,
+							A2(ktonon$elm_word$Word$rotateRightBy, 13, word),
+							A2(ktonon$elm_word$Word$rotateRightBy, 2, word)));
+				case 'SHA512':
+					return A2(
+						ktonon$elm_word$Word$xor,
+						A2(ktonon$elm_word$Word$rotateRightBy, 39, word),
+						A2(
+							ktonon$elm_word$Word$xor,
+							A2(ktonon$elm_word$Word$rotateRightBy, 34, word),
+							A2(ktonon$elm_word$Word$rotateRightBy, 28, word)));
+				case 'SHA512_224':
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sum0;
+				default:
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sum0;
+			}
+		}
+	});
+var ktonon$elm_crypto$Crypto$SHA$Process$sum1 = F2(
+	function (alg, word) {
+		sum1:
+		while (true) {
+			switch (alg.$) {
+				case 'SHA224':
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA256,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sum1;
+				case 'SHA384':
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sum1;
+				case 'SHA256':
+					return A2(
+						ktonon$elm_word$Word$xor,
+						A2(ktonon$elm_word$Word$rotateRightBy, 25, word),
+						A2(
+							ktonon$elm_word$Word$xor,
+							A2(ktonon$elm_word$Word$rotateRightBy, 11, word),
+							A2(ktonon$elm_word$Word$rotateRightBy, 6, word)));
+				case 'SHA512':
+					return A2(
+						ktonon$elm_word$Word$xor,
+						A2(ktonon$elm_word$Word$rotateRightBy, 41, word),
+						A2(
+							ktonon$elm_word$Word$xor,
+							A2(ktonon$elm_word$Word$rotateRightBy, 18, word),
+							A2(ktonon$elm_word$Word$rotateRightBy, 14, word)));
+				case 'SHA512_224':
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sum1;
+				default:
+					var $temp$alg = ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+						$temp$word = word;
+					alg = $temp$alg;
+					word = $temp$word;
+					continue sum1;
+			}
+		}
+	});
+var ktonon$elm_word$Word$and = F2(
+	function (wx, wy) {
+		var _n0 = _Utils_Tuple2(wx, wy);
+		_n0$2:
+		while (true) {
+			switch (_n0.a.$) {
+				case 'W':
+					if (_n0.b.$ === 'W') {
+						var x = _n0.a.a;
+						var y = _n0.b.a;
+						return ktonon$elm_word$Word$W(x & y);
+					} else {
+						break _n0$2;
+					}
+				case 'D':
+					if (_n0.b.$ === 'D') {
+						var _n1 = _n0.a;
+						var xh = _n1.a;
+						var xl = _n1.b;
+						var _n2 = _n0.b;
+						var yh = _n2.a;
+						var yl = _n2.b;
+						return A2(ktonon$elm_word$Word$D, xh & yh, xl & yl);
+					} else {
+						break _n0$2;
+					}
+				default:
+					break _n0$2;
+			}
+		}
+		return ktonon$elm_word$Word$Mismatch;
+	});
+var elm$core$Bitwise$complement = _Bitwise_complement;
+var ktonon$elm_word$Word$complement = function (word) {
+	switch (word.$) {
+		case 'W':
+			var x = word.a;
+			return ktonon$elm_word$Word$W(~x);
+		case 'D':
+			var xh = word.a;
+			var xl = word.b;
+			return A2(ktonon$elm_word$Word$D, ~xh, ~xl);
+		default:
+			return ktonon$elm_word$Word$Mismatch;
+	}
+};
+var ktonon$elm_crypto$Crypto$SHA$Process$compress = F3(
+	function (alg, _n0, _n1) {
+		var k = _n0.a;
+		var w = _n0.b;
+		var a = _n1.a;
+		var b = _n1.b;
+		var c = _n1.c;
+		var d = _n1.d;
+		var e = _n1.e;
+		var f = _n1.f;
+		var g = _n1.g;
+		var h = _n1.h;
+		var s1 = A2(ktonon$elm_crypto$Crypto$SHA$Process$sum1, alg, e);
+		var s0 = A2(ktonon$elm_crypto$Crypto$SHA$Process$sum0, alg, a);
+		var maj = A2(
+			ktonon$elm_word$Word$xor,
+			A2(ktonon$elm_word$Word$and, b, c),
+			A2(
+				ktonon$elm_word$Word$xor,
+				A2(ktonon$elm_word$Word$and, a, c),
+				A2(ktonon$elm_word$Word$and, a, b)));
+		var temp2 = A2(ktonon$elm_word$Word$add, s0, maj);
+		var ch = A2(
+			ktonon$elm_word$Word$xor,
+			A2(
+				ktonon$elm_word$Word$and,
+				g,
+				ktonon$elm_word$Word$complement(e)),
+			A2(ktonon$elm_word$Word$and, e, f));
+		var temp1 = A2(
+			ktonon$elm_word$Word$add,
+			w,
+			A2(
+				ktonon$elm_word$Word$add,
+				k,
+				A2(
+					ktonon$elm_word$Word$add,
+					ch,
+					A2(ktonon$elm_word$Word$add, s1, h))));
+		return A8(
+			ktonon$elm_crypto$Crypto$SHA$Types$WorkingVars,
+			A2(ktonon$elm_word$Word$add, temp1, temp2),
+			a,
+			b,
+			c,
+			A2(ktonon$elm_word$Word$add, d, temp1),
+			e,
+			f,
+			g);
+	});
+var ktonon$elm_crypto$Crypto$SHA$Process$compressLoop = F3(
+	function (alg, workingVars, messageSchedule) {
+		return A3(
+			elm$core$List$foldl,
+			ktonon$elm_crypto$Crypto$SHA$Process$compress(alg),
+			workingVars,
+			A3(
+				elm$core$List$map2,
+				F2(
+					function (a, b) {
+						return _Utils_Tuple2(a, b);
+					}),
+				ktonon$elm_crypto$Crypto$SHA$Constants$roundConstants(alg),
+				elm$core$Array$toList(messageSchedule)));
+	});
+var ktonon$elm_crypto$Crypto$SHA$Types$addWorkingVars = F2(
+	function (x, y) {
+		return A8(
+			ktonon$elm_crypto$Crypto$SHA$Types$WorkingVars,
+			A2(ktonon$elm_word$Word$add, x.a, y.a),
+			A2(ktonon$elm_word$Word$add, x.b, y.b),
+			A2(ktonon$elm_word$Word$add, x.c, y.c),
+			A2(ktonon$elm_word$Word$add, x.d, y.d),
+			A2(ktonon$elm_word$Word$add, x.e, y.e),
+			A2(ktonon$elm_word$Word$add, x.f, y.f),
+			A2(ktonon$elm_word$Word$add, x.g, y.g),
+			A2(ktonon$elm_word$Word$add, x.h, y.h));
+	});
+var ktonon$elm_crypto$Crypto$SHA$Process$chunks_ = F3(
+	function (alg, words, currentHash) {
+		chunks_:
+		while (true) {
+			var _n0 = A2(ktonon$elm_crypto$Crypto$SHA$Chunk$next, alg, words);
+			if (_n0.a.$ === 'Nothing') {
+				var _n1 = _n0.a;
+				return currentHash;
+			} else {
+				var chunk = _n0.a.a;
+				var rest = _n0.b;
+				var vars = A2(
+					ktonon$elm_crypto$Crypto$SHA$Types$addWorkingVars,
+					currentHash,
+					A3(
+						ktonon$elm_crypto$Crypto$SHA$Process$compressLoop,
+						alg,
+						currentHash,
+						A2(ktonon$elm_crypto$Crypto$SHA$MessageSchedule$fromChunk, alg, chunk)));
+				var $temp$alg = alg,
+					$temp$words = rest,
+					$temp$currentHash = vars;
+				alg = $temp$alg;
+				words = $temp$words;
+				currentHash = $temp$currentHash;
+				continue chunks_;
+			}
+		}
+	});
+var elm$core$List$concatMap = F2(
+	function (f, list) {
+		return elm$core$List$concat(
+			A2(elm$core$List$map, f, list));
+	});
+var ktonon$elm_crypto$Crypto$SHA$Types$toSingleWord = function (word) {
+	if (word.$ === 'D') {
+		var xh = word.a;
+		var xl = word.b;
+		return _List_fromArray(
+			[
+				ktonon$elm_word$Word$W(xh),
+				ktonon$elm_word$Word$W(xl)
+			]);
+	} else {
+		return _List_fromArray(
+			[word]);
+	}
+};
+var ktonon$elm_crypto$Crypto$SHA$Types$workingVarsToWords = F2(
+	function (alg, _n0) {
+		var a = _n0.a;
+		var b = _n0.b;
+		var c = _n0.c;
+		var d = _n0.d;
+		var e = _n0.e;
+		var f = _n0.f;
+		var g = _n0.g;
+		var h = _n0.h;
+		switch (alg.$) {
+			case 'SHA224':
+				return elm$core$Array$fromList(
+					_List_fromArray(
+						[a, b, c, d, e, f, g]));
+			case 'SHA256':
+				return elm$core$Array$fromList(
+					_List_fromArray(
+						[a, b, c, d, e, f, g, h]));
+			case 'SHA384':
+				return elm$core$Array$fromList(
+					_List_fromArray(
+						[a, b, c, d, e, f]));
+			case 'SHA512':
+				return elm$core$Array$fromList(
+					_List_fromArray(
+						[a, b, c, d, e, f, g, h]));
+			case 'SHA512_224':
+				return elm$core$Array$fromList(
+					A2(
+						elm$core$List$take,
+						7,
+						A2(
+							elm$core$List$concatMap,
+							ktonon$elm_crypto$Crypto$SHA$Types$toSingleWord,
+							_List_fromArray(
+								[a, b, c, d]))));
+			default:
+				return elm$core$Array$fromList(
+					_List_fromArray(
+						[a, b, c, d]));
+		}
+	});
+var ktonon$elm_crypto$Crypto$SHA$Process$chunks = F2(
+	function (alg, words) {
+		return A2(
+			ktonon$elm_crypto$Crypto$SHA$Types$workingVarsToWords,
+			alg,
+			A3(
+				ktonon$elm_crypto$Crypto$SHA$Process$chunks_,
+				alg,
+				elm$core$Array$toList(words),
+				ktonon$elm_crypto$Crypto$SHA$Constants$initialHashValues(alg)));
+	});
+var elm$core$Array$push = F2(
+	function (a, array) {
+		var tail = array.d;
+		return A2(
+			elm$core$Array$unsafeReplaceTail,
+			A2(elm$core$Elm$JsArray$push, a, tail),
+			array);
+	});
+var ktonon$elm_word$Word$FourBytes = F4(
+	function (a, b, c, d) {
+		return {$: 'FourBytes', a: a, b: b, c: c, d: d};
+	});
+var ktonon$elm_word$Word$int32FromBytes = function (_n0) {
+	var x3 = _n0.a;
+	var x2 = _n0.b;
+	var x1 = _n0.c;
+	var x0 = _n0.d;
+	return ((x0 + (x1 * A2(elm$core$Basics$pow, 2, 8))) + (x2 * A2(elm$core$Basics$pow, 2, 16))) + (x3 * A2(elm$core$Basics$pow, 2, 24));
+};
+var ktonon$elm_word$Word$pad4 = function (bytes) {
+	_n0$4:
+	while (true) {
+		if (bytes.b) {
+			if (bytes.b.b) {
+				if (bytes.b.b.b) {
+					if (bytes.b.b.b.b) {
+						if (!bytes.b.b.b.b.b) {
+							var x3 = bytes.a;
+							var _n1 = bytes.b;
+							var x2 = _n1.a;
+							var _n2 = _n1.b;
+							var x1 = _n2.a;
+							var _n3 = _n2.b;
+							var x0 = _n3.a;
+							return A4(ktonon$elm_word$Word$FourBytes, x3, x2, x1, x0);
+						} else {
+							break _n0$4;
+						}
+					} else {
+						var x3 = bytes.a;
+						var _n4 = bytes.b;
+						var x2 = _n4.a;
+						var _n5 = _n4.b;
+						var x1 = _n5.a;
+						return A4(ktonon$elm_word$Word$FourBytes, x3, x2, x1, 0);
+					}
+				} else {
+					var x3 = bytes.a;
+					var _n6 = bytes.b;
+					var x2 = _n6.a;
+					return A4(ktonon$elm_word$Word$FourBytes, x3, x2, 0, 0);
+				}
+			} else {
+				var x3 = bytes.a;
+				return A4(ktonon$elm_word$Word$FourBytes, x3, 0, 0, 0);
+			}
+		} else {
+			break _n0$4;
+		}
+	}
+	return A4(ktonon$elm_word$Word$FourBytes, 0, 0, 0, 0);
+};
+var ktonon$elm_word$Word$accWords = F3(
+	function (wordSize, bytes, acc) {
+		accWords:
+		while (true) {
+			var _n0 = _Utils_Tuple2(wordSize, bytes);
+			_n0$2:
+			while (true) {
+				if (_n0.a.$ === 'Bit32') {
+					if (_n0.b.b) {
+						if ((_n0.b.b.b && _n0.b.b.b.b) && _n0.b.b.b.b.b) {
+							var _n1 = _n0.a;
+							var _n2 = _n0.b;
+							var x3 = _n2.a;
+							var _n3 = _n2.b;
+							var x2 = _n3.a;
+							var _n4 = _n3.b;
+							var x1 = _n4.a;
+							var _n5 = _n4.b;
+							var x0 = _n5.a;
+							var rest = _n5.b;
+							var acc2 = A2(
+								elm$core$Array$push,
+								ktonon$elm_word$Word$W(
+									ktonon$elm_word$Word$int32FromBytes(
+										A4(ktonon$elm_word$Word$FourBytes, x3, x2, x1, x0))),
+								acc);
+							var $temp$wordSize = wordSize,
+								$temp$bytes = rest,
+								$temp$acc = acc2;
+							wordSize = $temp$wordSize;
+							bytes = $temp$bytes;
+							acc = $temp$acc;
+							continue accWords;
+						} else {
+							var _n15 = _n0.a;
+							var rest = _n0.b;
+							return A2(
+								elm$core$Array$push,
+								ktonon$elm_word$Word$W(
+									ktonon$elm_word$Word$int32FromBytes(
+										ktonon$elm_word$Word$pad4(rest))),
+								acc);
+						}
+					} else {
+						break _n0$2;
+					}
+				} else {
+					if (_n0.b.b) {
+						if ((((((_n0.b.b.b && _n0.b.b.b.b) && _n0.b.b.b.b.b) && _n0.b.b.b.b.b.b) && _n0.b.b.b.b.b.b.b) && _n0.b.b.b.b.b.b.b.b) && _n0.b.b.b.b.b.b.b.b.b) {
+							var _n6 = _n0.a;
+							var _n7 = _n0.b;
+							var x7 = _n7.a;
+							var _n8 = _n7.b;
+							var x6 = _n8.a;
+							var _n9 = _n8.b;
+							var x5 = _n9.a;
+							var _n10 = _n9.b;
+							var x4 = _n10.a;
+							var _n11 = _n10.b;
+							var x3 = _n11.a;
+							var _n12 = _n11.b;
+							var x2 = _n12.a;
+							var _n13 = _n12.b;
+							var x1 = _n13.a;
+							var _n14 = _n13.b;
+							var x0 = _n14.a;
+							var rest = _n14.b;
+							var acc2 = A2(
+								elm$core$Array$push,
+								A2(
+									ktonon$elm_word$Word$D,
+									ktonon$elm_word$Word$int32FromBytes(
+										A4(ktonon$elm_word$Word$FourBytes, x7, x6, x5, x4)),
+									ktonon$elm_word$Word$int32FromBytes(
+										A4(ktonon$elm_word$Word$FourBytes, x3, x2, x1, x0))),
+								acc);
+							var $temp$wordSize = wordSize,
+								$temp$bytes = rest,
+								$temp$acc = acc2;
+							wordSize = $temp$wordSize;
+							bytes = $temp$bytes;
+							acc = $temp$acc;
+							continue accWords;
+						} else {
+							var _n16 = _n0.a;
+							var rest = _n0.b;
+							return A2(
+								elm$core$Array$push,
+								A2(
+									ktonon$elm_word$Word$D,
+									ktonon$elm_word$Word$int32FromBytes(
+										ktonon$elm_word$Word$pad4(
+											A2(elm$core$List$take, 4, rest))),
+									ktonon$elm_word$Word$int32FromBytes(
+										ktonon$elm_word$Word$pad4(
+											A2(elm$core$List$drop, 4, rest)))),
+								acc);
+						}
+					} else {
+						break _n0$2;
+					}
+				}
+			}
+			return acc;
+		}
+	});
+var ktonon$elm_word$Word$fromBytes = F2(
+	function (wordSize, bytes) {
+		return A3(ktonon$elm_word$Word$accWords, wordSize, bytes, elm$core$Array$empty);
+	});
+var ktonon$elm_crypto$Crypto$SHA$digest = function (alg) {
+	return A2(
+		elm$core$Basics$composeR,
+		ktonon$elm_crypto$Crypto$SHA$Preprocess$preprocess(alg),
+		A2(
+			elm$core$Basics$composeR,
+			ktonon$elm_word$Word$fromBytes(
+				ktonon$elm_crypto$Crypto$SHA$Alg$wordSize(alg)),
+			ktonon$elm_crypto$Crypto$SHA$Process$chunks(alg)));
+};
+var ktonon$elm_crypto$Crypto$SHA$Alg$SHA224 = {$: 'SHA224'};
+var elm$core$Bitwise$or = _Bitwise_or;
+var ktonon$elm_word$Word$Bytes$splitUtf8 = function (x) {
+	return (x < 128) ? _List_fromArray(
+		[x]) : ((x < 2048) ? _List_fromArray(
+		[192 | ((1984 & x) >>> 6), 128 | (63 & x)]) : _List_fromArray(
+		[224 | ((61440 & x) >>> 12), 128 | ((4032 & x) >>> 6), 128 | (63 & x)]));
+};
+var ktonon$elm_word$Word$Bytes$fromUTF8 = A2(
+	elm$core$Basics$composeR,
+	elm$core$String$toList,
+	A2(
+		elm$core$List$foldl,
+		F2(
+			function (_char, acc) {
+				return A2(
+					elm$core$List$append,
+					acc,
+					ktonon$elm_word$Word$Bytes$splitUtf8(
+						elm$core$Char$toCode(_char)));
+			}),
+		_List_Nil));
+var elm$core$Array$foldl = F3(
+	function (func, baseCase, _n0) {
+		var tree = _n0.c;
+		var tail = _n0.d;
+		var helper = F2(
+			function (node, acc) {
+				if (node.$ === 'SubTree') {
+					var subTree = node.a;
+					return A3(elm$core$Elm$JsArray$foldl, helper, acc, subTree);
+				} else {
+					var values = node.a;
+					return A3(elm$core$Elm$JsArray$foldl, func, acc, values);
+				}
+			});
+		return A3(
+			elm$core$Elm$JsArray$foldl,
+			func,
+			A3(elm$core$Elm$JsArray$foldl, helper, baseCase, tree),
+			tail);
+	});
+var ktonon$elm_word$Word$Hex$fromArray = function (toHex) {
+	return A2(
+		elm$core$Array$foldl,
+		F2(
+			function (val, acc) {
+				return _Utils_ap(
+					acc,
+					toHex(val));
+			}),
+		'');
+};
+var elm$core$String$cons = _String_cons;
+var ktonon$elm_word$Word$Hex$fromIntAccumulator = function (x) {
+	return elm$core$String$cons(
+		elm$core$Char$fromCode(
+			(x < 10) ? (x + 48) : ((x + 97) - 10)));
+};
+var ktonon$elm_word$Word$Hex$fromInt = F2(
+	function (charCount, value) {
+		return A3(
+			elm$core$List$foldl,
+			function (i) {
+				return ktonon$elm_word$Word$Hex$fromIntAccumulator(
+					15 & (value >>> (i * A2(elm$core$Basics$pow, 2, 2))));
+			},
+			'',
+			A2(elm$core$List$range, 0, charCount - 1));
+	});
+var ktonon$elm_word$Word$Hex$fromWord = function (word) {
+	switch (word.$) {
+		case 'W':
+			var x = word.a;
+			return A2(ktonon$elm_word$Word$Hex$fromInt, 8, x);
+		case 'D':
+			var h = word.a;
+			var l = word.b;
+			return _Utils_ap(
+				A2(ktonon$elm_word$Word$Hex$fromInt, 8, h),
+				A2(ktonon$elm_word$Word$Hex$fromInt, 8, l));
+		default:
+			return 'M';
+	}
+};
+var ktonon$elm_word$Word$Hex$fromWordArray = ktonon$elm_word$Word$Hex$fromArray(ktonon$elm_word$Word$Hex$fromWord);
+var ktonon$elm_crypto$Crypto$Hash$sha224 = function (message) {
+	return ktonon$elm_word$Word$Hex$fromWordArray(
+		A2(
+			ktonon$elm_crypto$Crypto$SHA$digest,
+			ktonon$elm_crypto$Crypto$SHA$Alg$SHA224,
+			ktonon$elm_word$Word$Bytes$fromUTF8(message)));
+};
+var ktonon$elm_crypto$Crypto$Hash$sha256 = function (message) {
+	return ktonon$elm_word$Word$Hex$fromWordArray(
+		A2(
+			ktonon$elm_crypto$Crypto$SHA$digest,
+			ktonon$elm_crypto$Crypto$SHA$Alg$SHA256,
+			ktonon$elm_word$Word$Bytes$fromUTF8(message)));
+};
+var ktonon$elm_crypto$Crypto$SHA$Alg$SHA384 = {$: 'SHA384'};
+var ktonon$elm_crypto$Crypto$Hash$sha384 = function (message) {
+	return ktonon$elm_word$Word$Hex$fromWordArray(
+		A2(
+			ktonon$elm_crypto$Crypto$SHA$digest,
+			ktonon$elm_crypto$Crypto$SHA$Alg$SHA384,
+			ktonon$elm_word$Word$Bytes$fromUTF8(message)));
+};
+var ktonon$elm_crypto$Crypto$Hash$sha512 = function (message) {
+	return ktonon$elm_word$Word$Hex$fromWordArray(
+		A2(
+			ktonon$elm_crypto$Crypto$SHA$digest,
+			ktonon$elm_crypto$Crypto$SHA$Alg$SHA512,
+			ktonon$elm_word$Word$Bytes$fromUTF8(message)));
+};
+var ktonon$elm_crypto$Crypto$SHA$Alg$SHA512_224 = {$: 'SHA512_224'};
+var ktonon$elm_crypto$Crypto$Hash$sha512_224 = function (message) {
+	return ktonon$elm_word$Word$Hex$fromWordArray(
+		A2(
+			ktonon$elm_crypto$Crypto$SHA$digest,
+			ktonon$elm_crypto$Crypto$SHA$Alg$SHA512_224,
+			ktonon$elm_word$Word$Bytes$fromUTF8(message)));
+};
+var ktonon$elm_crypto$Crypto$SHA$Alg$SHA512_256 = {$: 'SHA512_256'};
+var ktonon$elm_crypto$Crypto$Hash$sha512_256 = function (message) {
+	return ktonon$elm_word$Word$Hex$fromWordArray(
+		A2(
+			ktonon$elm_crypto$Crypto$SHA$digest,
+			ktonon$elm_crypto$Crypto$SHA$Alg$SHA512_256,
+			ktonon$elm_word$Word$Bytes$fromUTF8(message)));
+};
+var author$project$Cypher$CalculateHash$calculateHash = F2(
+	function (model, input) {
+		var _n0 = model.hashModel.algorithm;
+		switch (_n0.$) {
+			case 'Sha224':
+				return ktonon$elm_crypto$Crypto$Hash$sha224(input);
+			case 'Sha256':
+				return ktonon$elm_crypto$Crypto$Hash$sha256(input);
+			case 'Sha384':
+				return ktonon$elm_crypto$Crypto$Hash$sha384(input);
+			case 'Sha512':
+				return ktonon$elm_crypto$Crypto$Hash$sha512(input);
+			case 'Sha512_224':
+				return ktonon$elm_crypto$Crypto$Hash$sha512_224(input);
+			default:
+				return ktonon$elm_crypto$Crypto$Hash$sha512_256(input);
+		}
+	});
+var author$project$Cypher$ViginereCypher$changeKeyCharList = F2(
+	function (list, desiredLength) {
+		changeKeyCharList:
+		while (true) {
+			if (_Utils_cmp(
+				desiredLength,
+				elm$core$List$length(list)) < 0) {
+				return A2(elm$core$List$take, desiredLength, list);
+			} else {
+				var $temp$list = _Utils_ap(list, list),
+					$temp$desiredLength = desiredLength;
+				list = $temp$list;
+				desiredLength = $temp$desiredLength;
+				continue changeKeyCharList;
+			}
+		}
+	});
+var author$project$Cypher$ViginereCypher$charOperation = F3(
+	function (oper, num1, num2) {
+		var newNum2 = num2 - 65;
+		var newNum1 = num1 - 65;
+		return A2(
+			elm$core$Basics$modBy,
+			26,
+			A2(oper, newNum1, newNum2)) + 65;
+	});
+var author$project$Cypher$ViginereCypher$fromKeyCodes = function (list) {
+	return A2(elm$core$List$map, elm$core$Char$fromCode, list);
+};
+var author$project$Cypher$ViginereCypher$toKeyCodes = function (list) {
+	return A2(elm$core$List$map, elm$core$Char$toCode, list);
+};
+var author$project$Cypher$ViginereCypher$manipulateCharLists = F3(
+	function (oper, messageList, keyList) {
+		var newMessageList = author$project$Cypher$ViginereCypher$toKeyCodes(messageList);
+		var newKeyList = author$project$Cypher$ViginereCypher$toKeyCodes(
+			A2(
+				author$project$Cypher$ViginereCypher$changeKeyCharList,
+				keyList,
+				elm$core$List$length(messageList)));
+		return author$project$Cypher$ViginereCypher$fromKeyCodes(
+			A3(
+				elm$core$List$map2,
+				author$project$Cypher$ViginereCypher$charOperation(oper),
+				newMessageList,
+				newKeyList));
+	});
+var author$project$Cypher$ViginereCypher$viginereDecrypt = F2(
+	function (message, key) {
+		var messageChar = elm$core$String$toList(message);
+		var keyChar = elm$core$String$toList(key);
+		return elm$core$String$fromList(
+			A3(author$project$Cypher$ViginereCypher$manipulateCharLists, elm$core$Basics$sub, messageChar, keyChar));
+	});
+var author$project$Cypher$ViginereCypher$viginereEncrypt = F2(
+	function (message, key) {
+		var messageChar = elm$core$String$toList(message);
+		var keyChar = elm$core$String$toList(key);
+		return elm$core$String$fromList(
+			A3(author$project$Cypher$ViginereCypher$manipulateCharLists, elm$core$Basics$add, messageChar, keyChar));
+	});
+var author$project$Msg$ViginereIllegalCharacterInput = {$: 'ViginereIllegalCharacterInput'};
+var elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var elm$core$Basics$not = _Basics_not;
+var elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var elm$core$List$all = F2(
+	function (isOkay, list) {
+		return !A2(
+			elm$core$List$any,
+			A2(elm$core$Basics$composeL, elm$core$Basics$not, isOkay),
+			list);
+	});
+var author$project$Update$onlyLetters = function (string) {
+	return A2(
+		elm$core$List$all,
+		elm$core$Char$isAlpha,
+		elm$core$String$toList(string));
+};
+var elm$core$String$toInt = _String_toInt;
+var author$project$Update$update = F2(
+	function (msg, model) {
+		update:
+		while (true) {
+			switch (msg.$) {
+				case 'ChangeDirectory':
+					var dir = msg.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{directory: dir}),
+						elm$core$Platform$Cmd$none);
+				case 'CaesarPlaintext':
+					var inputText = msg.a;
+					var c = model.caesarModel;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								caesarModel: _Utils_update(
+									c,
+									{plainText: inputText})
+							}),
+						elm$core$Platform$Cmd$none);
+				case 'CaesarKey':
+					var inputKey = msg.a;
+					var intKey = function () {
+						if (inputKey === '') {
+							return 0;
+						} else {
+							var _n1 = elm$core$String$toInt(inputKey);
+							if (_n1.$ === 'Just') {
+								var _int = _n1.a;
+								return _int;
+							} else {
+								return model.caesarModel.key;
+							}
+						}
+					}();
+					var c = model.caesarModel;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								caesarModel: A3(author$project$Model$CaesarModel, model.caesarModel.plainText, intKey, model.caesarModel.cypheredText)
+							}),
+						elm$core$Platform$Cmd$none);
+				case 'EncryptCaesar':
+					var plainText = model.caesarModel.plainText;
+					var key = model.caesarModel.key;
+					var c = model.caesarModel;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								caesarModel: _Utils_update(
+									c,
+									{
+										cypheredText: A2(author$project$Cypher$CaesarCypher$caesarEncrypt, key, plainText)
+									})
+							}),
+						elm$core$Platform$Cmd$none);
+				case 'DecryptCaesar':
+					var plainText = model.caesarModel.plainText;
+					var key = model.caesarModel.key;
+					var c = model.caesarModel;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								caesarModel: _Utils_update(
+									c,
+									{
+										cypheredText: A2(author$project$Cypher$CaesarCypher$caesarDecrypt, key, plainText)
+									})
+							}),
+						elm$core$Platform$Cmd$none);
+				case 'ViginerePlainText':
+					var inputText = msg.a;
+					var c = model.viginereModel;
+					if (author$project$Update$onlyLetters(inputText)) {
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{
+									viginereModel: _Utils_update(
+										c,
+										{
+											plainText: elm$core$String$toUpper(inputText)
+										})
+								}),
+							elm$core$Platform$Cmd$none);
+					} else {
+						var $temp$msg = author$project$Msg$ViginereIllegalCharacterInput,
+							$temp$model = model;
+						msg = $temp$msg;
+						model = $temp$model;
+						continue update;
+					}
+				case 'ViginereKey':
+					var inputKey = msg.a;
+					var c = model.viginereModel;
+					if (author$project$Update$onlyLetters(inputKey)) {
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{
+									viginereModel: _Utils_update(
+										c,
+										{
+											key: elm$core$String$toUpper(inputKey)
+										})
+								}),
+							elm$core$Platform$Cmd$none);
+					} else {
+						var $temp$msg = author$project$Msg$ViginereIllegalCharacterInput,
+							$temp$model = model;
+						msg = $temp$msg;
+						model = $temp$model;
+						continue update;
+					}
+				case 'EncodeViginere':
+					var encryptedMessage = A2(author$project$Cypher$ViginereCypher$viginereEncrypt, model.viginereModel.plainText, model.viginereModel.key);
+					var c = model.viginereModel;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								viginereModel: _Utils_update(
+									c,
+									{cypheredText: encryptedMessage})
+							}),
+						elm$core$Platform$Cmd$none);
+				case 'DecodeViginere':
+					var decryptedMessage = A2(author$project$Cypher$ViginereCypher$viginereDecrypt, model.viginereModel.plainText, model.viginereModel.key);
+					var c = model.viginereModel;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								viginereModel: _Utils_update(
+									c,
+									{cypheredText: decryptedMessage})
+							}),
+						elm$core$Platform$Cmd$none);
+				case 'ViginereIllegalCharacterInput':
+					var c = model.viginereModel;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								viginereModel: _Utils_update(
+									c,
+									{cypheredText: 'Letters only!'})
+							}),
+						elm$core$Platform$Cmd$none);
+				case 'UpdateHashAlgorithm':
+					var algorithm = msg.a;
+					var c = model.hashModel;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								hashModel: _Utils_update(
+									c,
+									{algorithm: algorithm})
+							}),
+						elm$core$Platform$Cmd$none);
+				case 'UpdateHashOutput':
+					var text = model.hashModel.plainText;
+					var c = model.hashModel;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								hashModel: _Utils_update(
+									c,
+									{
+										outputHash: A2(author$project$Cypher$CalculateHash$calculateHash, model, text)
+									})
+							}),
+						elm$core$Platform$Cmd$none);
+				default:
+					var string = msg.a;
+					var c = model.hashModel;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								hashModel: _Utils_update(
+									c,
+									{plainText: string})
+							}),
+						elm$core$Platform$Cmd$none);
+			}
+		}
+	});
+var author$project$View$focusStyle = {backgroundColor: elm$core$Maybe$Nothing, borderColor: elm$core$Maybe$Nothing, shadow: elm$core$Maybe$Nothing};
+var author$project$Msg$CaesarKey = function (a) {
+	return {$: 'CaesarKey', a: a};
+};
+var author$project$Msg$CaesarPlaintext = function (a) {
+	return {$: 'CaesarPlaintext', a: a};
+};
+var author$project$Msg$DecryptCaesar = {$: 'DecryptCaesar'};
+var author$project$Msg$EncryptCaesar = {$: 'EncryptCaesar'};
 var mdgriffith$elm_ui$Internal$Model$Rgba = F4(
 	function (a, b, c, d) {
 		return {$: 'Rgba', a: a, b: b, c: c, d: d};
 	});
-var mdgriffith$elm_ui$Element$rgb255 = F3(
-	function (red, green, blue) {
-		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, 1);
+var mdgriffith$elm_ui$Element$rgba = mdgriffith$elm_ui$Internal$Model$Rgba;
+var author$project$View$Caesar$backgroundRgba = A4(mdgriffith$elm_ui$Element$rgba, 255, 255, 255, 0.8);
+var mdgriffith$elm_ui$Internal$Flag$Flag = function (a) {
+	return {$: 'Flag', a: a};
+};
+var mdgriffith$elm_ui$Internal$Flag$Second = function (a) {
+	return {$: 'Second', a: a};
+};
+var mdgriffith$elm_ui$Internal$Flag$flag = function (i) {
+	return (i > 31) ? mdgriffith$elm_ui$Internal$Flag$Second(1 << (i - 32)) : mdgriffith$elm_ui$Internal$Flag$Flag(1 << i);
+};
+var mdgriffith$elm_ui$Internal$Flag$padding = mdgriffith$elm_ui$Internal$Flag$flag(2);
+var mdgriffith$elm_ui$Internal$Model$PaddingStyle = F5(
+	function (a, b, c, d, e) {
+		return {$: 'PaddingStyle', a: a, b: b, c: c, d: d, e: e};
 	});
-var author$project$Colours$appBackgroundGray = A3(mdgriffith$elm_ui$Element$rgb255, 51, 51, 61);
-var author$project$Colours$fontColour = A3(mdgriffith$elm_ui$Element$rgb255, 215, 215, 215);
-var author$project$View$focusStyle = {backgroundColor: elm$core$Maybe$Nothing, borderColor: elm$core$Maybe$Nothing, shadow: elm$core$Maybe$Nothing};
-var author$project$Colours$linkColor = A3(mdgriffith$elm_ui$Element$rgb255, 46, 85, 118);
-var author$project$Model$InputStringPage = {$: 'InputStringPage'};
-var author$project$Model$UploadTextFilePage = {$: 'UploadTextFilePage'};
+var mdgriffith$elm_ui$Internal$Model$StyleClass = F2(
+	function (a, b) {
+		return {$: 'StyleClass', a: a, b: b};
+	});
+var mdgriffith$elm_ui$Internal$Model$paddingName = F4(
+	function (top, right, bottom, left) {
+		return 'pad-' + (elm$core$String$fromInt(top) + ('-' + (elm$core$String$fromInt(right) + ('-' + (elm$core$String$fromInt(bottom) + ('-' + elm$core$String$fromInt(left)))))));
+	});
+var mdgriffith$elm_ui$Element$paddingEach = function (_n0) {
+	var top = _n0.top;
+	var right = _n0.right;
+	var bottom = _n0.bottom;
+	var left = _n0.left;
+	return (_Utils_eq(top, right) && (_Utils_eq(top, bottom) && _Utils_eq(top, left))) ? A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$padding,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+			'p-' + elm$core$String$fromInt(top),
+			top,
+			top,
+			top,
+			top)) : A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$padding,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+			A4(mdgriffith$elm_ui$Internal$Model$paddingName, top, right, bottom, left),
+			top,
+			right,
+			bottom,
+			left));
+};
+var author$project$View$Caesar$bigLetterPadding = mdgriffith$elm_ui$Element$paddingEach(
+	{bottom: 0, left: 0, right: 10, top: 0});
 var author$project$Msg$ChangeDirectory = function (a) {
 	return {$: 'ChangeDirectory', a: a};
 };
-var mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
-	return {$: 'AlignY', a: a};
+var mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
+	return {$: 'Fill', a: a};
 };
-var mdgriffith$elm_ui$Internal$Model$Top = {$: 'Top'};
-var mdgriffith$elm_ui$Element$alignTop = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$Top);
+var mdgriffith$elm_ui$Element$fill = mdgriffith$elm_ui$Internal$Model$Fill(1);
+var mdgriffith$elm_ui$Element$padding = function (x) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$padding,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+			'p-' + elm$core$String$fromInt(x),
+			x,
+			x,
+			x,
+			x));
+};
+var mdgriffith$elm_ui$Internal$Model$Width = function (a) {
+	return {$: 'Width', a: a};
+};
+var mdgriffith$elm_ui$Element$width = mdgriffith$elm_ui$Internal$Model$Width;
+var mdgriffith$elm_ui$Internal$Flag$borderWidth = mdgriffith$elm_ui$Internal$Flag$flag(27);
+var mdgriffith$elm_ui$Internal$Model$BorderWidth = F5(
+	function (a, b, c, d, e) {
+		return {$: 'BorderWidth', a: a, b: b, c: c, d: d, e: e};
+	});
+var mdgriffith$elm_ui$Element$Border$width = function (v) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$borderWidth,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$BorderWidth,
+			'b-' + elm$core$String$fromInt(v),
+			v,
+			v,
+			v,
+			v));
+};
+var mdgriffith$elm_ui$Internal$Flag$fontWeight = mdgriffith$elm_ui$Internal$Flag$flag(13);
+var mdgriffith$elm_ui$Internal$Model$Class = F2(
+	function (a, b) {
+		return {$: 'Class', a: a, b: b};
+	});
+var mdgriffith$elm_ui$Internal$Style$classes = {above: 'a', active: 'atv', alignBottom: 'ab', alignCenterX: 'cx', alignCenterY: 'cy', alignContainerBottom: 'acb', alignContainerCenterX: 'accx', alignContainerCenterY: 'accy', alignContainerRight: 'acr', alignLeft: 'al', alignRight: 'ar', alignTop: 'at', alignedHorizontally: 'ah', alignedVertically: 'av', any: 's', behind: 'bh', below: 'b', bold: 'w7', borderDashed: 'bd', borderDotted: 'bdt', borderNone: 'bn', borderSolid: 'bs', capturePointerEvents: 'cpe', clip: 'cp', clipX: 'cpx', clipY: 'cpy', column: 'c', container: 'ctr', contentBottom: 'cb', contentCenterX: 'ccx', contentCenterY: 'ccy', contentLeft: 'cl', contentRight: 'cr', contentTop: 'ct', cursorPointer: 'cptr', cursorText: 'ctxt', focus: 'fcs', fullSize: 'fs', grid: 'g', hasBehind: 'hbh', heightContent: 'hc', heightFill: 'hf', heightFillPortion: 'hfp', hover: 'hv', imageContainer: 'ic', inFront: 'fr', inputMultiline: 'iml', inputText: 'it', italic: 'i', nearby: 'nb', noTextSelection: 'notxt', onLeft: 'ol', onRight: 'or', opaque: 'oq', overflowHidden: 'oh', page: 'pg', paragraph: 'p', passPointerEvents: 'ppe', root: 'ui', row: 'r', scrollbars: 'sb', scrollbarsX: 'sbx', scrollbarsY: 'sby', seButton: 'sbt', single: 'e', sizeByCapital: 'cap', spaceEvenly: 'sev', strike: 'sk', text: 't', textCenter: 'tc', textExtraBold: 'w8', textExtraLight: 'w2', textHeavy: 'w9', textJustify: 'tj', textJustifyAll: 'tja', textLeft: 'tl', textLight: 'w3', textMedium: 'w5', textNormalWeight: 'w4', textRight: 'tr', textSemiBold: 'w6', textThin: 'w1', textUnitalicized: 'tun', transition: 'ts', transparent: 'clr', underline: 'u', widthContent: 'wc', widthExact: 'we', widthFill: 'wf', widthFillPortion: 'wfp', wrapped: 'wrp'};
+var mdgriffith$elm_ui$Element$Font$bold = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$fontWeight, mdgriffith$elm_ui$Internal$Style$classes.bold);
+var author$project$View$Navbar$navbarElementAttributes = F2(
+	function (model, dir) {
+		var basicNavBarAttributes = _List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$padding(20),
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$Border$width(0)
+			]);
+		return _Utils_eq(model.directory, dir) ? A2(elm$core$List$cons, mdgriffith$elm_ui$Element$Font$bold, basicNavBarAttributes) : basicNavBarAttributes;
+	});
 var mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
 	return {$: 'AlignX', a: a};
 };
 var mdgriffith$elm_ui$Internal$Model$CenterX = {$: 'CenterX'};
 var mdgriffith$elm_ui$Element$centerX = mdgriffith$elm_ui$Internal$Model$AlignX(mdgriffith$elm_ui$Internal$Model$CenterX);
-var mdgriffith$elm_ui$Internal$Model$CenterY = {$: 'CenterY'};
-var mdgriffith$elm_ui$Element$centerY = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$CenterY);
 var mdgriffith$elm_ui$Internal$Model$Height = function (a) {
 	return {$: 'Height', a: a};
 };
 var mdgriffith$elm_ui$Element$height = mdgriffith$elm_ui$Internal$Model$Height;
 var mdgriffith$elm_ui$Internal$Model$Content = {$: 'Content'};
 var mdgriffith$elm_ui$Element$shrink = mdgriffith$elm_ui$Internal$Model$Content;
-var mdgriffith$elm_ui$Internal$Model$Width = function (a) {
-	return {$: 'Width', a: a};
-};
-var mdgriffith$elm_ui$Element$width = mdgriffith$elm_ui$Internal$Model$Width;
 var mdgriffith$elm_ui$Internal$Model$Unkeyed = function (a) {
 	return {$: 'Unkeyed', a: a};
 };
-var mdgriffith$elm_ui$Internal$Model$AsColumn = {$: 'AsColumn'};
-var mdgriffith$elm_ui$Internal$Model$asColumn = mdgriffith$elm_ui$Internal$Model$AsColumn;
+var mdgriffith$elm_ui$Internal$Model$AsEl = {$: 'AsEl'};
+var mdgriffith$elm_ui$Internal$Model$asEl = mdgriffith$elm_ui$Internal$Model$AsEl;
 var mdgriffith$elm_ui$Internal$Model$Generic = {$: 'Generic'};
 var mdgriffith$elm_ui$Internal$Model$div = mdgriffith$elm_ui$Internal$Model$Generic;
 var mdgriffith$elm_ui$Internal$Flag$Field = F2(
@@ -5577,7 +7301,6 @@ var mdgriffith$elm_ui$Internal$Flag$Field = F2(
 	});
 var mdgriffith$elm_ui$Internal$Flag$none = A2(mdgriffith$elm_ui$Internal$Flag$Field, 0, 0);
 var mdgriffith$elm_ui$Internal$Model$NoNearbyChildren = {$: 'NoNearbyChildren'};
-var mdgriffith$elm_ui$Internal$Style$classes = {above: 'a', active: 'atv', alignBottom: 'ab', alignCenterX: 'cx', alignCenterY: 'cy', alignContainerBottom: 'acb', alignContainerCenterX: 'accx', alignContainerCenterY: 'accy', alignContainerRight: 'acr', alignLeft: 'al', alignRight: 'ar', alignTop: 'at', alignedHorizontally: 'ah', alignedVertically: 'av', any: 's', behind: 'bh', below: 'b', bold: 'w7', borderDashed: 'bd', borderDotted: 'bdt', borderNone: 'bn', borderSolid: 'bs', capturePointerEvents: 'cpe', clip: 'cp', clipX: 'cpx', clipY: 'cpy', column: 'c', container: 'ctr', contentBottom: 'cb', contentCenterX: 'ccx', contentCenterY: 'ccy', contentLeft: 'cl', contentRight: 'cr', contentTop: 'ct', cursorPointer: 'cptr', cursorText: 'ctxt', focus: 'fcs', fullSize: 'fs', grid: 'g', hasBehind: 'hbh', heightContent: 'hc', heightFill: 'hf', heightFillPortion: 'hfp', hover: 'hv', imageContainer: 'ic', inFront: 'fr', inputMultiline: 'iml', inputText: 'it', italic: 'i', nearby: 'nb', noTextSelection: 'notxt', onLeft: 'ol', onRight: 'or', opaque: 'oq', overflowHidden: 'oh', page: 'pg', paragraph: 'p', passPointerEvents: 'ppe', root: 'ui', row: 'r', scrollbars: 'sb', scrollbarsX: 'sbx', scrollbarsY: 'sby', seButton: 'sbt', single: 'e', sizeByCapital: 'cap', spaceEvenly: 'sev', strike: 'sk', text: 't', textCenter: 'tc', textExtraBold: 'w8', textExtraLight: 'w2', textHeavy: 'w9', textJustify: 'tj', textJustifyAll: 'tja', textLeft: 'tl', textLight: 'w3', textMedium: 'w5', textNormalWeight: 'w4', textRight: 'tr', textSemiBold: 'w6', textThin: 'w1', textUnitalicized: 'tun', transition: 'ts', transparent: 'clr', underline: 'u', widthContent: 'wc', widthExact: 'we', widthFill: 'wf', widthFillPortion: 'wfp', wrapped: 'wrp'};
 var mdgriffith$elm_ui$Internal$Model$columnClass = mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + mdgriffith$elm_ui$Internal$Style$classes.column);
 var mdgriffith$elm_ui$Internal$Model$gridClass = mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + mdgriffith$elm_ui$Internal$Style$classes.grid);
 var mdgriffith$elm_ui$Internal$Model$pageClass = mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + mdgriffith$elm_ui$Internal$Style$classes.page);
@@ -5598,13 +7321,6 @@ var mdgriffith$elm_ui$Internal$Model$contextClasses = function (context) {
 			return mdgriffith$elm_ui$Internal$Model$paragraphClass;
 		default:
 			return mdgriffith$elm_ui$Internal$Model$pageClass;
-	}
-};
-var elm$core$List$isEmpty = function (xs) {
-	if (!xs.b) {
-		return true;
-	} else {
-		return false;
 	}
 };
 var mdgriffith$elm_ui$Internal$Model$Keyed = function (a) {
@@ -5681,10 +7397,11 @@ var mdgriffith$elm_ui$Internal$Model$addKeyedChildren = F3(
 							inFront)));
 		}
 	});
-var mdgriffith$elm_ui$Internal$Model$AsEl = {$: 'AsEl'};
-var mdgriffith$elm_ui$Internal$Model$asEl = mdgriffith$elm_ui$Internal$Model$AsEl;
 var mdgriffith$elm_ui$Internal$Model$AsParagraph = {$: 'AsParagraph'};
 var mdgriffith$elm_ui$Internal$Model$asParagraph = mdgriffith$elm_ui$Internal$Model$AsParagraph;
+var elm$core$Basics$identity = function (x) {
+	return x;
+};
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$map2 = _Json_map2;
 var elm$json$Json$Decode$succeed = _Json_succeed;
@@ -5721,23 +7438,12 @@ var elm$virtual_dom$VirtualDom$node = function (tag) {
 	return _VirtualDom_node(
 		_VirtualDom_noScript(tag));
 };
-var elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
-var mdgriffith$elm_ui$Internal$Flag$Flag = function (a) {
-	return {$: 'Flag', a: a};
-};
-var mdgriffith$elm_ui$Internal$Flag$Second = function (a) {
-	return {$: 'Second', a: a};
-};
-var mdgriffith$elm_ui$Internal$Flag$flag = function (i) {
-	return (i > 31) ? mdgriffith$elm_ui$Internal$Flag$Second(1 << (i - 32)) : mdgriffith$elm_ui$Internal$Flag$Flag(1 << i);
-};
 var mdgriffith$elm_ui$Internal$Flag$alignBottom = mdgriffith$elm_ui$Internal$Flag$flag(41);
 var mdgriffith$elm_ui$Internal$Flag$alignRight = mdgriffith$elm_ui$Internal$Flag$flag(40);
 var mdgriffith$elm_ui$Internal$Flag$centerX = mdgriffith$elm_ui$Internal$Flag$flag(42);
 var mdgriffith$elm_ui$Internal$Flag$centerY = mdgriffith$elm_ui$Internal$Flag$flag(43);
 var mdgriffith$elm_ui$Internal$Flag$heightBetween = mdgriffith$elm_ui$Internal$Flag$flag(45);
 var mdgriffith$elm_ui$Internal$Flag$heightFill = mdgriffith$elm_ui$Internal$Flag$flag(37);
-var elm$core$Bitwise$and = _Bitwise_and;
 var mdgriffith$elm_ui$Internal$Flag$present = F2(
 	function (myFlag, _n0) {
 		var fieldOne = _n0.a;
@@ -6094,6 +7800,16 @@ var elm$core$List$filterMap = F2(
 			_List_Nil,
 			xs);
 	});
+var elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
 var elm$core$Tuple$mapFirst = F2(
 	function (func, _n0) {
 		var x = _n0.a;
@@ -6232,22 +7948,6 @@ var mdgriffith$elm_ui$Internal$Style$Self = function (a) {
 var mdgriffith$elm_ui$Internal$Style$Supports = F2(
 	function (a, b) {
 		return {$: 'Supports', a: a, b: b};
-	});
-var elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
-		}
-	});
-var elm$core$List$concat = function (lists) {
-	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
-};
-var elm$core$List$concatMap = F2(
-	function (f, list) {
-		return elm$core$List$concat(
-			A2(elm$core$List$map, f, list));
 	});
 var mdgriffith$elm_ui$Internal$Style$Content = function (a) {
 	return {$: 'Content', a: a};
@@ -8102,30 +9802,6 @@ var elm$core$Basics$min = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
 var mdgriffith$elm_ui$Internal$Model$fontName = function (font) {
 	switch (font.$) {
 		case 'Serif':
@@ -8232,6 +9908,18 @@ var mdgriffith$elm_ui$Internal$Model$renderNullAdjustmentRule = F2(
 							_Utils_Tuple2('line-height', '1')
 						]))
 				]));
+	});
+var elm$core$Basics$neq = _Utils_notEqual;
+var elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
 	});
 var elm$core$List$maximum = function (list) {
 	if (list.b) {
@@ -9451,7 +11139,6 @@ var elm$virtual_dom$VirtualDom$attribute = F2(
 			_VirtualDom_noOnOrFormAction(key),
 			_VirtualDom_noJavaScriptOrHtmlUri(value));
 	});
-var elm$core$Bitwise$or = _Bitwise_or;
 var mdgriffith$elm_ui$Internal$Flag$add = F2(
 	function (myFlag, _n0) {
 		var one = _n0.a;
@@ -9931,8 +11618,6 @@ var mdgriffith$elm_ui$Internal$Model$renderWidth = function (w) {
 				A2(elm$core$List$cons, style, newStyle));
 	}
 };
-var elm$core$Basics$ge = _Utils_ge;
-var mdgriffith$elm_ui$Internal$Flag$borderWidth = mdgriffith$elm_ui$Internal$Flag$flag(27);
 var mdgriffith$elm_ui$Internal$Model$skippable = F2(
 	function (flag, style) {
 		if (_Utils_eq(flag, mdgriffith$elm_ui$Internal$Flag$borderWidth)) {
@@ -10870,31 +12555,6 @@ var mdgriffith$elm_ui$Internal$Model$element = F4(
 				mdgriffith$elm_ui$Internal$Model$NoNearbyChildren,
 				elm$core$List$reverse(attributes)));
 	});
-var mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
-	return {$: 'Attr', a: a};
-};
-var mdgriffith$elm_ui$Internal$Model$htmlClass = function (cls) {
-	return mdgriffith$elm_ui$Internal$Model$Attr(
-		elm$html$Html$Attributes$class(cls));
-};
-var mdgriffith$elm_ui$Element$column = F2(
-	function (attrs, children) {
-		return A4(
-			mdgriffith$elm_ui$Internal$Model$element,
-			mdgriffith$elm_ui$Internal$Model$asColumn,
-			mdgriffith$elm_ui$Internal$Model$div,
-			A2(
-				elm$core$List$cons,
-				mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentTop + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentLeft)),
-				A2(
-					elm$core$List$cons,
-					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
-					A2(
-						elm$core$List$cons,
-						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
-						attrs))),
-			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
-	});
 var mdgriffith$elm_ui$Element$el = F2(
 	function (attrs, child) {
 		return A4(
@@ -10912,150 +12572,11 @@ var mdgriffith$elm_ui$Element$el = F2(
 				_List_fromArray(
 					[child])));
 	});
-var mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
-	return {$: 'Fill', a: a};
-};
-var mdgriffith$elm_ui$Element$fill = mdgriffith$elm_ui$Internal$Model$Fill(1);
-var mdgriffith$elm_ui$Element$fillPortion = mdgriffith$elm_ui$Internal$Model$Fill;
-var elm$html$Html$Attributes$href = function (url) {
-	return A2(
-		elm$html$Html$Attributes$stringProperty,
-		'href',
-		_VirtualDom_noJavaScriptUri(url));
-};
-var elm$html$Html$Attributes$rel = _VirtualDom_attribute('rel');
-var elm$html$Html$Attributes$target = elm$html$Html$Attributes$stringProperty('target');
-var mdgriffith$elm_ui$Element$newTabLink = F2(
-	function (attrs, _n0) {
-		var url = _n0.url;
-		var label = _n0.label;
-		return A4(
-			mdgriffith$elm_ui$Internal$Model$element,
-			mdgriffith$elm_ui$Internal$Model$asEl,
-			mdgriffith$elm_ui$Internal$Model$NodeName('a'),
-			A2(
-				elm$core$List$cons,
-				mdgriffith$elm_ui$Internal$Model$Attr(
-					elm$html$Html$Attributes$href(url)),
-				A2(
-					elm$core$List$cons,
-					mdgriffith$elm_ui$Internal$Model$Attr(
-						elm$html$Html$Attributes$rel('noopener noreferrer')),
-					A2(
-						elm$core$List$cons,
-						mdgriffith$elm_ui$Internal$Model$Attr(
-							elm$html$Html$Attributes$target('_blank')),
-						A2(
-							elm$core$List$cons,
-							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
-							A2(
-								elm$core$List$cons,
-								mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
-								A2(
-									elm$core$List$cons,
-									mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentCenterX + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
-									attrs)))))),
-			mdgriffith$elm_ui$Internal$Model$Unkeyed(
-				_List_fromArray(
-					[label])));
-	});
-var mdgriffith$elm_ui$Internal$Flag$padding = mdgriffith$elm_ui$Internal$Flag$flag(2);
-var mdgriffith$elm_ui$Internal$Model$PaddingStyle = F5(
-	function (a, b, c, d, e) {
-		return {$: 'PaddingStyle', a: a, b: b, c: c, d: d, e: e};
-	});
-var mdgriffith$elm_ui$Internal$Model$StyleClass = F2(
-	function (a, b) {
-		return {$: 'StyleClass', a: a, b: b};
-	});
-var mdgriffith$elm_ui$Element$padding = function (x) {
-	return A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$padding,
-		A5(
-			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-			'p-' + elm$core$String$fromInt(x),
-			x,
-			x,
-			x,
-			x));
-};
-var mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
-var mdgriffith$elm_ui$Internal$Model$asRow = mdgriffith$elm_ui$Internal$Model$AsRow;
-var mdgriffith$elm_ui$Element$row = F2(
-	function (attrs, children) {
-		return A4(
-			mdgriffith$elm_ui$Internal$Model$element,
-			mdgriffith$elm_ui$Internal$Model$asRow,
-			mdgriffith$elm_ui$Internal$Model$div,
-			A2(
-				elm$core$List$cons,
-				mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
-				A2(
-					elm$core$List$cons,
-					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
-					A2(
-						elm$core$List$cons,
-						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
-						attrs))),
-			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
-	});
-var mdgriffith$elm_ui$Internal$Flag$spacing = mdgriffith$elm_ui$Internal$Flag$flag(3);
-var mdgriffith$elm_ui$Internal$Model$SpacingStyle = F3(
-	function (a, b, c) {
-		return {$: 'SpacingStyle', a: a, b: b, c: c};
-	});
-var mdgriffith$elm_ui$Internal$Model$spacingName = F2(
-	function (x, y) {
-		return 'spacing-' + (elm$core$String$fromInt(x) + ('-' + elm$core$String$fromInt(y)));
-	});
-var mdgriffith$elm_ui$Element$spacing = function (x) {
-	return A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$spacing,
-		A3(
-			mdgriffith$elm_ui$Internal$Model$SpacingStyle,
-			A2(mdgriffith$elm_ui$Internal$Model$spacingName, x, x),
-			x,
-			x));
-};
 var mdgriffith$elm_ui$Internal$Model$Text = function (a) {
 	return {$: 'Text', a: a};
 };
 var mdgriffith$elm_ui$Element$text = function (content) {
 	return mdgriffith$elm_ui$Internal$Model$Text(content);
-};
-var mdgriffith$elm_ui$Internal$Flag$fontColor = mdgriffith$elm_ui$Internal$Flag$flag(14);
-var mdgriffith$elm_ui$Internal$Model$Colored = F3(
-	function (a, b, c) {
-		return {$: 'Colored', a: a, b: b, c: c};
-	});
-var mdgriffith$elm_ui$Internal$Model$formatColorClass = function (_n0) {
-	var red = _n0.a;
-	var green = _n0.b;
-	var blue = _n0.c;
-	var alpha = _n0.d;
-	return mdgriffith$elm_ui$Internal$Model$floatClass(red) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(green) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(blue) + ('-' + mdgriffith$elm_ui$Internal$Model$floatClass(alpha))))));
-};
-var mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
-	return A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$fontColor,
-		A3(
-			mdgriffith$elm_ui$Internal$Model$Colored,
-			'fc-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(fontColor),
-			'color',
-			fontColor));
-};
-var mdgriffith$elm_ui$Internal$Flag$fontSize = mdgriffith$elm_ui$Internal$Flag$flag(4);
-var mdgriffith$elm_ui$Internal$Model$FontSize = function (a) {
-	return {$: 'FontSize', a: a};
-};
-var mdgriffith$elm_ui$Element$Font$size = function (i) {
-	return A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$fontSize,
-		mdgriffith$elm_ui$Internal$Model$FontSize(i));
 };
 var elm$json$Json$Encode$bool = _Json_wrap;
 var elm$html$Html$Attributes$boolProperty = F2(
@@ -11073,16 +12594,7 @@ var elm$html$Html$Attributes$tabindex = function (n) {
 		elm$core$String$fromInt(n));
 };
 var mdgriffith$elm_ui$Internal$Flag$cursor = mdgriffith$elm_ui$Internal$Flag$flag(21);
-var mdgriffith$elm_ui$Internal$Model$Class = F2(
-	function (a, b) {
-		return {$: 'Class', a: a, b: b};
-	});
 var mdgriffith$elm_ui$Element$pointer = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$cursor, mdgriffith$elm_ui$Internal$Style$classes.cursorPointer);
-var elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
 var elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -11100,6 +12612,9 @@ var elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		elm$json$Json$Decode$succeed(msg));
 };
+var mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
+	return {$: 'Attr', a: a};
+};
 var mdgriffith$elm_ui$Element$Events$onClick = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Attr, elm$html$Html$Events$onClick);
 var mdgriffith$elm_ui$Element$Input$hasFocusStyle = function (attr) {
 	if (((attr.$ === 'StyleClass') && (attr.b.$ === 'PseudoSelector')) && (attr.b.a.$ === 'Focus')) {
@@ -11111,6 +12626,10 @@ var mdgriffith$elm_ui$Element$Input$hasFocusStyle = function (attr) {
 	}
 };
 var mdgriffith$elm_ui$Internal$Model$NoAttribute = {$: 'NoAttribute'};
+var mdgriffith$elm_ui$Internal$Model$htmlClass = function (cls) {
+	return mdgriffith$elm_ui$Internal$Model$Attr(
+		elm$html$Html$Attributes$class(cls));
+};
 var mdgriffith$elm_ui$Element$Input$focusDefault = function (attrs) {
 	return A2(elm$core$List$any, mdgriffith$elm_ui$Element$Input$hasFocusStyle, attrs) ? mdgriffith$elm_ui$Internal$Model$NoAttribute : mdgriffith$elm_ui$Internal$Model$htmlClass('focusable');
 };
@@ -11208,682 +12727,93 @@ var mdgriffith$elm_ui$Element$Input$button = F2(
 				_List_fromArray(
 					[label])));
 	});
-var author$project$View$Home$homePageView = function (model) {
-	return A2(
-		mdgriffith$elm_ui$Element$column,
-		_List_fromArray(
-			[
-				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-				mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
-				mdgriffith$elm_ui$Element$padding(10)
-			]),
-		_List_fromArray(
-			[
-				A2(
-				mdgriffith$elm_ui$Element$column,
-				_List_fromArray(
-					[
-						mdgriffith$elm_ui$Element$height(
-						mdgriffith$elm_ui$Element$fillPortion(5)),
-						mdgriffith$elm_ui$Element$centerX,
-						mdgriffith$elm_ui$Element$centerY,
-						mdgriffith$elm_ui$Element$spacing(20)
-					]),
-				_List_fromArray(
-					[
-						A2(
-						mdgriffith$elm_ui$Element$el,
-						_List_fromArray(
-							[
-								mdgriffith$elm_ui$Element$Font$size(100),
-								mdgriffith$elm_ui$Element$centerY
-							]),
-						mdgriffith$elm_ui$Element$text('WordRank')),
-						A2(
-						mdgriffith$elm_ui$Element$el,
-						_List_fromArray(
-							[
-								mdgriffith$elm_ui$Element$centerX,
-								mdgriffith$elm_ui$Element$centerY,
-								mdgriffith$elm_ui$Element$Font$size(20)
-							]),
-						A2(
-							mdgriffith$elm_ui$Element$row,
-							_List_Nil,
-							_List_fromArray(
-								[
-									mdgriffith$elm_ui$Element$text('By Joshua Ji and '),
-									A2(
-									mdgriffith$elm_ui$Element$newTabLink,
-									_List_fromArray(
-										[
-											mdgriffith$elm_ui$Element$Font$color(author$project$Colours$linkColor)
-										]),
-									{
-										label: mdgriffith$elm_ui$Element$text('the Elm Language'),
-										url: 'https://elm-lang.org/'
-									})
-								])))
-					])),
-				A2(
-				mdgriffith$elm_ui$Element$row,
-				_List_fromArray(
-					[
-						mdgriffith$elm_ui$Element$padding(20),
-						mdgriffith$elm_ui$Element$height(
-						mdgriffith$elm_ui$Element$fillPortion(1)),
-						mdgriffith$elm_ui$Element$centerX,
-						mdgriffith$elm_ui$Element$alignTop
-					]),
-				_List_fromArray(
-					[
-						A2(
-						mdgriffith$elm_ui$Element$Input$button,
-						_List_fromArray(
-							[
-								mdgriffith$elm_ui$Element$padding(30)
-							]),
-						{
-							label: A2(
-								mdgriffith$elm_ui$Element$el,
-								_List_fromArray(
-									[mdgriffith$elm_ui$Element$centerX]),
-								mdgriffith$elm_ui$Element$text('Input a String')),
-							onPress: elm$core$Maybe$Just(
-								author$project$Msg$ChangeDirectory(author$project$Model$InputStringPage))
-						}),
-						A2(
-						mdgriffith$elm_ui$Element$Input$button,
-						_List_fromArray(
-							[
-								mdgriffith$elm_ui$Element$padding(30)
-							]),
-						{
-							label: A2(
-								mdgriffith$elm_ui$Element$el,
-								_List_fromArray(
-									[mdgriffith$elm_ui$Element$centerX]),
-								mdgriffith$elm_ui$Element$text('Upload your own text file')),
-							onPress: elm$core$Maybe$Just(
-								author$project$Msg$ChangeDirectory(author$project$Model$UploadTextFilePage))
-						})
-					]))
-			]));
-};
-var author$project$Msg$EvalInputText = {$: 'EvalInputText'};
-var author$project$Msg$UpdateInputText = function (a) {
-	return {$: 'UpdateInputText', a: a};
-};
-var author$project$StringParse$Datum = F2(
-	function (word, occurence) {
-		return {occurence: occurence, word: word};
-	});
-var elm$core$List$takeReverse = F3(
-	function (n, list, kept) {
-		takeReverse:
-		while (true) {
-			if (n <= 0) {
-				return kept;
-			} else {
-				if (!list.b) {
-					return kept;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs,
-						$temp$kept = A2(elm$core$List$cons, x, kept);
-					n = $temp$n;
-					list = $temp$list;
-					kept = $temp$kept;
-					continue takeReverse;
-				}
-			}
-		}
-	});
-var elm$core$List$takeTailRec = F2(
-	function (n, list) {
-		return elm$core$List$reverse(
-			A3(elm$core$List$takeReverse, n, list, _List_Nil));
-	});
-var elm$core$List$takeFast = F3(
-	function (ctr, n, list) {
-		if (n <= 0) {
-			return _List_Nil;
-		} else {
-			var _n0 = _Utils_Tuple2(n, list);
-			_n0$1:
-			while (true) {
-				_n0$5:
-				while (true) {
-					if (!_n0.b.b) {
-						return list;
-					} else {
-						if (_n0.b.b.b) {
-							switch (_n0.a) {
-								case 1:
-									break _n0$1;
-								case 2:
-									var _n2 = _n0.b;
-									var x = _n2.a;
-									var _n3 = _n2.b;
-									var y = _n3.a;
-									return _List_fromArray(
-										[x, y]);
-								case 3:
-									if (_n0.b.b.b.b) {
-										var _n4 = _n0.b;
-										var x = _n4.a;
-										var _n5 = _n4.b;
-										var y = _n5.a;
-										var _n6 = _n5.b;
-										var z = _n6.a;
-										return _List_fromArray(
-											[x, y, z]);
-									} else {
-										break _n0$5;
-									}
-								default:
-									if (_n0.b.b.b.b && _n0.b.b.b.b.b) {
-										var _n7 = _n0.b;
-										var x = _n7.a;
-										var _n8 = _n7.b;
-										var y = _n8.a;
-										var _n9 = _n8.b;
-										var z = _n9.a;
-										var _n10 = _n9.b;
-										var w = _n10.a;
-										var tl = _n10.b;
-										return (ctr > 1000) ? A2(
-											elm$core$List$cons,
-											x,
-											A2(
-												elm$core$List$cons,
-												y,
-												A2(
-													elm$core$List$cons,
-													z,
-													A2(
-														elm$core$List$cons,
-														w,
-														A2(elm$core$List$takeTailRec, n - 4, tl))))) : A2(
-											elm$core$List$cons,
-											x,
-											A2(
-												elm$core$List$cons,
-												y,
-												A2(
-													elm$core$List$cons,
-													z,
-													A2(
-														elm$core$List$cons,
-														w,
-														A3(elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
-									} else {
-										break _n0$5;
-									}
-							}
-						} else {
-							if (_n0.a === 1) {
-								break _n0$1;
-							} else {
-								break _n0$5;
-							}
-						}
-					}
-				}
-				return list;
-			}
-			var _n1 = _n0.b;
-			var x = _n1.a;
-			return _List_fromArray(
-				[x]);
-		}
-	});
-var elm$core$List$take = F2(
-	function (n, list) {
-		return A3(elm$core$List$takeFast, 0, n, list);
-	});
-var author$project$StringParse$toTypeAlias = function (list) {
-	var helper = function (_n0) {
-		var string = _n0.a;
-		var _int = _n0.b;
-		return A2(author$project$StringParse$Datum, string, _int);
-	};
-	return A2(
-		elm$core$List$take,
-		999,
-		elm$core$List$reverse(
-			A2(
-				elm$core$List$sortBy,
-				function ($) {
-					return $.occurence;
-				},
-				A2(elm$core$List$map, helper, list))));
-};
-var author$project$View$InputString$headerStyle = function (string) {
-	return A2(
-		mdgriffith$elm_ui$Element$el,
-		_List_fromArray(
-			[
-				mdgriffith$elm_ui$Element$Font$size(30),
-				mdgriffith$elm_ui$Element$padding(10)
-			]),
-		mdgriffith$elm_ui$Element$text(string));
-};
-var mdgriffith$elm_ui$Internal$Model$BorderWidth = F5(
-	function (a, b, c, d, e) {
-		return {$: 'BorderWidth', a: a, b: b, c: c, d: d, e: e};
-	});
-var mdgriffith$elm_ui$Element$Border$width = function (v) {
-	return A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$borderWidth,
-		A5(
-			mdgriffith$elm_ui$Internal$Model$BorderWidth,
-			'b-' + elm$core$String$fromInt(v),
-			v,
-			v,
-			v,
-			v));
-};
-var mdgriffith$elm_ui$Element$Border$widthXY = F2(
-	function (x, y) {
+var author$project$View$Navbar$navbarFramework = F2(
+	function (model, _n0) {
+		var name = _n0.a;
+		var directory = _n0.b;
 		return A2(
-			mdgriffith$elm_ui$Internal$Model$StyleClass,
-			mdgriffith$elm_ui$Internal$Flag$borderWidth,
-			A5(
-				mdgriffith$elm_ui$Internal$Model$BorderWidth,
-				'b-' + (elm$core$String$fromInt(x) + ('-' + elm$core$String$fromInt(y))),
-				y,
-				x,
-				y,
-				x));
-	});
-var mdgriffith$elm_ui$Element$Border$widthEach = function (_n0) {
-	var bottom = _n0.bottom;
-	var top = _n0.top;
-	var left = _n0.left;
-	var right = _n0.right;
-	return (_Utils_eq(top, bottom) && _Utils_eq(left, right)) ? (_Utils_eq(top, right) ? mdgriffith$elm_ui$Element$Border$width(top) : A2(mdgriffith$elm_ui$Element$Border$widthXY, left, top)) : A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$borderWidth,
-		A5(
-			mdgriffith$elm_ui$Internal$Model$BorderWidth,
-			'b-' + (elm$core$String$fromInt(top) + ('-' + (elm$core$String$fromInt(right) + ('-' + (elm$core$String$fromInt(bottom) + ('-' + elm$core$String$fromInt(left))))))),
-			top,
-			right,
-			bottom,
-			left));
-};
-var author$project$View$InputString$tableBorders = mdgriffith$elm_ui$Element$Border$widthEach(
-	{bottom: 0, left: 0, right: 0, top: 1});
-var mdgriffith$elm_ui$Element$paddingXY = F2(
-	function (x, y) {
-		return _Utils_eq(x, y) ? A2(
-			mdgriffith$elm_ui$Internal$Model$StyleClass,
-			mdgriffith$elm_ui$Internal$Flag$padding,
-			A5(
-				mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-				'p-' + elm$core$String$fromInt(x),
-				x,
-				x,
-				x,
-				x)) : A2(
-			mdgriffith$elm_ui$Internal$Model$StyleClass,
-			mdgriffith$elm_ui$Internal$Flag$padding,
-			A5(
-				mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-				'p-' + (elm$core$String$fromInt(x) + ('-' + elm$core$String$fromInt(y))),
-				y,
-				x,
-				y,
-				x));
-	});
-var author$project$View$InputString$tablePadding = A2(mdgriffith$elm_ui$Element$paddingXY, 0, 10);
-var author$project$View$InputString$tableColumnStyle = function (string) {
-	return A2(
-		mdgriffith$elm_ui$Element$el,
-		_List_fromArray(
-			[author$project$View$InputString$tablePadding, author$project$View$InputString$tableBorders]),
-		mdgriffith$elm_ui$Element$text(string));
-};
-var mdgriffith$elm_ui$Element$InternalIndexedColumn = function (a) {
-	return {$: 'InternalIndexedColumn', a: a};
-};
-var elm$core$List$all = F2(
-	function (isOkay, list) {
-		return !A2(
-			elm$core$List$any,
-			A2(elm$core$Basics$composeL, elm$core$Basics$not, isOkay),
-			list);
-	});
-var elm$core$List$repeatHelp = F3(
-	function (result, n, value) {
-		repeatHelp:
-		while (true) {
-			if (n <= 0) {
-				return result;
-			} else {
-				var $temp$result = A2(elm$core$List$cons, value, result),
-					$temp$n = n - 1,
-					$temp$value = value;
-				result = $temp$result;
-				n = $temp$n;
-				value = $temp$value;
-				continue repeatHelp;
-			}
-		}
-	});
-var elm$core$List$repeat = F2(
-	function (n, value) {
-		return A3(elm$core$List$repeatHelp, _List_Nil, n, value);
-	});
-var mdgriffith$elm_ui$Internal$Model$Px = function (a) {
-	return {$: 'Px', a: a};
-};
-var mdgriffith$elm_ui$Element$px = mdgriffith$elm_ui$Internal$Model$Px;
-var mdgriffith$elm_ui$Internal$Flag$gridPosition = mdgriffith$elm_ui$Internal$Flag$flag(35);
-var mdgriffith$elm_ui$Internal$Flag$gridTemplate = mdgriffith$elm_ui$Internal$Flag$flag(34);
-var mdgriffith$elm_ui$Internal$Model$Empty = {$: 'Empty'};
-var mdgriffith$elm_ui$Internal$Model$GridPosition = function (a) {
-	return {$: 'GridPosition', a: a};
-};
-var mdgriffith$elm_ui$Internal$Model$GridTemplateStyle = function (a) {
-	return {$: 'GridTemplateStyle', a: a};
-};
-var mdgriffith$elm_ui$Internal$Model$AsGrid = {$: 'AsGrid'};
-var mdgriffith$elm_ui$Internal$Model$asGrid = mdgriffith$elm_ui$Internal$Model$AsGrid;
-var mdgriffith$elm_ui$Internal$Model$getSpacing = F2(
-	function (attrs, _default) {
-		return A2(
-			elm$core$Maybe$withDefault,
-			_default,
-			A3(
-				elm$core$List$foldr,
-				F2(
-					function (attr, acc) {
-						if (acc.$ === 'Just') {
-							var x = acc.a;
-							return elm$core$Maybe$Just(x);
-						} else {
-							if ((attr.$ === 'StyleClass') && (attr.b.$ === 'SpacingStyle')) {
-								var _n2 = attr.b;
-								var x = _n2.b;
-								var y = _n2.c;
-								return elm$core$Maybe$Just(
-									_Utils_Tuple2(x, y));
-							} else {
-								return elm$core$Maybe$Nothing;
-							}
-						}
-					}),
-				elm$core$Maybe$Nothing,
-				attrs));
-	});
-var mdgriffith$elm_ui$Element$tableHelper = F2(
-	function (attrs, config) {
-		var onGrid = F3(
-			function (rowLevel, columnLevel, elem) {
-				return A4(
-					mdgriffith$elm_ui$Internal$Model$element,
-					mdgriffith$elm_ui$Internal$Model$asEl,
-					mdgriffith$elm_ui$Internal$Model$div,
-					_List_fromArray(
-						[
-							A2(
-							mdgriffith$elm_ui$Internal$Model$StyleClass,
-							mdgriffith$elm_ui$Internal$Flag$gridPosition,
-							mdgriffith$elm_ui$Internal$Model$GridPosition(
-								{col: columnLevel, height: 1, row: rowLevel, width: 1}))
-						]),
-					mdgriffith$elm_ui$Internal$Model$Unkeyed(
-						_List_fromArray(
-							[elem])));
-			});
-		var columnWidth = function (col) {
-			if (col.$ === 'InternalIndexedColumn') {
-				var colConfig = col.a;
-				return colConfig.width;
-			} else {
-				var colConfig = col.a;
-				return colConfig.width;
-			}
-		};
-		var columnHeader = function (col) {
-			if (col.$ === 'InternalIndexedColumn') {
-				var colConfig = col.a;
-				return colConfig.header;
-			} else {
-				var colConfig = col.a;
-				return colConfig.header;
-			}
-		};
-		var maybeHeaders = function (headers) {
-			return A2(
-				elm$core$List$all,
-				elm$core$Basics$eq(mdgriffith$elm_ui$Internal$Model$Empty),
-				headers) ? elm$core$Maybe$Nothing : elm$core$Maybe$Just(
-				A2(
-					elm$core$List$indexedMap,
-					F2(
-						function (col, header) {
-							return A3(onGrid, 1, col + 1, header);
-						}),
-					headers));
-		}(
-			A2(elm$core$List$map, columnHeader, config.columns));
-		var add = F3(
-			function (cell, columnConfig, cursor) {
-				if (columnConfig.$ === 'InternalIndexedColumn') {
-					var col = columnConfig.a;
-					return _Utils_update(
-						cursor,
-						{
-							column: cursor.column + 1,
-							elements: A2(
-								elm$core$List$cons,
-								A3(
-									onGrid,
-									cursor.row,
-									cursor.column,
-									A2(
-										col.view,
-										_Utils_eq(maybeHeaders, elm$core$Maybe$Nothing) ? (cursor.row - 1) : (cursor.row - 2),
-										cell)),
-								cursor.elements)
-						});
-				} else {
-					var col = columnConfig.a;
-					return {
-						column: cursor.column + 1,
-						elements: A2(
-							elm$core$List$cons,
-							A3(
-								onGrid,
-								cursor.row,
-								cursor.column,
-								col.view(cell)),
-							cursor.elements),
-						row: cursor.row
-					};
-				}
-			});
-		var build = F3(
-			function (columns, rowData, cursor) {
-				var newCursor = A3(
-					elm$core$List$foldl,
-					add(rowData),
-					cursor,
-					columns);
-				return {column: 1, elements: newCursor.elements, row: cursor.row + 1};
-			});
-		var children = A3(
-			elm$core$List$foldl,
-			build(config.columns),
+			mdgriffith$elm_ui$Element$Input$button,
+			A2(author$project$View$Navbar$navbarElementAttributes, model, directory),
 			{
-				column: 1,
-				elements: _List_Nil,
-				row: _Utils_eq(maybeHeaders, elm$core$Maybe$Nothing) ? 1 : 2
-			},
-			config.data);
-		var _n0 = A2(
-			mdgriffith$elm_ui$Internal$Model$getSpacing,
-			attrs,
-			_Utils_Tuple2(0, 0));
-		var sX = _n0.a;
-		var sY = _n0.b;
-		var template = A2(
-			mdgriffith$elm_ui$Internal$Model$StyleClass,
-			mdgriffith$elm_ui$Internal$Flag$gridTemplate,
-			mdgriffith$elm_ui$Internal$Model$GridTemplateStyle(
-				{
-					columns: A2(elm$core$List$map, columnWidth, config.columns),
-					rows: A2(
-						elm$core$List$repeat,
-						elm$core$List$length(config.data),
-						mdgriffith$elm_ui$Internal$Model$Content),
-					spacing: _Utils_Tuple2(
-						mdgriffith$elm_ui$Element$px(sX),
-						mdgriffith$elm_ui$Element$px(sY))
-				}));
+				label: A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[mdgriffith$elm_ui$Element$centerX]),
+					mdgriffith$elm_ui$Element$text(name)),
+				onPress: elm$core$Maybe$Just(
+					author$project$Msg$ChangeDirectory(directory))
+			});
+	});
+var author$project$Model$CaesarPage = {$: 'CaesarPage'};
+var author$project$Model$HashPage = {$: 'HashPage'};
+var author$project$Model$ViginerePage = {$: 'ViginerePage'};
+var author$project$View$Navbar$navbarMapList = _List_fromArray(
+	[
+		_Utils_Tuple2('Home', author$project$Model$HomePage),
+		_Utils_Tuple2('Caesar', author$project$Model$CaesarPage),
+		_Utils_Tuple2('Viginere', author$project$Model$ViginerePage),
+		_Utils_Tuple2('Hash', author$project$Model$HashPage)
+	]);
+var mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
+var mdgriffith$elm_ui$Internal$Model$asRow = mdgriffith$elm_ui$Internal$Model$AsRow;
+var mdgriffith$elm_ui$Element$row = F2(
+	function (attrs, children) {
 		return A4(
 			mdgriffith$elm_ui$Internal$Model$element,
-			mdgriffith$elm_ui$Internal$Model$asGrid,
+			mdgriffith$elm_ui$Internal$Model$asRow,
 			mdgriffith$elm_ui$Internal$Model$div,
 			A2(
 				elm$core$List$cons,
-				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-				A2(elm$core$List$cons, template, attrs)),
-			mdgriffith$elm_ui$Internal$Model$Unkeyed(
-				function () {
-					if (maybeHeaders.$ === 'Nothing') {
-						return children.elements;
-					} else {
-						var renderedHeaders = maybeHeaders.a;
-						return _Utils_ap(
-							renderedHeaders,
-							elm$core$List$reverse(children.elements));
-					}
-				}()));
-	});
-var mdgriffith$elm_ui$Element$indexedTable = F2(
-	function (attrs, config) {
-		return A2(
-			mdgriffith$elm_ui$Element$tableHelper,
-			attrs,
-			{
-				columns: A2(elm$core$List$map, mdgriffith$elm_ui$Element$InternalIndexedColumn, config.columns),
-				data: config.data
-			});
-	});
-var mdgriffith$elm_ui$Element$none = mdgriffith$elm_ui$Internal$Model$Empty;
-var author$project$View$InputString$dataTable = function (model) {
-	var _n0 = model.inputContent.tupleList;
-	if (_n0.$ === 'Nothing') {
-		return mdgriffith$elm_ui$Element$none;
-	} else {
-		var list = _n0.a;
-		var data = author$project$StringParse$toTypeAlias(list);
-		return A2(
-			mdgriffith$elm_ui$Element$indexedTable,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$padding(10),
-					mdgriffith$elm_ui$Element$Border$width(1)
-				]),
-			{
-				columns: _List_fromArray(
-					[
-						{
-						header: author$project$View$InputString$headerStyle(''),
-						view: F2(
-							function (_int, datum) {
-								return author$project$View$InputString$tableColumnStyle(
-									elm$core$String$fromInt(_int + 1) + ': ');
-							}),
-						width: mdgriffith$elm_ui$Element$px(50)
-					},
-						{
-						header: author$project$View$InputString$headerStyle('Word'),
-						view: F2(
-							function (_int, datum) {
-								return author$project$View$InputString$tableColumnStyle(datum.word);
-							}),
-						width: mdgriffith$elm_ui$Element$fill
-					},
-						{
-						header: author$project$View$InputString$headerStyle('Occurence'),
-						view: F2(
-							function (_int, datum) {
-								return author$project$View$InputString$tableColumnStyle(
-									elm$core$String$fromInt(datum.occurence));
-							}),
-						width: mdgriffith$elm_ui$Element$fill
-					}
-					]),
-				data: author$project$StringParse$toTypeAlias(list)
-			});
-	}
-};
-var mdgriffith$elm_ui$Element$Font$underline = mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.underline);
-var author$project$View$Navbar$navbarElementAttributes = F2(
-	function (model, dir) {
-		var basicNavBarAttributes = _List_fromArray(
-			[
-				mdgriffith$elm_ui$Element$padding(10),
-				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
-			]);
-		return _Utils_eq(model.directory, dir) ? A2(elm$core$List$cons, mdgriffith$elm_ui$Element$Font$underline, basicNavBarAttributes) : basicNavBarAttributes;
+				mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+						attrs))),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
 	});
 var author$project$View$Navbar$navbar = function (model) {
 	return A2(
 		mdgriffith$elm_ui$Element$row,
 		_List_fromArray(
 			[
-				mdgriffith$elm_ui$Element$padding(10),
 				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
 			]),
-		_List_fromArray(
-			[
-				A2(
-				mdgriffith$elm_ui$Element$Input$button,
-				A2(author$project$View$Navbar$navbarElementAttributes, model, author$project$Model$HomePage),
-				{
-					label: A2(
-						mdgriffith$elm_ui$Element$el,
-						_List_fromArray(
-							[mdgriffith$elm_ui$Element$centerX]),
-						mdgriffith$elm_ui$Element$text('Home')),
-					onPress: elm$core$Maybe$Just(
-						author$project$Msg$ChangeDirectory(author$project$Model$HomePage))
-				}),
-				A2(
-				mdgriffith$elm_ui$Element$Input$button,
-				A2(author$project$View$Navbar$navbarElementAttributes, model, author$project$Model$InputStringPage),
-				{
-					label: A2(
-						mdgriffith$elm_ui$Element$el,
-						_List_fromArray(
-							[mdgriffith$elm_ui$Element$centerX]),
-						mdgriffith$elm_ui$Element$text('Input a String')),
-					onPress: elm$core$Maybe$Just(
-						author$project$Msg$ChangeDirectory(author$project$Model$InputStringPage))
-				}),
-				A2(
-				mdgriffith$elm_ui$Element$Input$button,
-				A2(author$project$View$Navbar$navbarElementAttributes, model, author$project$Model$UploadTextFilePage),
-				{
-					label: A2(
-						mdgriffith$elm_ui$Element$el,
-						_List_fromArray(
-							[mdgriffith$elm_ui$Element$centerX]),
-						mdgriffith$elm_ui$Element$text('upload text file')),
-					onPress: elm$core$Maybe$Just(
-						author$project$Msg$ChangeDirectory(author$project$Model$UploadTextFilePage))
-				})
-			]));
+		A2(
+			elm$core$List$map,
+			author$project$View$Navbar$navbarFramework(model),
+			author$project$View$Navbar$navbarMapList));
 };
+var mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
+	return {$: 'AlignY', a: a};
+};
+var mdgriffith$elm_ui$Internal$Model$Bottom = {$: 'Bottom'};
+var mdgriffith$elm_ui$Element$alignBottom = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$Bottom);
+var mdgriffith$elm_ui$Internal$Model$Left = {$: 'Left'};
+var mdgriffith$elm_ui$Element$alignLeft = mdgriffith$elm_ui$Internal$Model$AlignX(mdgriffith$elm_ui$Internal$Model$Left);
+var mdgriffith$elm_ui$Internal$Model$AsColumn = {$: 'AsColumn'};
+var mdgriffith$elm_ui$Internal$Model$asColumn = mdgriffith$elm_ui$Internal$Model$AsColumn;
+var mdgriffith$elm_ui$Element$column = F2(
+	function (attrs, children) {
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asColumn,
+			mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentTop + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentLeft)),
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
+						attrs))),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
+var mdgriffith$elm_ui$Element$fillPortion = mdgriffith$elm_ui$Internal$Model$Fill;
 var mdgriffith$elm_ui$Internal$Model$Max = F2(
 	function (a, b) {
 		return {$: 'Max', a: a, b: b};
@@ -11891,6 +12821,96 @@ var mdgriffith$elm_ui$Internal$Model$Max = F2(
 var mdgriffith$elm_ui$Element$maximum = F2(
 	function (i, l) {
 		return A2(mdgriffith$elm_ui$Internal$Model$Max, i, l);
+	});
+var elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
+};
+var elm$html$Html$Attributes$rel = _VirtualDom_attribute('rel');
+var elm$html$Html$Attributes$target = elm$html$Html$Attributes$stringProperty('target');
+var mdgriffith$elm_ui$Element$newTabLink = F2(
+	function (attrs, _n0) {
+		var url = _n0.url;
+		var label = _n0.label;
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asEl,
+			mdgriffith$elm_ui$Internal$Model$NodeName('a'),
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Internal$Model$Attr(
+					elm$html$Html$Attributes$href(url)),
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Internal$Model$Attr(
+						elm$html$Html$Attributes$rel('noopener noreferrer')),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Internal$Model$Attr(
+							elm$html$Html$Attributes$target('_blank')),
+						A2(
+							elm$core$List$cons,
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
+							A2(
+								elm$core$List$cons,
+								mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+								A2(
+									elm$core$List$cons,
+									mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentCenterX + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
+									attrs)))))),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(
+				_List_fromArray(
+					[label])));
+	});
+var mdgriffith$elm_ui$Internal$Model$Empty = {$: 'Empty'};
+var mdgriffith$elm_ui$Element$none = mdgriffith$elm_ui$Internal$Model$Empty;
+var mdgriffith$elm_ui$Internal$Flag$spacing = mdgriffith$elm_ui$Internal$Flag$flag(3);
+var mdgriffith$elm_ui$Internal$Model$SpacingStyle = F3(
+	function (a, b, c) {
+		return {$: 'SpacingStyle', a: a, b: b, c: c};
+	});
+var mdgriffith$elm_ui$Internal$Model$spacingName = F2(
+	function (x, y) {
+		return 'spacing-' + (elm$core$String$fromInt(x) + ('-' + elm$core$String$fromInt(y)));
+	});
+var mdgriffith$elm_ui$Element$spacing = function (x) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$spacing,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$SpacingStyle,
+			A2(mdgriffith$elm_ui$Internal$Model$spacingName, x, x),
+			x,
+			x));
+};
+var mdgriffith$elm_ui$Internal$Model$Paragraph = {$: 'Paragraph'};
+var mdgriffith$elm_ui$Element$paragraph = F2(
+	function (attrs, children) {
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asParagraph,
+			mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Internal$Model$Describe(mdgriffith$elm_ui$Internal$Model$Paragraph),
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$spacing(5),
+						attrs))),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
+var mdgriffith$elm_ui$Internal$Model$Px = function (a) {
+	return {$: 'Px', a: a};
+};
+var mdgriffith$elm_ui$Element$px = mdgriffith$elm_ui$Internal$Model$Px;
+var mdgriffith$elm_ui$Element$rgb = F3(
+	function (r, g, b) {
+		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, r, g, b, 1);
 	});
 var mdgriffith$elm_ui$Internal$Model$Min = F2(
 	function (a, b) {
@@ -11900,7 +12920,36 @@ var mdgriffith$elm_ui$Element$minimum = F2(
 	function (i, l) {
 		return A2(mdgriffith$elm_ui$Internal$Model$Min, i, l);
 	});
+var mdgriffith$elm_ui$Internal$Model$AsTextColumn = {$: 'AsTextColumn'};
+var mdgriffith$elm_ui$Internal$Model$asTextColumn = mdgriffith$elm_ui$Internal$Model$AsTextColumn;
+var mdgriffith$elm_ui$Element$textColumn = F2(
+	function (attrs, children) {
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asTextColumn,
+			mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Element$width(
+					A2(
+						mdgriffith$elm_ui$Element$maximum,
+						750,
+						A2(mdgriffith$elm_ui$Element$minimum, 500, mdgriffith$elm_ui$Element$fill))),
+				attrs),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
 var mdgriffith$elm_ui$Internal$Flag$bgColor = mdgriffith$elm_ui$Internal$Flag$flag(8);
+var mdgriffith$elm_ui$Internal$Model$Colored = F3(
+	function (a, b, c) {
+		return {$: 'Colored', a: a, b: b, c: c};
+	});
+var mdgriffith$elm_ui$Internal$Model$formatColorClass = function (_n0) {
+	var red = _n0.a;
+	var green = _n0.b;
+	var blue = _n0.c;
+	var alpha = _n0.d;
+	return mdgriffith$elm_ui$Internal$Model$floatClass(red) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(green) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(blue) + ('-' + mdgriffith$elm_ui$Internal$Model$floatClass(alpha))))));
+};
 var mdgriffith$elm_ui$Element$Background$color = function (clr) {
 	return A2(
 		mdgriffith$elm_ui$Internal$Model$StyleClass,
@@ -11911,13 +12960,41 @@ var mdgriffith$elm_ui$Element$Background$color = function (clr) {
 			'background-color',
 			clr));
 };
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var mdgriffith$elm_ui$Element$Background$image = function (src) {
+	return mdgriffith$elm_ui$Internal$Model$Attr(
+		A2(elm$virtual_dom$VirtualDom$style, 'background', 'url(\"' + (src + '\") center / cover no-repeat')));
+};
+var mdgriffith$elm_ui$Internal$Flag$fontColor = mdgriffith$elm_ui$Internal$Flag$flag(14);
+var mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$fontColor,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$Colored,
+			'fc-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(fontColor),
+			'color',
+			fontColor));
+};
+var mdgriffith$elm_ui$Internal$Flag$fontSize = mdgriffith$elm_ui$Internal$Flag$flag(4);
+var mdgriffith$elm_ui$Internal$Model$FontSize = function (a) {
+	return {$: 'FontSize', a: a};
+};
+var mdgriffith$elm_ui$Element$Font$size = function (i) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$fontSize,
+		mdgriffith$elm_ui$Internal$Model$FontSize(i));
+};
 var mdgriffith$elm_ui$Element$Input$Above = {$: 'Above'};
 var mdgriffith$elm_ui$Element$Input$Label = F3(
 	function (a, b, c) {
 		return {$: 'Label', a: a, b: b, c: c};
 	});
 var mdgriffith$elm_ui$Element$Input$labelAbove = mdgriffith$elm_ui$Element$Input$Label(mdgriffith$elm_ui$Element$Input$Above);
-var mdgriffith$elm_ui$Element$Input$TextArea = {$: 'TextArea'};
+var mdgriffith$elm_ui$Element$Input$TextInputNode = function (a) {
+	return {$: 'TextInputNode', a: a};
+};
 var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
 var elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
@@ -11979,36 +13056,6 @@ var mdgriffith$elm_ui$Internal$Model$Nearby = F2(
 var mdgriffith$elm_ui$Element$inFront = function (element) {
 	return A2(mdgriffith$elm_ui$Internal$Model$Nearby, mdgriffith$elm_ui$Internal$Model$InFront, element);
 };
-var mdgriffith$elm_ui$Internal$Model$paddingName = F4(
-	function (top, right, bottom, left) {
-		return 'pad-' + (elm$core$String$fromInt(top) + ('-' + (elm$core$String$fromInt(right) + ('-' + (elm$core$String$fromInt(bottom) + ('-' + elm$core$String$fromInt(left)))))));
-	});
-var mdgriffith$elm_ui$Element$paddingEach = function (_n0) {
-	var top = _n0.top;
-	var right = _n0.right;
-	var bottom = _n0.bottom;
-	var left = _n0.left;
-	return (_Utils_eq(top, right) && (_Utils_eq(top, bottom) && _Utils_eq(top, left))) ? A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$padding,
-		A5(
-			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-			'p-' + elm$core$String$fromInt(top),
-			top,
-			top,
-			top,
-			top)) : A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$padding,
-		A5(
-			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-			A4(mdgriffith$elm_ui$Internal$Model$paddingName, top, right, bottom, left),
-			top,
-			right,
-			bottom,
-			left));
-};
-var mdgriffith$elm_ui$Element$rgba = mdgriffith$elm_ui$Internal$Model$Rgba;
 var mdgriffith$elm_ui$Internal$Flag$borderColor = mdgriffith$elm_ui$Internal$Flag$flag(28);
 var mdgriffith$elm_ui$Element$Border$color = function (clr) {
 	return A2(
@@ -12093,10 +13140,6 @@ var mdgriffith$elm_ui$Element$Input$autofill = A2(
 	elm$core$Basics$composeL,
 	mdgriffith$elm_ui$Internal$Model$Attr,
 	elm$html$Html$Attributes$attribute('autocomplete'));
-var mdgriffith$elm_ui$Element$rgb = F3(
-	function (r, g, b) {
-		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, r, g, b, 1);
-	});
 var mdgriffith$elm_ui$Element$Input$charcoal = A3(mdgriffith$elm_ui$Element$rgb, 136 / 255, 138 / 255, 133 / 255);
 var mdgriffith$elm_ui$Internal$Flag$borderRound = mdgriffith$elm_ui$Internal$Flag$flag(17);
 var mdgriffith$elm_ui$Element$Border$rounded = function (radius) {
@@ -12110,6 +13153,28 @@ var mdgriffith$elm_ui$Element$Border$rounded = function (radius) {
 			elm$core$String$fromInt(radius) + 'px'));
 };
 var mdgriffith$elm_ui$Element$Input$darkGrey = A3(mdgriffith$elm_ui$Element$rgb, 186 / 255, 189 / 255, 182 / 255);
+var mdgriffith$elm_ui$Element$paddingXY = F2(
+	function (x, y) {
+		return _Utils_eq(x, y) ? A2(
+			mdgriffith$elm_ui$Internal$Model$StyleClass,
+			mdgriffith$elm_ui$Internal$Flag$padding,
+			A5(
+				mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+				'p-' + elm$core$String$fromInt(x),
+				x,
+				x,
+				x,
+				x)) : A2(
+			mdgriffith$elm_ui$Internal$Model$StyleClass,
+			mdgriffith$elm_ui$Internal$Flag$padding,
+			A5(
+				mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+				'p-' + (elm$core$String$fromInt(x) + ('-' + elm$core$String$fromInt(y))),
+				y,
+				x,
+				y,
+				x));
+	});
 var mdgriffith$elm_ui$Element$Input$defaultTextPadding = A2(mdgriffith$elm_ui$Element$paddingXY, 12, 12);
 var mdgriffith$elm_ui$Element$Input$white = A3(mdgriffith$elm_ui$Element$rgb, 1, 1, 1);
 var mdgriffith$elm_ui$Element$Input$defaultTextBoxStyle = _List_fromArray(
@@ -12653,6 +13718,199 @@ var mdgriffith$elm_ui$Element$Input$textHelper = F3(
 			textOptions.label,
 			inputElement);
 	});
+var mdgriffith$elm_ui$Element$Input$text = mdgriffith$elm_ui$Element$Input$textHelper(
+	{
+		autofill: elm$core$Maybe$Nothing,
+		spellchecked: false,
+		type_: mdgriffith$elm_ui$Element$Input$TextInputNode('text')
+	});
+var author$project$View$Caesar$caesarView = function (model) {
+	return A2(
+		mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$Background$image('src/img/caesar_background.jpg'),
+				mdgriffith$elm_ui$Element$padding(50)
+			]),
+		A2(
+			mdgriffith$elm_ui$Element$column,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$Background$color(author$project$View$Caesar$backgroundRgba),
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$padding(40),
+					mdgriffith$elm_ui$Element$spacing(20)
+				]),
+			_List_fromArray(
+				[
+					author$project$View$Navbar$navbar(model),
+					A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$fillPortion(5)),
+							mdgriffith$elm_ui$Element$centerX,
+							mdgriffith$elm_ui$Element$Font$size(80)
+						]),
+					mdgriffith$elm_ui$Element$text('Caesar Cipher')),
+					A2(
+					mdgriffith$elm_ui$Element$textColumn,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$fillPortion(3)),
+							mdgriffith$elm_ui$Element$width(
+							A2(mdgriffith$elm_ui$Element$maximum, 800, mdgriffith$elm_ui$Element$fill)),
+							mdgriffith$elm_ui$Element$centerX,
+							mdgriffith$elm_ui$Element$spacing(15)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							mdgriffith$elm_ui$Element$el,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$Font$size(45),
+									author$project$View$Caesar$bigLetterPadding,
+									mdgriffith$elm_ui$Element$alignLeft
+								]),
+							mdgriffith$elm_ui$Element$text('I')),
+							A2(
+							mdgriffith$elm_ui$Element$paragraph,
+							_List_Nil,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$text('n cryptography, a Caesar cipher is one of the simplest and most widely known encryption techniques. The method is named after Julius Caesar, who used it in his private correspondence.'),
+									A2(
+									mdgriffith$elm_ui$Element$newTabLink,
+									_List_fromArray(
+										[
+											mdgriffith$elm_ui$Element$Font$size(10),
+											mdgriffith$elm_ui$Element$Font$color(
+											A3(mdgriffith$elm_ui$Element$rgb, 0, 0, 238))
+										]),
+									{
+										label: mdgriffith$elm_ui$Element$text('[src]'),
+										url: 'https://en.wikipedia.org/wiki/Caesar_cipher'
+									})
+								])),
+							A2(
+							mdgriffith$elm_ui$Element$paragraph,
+							_List_Nil,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$text('In this implementation, all you need to do is type in your plaintext and the key, and you can choose whether or not to encrypt or decrypt the text')
+								]))
+						])),
+					A2(
+					mdgriffith$elm_ui$Element$row,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$centerX,
+							mdgriffith$elm_ui$Element$spacing(10),
+							mdgriffith$elm_ui$Element$centerX
+						]),
+					_List_fromArray(
+						[
+							A2(
+							mdgriffith$elm_ui$Element$Input$text,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$width(
+									mdgriffith$elm_ui$Element$px(200))
+								]),
+							{
+								label: A2(
+									mdgriffith$elm_ui$Element$Input$labelAbove,
+									_List_Nil,
+									mdgriffith$elm_ui$Element$text('Plaintext')),
+								onChange: author$project$Msg$CaesarPlaintext,
+								placeholder: elm$core$Maybe$Nothing,
+								text: model.caesarModel.plainText
+							}),
+							A2(
+							mdgriffith$elm_ui$Element$Input$text,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$width(
+									mdgriffith$elm_ui$Element$px(200))
+								]),
+							{
+								label: A2(
+									mdgriffith$elm_ui$Element$Input$labelAbove,
+									_List_Nil,
+									mdgriffith$elm_ui$Element$text('Key')),
+								onChange: author$project$Msg$CaesarKey,
+								placeholder: elm$core$Maybe$Nothing,
+								text: elm$core$String$fromInt(model.caesarModel.key)
+							}),
+							A2(
+							mdgriffith$elm_ui$Element$Input$button,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$padding(15),
+									mdgriffith$elm_ui$Element$Border$width(1),
+									mdgriffith$elm_ui$Element$alignBottom
+								]),
+							{
+								label: mdgriffith$elm_ui$Element$text('Encrypt'),
+								onPress: elm$core$Maybe$Just(author$project$Msg$EncryptCaesar)
+							}),
+							A2(
+							mdgriffith$elm_ui$Element$Input$button,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$padding(15),
+									mdgriffith$elm_ui$Element$Border$width(1),
+									mdgriffith$elm_ui$Element$alignBottom
+								]),
+							{
+								label: mdgriffith$elm_ui$Element$text('Decrypt'),
+								onPress: elm$core$Maybe$Just(author$project$Msg$DecryptCaesar)
+							})
+						])),
+					(model.caesarModel.cypheredText === '') ? A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$px(100))
+						]),
+					mdgriffith$elm_ui$Element$none) : A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$centerX,
+							mdgriffith$elm_ui$Element$padding(20),
+							mdgriffith$elm_ui$Element$Font$size(60)
+						]),
+					mdgriffith$elm_ui$Element$text(model.caesarModel.cypheredText))
+				])));
+};
+var author$project$Model$Sha256 = {$: 'Sha256'};
+var author$project$Model$Sha384 = {$: 'Sha384'};
+var author$project$Model$Sha512 = {$: 'Sha512'};
+var author$project$Model$Sha512_224 = {$: 'Sha512_224'};
+var author$project$Model$Sha512_256 = {$: 'Sha512_256'};
+var author$project$Msg$UpdateHashAlgorithm = function (a) {
+	return {$: 'UpdateHashAlgorithm', a: a};
+};
+var author$project$Msg$UpdateHashOutput = {$: 'UpdateHashOutput'};
+var author$project$Msg$UpdateHashPlaintext = function (a) {
+	return {$: 'UpdateHashPlaintext', a: a};
+};
+var author$project$View$Hash$backgroundRgba = A4(mdgriffith$elm_ui$Element$rgba, 255, 255, 255, 0.8);
+var author$project$View$Hash$bigLetterPadding = mdgriffith$elm_ui$Element$paddingEach(
+	{bottom: 0, left: 0, right: 10, top: 0});
+var elm$core$Debug$log = _Debug_log;
+var elm$core$Debug$toString = _Debug_toString;
+var mdgriffith$elm_ui$Internal$Model$CenterY = {$: 'CenterY'};
+var mdgriffith$elm_ui$Element$centerY = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$CenterY);
+var mdgriffith$elm_ui$Element$Input$TextArea = {$: 'TextArea'};
 var mdgriffith$elm_ui$Element$Input$multiline = F2(
 	function (attrs, multi) {
 		return A3(
@@ -12661,286 +13919,785 @@ var mdgriffith$elm_ui$Element$Input$multiline = F2(
 			attrs,
 			{label: multi.label, onChange: multi.onChange, placeholder: multi.placeholder, text: multi.text});
 	});
-var author$project$View$InputString$inputStringView = function (model) {
-	return A2(
-		mdgriffith$elm_ui$Element$column,
-		_List_fromArray(
-			[
-				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-				mdgriffith$elm_ui$Element$padding(20),
-				mdgriffith$elm_ui$Element$spacing(20)
-			]),
-		_List_fromArray(
-			[
-				author$project$View$Navbar$navbar(model),
-				A2(
-				mdgriffith$elm_ui$Element$Input$multiline,
-				_List_fromArray(
-					[
-						mdgriffith$elm_ui$Element$padding(20),
-						mdgriffith$elm_ui$Element$Background$color(author$project$Colours$appBackgroundGray),
-						mdgriffith$elm_ui$Element$height(
-						A2(
-							mdgriffith$elm_ui$Element$maximum,
-							300,
-							A2(mdgriffith$elm_ui$Element$minimum, 200, mdgriffith$elm_ui$Element$fill)))
-					]),
-				{
-					label: A2(
-						mdgriffith$elm_ui$Element$Input$labelAbove,
-						_List_Nil,
-						mdgriffith$elm_ui$Element$text('input your string here')),
-					onChange: author$project$Msg$UpdateInputText,
-					placeholder: elm$core$Maybe$Nothing,
-					spellcheck: false,
-					text: function () {
-						var _n0 = model.inputContent.text;
-						if (_n0.$ === 'Nothing') {
-							return '';
-						} else {
-							var string = _n0.a;
-							return string;
-						}
-					}()
-				}),
-				A2(
-				mdgriffith$elm_ui$Element$Input$button,
-				_List_fromArray(
-					[
-						mdgriffith$elm_ui$Element$padding(10),
-						mdgriffith$elm_ui$Element$Border$width(1)
-					]),
-				{
-					label: A2(
-						mdgriffith$elm_ui$Element$el,
-						_List_fromArray(
-							[mdgriffith$elm_ui$Element$centerX]),
-						mdgriffith$elm_ui$Element$text('upload text')),
-					onPress: elm$core$Maybe$Just(author$project$Msg$EvalInputText)
-				}),
-				author$project$View$InputString$dataTable(model)
-			]));
-};
-var author$project$View$UploadFile$headerStyle = function (string) {
-	return A2(
-		mdgriffith$elm_ui$Element$el,
-		_List_fromArray(
-			[
-				mdgriffith$elm_ui$Element$Font$size(30),
-				mdgriffith$elm_ui$Element$padding(10)
-			]),
-		mdgriffith$elm_ui$Element$text(string));
-};
-var author$project$View$UploadFile$tableBorders = mdgriffith$elm_ui$Element$Border$widthEach(
-	{bottom: 0, left: 0, right: 0, top: 1});
-var author$project$View$UploadFile$tablePadding = A2(mdgriffith$elm_ui$Element$paddingXY, 0, 10);
-var author$project$View$UploadFile$tableColumnStyle = function (string) {
-	return A2(
-		mdgriffith$elm_ui$Element$el,
-		_List_fromArray(
-			[author$project$View$UploadFile$tablePadding, author$project$View$UploadFile$tableBorders]),
-		mdgriffith$elm_ui$Element$text(string));
-};
-var author$project$View$UploadFile$dataTable = function (model) {
-	var _n0 = model.fileContent.tupleList;
-	if (_n0.$ === 'Nothing') {
-		return mdgriffith$elm_ui$Element$none;
-	} else {
-		var list = _n0.a;
-		var data = author$project$StringParse$toTypeAlias(list);
+var mdgriffith$elm_ui$Element$Input$Option = F2(
+	function (a, b) {
+		return {$: 'Option', a: a, b: b};
+	});
+var mdgriffith$elm_ui$Element$Input$defaultRadioOption = F2(
+	function (optionLabel, status) {
 		return A2(
-			mdgriffith$elm_ui$Element$indexedTable,
+			mdgriffith$elm_ui$Element$row,
 			_List_fromArray(
 				[
-					mdgriffith$elm_ui$Element$padding(10),
-					mdgriffith$elm_ui$Element$Border$width(1)
-				]),
-			{
-				columns: _List_fromArray(
-					[
-						{
-						header: author$project$View$UploadFile$headerStyle(''),
-						view: F2(
-							function (_int, datum) {
-								return author$project$View$UploadFile$tableColumnStyle(
-									elm$core$String$fromInt(_int + 1) + ': ');
-							}),
-						width: mdgriffith$elm_ui$Element$px(50)
-					},
-						{
-						header: author$project$View$UploadFile$headerStyle('Word'),
-						view: F2(
-							function (_int, datum) {
-								return author$project$View$UploadFile$tableColumnStyle(datum.word);
-							}),
-						width: mdgriffith$elm_ui$Element$fill
-					},
-						{
-						header: author$project$View$UploadFile$headerStyle('Occurence'),
-						view: F2(
-							function (_int, datum) {
-								return author$project$View$UploadFile$tableColumnStyle(
-									elm$core$String$fromInt(datum.occurence));
-							}),
-						width: mdgriffith$elm_ui$Element$fill
-					}
-					]),
-				data: author$project$StringParse$toTypeAlias(list)
-			});
-	}
-};
-var author$project$Msg$EvalFileText = {$: 'EvalFileText'};
-var author$project$Msg$ReqFile = {$: 'ReqFile'};
-var author$project$View$UploadFile$buttonStyling = _List_fromArray(
-	[
-		mdgriffith$elm_ui$Element$Border$width(1),
-		mdgriffith$elm_ui$Element$Border$rounded(2),
-		mdgriffith$elm_ui$Element$padding(10),
-		mdgriffith$elm_ui$Element$centerX
-	]);
-var author$project$Msg$ToggleFileContents = {$: 'ToggleFileContents'};
-var mdgriffith$elm_ui$Internal$Flag$overflow = mdgriffith$elm_ui$Internal$Flag$flag(20);
-var mdgriffith$elm_ui$Element$scrollbarX = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$overflow, mdgriffith$elm_ui$Internal$Style$classes.scrollbarsX);
-var mdgriffith$elm_ui$Element$scrollbarY = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$overflow, mdgriffith$elm_ui$Internal$Style$classes.scrollbarsY);
-var author$project$View$UploadFile$fileContentAttributes = function (model) {
-	var attributes = _List_fromArray(
-		[
-			mdgriffith$elm_ui$Element$padding(10),
-			mdgriffith$elm_ui$Element$height(
-			A2(mdgriffith$elm_ui$Element$maximum, 300, mdgriffith$elm_ui$Element$fill)),
-			mdgriffith$elm_ui$Element$width(
-			mdgriffith$elm_ui$Element$px(700)),
-			mdgriffith$elm_ui$Element$scrollbarY,
-			mdgriffith$elm_ui$Element$scrollbarX
-		]);
-	var _n0 = model.fileContent.fileText;
-	if (_n0.$ === 'Just') {
-		var fileContent = _n0.a;
-		return model.fileContent.showingFileContents ? A2(
-			elm$core$List$cons,
-			mdgriffith$elm_ui$Element$Border$width(1),
-			attributes) : attributes;
-	} else {
-		return attributes;
-	}
-};
-var author$project$View$UploadFile$previewContents = function (model) {
-	return A2(
-		mdgriffith$elm_ui$Element$column,
-		_List_fromArray(
-			[
-				mdgriffith$elm_ui$Element$centerX,
-				mdgriffith$elm_ui$Element$spacing(10)
-			]),
-		_List_fromArray(
-			[
-				A2(
-				mdgriffith$elm_ui$Element$Input$button,
-				author$project$View$UploadFile$buttonStyling,
-				{
-					label: model.fileContent.showingFileContents ? mdgriffith$elm_ui$Element$text('Hide Preview') : mdgriffith$elm_ui$Element$text('Preview file contents'),
-					onPress: elm$core$Maybe$Just(author$project$Msg$ToggleFileContents)
-				}),
-				A2(
-				mdgriffith$elm_ui$Element$el,
-				author$project$View$UploadFile$fileContentAttributes(model),
-				mdgriffith$elm_ui$Element$text(
-					function () {
-						var _n0 = model.fileContent.fileText;
-						if (_n0.$ === 'Just') {
-							var fileContent = _n0.a;
-							return model.fileContent.showingFileContents ? fileContent : '';
-						} else {
-							return '';
-						}
-					}()))
-			]));
-};
-var elm$file$File$name = _File_name;
-var author$project$View$UploadFile$ifFileSelected = function (model) {
-	var _n0 = model.fileContent.file;
-	if (_n0.$ === 'Just') {
-		var file = _n0.a;
-		return A2(
-			mdgriffith$elm_ui$Element$column,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-					mdgriffith$elm_ui$Element$centerX,
-					A2(mdgriffith$elm_ui$Element$paddingXY, 0, 30),
-					mdgriffith$elm_ui$Element$spacing(10)
+					mdgriffith$elm_ui$Element$spacing(10),
+					mdgriffith$elm_ui$Element$alignLeft,
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink)
 				]),
 			_List_fromArray(
 				[
-					A2(
-					mdgriffith$elm_ui$Element$Input$button,
-					author$project$View$UploadFile$buttonStyling,
-					{
-						label: mdgriffith$elm_ui$Element$text('Select a different .txt file'),
-						onPress: elm$core$Maybe$Just(
-							A2(elm$core$Debug$log, 'oh yeah they just pressed', author$project$Msg$ReqFile))
-					}),
 					A2(
 					mdgriffith$elm_ui$Element$el,
 					_List_fromArray(
 						[
-							mdgriffith$elm_ui$Element$padding(10),
-							mdgriffith$elm_ui$Element$centerX
+							mdgriffith$elm_ui$Element$width(
+							mdgriffith$elm_ui$Element$px(14)),
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$px(14)),
+							mdgriffith$elm_ui$Element$Background$color(mdgriffith$elm_ui$Element$Input$white),
+							mdgriffith$elm_ui$Element$Border$rounded(7),
+							function () {
+							if (status.$ === 'Selected') {
+								return mdgriffith$elm_ui$Internal$Model$htmlClass('focusable');
+							} else {
+								return mdgriffith$elm_ui$Internal$Model$NoAttribute;
+							}
+						}(),
+							mdgriffith$elm_ui$Element$Border$width(
+							function () {
+								switch (status.$) {
+									case 'Idle':
+										return 1;
+									case 'Focused':
+										return 1;
+									default:
+										return 5;
+								}
+							}()),
+							mdgriffith$elm_ui$Element$Border$color(
+							function () {
+								switch (status.$) {
+									case 'Idle':
+										return A3(mdgriffith$elm_ui$Element$rgb, 208 / 255, 208 / 255, 208 / 255);
+									case 'Focused':
+										return A3(mdgriffith$elm_ui$Element$rgb, 208 / 255, 208 / 255, 208 / 255);
+									default:
+										return A3(mdgriffith$elm_ui$Element$rgb, 59 / 255, 153 / 255, 252 / 255);
+								}
+							}())
 						]),
-					mdgriffith$elm_ui$Element$text(
-						'You\'ve selected: ' + elm$file$File$name(file))),
-					author$project$View$UploadFile$previewContents(model),
+					mdgriffith$elm_ui$Element$none),
 					A2(
-					mdgriffith$elm_ui$Element$Input$button,
-					author$project$View$UploadFile$buttonStyling,
-					{
-						label: mdgriffith$elm_ui$Element$text('Evaluate Text'),
-						onPress: elm$core$Maybe$Just(author$project$Msg$EvalFileText)
-					})
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Internal$Model$htmlClass('unfocusable')
+						]),
+					optionLabel)
 				]));
-	} else {
+	});
+var mdgriffith$elm_ui$Element$Input$option = F2(
+	function (val, txt) {
 		return A2(
+			mdgriffith$elm_ui$Element$Input$Option,
+			val,
+			mdgriffith$elm_ui$Element$Input$defaultRadioOption(txt));
+	});
+var mdgriffith$elm_ui$Element$Input$Row = {$: 'Row'};
+var mdgriffith$elm_ui$Element$Input$AfterFound = {$: 'AfterFound'};
+var mdgriffith$elm_ui$Element$Input$BeforeFound = {$: 'BeforeFound'};
+var mdgriffith$elm_ui$Element$Input$Idle = {$: 'Idle'};
+var mdgriffith$elm_ui$Element$Input$NotFound = {$: 'NotFound'};
+var mdgriffith$elm_ui$Element$Input$Selected = {$: 'Selected'};
+var mdgriffith$elm_ui$Element$Input$column = F2(
+	function (attributes, children) {
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asColumn,
+			mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					attributes)),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
+var mdgriffith$elm_ui$Element$Input$downArrow = 'ArrowDown';
+var mdgriffith$elm_ui$Element$Input$leftArrow = 'ArrowLeft';
+var mdgriffith$elm_ui$Element$Input$onKeyLookup = function (lookup) {
+	var decode = function (code) {
+		var _n0 = lookup(code);
+		if (_n0.$ === 'Nothing') {
+			return elm$json$Json$Decode$fail('No key matched');
+		} else {
+			var msg = _n0.a;
+			return elm$json$Json$Decode$succeed(msg);
+		}
+	};
+	var isKey = A2(
+		elm$json$Json$Decode$andThen,
+		decode,
+		A2(elm$json$Json$Decode$field, 'key', elm$json$Json$Decode$string));
+	return mdgriffith$elm_ui$Internal$Model$Attr(
+		A2(elm$html$Html$Events$on, 'keyup', isKey));
+};
+var mdgriffith$elm_ui$Element$Input$rightArrow = 'ArrowRight';
+var mdgriffith$elm_ui$Element$Input$row = F2(
+	function (attributes, children) {
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asRow,
+			mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				attributes),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
+var mdgriffith$elm_ui$Element$Input$space = ' ';
+var mdgriffith$elm_ui$Element$Input$tabindex = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Attr, elm$html$Html$Attributes$tabindex);
+var mdgriffith$elm_ui$Element$Input$upArrow = 'ArrowUp';
+var mdgriffith$elm_ui$Element$Input$radioHelper = F3(
+	function (orientation, attrs, input) {
+		var track = F2(
+			function (opt, _n14) {
+				var found = _n14.a;
+				var prev = _n14.b;
+				var nxt = _n14.c;
+				var val = opt.a;
+				switch (found.$) {
+					case 'NotFound':
+						return _Utils_eq(
+							elm$core$Maybe$Just(val),
+							input.selected) ? _Utils_Tuple3(mdgriffith$elm_ui$Element$Input$BeforeFound, prev, nxt) : _Utils_Tuple3(found, val, nxt);
+					case 'BeforeFound':
+						return _Utils_Tuple3(mdgriffith$elm_ui$Element$Input$AfterFound, prev, val);
+					default:
+						return _Utils_Tuple3(found, prev, nxt);
+				}
+			});
+		var renderOption = function (_n11) {
+			var val = _n11.a;
+			var view = _n11.b;
+			var status = _Utils_eq(
+				elm$core$Maybe$Just(val),
+				input.selected) ? mdgriffith$elm_ui$Element$Input$Selected : mdgriffith$elm_ui$Element$Input$Idle;
+			return A2(
+				mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$pointer,
+						function () {
+						if (orientation.$ === 'Row') {
+							return mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink);
+						} else {
+							return mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill);
+						}
+					}(),
+						mdgriffith$elm_ui$Element$Events$onClick(
+						input.onChange(val)),
+						function () {
+						if (status.$ === 'Selected') {
+							return mdgriffith$elm_ui$Internal$Model$Attr(
+								A2(elm$html$Html$Attributes$attribute, 'aria-checked', 'true'));
+						} else {
+							return mdgriffith$elm_ui$Internal$Model$Attr(
+								A2(elm$html$Html$Attributes$attribute, 'aria-checked', 'false'));
+						}
+					}(),
+						mdgriffith$elm_ui$Internal$Model$Attr(
+						A2(elm$html$Html$Attributes$attribute, 'role', 'radio'))
+					]),
+				view(status));
+		};
+		var prevNext = function () {
+			var _n5 = input.options;
+			if (!_n5.b) {
+				return elm$core$Maybe$Nothing;
+			} else {
+				var _n6 = _n5.a;
+				var val = _n6.a;
+				return function (_n7) {
+					var found = _n7.a;
+					var b = _n7.b;
+					var a = _n7.c;
+					switch (found.$) {
+						case 'NotFound':
+							return elm$core$Maybe$Just(
+								_Utils_Tuple2(b, val));
+						case 'BeforeFound':
+							return elm$core$Maybe$Just(
+								_Utils_Tuple2(b, val));
+						default:
+							return elm$core$Maybe$Just(
+								_Utils_Tuple2(b, a));
+					}
+				}(
+					A3(
+						elm$core$List$foldl,
+						track,
+						_Utils_Tuple3(mdgriffith$elm_ui$Element$Input$NotFound, val, val),
+						input.options));
+			}
+		}();
+		var optionArea = function () {
+			if (orientation.$ === 'Row') {
+				return A2(
+					mdgriffith$elm_ui$Element$Input$row,
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$Input$hiddenLabelAttribute(input.label),
+						attrs),
+					A2(elm$core$List$map, renderOption, input.options));
+			} else {
+				return A2(
+					mdgriffith$elm_ui$Element$Input$column,
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$Input$hiddenLabelAttribute(input.label),
+						attrs),
+					A2(elm$core$List$map, renderOption, input.options));
+			}
+		}();
+		var events = A2(
+			mdgriffith$elm_ui$Internal$Model$get,
+			attrs,
+			function (attr) {
+				_n3$3:
+				while (true) {
+					switch (attr.$) {
+						case 'Width':
+							if (attr.a.$ === 'Fill') {
+								return true;
+							} else {
+								break _n3$3;
+							}
+						case 'Height':
+							if (attr.a.$ === 'Fill') {
+								return true;
+							} else {
+								break _n3$3;
+							}
+						case 'Attr':
+							return true;
+						default:
+							break _n3$3;
+					}
+				}
+				return false;
+			});
+		return A3(
+			mdgriffith$elm_ui$Element$Input$applyLabel,
+			_Utils_ap(
+				A2(
+					elm$core$List$filterMap,
+					elm$core$Basics$identity,
+					_List_fromArray(
+						[
+							elm$core$Maybe$Just(mdgriffith$elm_ui$Element$alignLeft),
+							elm$core$Maybe$Just(
+							mdgriffith$elm_ui$Element$Input$tabindex(0)),
+							elm$core$Maybe$Just(
+							mdgriffith$elm_ui$Internal$Model$htmlClass('focus')),
+							elm$core$Maybe$Just(mdgriffith$elm_ui$Element$Region$announce),
+							elm$core$Maybe$Just(
+							mdgriffith$elm_ui$Internal$Model$Attr(
+								A2(elm$html$Html$Attributes$attribute, 'role', 'radiogroup'))),
+							function () {
+							if (prevNext.$ === 'Nothing') {
+								return elm$core$Maybe$Nothing;
+							} else {
+								var _n1 = prevNext.a;
+								var prev = _n1.a;
+								var next = _n1.b;
+								return elm$core$Maybe$Just(
+									mdgriffith$elm_ui$Element$Input$onKeyLookup(
+										function (code) {
+											if (_Utils_eq(code, mdgriffith$elm_ui$Element$Input$leftArrow)) {
+												return elm$core$Maybe$Just(
+													input.onChange(prev));
+											} else {
+												if (_Utils_eq(code, mdgriffith$elm_ui$Element$Input$upArrow)) {
+													return elm$core$Maybe$Just(
+														input.onChange(prev));
+												} else {
+													if (_Utils_eq(code, mdgriffith$elm_ui$Element$Input$rightArrow)) {
+														return elm$core$Maybe$Just(
+															input.onChange(next));
+													} else {
+														if (_Utils_eq(code, mdgriffith$elm_ui$Element$Input$downArrow)) {
+															return elm$core$Maybe$Just(
+																input.onChange(next));
+														} else {
+															if (_Utils_eq(code, mdgriffith$elm_ui$Element$Input$space)) {
+																var _n2 = input.selected;
+																if (_n2.$ === 'Nothing') {
+																	return elm$core$Maybe$Just(
+																		input.onChange(prev));
+																} else {
+																	return elm$core$Maybe$Nothing;
+																}
+															} else {
+																return elm$core$Maybe$Nothing;
+															}
+														}
+													}
+												}
+											}
+										}));
+							}
+						}()
+						])),
+				events),
+			input.label,
+			optionArea);
+	});
+var mdgriffith$elm_ui$Element$Input$radioRow = mdgriffith$elm_ui$Element$Input$radioHelper(mdgriffith$elm_ui$Element$Input$Row);
+var author$project$View$Hash$hashView = function (model) {
+	return A2(
+		mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$Background$image('src/img/hash_background.jpg'),
+				mdgriffith$elm_ui$Element$padding(50)
+			]),
+		A2(
 			mdgriffith$elm_ui$Element$column,
 			_List_fromArray(
 				[
+					mdgriffith$elm_ui$Element$Background$color(author$project$View$Hash$backgroundRgba),
 					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-					mdgriffith$elm_ui$Element$centerX,
-					A2(mdgriffith$elm_ui$Element$paddingXY, 0, 30)
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$padding(40),
+					mdgriffith$elm_ui$Element$spacing(20)
 				]),
 			_List_fromArray(
 				[
+					author$project$View$Navbar$navbar(model),
 					A2(
-					mdgriffith$elm_ui$Element$Input$button,
-					author$project$View$UploadFile$buttonStyling,
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$fillPortion(4)),
+							mdgriffith$elm_ui$Element$centerX,
+							mdgriffith$elm_ui$Element$Font$size(80)
+						]),
+					mdgriffith$elm_ui$Element$text('Hashing Algorithms')),
+					A2(
+					mdgriffith$elm_ui$Element$textColumn,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$fillPortion(3)),
+							mdgriffith$elm_ui$Element$width(
+							A2(mdgriffith$elm_ui$Element$maximum, 800, mdgriffith$elm_ui$Element$fill)),
+							mdgriffith$elm_ui$Element$centerX,
+							mdgriffith$elm_ui$Element$spacing(15)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							mdgriffith$elm_ui$Element$el,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$alignLeft,
+									mdgriffith$elm_ui$Element$Font$size(45),
+									author$project$View$Hash$bigLetterPadding
+								]),
+							mdgriffith$elm_ui$Element$text('A')),
+							A2(
+							mdgriffith$elm_ui$Element$paragraph,
+							_List_Nil,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$text('hash function is any function that can be used to map data of arbitrary size to data of a fixed size. This implementation uses the SHA algorithms. The Secure Hash Algorithms are a family of cryptographic hash functions published by the National Institute of Standards and Technology (NIST) as a U.S. Federal Information Processing Standard (FIPS)'),
+									A2(
+									mdgriffith$elm_ui$Element$newTabLink,
+									_List_fromArray(
+										[
+											mdgriffith$elm_ui$Element$Font$size(10),
+											mdgriffith$elm_ui$Element$Font$color(
+											A3(mdgriffith$elm_ui$Element$rgb, 0, 0, 238))
+										]),
+									{
+										label: mdgriffith$elm_ui$Element$text('[src]'),
+										url: 'https://en.wikipedia.org/wiki/Hash_function'
+									})
+								])),
+							A2(
+							mdgriffith$elm_ui$Element$paragraph,
+							_List_Nil,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$text('In this implementation, you will need to type in your plaintext and select the hash algorithm to implement it with. We will return your hashed data.')
+								]))
+						])),
+					A2(
+					mdgriffith$elm_ui$Element$row,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$spacing(10)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							mdgriffith$elm_ui$Element$Input$multiline,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+								]),
+							{
+								label: A2(
+									mdgriffith$elm_ui$Element$Input$labelAbove,
+									_List_Nil,
+									mdgriffith$elm_ui$Element$text('Plaintext')),
+								onChange: author$project$Msg$UpdateHashPlaintext,
+								placeholder: elm$core$Maybe$Nothing,
+								spellcheck: false,
+								text: A2(elm$core$Debug$log, 'the current hash plaintext is: ', model.caesarModel.plainText)
+							}),
+							A2(
+							mdgriffith$elm_ui$Element$Input$button,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$padding(25),
+									mdgriffith$elm_ui$Element$Border$width(1),
+									mdgriffith$elm_ui$Element$alignBottom
+								]),
+							{
+								label: A2(
+									mdgriffith$elm_ui$Element$el,
+									_List_fromArray(
+										[mdgriffith$elm_ui$Element$centerX]),
+									mdgriffith$elm_ui$Element$text(
+										'Hash using ' + (elm$core$Debug$toString(model.hashModel.algorithm) + ' algorithm'))),
+								onPress: elm$core$Maybe$Just(author$project$Msg$UpdateHashOutput)
+							})
+						])),
+					A2(
+					mdgriffith$elm_ui$Element$Input$radioRow,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$spacing(12)
+						]),
 					{
-						label: mdgriffith$elm_ui$Element$text('Select a .txt file'),
-						onPress: elm$core$Maybe$Just(author$project$Msg$ReqFile)
+						label: A2(
+							mdgriffith$elm_ui$Element$Input$labelAbove,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$Font$size(14),
+									A2(mdgriffith$elm_ui$Element$paddingXY, 0, 12)
+								]),
+							mdgriffith$elm_ui$Element$text('Please select your hash')),
+						onChange: author$project$Msg$UpdateHashAlgorithm,
+						options: _List_fromArray(
+							[
+								A2(
+								mdgriffith$elm_ui$Element$Input$option,
+								author$project$Model$Sha224,
+								mdgriffith$elm_ui$Element$text('Sha224')),
+								A2(
+								mdgriffith$elm_ui$Element$Input$option,
+								author$project$Model$Sha256,
+								mdgriffith$elm_ui$Element$text('Sha256')),
+								A2(
+								mdgriffith$elm_ui$Element$Input$option,
+								author$project$Model$Sha384,
+								mdgriffith$elm_ui$Element$text('Sha384')),
+								A2(
+								mdgriffith$elm_ui$Element$Input$option,
+								author$project$Model$Sha512,
+								mdgriffith$elm_ui$Element$text('Sha512')),
+								A2(
+								mdgriffith$elm_ui$Element$Input$option,
+								author$project$Model$Sha512_224,
+								mdgriffith$elm_ui$Element$text('Sha512_224')),
+								A2(
+								mdgriffith$elm_ui$Element$Input$option,
+								author$project$Model$Sha512_256,
+								mdgriffith$elm_ui$Element$text('Sha512_256'))
+							]),
+						selected: elm$core$Maybe$Just(model.hashModel.algorithm)
 					}),
 					A2(
+					mdgriffith$elm_ui$Element$textColumn,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$fillPortion(3)),
+							mdgriffith$elm_ui$Element$padding(20),
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$centerY
+						]),
+					_List_fromArray(
+						[
+							A2(
+							mdgriffith$elm_ui$Element$el,
+							_List_fromArray(
+								[mdgriffith$elm_ui$Element$centerY]),
+							mdgriffith$elm_ui$Element$text('Your hash:')),
+							(model.hashModel.outputHash === '') ? A2(
+							mdgriffith$elm_ui$Element$el,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$height(
+									mdgriffith$elm_ui$Element$px(21))
+								]),
+							mdgriffith$elm_ui$Element$none) : A2(
+							mdgriffith$elm_ui$Element$paragraph,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+								]),
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$text(model.hashModel.outputHash)
+								]))
+						]))
+				])));
+};
+var author$project$View$Home$backgroundRgba = A4(mdgriffith$elm_ui$Element$rgba, 255, 255, 255, 0.8);
+var author$project$View$Home$homeView = function (model) {
+	return A2(
+		mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$Background$image('src/img/home_background.jpg'),
+				mdgriffith$elm_ui$Element$padding(50)
+			]),
+		A2(
+			mdgriffith$elm_ui$Element$column,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$Background$color(author$project$View$Home$backgroundRgba),
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$padding(40)
+				]),
+			_List_fromArray(
+				[
+					author$project$View$Navbar$navbar(model),
+					A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$fillPortion(5))
+						]),
+					mdgriffith$elm_ui$Element$none),
+					A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$fillPortion(5)),
+							mdgriffith$elm_ui$Element$centerX,
+							mdgriffith$elm_ui$Element$Font$size(80)
+						]),
+					mdgriffith$elm_ui$Element$text('CRYPTOGRAPHY')),
+					A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$fillPortion(4)),
+							mdgriffith$elm_ui$Element$centerX,
+							mdgriffith$elm_ui$Element$Font$size(20)
+						]),
+					A2(
+						mdgriffith$elm_ui$Element$row,
+						_List_Nil,
+						_List_fromArray(
+							[
+								mdgriffith$elm_ui$Element$text('Made with love by Joshua Ji and '),
+								A2(
+								mdgriffith$elm_ui$Element$newTabLink,
+								_List_fromArray(
+									[
+										mdgriffith$elm_ui$Element$Font$color(
+										A3(mdgriffith$elm_ui$Element$rgb, 0, 0, 238))
+									]),
+								{
+									label: mdgriffith$elm_ui$Element$text('the Elm Language'),
+									url: 'https://elm-lang.org/'
+								})
+							])))
+				])));
+};
+var author$project$Msg$DecodeViginere = {$: 'DecodeViginere'};
+var author$project$Msg$EncodeViginere = {$: 'EncodeViginere'};
+var author$project$Msg$ViginereKey = function (a) {
+	return {$: 'ViginereKey', a: a};
+};
+var author$project$Msg$ViginerePlainText = function (a) {
+	return {$: 'ViginerePlainText', a: a};
+};
+var author$project$View$Viginere$backgroundRgba = A4(mdgriffith$elm_ui$Element$rgba, 255, 255, 255, 0.8);
+var author$project$View$Viginere$bigLetterPadding = mdgriffith$elm_ui$Element$paddingEach(
+	{bottom: 0, left: 0, right: 10, top: 0});
+var author$project$View$Viginere$viginereView = function (model) {
+	return A2(
+		mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$Background$image('src/img/viginere_background.jpg'),
+				mdgriffith$elm_ui$Element$padding(50)
+			]),
+		A2(
+			mdgriffith$elm_ui$Element$column,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$Background$color(author$project$View$Viginere$backgroundRgba),
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$padding(40),
+					mdgriffith$elm_ui$Element$spacing(20)
+				]),
+			_List_fromArray(
+				[
+					author$project$View$Navbar$navbar(model),
+					A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$fillPortion(5)),
+							mdgriffith$elm_ui$Element$centerX,
+							mdgriffith$elm_ui$Element$Font$size(80)
+						]),
+					mdgriffith$elm_ui$Element$text('Viginere Cipher')),
+					A2(
+					mdgriffith$elm_ui$Element$textColumn,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$fillPortion(3)),
+							mdgriffith$elm_ui$Element$width(
+							A2(mdgriffith$elm_ui$Element$maximum, 800, mdgriffith$elm_ui$Element$fill)),
+							mdgriffith$elm_ui$Element$centerX,
+							mdgriffith$elm_ui$Element$spacing(15)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							mdgriffith$elm_ui$Element$el,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$alignLeft,
+									mdgriffith$elm_ui$Element$Font$size(45),
+									author$project$View$Viginere$bigLetterPadding
+								]),
+							mdgriffith$elm_ui$Element$text('T')),
+							A2(
+							mdgriffith$elm_ui$Element$paragraph,
+							_List_Nil,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$text('he Vigenère cipher (French pronunciation: \u200b[viʒnɛːʁ]) is a method of encrypting alphabetic text by using a series of interwoven Caesar ciphers, based on the letters of a keyword. It is a form of polyalphabetic substitution.'),
+									A2(
+									mdgriffith$elm_ui$Element$newTabLink,
+									_List_fromArray(
+										[
+											mdgriffith$elm_ui$Element$Font$size(10),
+											mdgriffith$elm_ui$Element$Font$color(
+											A3(mdgriffith$elm_ui$Element$rgb, 0, 0, 238))
+										]),
+									{
+										label: mdgriffith$elm_ui$Element$text('[src]'),
+										url: 'https://en.wikipedia.org/wiki/Vigen%C3%A8re_cipher'
+									})
+								])),
+							A2(
+							mdgriffith$elm_ui$Element$paragraph,
+							_List_Nil,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$text('In this implementation, you will need to type in your key and your message to encode. We will do the rest for you.')
+								]))
+						])),
+					A2(
+					mdgriffith$elm_ui$Element$row,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$centerX,
+							mdgriffith$elm_ui$Element$spacing(10)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							mdgriffith$elm_ui$Element$Input$text,
+							_List_Nil,
+							{
+								label: A2(
+									mdgriffith$elm_ui$Element$Input$labelAbove,
+									_List_Nil,
+									mdgriffith$elm_ui$Element$text('Plaintext')),
+								onChange: author$project$Msg$ViginerePlainText,
+								placeholder: elm$core$Maybe$Nothing,
+								text: model.viginereModel.plainText
+							}),
+							A2(
+							mdgriffith$elm_ui$Element$Input$text,
+							_List_Nil,
+							{
+								label: A2(
+									mdgriffith$elm_ui$Element$Input$labelAbove,
+									_List_Nil,
+									mdgriffith$elm_ui$Element$text('Key')),
+								onChange: author$project$Msg$ViginereKey,
+								placeholder: elm$core$Maybe$Nothing,
+								text: model.viginereModel.key
+							}),
+							A2(
+							mdgriffith$elm_ui$Element$Input$button,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$padding(15),
+									mdgriffith$elm_ui$Element$Border$width(1),
+									mdgriffith$elm_ui$Element$alignBottom
+								]),
+							{
+								label: A2(
+									mdgriffith$elm_ui$Element$el,
+									_List_fromArray(
+										[mdgriffith$elm_ui$Element$centerX]),
+									mdgriffith$elm_ui$Element$text('Encrypt')),
+								onPress: (model.viginereModel.key === '') ? elm$core$Maybe$Nothing : elm$core$Maybe$Just(author$project$Msg$EncodeViginere)
+							}),
+							A2(
+							mdgriffith$elm_ui$Element$Input$button,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$padding(15),
+									mdgriffith$elm_ui$Element$Border$width(1),
+									mdgriffith$elm_ui$Element$alignBottom
+								]),
+							{
+								label: A2(
+									mdgriffith$elm_ui$Element$el,
+									_List_fromArray(
+										[mdgriffith$elm_ui$Element$centerX]),
+									mdgriffith$elm_ui$Element$text('Decrypt')),
+								onPress: (model.viginereModel.key === '') ? elm$core$Maybe$Nothing : elm$core$Maybe$Just(author$project$Msg$DecodeViginere)
+							})
+						])),
+					(model.viginereModel.cypheredText === '') ? A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$px(100))
+						]),
+					mdgriffith$elm_ui$Element$none) : A2(
 					mdgriffith$elm_ui$Element$el,
 					_List_fromArray(
 						[
 							mdgriffith$elm_ui$Element$centerX,
-							mdgriffith$elm_ui$Element$padding(10)
+							mdgriffith$elm_ui$Element$padding(20),
+							mdgriffith$elm_ui$Element$Font$size(60)
 						]),
-					mdgriffith$elm_ui$Element$text('No .txt file selected'))
-				]));
-	}
-};
-var author$project$View$UploadFile$uploadTextFileView = function (model) {
-	return A2(
-		mdgriffith$elm_ui$Element$column,
-		_List_fromArray(
-			[
-				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-				mdgriffith$elm_ui$Element$padding(20)
-			]),
-		_List_fromArray(
-			[
-				author$project$View$Navbar$navbar(model),
-				author$project$View$UploadFile$ifFileSelected(model),
-				author$project$View$UploadFile$dataTable(model)
-			]));
+					mdgriffith$elm_ui$Element$text(model.viginereModel.cypheredText))
+				])));
 };
 var mdgriffith$elm_ui$Internal$Model$FocusStyleOption = function (a) {
 	return {$: 'FocusStyleOption', a: a};
@@ -13196,15 +14953,6 @@ var mdgriffith$elm_ui$Element$layoutWith = F3(
 				_Utils_ap(mdgriffith$elm_ui$Internal$Model$rootStyle, attrs)),
 			child);
 	});
-var mdgriffith$elm_ui$Internal$Model$ImportFont = F2(
-	function (a, b) {
-		return {$: 'ImportFont', a: a, b: b};
-	});
-var mdgriffith$elm_ui$Element$Font$external = function (_n0) {
-	var url = _n0.url;
-	var name = _n0.name;
-	return A2(mdgriffith$elm_ui$Internal$Model$ImportFont, name, url);
-};
 var mdgriffith$elm_ui$Element$Font$family = function (families) {
 	return A2(
 		mdgriffith$elm_ui$Internal$Model$StyleClass,
@@ -13214,7 +14962,8 @@ var mdgriffith$elm_ui$Element$Font$family = function (families) {
 			A3(elm$core$List$foldl, mdgriffith$elm_ui$Internal$Model$renderFontClassName, 'ff-', families),
 			families));
 };
-var mdgriffith$elm_ui$Element$Font$sansSerif = mdgriffith$elm_ui$Internal$Model$SansSerif;
+var mdgriffith$elm_ui$Internal$Model$Monospace = {$: 'Monospace'};
+var mdgriffith$elm_ui$Element$Font$monospace = mdgriffith$elm_ui$Internal$Model$Monospace;
 var author$project$View$view = function (model) {
 	return A3(
 		mdgriffith$elm_ui$Element$layoutWith,
@@ -13228,23 +14977,19 @@ var author$project$View$view = function (model) {
 			[
 				mdgriffith$elm_ui$Element$Font$family(
 				_List_fromArray(
-					[
-						mdgriffith$elm_ui$Element$Font$external(
-						{name: 'Lato', url: 'https://fonts.googleapis.com/css?family=Lato'}),
-						mdgriffith$elm_ui$Element$Font$sansSerif
-					])),
-				mdgriffith$elm_ui$Element$Font$color(author$project$Colours$fontColour),
-				mdgriffith$elm_ui$Element$Background$color(author$project$Colours$appBackgroundGray)
+					[mdgriffith$elm_ui$Element$Font$monospace]))
 			]),
 		function () {
 			var _n0 = model.directory;
 			switch (_n0.$) {
 				case 'HomePage':
-					return author$project$View$Home$homePageView(model);
-				case 'InputStringPage':
-					return author$project$View$InputString$inputStringView(model);
+					return author$project$View$Home$homeView(model);
+				case 'CaesarPage':
+					return author$project$View$Caesar$caesarView(model);
+				case 'ViginerePage':
+					return author$project$View$Viginere$viginereView(model);
 				default:
-					return author$project$View$UploadFile$uploadTextFileView(model);
+					return author$project$View$Hash$hashView(model);
 			}
 		}());
 };
@@ -13266,7 +15011,87 @@ var elm$core$Basics$never = function (_n0) {
 		continue never;
 	}
 };
+var elm$core$Task$Perform = function (a) {
+	return {$: 'Perform', a: a};
+};
+var elm$core$Task$succeed = _Scheduler_succeed;
+var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
+var elm$core$Task$andThen = _Scheduler_andThen;
+var elm$core$Task$map = F2(
+	function (func, taskA) {
+		return A2(
+			elm$core$Task$andThen,
+			function (a) {
+				return elm$core$Task$succeed(
+					func(a));
+			},
+			taskA);
+	});
+var elm$core$Task$map2 = F3(
+	function (func, taskA, taskB) {
+		return A2(
+			elm$core$Task$andThen,
+			function (a) {
+				return A2(
+					elm$core$Task$andThen,
+					function (b) {
+						return elm$core$Task$succeed(
+							A2(func, a, b));
+					},
+					taskB);
+			},
+			taskA);
+	});
+var elm$core$Task$sequence = function (tasks) {
+	return A3(
+		elm$core$List$foldr,
+		elm$core$Task$map2(elm$core$List$cons),
+		elm$core$Task$succeed(_List_Nil),
+		tasks);
+};
+var elm$core$Platform$sendToApp = _Platform_sendToApp;
+var elm$core$Task$spawnCmd = F2(
+	function (router, _n0) {
+		var task = _n0.a;
+		return _Scheduler_spawn(
+			A2(
+				elm$core$Task$andThen,
+				elm$core$Platform$sendToApp(router),
+				task));
+	});
+var elm$core$Task$onEffects = F3(
+	function (router, commands, state) {
+		return A2(
+			elm$core$Task$map,
+			function (_n0) {
+				return _Utils_Tuple0;
+			},
+			elm$core$Task$sequence(
+				A2(
+					elm$core$List$map,
+					elm$core$Task$spawnCmd(router),
+					commands)));
+	});
+var elm$core$Task$onSelfMsg = F3(
+	function (_n0, _n1, _n2) {
+		return elm$core$Task$succeed(_Utils_Tuple0);
+	});
+var elm$core$Task$cmdMap = F2(
+	function (tagger, _n0) {
+		var task = _n0.a;
+		return elm$core$Task$Perform(
+			A2(elm$core$Task$map, tagger, task));
+	});
+_Platform_effectManagers['Task'] = _Platform_createManager(elm$core$Task$init, elm$core$Task$onEffects, elm$core$Task$onSelfMsg, elm$core$Task$cmdMap);
+var elm$core$Task$command = _Platform_leaf('Task');
+var elm$core$Task$perform = F2(
+	function (toMessage, task) {
+		return elm$core$Task$command(
+			elm$core$Task$Perform(
+				A2(elm$core$Task$map, toMessage, task)));
+	});
 var elm$core$String$length = _String_length;
+var elm$core$String$slice = _String_slice;
 var elm$core$String$dropLeft = F2(
 	function (n, string) {
 		return (n < 1) ? string : A3(
@@ -13282,8 +15107,11 @@ var elm$core$String$indexes = _String_indexes;
 var elm$core$String$isEmpty = function (string) {
 	return string === '';
 };
+var elm$core$String$left = F2(
+	function (n, string) {
+		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
+	});
 var elm$core$String$contains = _String_contains;
-var elm$core$String$toInt = _String_toInt;
 var elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
 		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
@@ -13402,12 +15230,3 @@ var author$project$Main$main = elm$browser$Browser$element(
 	});
 _Platform_export({'Main':{'init':author$project$Main$main(
 	elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
-
-var app = Elm.Main.init({ node: document.getElementById("elm-f0111bc4e658d0f98db96260c16f7e49") });
-if (document.getElementById("elm-f0111bc4e658d0f98db96260c16f7e49"))
-{
-  document.getElementById("elm-f0111bc4e658d0f98db96260c16f7e49").innerText = 'This is a headless program, meaning there is nothing to show here.\n\nI started the program anyway though, and you can access it as `app` in the developer console.';
-}
-</script>
-</body>
-</html>
