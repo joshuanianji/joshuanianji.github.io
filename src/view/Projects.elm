@@ -7,11 +7,11 @@ import View.Project as Project exposing (Project)
 
 
 {-
-      Elm-ui does not have a "percent padding" thing which would be really useful here. For example, I can't get a 50% padding because I would have to use pixels. Thus, I am going to use fillPortion, which works a bit like bootstrap where they will designate a specified ratio of the width of each element with the fillPortion.
+      Elm-ui does not have a "percent padding" attribute which would be really useful here. For example, I can't get a 50% padding because I have to use pixels. Thus, I am going to use fillPortion, which works a bit like bootstrap where they will designate a specified ratio of the width of each element with the fillPortion.
 
       Hypothetically, let's say I have (fillPadding, fillContent) as (1, 2) because the padding is symmetrical on both sides.
       The Element.fillPortion will be 1 for the padding,
-      and the Elemenet.fillPortion will be 2 for the content
+      and the Element.fillPortion will be 2 for the content
    This means:
 
       | -- padding -- | --         content         --| -- padding -- |
@@ -155,7 +155,7 @@ projectList =
       , aboutLink = "https://joshuaji.com/src/post/cryptography.emu"
       , githubLink = "https://github.com/joshuanianji/Cryptography"
       , link = "https://joshuaji.com/projects/cryptography"
-      , year = 2019
+      , year = 2018
       }
     ]
 
