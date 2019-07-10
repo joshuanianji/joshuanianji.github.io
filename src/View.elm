@@ -1,5 +1,6 @@
-module View exposing (view)
+module View exposing (viewApplication)
 
+import Browser
 import Element exposing (DeviceClass(..), Element, FocusStyle, Orientation(..))
 import Element.Font as Font
 import FontAwesome.Styles
@@ -13,6 +14,44 @@ import View.NotFound as NotFound
 import View.Post as Post
 import View.Projects as Projects
 import View.Resume as Resume
+
+
+
+-- I used Browser.Application and they want me to use a different kind of view function (see Main.elm) so I need to wrap my view in this function
+
+
+viewApplication : Model -> Browser.Document Msg
+viewApplication model =
+    { title = tabBarTitle model
+    , body = [ view model ]
+    }
+
+
+
+-- title of our app (shows in tab bar)
+
+
+tabBarTitle : Model -> String
+tabBarTitle model =
+    case model.router.route of
+        Home ->
+            "Joshua's Website"
+
+        Resume ->
+            "Resume"
+
+        Projects ->
+            "Projects"
+
+        Post ->
+            "Post"
+
+        NotFound ->
+            "Oops"
+
+
+
+-- basically everything inside the <body> tag
 
 
 view : Model -> Html Msg
