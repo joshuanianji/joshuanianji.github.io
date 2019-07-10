@@ -1,6 +1,6 @@
 # My Website
 
-The source code for my website, written in Elm.
+The source code for my [website](joshuaji.com), written in Elm.
 
 ## Run Locally
 
