@@ -183,7 +183,7 @@ aboutContent model =
     in
     Element.textColumn
         [ Font.size fontSize
-        , Element.spacing 10
+        , Element.spacing 15
         ]
         [ Element.paragraph [] [ Element.text "my name is Joshua Ji." ]
         , Element.paragraph [] [ Element.text "I am a 17 year old high school student passionate about Computer Science." ]

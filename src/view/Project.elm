@@ -13,6 +13,7 @@ import FontAwesome.Brands
 import FontAwesome.Solid
 import Icon
 import Model exposing (Msg(..))
+import Routes exposing (Route(..))
 import Text
 
 
@@ -106,7 +107,7 @@ iconRow project =
         ]
         [ linkWrap project.githubLink <|
             iconWrapper (Icon.view FontAwesome.Brands.github)
-        , blogLinkWrap project.aboutLink <|
+        , postLinkWrap project.aboutLink <|
             iconWrapper (Icon.view FontAwesome.Solid.info)
         , linkWrap project.link <|
             iconWrapper (Icon.view FontAwesome.Solid.link)
@@ -146,13 +147,19 @@ linkWrap link icon =
 -- same thing as linkWrap but it redirects to the blog page
 
 
-blogLinkWrap : String -> Element Msg -> Element Msg
-blogLinkWrap link icon =
+postLinkWrap : String -> Element Msg -> Element Msg
+postLinkWrap link icon =
+    let
+        -- the filename is just the name of the .emu file without the .emu
+        fileName =
+            Routes.getFileName link
+                |> Maybe.withDefault "oof"
+    in
     Element.el
         [ Element.width Element.fill
         , Element.height Element.fill
         , Element.pointer
-        , Element.Events.onClick (HttpRequest link)
+        , Element.Events.onClick (NavigateTo (Post fileName))
         , Element.mouseOver [ Font.color Colour.gray ]
         ]
         icon

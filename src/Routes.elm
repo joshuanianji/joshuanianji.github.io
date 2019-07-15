@@ -1,11 +1,12 @@
-module Routes exposing (Route(..), fromUrl, toUrlString, urlParser)
+module Routes exposing (Route(..), fromUrl, getFileName, toEmuUrl, toUrlString, urlParser)
 
 {-
    This module is mainly for defining the types and functions used by the Router module. It's like the younger and prettier sister of the Router but at the same time dumber and more useless
 -}
 
+import Parser exposing ((|.))
 import Url
-import Url.Parser as Url exposing ((</>), Parser)
+import Url.Parser as Url exposing ((</>))
 
 
 
@@ -16,8 +17,55 @@ type Route
     = Home
     | Resume
     | Projects
-    | Post
+    | Post String -- String is the name of the .emu file (without the .emu)
     | NotFound
+
+
+
+-- convert the emu filename to the url
+
+
+toEmuUrl : String -> String
+toEmuUrl string =
+    "https://joshuaji.com/src/post/" ++ string ++ ".emu"
+
+
+
+-- get file name from the EmuLink (e.g. https://joshuaji.com/src/post/cryptography.emu -> Just cryptography). I think I should be able to do this with just the Url parser but I'll fix it later.
+
+
+getFileName : String -> Maybe String
+getFileName link =
+    -- convert to URL record
+    Url.fromString link
+        -- get the emu file name
+        |> Maybe.andThen emuPathParser
+        -- strip off the .emu at the end of the file
+        |> Maybe.andThen emuFileParser
+
+
+
+-- from the Url -> cryptography.emu
+
+
+emuPathParser : Url.Url -> Maybe String
+emuPathParser =
+    Url.parse (Url.s "src" </> Url.s "post" </> Url.string)
+
+
+
+-- from cryptography.emu -> cryptography
+
+
+emuFileParser : String -> Maybe String
+emuFileParser file =
+    Parser.succeed ()
+        |. Parser.chompWhile (\c -> not (c == '.'))
+        |> Parser.getChompedString
+        |> (\parser ->
+                Parser.run parser file
+           )
+        |> Result.toMaybe
 
 
 
@@ -54,8 +102,8 @@ toUrlString route =
                 Projects ->
                     [ "projects" ]
 
-                Post ->
-                    [ "post" ]
+                Post link ->
+                    [ "post", link ]
 
                 -- I have a suspiction that this doesn't get used
                 NotFound ->
@@ -68,7 +116,7 @@ toUrlString route =
 -- parses URL into a route
 
 
-urlParser : Parser (Route -> a) a
+urlParser : Url.Parser (Route -> a) a
 urlParser =
     -- We try to match one of the following URLs
     Url.oneOf
@@ -80,13 +128,5 @@ urlParser =
 
         -- Again, Url.s matches a string. </> matches a '/' in the URL, and Url.int matches any integer and "returns" it, so that the user page value gets the user ID
         , Url.map Projects (Url.s "projects")
-        , Url.map Post (Url.s "post")
+        , Url.map Post (Url.s "post" </> Url.string)
         ]
-
-
-
-{-
-   HINT FOR LATER USE
-   -- Again, Url.s matches a string. </> matches a '/' in the URL, and Url.int matches any integer and "returns" it, so that the user page value gets the user ID
-       , Url.map Projects (Url.s "user" </> Url.int)
--}

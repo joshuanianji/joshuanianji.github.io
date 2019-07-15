@@ -34,7 +34,7 @@ update model msg =
     case msg of
         UrlChanged url ->
             -- handles the Url changes
-            ( { model | route = Routes.fromUrl url |> Debug.log "url" }
+            ( { model | route = Routes.fromUrl url }
             , Cmd.none
             )
 

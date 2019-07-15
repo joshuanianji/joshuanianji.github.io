@@ -1,8 +1,6 @@
-module Model exposing (Flags, Model, Msg(..), init, subscriptions, update)
+module Model exposing (Flags, Model, Msg(..), WindowSize, init)
 
 import Browser exposing (UrlRequest(..))
-import Browser.Dom
-import Browser.Events
 import Browser.Navigation as Nav
 import Element exposing (Device)
 import Http
@@ -79,87 +77,5 @@ type Msg
     | UrlRequest UrlRequest
     | RouterMsg Router.Msg
     | WindowResize WindowSize
-    | HttpRequest String -- Http.get the source at that url
-    | GotSrc (Result Http.Error String)
-
-
-
--- UPDATE
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        NavigateTo route ->
-            -- when the link be clicking
-            updateRouter model (Router.NavigateTo route)
-
-        UrlChange url ->
-            -- handle url changes not made by us
-            updateRouter model (Router.UrlChanged url)
-
-        UrlRequest urlRequest ->
-            case urlRequest of
-                Browser.Internal url ->
-                    update (NavigateTo (url |> Routes.fromUrl) |> Debug.log "internal url") model
-
-                Browser.External url ->
-                    ( model, Nav.load url |> Debug.log "external url" )
-
-        RouterMsg routerMsg ->
-            -- to handle messages created by the router
-            updateRouter model routerMsg
-
-        -- every time the page reloads
-        WindowResize windowSize ->
-            ( { model | device = Element.classifyDevice windowSize |> Debug.log "Device" }, Cmd.none )
-
-        -- when we're requesting a .emu file via http
-        HttpRequest src ->
-            ( model
-            , Http.get
-                { url = src
-                , expect = Http.expectString GotSrc
-                }
-            )
-
-        -- after we've gotten the .emu file
-        GotSrc result ->
-            update (NavigateTo Post) <|
-                case result of
-                    Ok src ->
-                        { model | blogSource = Just src }
-
-                    Err err ->
-                        let
-                            _ =
-                                Debug.log "err" err
-                        in
-                        model
-
-
-
--- how to update the router
-
-
-updateRouter : Model -> Router.Msg -> ( Model, Cmd Msg )
-updateRouter model routerMsg =
-    let
-        ( routerModel, routerCmd ) =
-            Router.update model.router routerMsg
-    in
-    ( { model | router = routerModel }
-    , Cmd.map RouterMsg routerCmd
-    )
-
-
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Browser.Events.onResize
-        (\x y ->
-            WindowResize (WindowSize x y)
-        )
+    | HttpRequest String String -- first string is file name, second string is the URL we're getting the .emu file string from
+    | GotSrc String (Result Http.Error String) -- we carry the markdown string and the .emu file name with it

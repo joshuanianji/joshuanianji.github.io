@@ -43,8 +43,8 @@ tabBarTitle model =
         Projects ->
             "Projects"
 
-        Post ->
-            "Post"
+        Post fileName ->
+            "Post " ++ fileName
 
         NotFound ->
             "Oops"
@@ -130,7 +130,7 @@ content model =
         Projects ->
             Projects.view model
 
-        Post ->
+        Post fileName ->
             Post.view model
 
         NotFound ->
