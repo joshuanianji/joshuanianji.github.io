@@ -13,7 +13,7 @@ import View.BlogPost as BlogPost
 
 view : Model -> Element Msg
 view model =
-    case model.blogSource of
+    case model.router.blogSource of
         Nothing ->
             Element.text "Source not received yet"
 

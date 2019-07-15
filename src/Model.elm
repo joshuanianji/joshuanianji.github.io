@@ -33,14 +33,13 @@ type alias WindowSize =
 
        router : Holds the Router model
        device: what device the consumer is using
-       blogSource: the markup string if we're in the blog page / project info page
+       blogUrl : the Url to the the blog page (because we'll have to remember this when we change pages)
 -}
 
 
 type alias Model =
     { router : Router.Model
     , device : Device
-    , blogSource : Maybe String
     }
 
 
@@ -63,7 +62,6 @@ initModel : Flags -> Url -> Nav.Key -> Model
 initModel flags url key =
     { router = Router.init url key
     , device = Element.classifyDevice flags |> Debug.log "device"
-    , blogSource = Nothing
     }
 
 

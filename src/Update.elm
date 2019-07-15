@@ -13,11 +13,11 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NavigateTo route ->
-            -- otherwise, we just go directly to changing the url
+            -- pass it to the router to navigate for us
             updateRouter model (Router.NavigateTo route)
 
         UrlChange url ->
-            -- handle url changes not made by us
+            -- handling url changes
             updateRouter model (Router.UrlChanged url)
 
         UrlRequest urlRequest ->
