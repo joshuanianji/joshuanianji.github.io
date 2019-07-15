@@ -6,4 +6,4 @@ I will also add the html files of my projects inside the project/ folder as I ga
 
 ## Routing Branch
 
-I 'm making this branch to test out routing because modulating the projects folder does not work lmao.
+I'm making this branch to test out routing because modulating the projects folder does not work lmao.
