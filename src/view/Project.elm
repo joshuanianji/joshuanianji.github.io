@@ -1,7 +1,7 @@
 module View.Project exposing (Project, view)
 
 {-
-   For the project modules in the Projects page
+   To crewate each project module in the Projects page
 -}
 
 import Colour
