@@ -5697,6 +5697,7 @@ var author$project$Routes$fromUrl = function (url) {
 var author$project$Router$init = F2(
 	function (url, key) {
 		return {
+			blogSource: elm$core$Maybe$Nothing,
 			navKey: key,
 			route: author$project$Routes$fromUrl(url)
 		};
@@ -5719,7 +5720,6 @@ var mdgriffith$elm_ui$Element$classifyDevice = function (window) {
 var author$project$Model$initModel = F3(
 	function (flags, url, key) {
 		return {
-			blogSource: elm$core$Maybe$Nothing,
 			device: A2(
 				elm$core$Debug$log,
 				'device',
@@ -6646,14 +6646,6 @@ var author$project$Subscriptions$subscriptions = function (model) {
 					A2(author$project$Model$WindowSize, x, y));
 			}));
 };
-var author$project$Model$GotSrc = F2(
-	function (a, b) {
-		return {$: 'GotSrc', a: a, b: b};
-	});
-var author$project$Model$HttpRequest = F2(
-	function (a, b) {
-		return {$: 'HttpRequest', a: a, b: b};
-	});
 var author$project$Model$NavigateTo = function (a) {
 	return {$: 'NavigateTo', a: a};
 };
@@ -6663,11 +6655,19 @@ var author$project$Router$NavigateTo = function (a) {
 var author$project$Router$UrlChanged = function (a) {
 	return {$: 'UrlChanged', a: a};
 };
-var author$project$Routes$toEmuUrl = function (string) {
-	return 'https://joshuaji.com/src/post/' + (string + '.emu');
-};
 var author$project$Model$RouterMsg = function (a) {
 	return {$: 'RouterMsg', a: a};
+};
+var author$project$Router$GotSrc = F2(
+	function (a, b) {
+		return {$: 'GotSrc', a: a, b: b};
+	});
+var author$project$Router$HttpRequest = F2(
+	function (a, b) {
+		return {$: 'HttpRequest', a: a, b: b};
+	});
+var author$project$Routes$toEmuUrl = function (string) {
+	return 'https://joshuaji.com/src/post/' + (string + '.emu');
 };
 var author$project$Routes$toUrlString = function (route) {
 	var pieces = function () {
@@ -6692,40 +6692,6 @@ var author$project$Routes$toUrlString = function (route) {
 	return '#/' + A2(elm$core$String$join, '/', pieces);
 };
 var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
-var author$project$Router$update = F2(
-	function (model, msg) {
-		if (msg.$ === 'UrlChanged') {
-			var url = msg.a;
-			return _Utils_Tuple2(
-				_Utils_update(
-					model,
-					{
-						route: author$project$Routes$fromUrl(url)
-					}),
-				elm$core$Platform$Cmd$none);
-		} else {
-			var route = msg.a;
-			return _Utils_Tuple2(
-				model,
-				A2(
-					elm$browser$Browser$Navigation$pushUrl,
-					model.navKey,
-					author$project$Routes$toUrlString(route)));
-		}
-	});
-var elm$core$Platform$Cmd$map = _Platform_map;
-var author$project$Update$updateRouter = F2(
-	function (model, routerMsg) {
-		var _n0 = A2(author$project$Router$update, model.router, routerMsg);
-		var routerModel = _n0.a;
-		var routerCmd = _n0.b;
-		return _Utils_Tuple2(
-			_Utils_update(
-				model,
-				{router: routerModel}),
-			A2(elm$core$Platform$Cmd$map, author$project$Model$RouterMsg, routerCmd));
-	});
-var elm$browser$Browser$Navigation$load = _Browser_load;
 var elm$core$Basics$composeR = F3(
 	function (f, g, x) {
 		return g(
@@ -6981,6 +6947,80 @@ var elm$http$Http$get = function (r) {
 	return elm$http$Http$request(
 		{body: elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: elm$core$Maybe$Nothing, tracker: elm$core$Maybe$Nothing, url: r.url});
 };
+var author$project$Router$update = F2(
+	function (model, msg) {
+		update:
+		while (true) {
+			switch (msg.$) {
+				case 'UrlChanged':
+					var url = msg.a;
+					var route = author$project$Routes$fromUrl(url);
+					if (route.$ === 'Post') {
+						var fileName = route.a;
+						var emuSrc = author$project$Routes$toEmuUrl(fileName);
+						var $temp$model = model,
+							$temp$msg = A2(author$project$Router$HttpRequest, fileName, emuSrc);
+						model = $temp$model;
+						msg = $temp$msg;
+						continue update;
+					} else {
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{route: route}),
+							elm$core$Platform$Cmd$none);
+					}
+				case 'NavigateTo':
+					var route = msg.a;
+					var url = author$project$Routes$toUrlString(route);
+					return _Utils_Tuple2(
+						model,
+						A2(elm$browser$Browser$Navigation$pushUrl, model.navKey, url));
+				case 'HttpRequest':
+					var fileName = msg.a;
+					var emuSrc = msg.b;
+					return _Utils_Tuple2(
+						model,
+						elm$http$Http$get(
+							{
+								expect: elm$http$Http$expectString(
+									author$project$Router$GotSrc(fileName)),
+								url: emuSrc
+							}));
+				default:
+					var fileName = msg.a;
+					var result = msg.b;
+					if (result.$ === 'Ok') {
+						var markdown = result.a;
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{
+									blogSource: elm$core$Maybe$Just(markdown),
+									route: author$project$Routes$Post(fileName)
+								}),
+							elm$core$Platform$Cmd$none);
+					} else {
+						var err = result.a;
+						var _n3 = A2(elm$core$Debug$log, 'err', err);
+						return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+					}
+			}
+		}
+	});
+var elm$core$Platform$Cmd$map = _Platform_map;
+var author$project$Update$updateRouter = F2(
+	function (model, routerMsg) {
+		var _n0 = A2(author$project$Router$update, model.router, routerMsg);
+		var routerModel = _n0.a;
+		var routerCmd = _n0.b;
+		return _Utils_Tuple2(
+			_Utils_update(
+				model,
+				{router: routerModel}),
+			A2(elm$core$Platform$Cmd$map, author$project$Model$RouterMsg, routerCmd));
+	});
+var elm$browser$Browser$Navigation$load = _Browser_load;
 var author$project$Update$update = F2(
 	function (msg, model) {
 		update:
@@ -6988,22 +7028,10 @@ var author$project$Update$update = F2(
 			switch (msg.$) {
 				case 'NavigateTo':
 					var route = msg.a;
-					if (route.$ === 'Post') {
-						var fileName = route.a;
-						var $temp$msg = A2(
-							author$project$Model$HttpRequest,
-							fileName,
-							author$project$Routes$toEmuUrl(fileName)),
-							$temp$model = model;
-						msg = $temp$msg;
-						model = $temp$model;
-						continue update;
-					} else {
-						return A2(
-							author$project$Update$updateRouter,
-							model,
-							author$project$Router$NavigateTo(route));
-					}
+					return A2(
+						author$project$Update$updateRouter,
+						model,
+						author$project$Router$NavigateTo(route));
 				case 'UrlChange':
 					var url = msg.a;
 					return A2(
@@ -7035,7 +7063,7 @@ var author$project$Update$update = F2(
 				case 'RouterMsg':
 					var routerMsg = msg.a;
 					return A2(author$project$Update$updateRouter, model, routerMsg);
-				case 'WindowResize':
+				default:
 					var windowSize = msg.a;
 					return _Utils_Tuple2(
 						_Utils_update(
@@ -7047,39 +7075,6 @@ var author$project$Update$update = F2(
 									mdgriffith$elm_ui$Element$classifyDevice(windowSize))
 							}),
 						elm$core$Platform$Cmd$none);
-				case 'HttpRequest':
-					var fileName = msg.a;
-					var src = msg.b;
-					return _Utils_Tuple2(
-						model,
-						elm$http$Http$get(
-							{
-								expect: elm$http$Http$expectString(
-									author$project$Model$GotSrc(fileName)),
-								url: src
-							}));
-				default:
-					var fileName = msg.a;
-					var result = msg.b;
-					var m = function () {
-						if (result.$ === 'Ok') {
-							var markdown = result.a;
-							return _Utils_update(
-								model,
-								{
-									blogSource: elm$core$Maybe$Just(markdown)
-								});
-						} else {
-							var err = result.a;
-							var _n4 = A2(elm$core$Debug$log, 'err', err);
-							return model;
-						}
-					}();
-					return A2(
-						author$project$Update$updateRouter,
-						m,
-						author$project$Router$NavigateTo(
-							author$project$Routes$Post(fileName)));
 			}
 		}
 	});
@@ -18814,7 +18809,7 @@ var author$project$View$BlogPost$fromMarkup = function (markupString) {
 	}
 };
 var author$project$View$Post$view = function (model) {
-	var _n0 = model.blogSource;
+	var _n0 = model.router.blogSource;
 	if (_n0.$ === 'Nothing') {
 		return mdgriffith$elm_ui$Element$text('Source not received yet');
 	} else {
