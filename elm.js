@@ -18811,7 +18811,7 @@ var author$project$View$BlogPost$fromMarkup = function (markupString) {
 var author$project$View$Post$view = function (model) {
 	var _n0 = model.router.blogSource;
 	if (_n0.$ === 'Nothing') {
-		return mdgriffith$elm_ui$Element$text('Source not received yet');
+		return mdgriffith$elm_ui$Element$text('File not found');
 	} else {
 		var source = _n0.a;
 		return author$project$View$BlogPost$fromMarkup(source);
@@ -19521,12 +19521,15 @@ var elm$core$Maybe$andThen = F2(
 	});
 var author$project$Routes$getFileName = function (link) {
 	return A2(
-		elm$core$Maybe$andThen,
-		author$project$Routes$emuFileParser,
+		elm$core$Debug$log,
+		'routing to:',
 		A2(
 			elm$core$Maybe$andThen,
-			author$project$Routes$emuPathParser,
-			elm$url$Url$fromString(link)));
+			author$project$Routes$emuFileParser,
+			A2(
+				elm$core$Maybe$andThen,
+				author$project$Routes$emuPathParser,
+				elm$url$Url$fromString(link))));
 };
 var mdgriffith$elm_ui$Internal$Flag$cursor = mdgriffith$elm_ui$Internal$Flag$flag(21);
 var mdgriffith$elm_ui$Element$pointer = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$cursor, mdgriffith$elm_ui$Internal$Style$classes.cursorPointer);
