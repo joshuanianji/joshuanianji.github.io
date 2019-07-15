@@ -59,7 +59,7 @@ toUrlString route =
 
                 -- I have a suspiction that this doesn't get used
                 NotFound ->
-                    [ "oops " ]
+                    [ "oops" ]
     in
     "#/" ++ String.join "/" pieces
 
