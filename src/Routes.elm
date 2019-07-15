@@ -21,12 +21,18 @@ type Route
 
 
 
--- converts URL into a Route
+{- converts URL into a Route
+
+       THANKS FOR https://github.com/rtfeldman/elm-spa-example/blob/master/src/Route.elm#L59-L65 FOR THE CODE! AND [THIS](https://www.reddit.com/r/elm/comments/b4ao63/trouble_with_extracting_parsing_url_fragment/) REDDIT POST
+
+   the fragment in the URL type, or everything after the hashtag, is actually treated as another field entirely, so we just moved it all to the path, then parse it. I think Url.parse only looks at the path or something, and the fragment parser is kinda complicated tbh.
+-}
 
 
 fromUrl : Url.Url -> Route
 fromUrl url =
-    Url.parse urlParser url
+    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
+        |> Url.parse urlParser
         |> Maybe.withDefault NotFound
 
 
@@ -51,10 +57,11 @@ toUrlString route =
                 Post ->
                     [ "post" ]
 
+                -- I have a suspiction that this doesn't get used
                 NotFound ->
-                    [ "404" ]
+                    [ "oops " ]
     in
-    "/" ++ String.join "/" pieces
+    "#/" ++ String.join "/" pieces
 
 
 
