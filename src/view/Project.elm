@@ -128,7 +128,7 @@ iconWrapper icon =
 
 
 
--- the big box that covers the entire height of the textBox and has a `width fill` attribute. This makes a bigger area clickable.
+-- the big box that covers the entire height of the textBox and has a `width fill` attribute. This makes a bigger area clickable. It redirects the user to a link
 
 
 linkWrap : String -> Element Msg -> Element Msg

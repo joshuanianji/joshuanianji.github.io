@@ -15,7 +15,7 @@ view : Model -> Element Msg
 view model =
     case model.router.blogSource of
         Nothing ->
-            Element.text "Source not received yet"
+            Element.text "File not found"
 
         Just source ->
             source
