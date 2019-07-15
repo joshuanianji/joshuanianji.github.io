@@ -77,5 +77,3 @@ type Msg
     | UrlRequest UrlRequest
     | RouterMsg Router.Msg
     | WindowResize WindowSize
-    | HttpRequest String String -- first string is file name, second string is the URL we're getting the .emu file string from
-    | GotSrc String (Result Http.Error String) -- we carry the markdown string and the .emu file name with it

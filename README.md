@@ -4,7 +4,7 @@ The source code for my [website](joshuaji.com), written in Elm.
 
 ## Run Locally
 
-Once you giut clone tor download the repository, run the following command in the directory folder. Elm-live will help with routing.
+Once you git clone or download the repository, run the following command in the directory folder. Elm-live will help with routing.
 
 `elm-live src/Main.elm --pushstate -- --output=elm.js` 
 
