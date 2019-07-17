@@ -8,13 +8,13 @@
 
 module UiFramework.Navbar exposing (navbar)
 
-import Colour
 import Element exposing (Attribute, DeviceClass(..), Element, Orientation(..))
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Model exposing (..)
 import Routes exposing (Route(..))
+import UiFramework.Colour as Colour
 
 
 navbar : Model -> Element Msg

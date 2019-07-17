@@ -4,7 +4,6 @@ module Modules.Projects.Single exposing (view)
    To create each single module in the Projects page (the square that the user can hover over to direct it to different links and such)
 -}
 
-import Colour
 import Element exposing (Element)
 import Element.Background as Background
 import Element.Events
@@ -14,6 +13,7 @@ import FontAwesome.Solid
 import Model exposing (Msg(..))
 import Modules.Projects.Types exposing (Project)
 import Routes exposing (Route(..))
+import UiFramework.Colour as Colour
 import UiFramework.Icon as Icon
 
 
