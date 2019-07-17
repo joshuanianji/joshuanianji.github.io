@@ -26,3 +26,11 @@ viewErrors errors =
     List.map
         (Mark.Error.toHtml Mark.Error.Light)
         errors
+
+
+stringTest : String
+stringTest =
+    """
+
+|> Hello
+"""
