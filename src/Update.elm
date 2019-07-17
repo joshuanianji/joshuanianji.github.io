@@ -7,6 +7,7 @@ import Http
 import Model exposing (Model, Msg(..))
 import Router
 import Routes exposing (Route(..))
+import SharedState exposing (SharedState)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

@@ -25,14 +25,32 @@ type Msg
 
 type alias Model =
     { route : Routes.Route
+    , currentPage : Page
     , navKey : Nav.Key
     , blogSource : Maybe String
     }
 
 
+{-| Page Type vs. Route Type
+
+    The Route type is mainly used by the routing module as an intermediary between the URL and the Page type.
+    The Page type also holds the models for each of the page (fOr scALAbiLitY) so as the project requires multiple models,
+    and cannot be replaced by the Route type.
+    Thus, in essence, the Page type is used by the View module, but the Route type is used by the Router module.
+
+-}
+type Page
+    = NotFoundPage
+    | HomePage
+    | ResumePage
+    | ProjectPage
+    | PostPage
+
+
 init : Url.Url -> Nav.Key -> Model
 init url key =
     { route = Routes.fromUrl url
+    , currentPage = NotFoundPage
     , navKey = key
     , blogSource = Nothing
     }

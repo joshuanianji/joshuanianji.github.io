@@ -6,6 +6,7 @@ import Element exposing (Device)
 import Http
 import Router
 import Routes exposing (Route(..))
+import SharedState exposing (SharedState)
 import Url exposing (Url)
 
 
@@ -38,8 +39,8 @@ type alias WindowSize =
 
 
 type alias Model =
-    { router : Router.Model
-    , device : Device
+    { staredState : SharedState
+    , router : Router.Model
     }
 
 
@@ -55,13 +56,13 @@ init flags url key =
 
 
 
--- I'm going to be completely honest with you I have no idea what Browser.Navigation.Key is. I just know we need it to handle URL changes and to change them ourelves and whatnot. (https://package.elm-lang.org/packages/elm/browser/latest/Browser-Navigation#Key)
+-- I'm going to be completely honest with you I have no idea what Browser.Navigation.Key is. I just know we need it to handle URL changes and to change them ourselves and whatnot. (https://package.elm-lang.org/packages/elm/browser/latest/Browser-Navigation#Key)
 
 
 initModel : Flags -> Url -> Nav.Key -> Model
 initModel flags url key =
-    { router = Router.init url key
-    , device = Element.classifyDevice flags |> Debug.log "device"
+    { sharedState = SharedState.init (Element.classifyDevice flags) key
+    , router = Router.init url key
     }
 
 

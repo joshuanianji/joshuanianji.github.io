@@ -11,6 +11,5 @@ Oh yeah btw the UiFramework folder is supposed to hold little tidbits of code to
 ## TODO
 
 - Make each module have its model-view-update
-- Finish projects thing
 - YIKES ILL HAVE TO DO A SHARED STATE BECAUSE ILL HAVE TO STORE THE DEVICE INFORMATION OOF
     - remove all instances of `import Model exposing (Model, Msg(..))` once you do that
