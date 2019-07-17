@@ -1,7 +1,7 @@
-module View.Project exposing (Project, view)
+module Modules.Projects.Single exposing (view)
 
 {-
-   To crewate each project module in the Projects page
+   To create each single module in the Projects page (the square that the user can hover over to direct it to different links and such)
 -}
 
 import Colour
@@ -11,27 +11,10 @@ import Element.Events
 import Element.Font as Font
 import FontAwesome.Brands
 import FontAwesome.Solid
-import Icon
 import Model exposing (Msg(..))
+import Modules.Projects.Types exposing (Project)
 import Routes exposing (Route(..))
-import Text
-
-
-
-{-
-   This is the type alias to hold all my information regarding a project
--}
-
-
-type alias Project =
-    { name : String
-    , imgLink : String
-    , blurb : String
-    , aboutLink : String
-    , link : String
-    , githubLink : String
-    , year : Int
-    }
+import UiFramework.Icon as Icon
 
 
 

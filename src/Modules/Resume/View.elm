@@ -1,4 +1,4 @@
-module View.Resume exposing (view)
+module Modules.Resume.View exposing (view)
 
 import Element exposing (Element)
 import Model exposing (Model, Msg)

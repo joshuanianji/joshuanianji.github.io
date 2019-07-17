@@ -1,10 +1,12 @@
 {-
    I created this using the same algorithm as the navbar in my cryptography project lol.
    Nothing really changed here haha
+
+   Dad's navbar is like an opaque type with record constructors and I'm here with a Model -> Element Msg function lmao
 -}
 
 
-module View.Navbar exposing (navbar)
+module UiFramework.Navbar exposing (navbar)
 
 import Colour
 import Element exposing (Attribute, DeviceClass(..), Element, Orientation(..))

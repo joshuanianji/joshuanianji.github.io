@@ -1,9 +1,9 @@
 {-
-   This file provides functionality to convert Elm Markup strings to Elm UI
+   Constructs Elm-Ui from Elm Markup strings
 -}
 
 
-module View.BlogPost exposing (fromMarkup, main)
+module Modules.Post.Constructor exposing (fromMarkup, main)
 
 import Element exposing (Attribute, Element)
 import Element.Font as Font

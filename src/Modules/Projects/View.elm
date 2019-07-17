@@ -1,8 +1,10 @@
-module View.Projects exposing (view)
+module Modules.Projects.View exposing (view)
 
 import Element exposing (Device, DeviceClass(..), Element, Orientation(..))
 import Model exposing (Model, Msg)
-import View.Project as Project exposing (Project)
+import Modules.Projects.Group as ProjectGroup
+import Modules.Projects.Types exposing (Project)
+import UiFramework.Padding
 
 
 
@@ -23,39 +25,12 @@ import View.Project as Project exposing (Project)
 
 view : Model -> Element Msg
 view model =
-    let
-        ( fillPadding, fillContent ) =
-            case model.device.class of
-                BigDesktop ->
-                    ( 1, 4 )
-
-                Desktop ->
-                    ( 1, 6 )
-
-                Tablet ->
-                    case model.device.orientation of
-                        Portrait ->
-                            ( 1, 8 )
-
-                        Landscape ->
-                            ( 0, 1 )
-
-                Phone ->
-                    ( 0, 1 )
-
-        -- basically squish the content between two Element.none
-        addPadding content =
-            Element.row
-                [ Element.width Element.fill ]
-                [ Element.el [ Element.width <| Element.fillPortion fillPadding ] Element.none
-                , Element.el [ Element.width <| Element.fillPortion fillContent ] content
-                , Element.el [ Element.width <| Element.fillPortion fillPadding ] Element.none
-                ]
-    in
     Element.column
         [ Element.spacing 50 ]
-        [ text, projectView model ]
-        |> addPadding
+        [ text
+        , ProjectGroup.view model compsciProjects
+        ]
+        |> UiFramework.Padding.responsive model.device
 
 
 
@@ -69,62 +44,12 @@ text =
         [ Element.text "Welcome to my projects page! Here are my projects from the past year, created in my Computer Science Class. Stay tuned as I add in more!" ]
 
 
-projectView : Model -> Element Msg
-projectView model =
-    let
-        projectsPerRow =
-            case model.device.class of
-                BigDesktop ->
-                    2
-
-                Desktop ->
-                    2
-
-                Tablet ->
-                    case model.device.orientation of
-                        Portrait ->
-                            1
-
-                        Landscape ->
-                            2
-
-                Phone ->
-                    1
-    in
-    if projectsPerRow == 1 then
-        -- single list of projects
-        projectList
-            |> List.map Project.view
-            --creating the content
-            |> Element.column
-                [ Element.width Element.fill
-                ]
-
-    else
-        -- a row of pairs of projects
-        projectList
-            |> toPairs
-            |> List.map
-                (\( p, maybeP ) ->
-                    Element.row
-                        [ Element.width Element.fill ]
-                        [ p |> Project.view
-                        , maybeP |> Maybe.map Project.view |> Maybe.withDefault Element.none |> Element.el [ Element.width Element.fill ]
-                        ]
-                )
-            -- create content
-            |> Element.column
-                [ Element.width Element.fill
-                , Element.height Element.shrink
-                ]
-
-
 
 -- ordered by "newest first" because I'm too bad of a programmer to want to learn the Elm Time library oops
 
 
-projectList : List Project
-projectList =
+compsciProjects : List Project
+compsciProjects =
     [ { name = "Periodic Table"
       , imgLink = "src/img/ptable_ss.png"
       , blurb = "A colour-coded periodic table app with a molar mass calculator."
@@ -158,20 +83,3 @@ projectList =
       , year = 2018
       }
     ]
-
-
-
--- pair up everything in the list. If there are an odd amount of objects return (a, Nothing) in the last element
-
-
-toPairs : List a -> List ( a, Maybe a )
-toPairs list =
-    case list of
-        [] ->
-            []
-
-        [ a ] ->
-            [ ( a, Nothing ) ]
-
-        a :: b :: c ->
-            ( a, Just b ) :: toPairs c

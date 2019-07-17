@@ -1,4 +1,4 @@
-module View.Home exposing (view)
+module Modules.Home.View exposing (view)
 
 {-
    "Home" will also be the "About" page as well.

@@ -6,14 +6,14 @@ import Element.Font as Font
 import FontAwesome.Styles
 import Html exposing (Html)
 import Model exposing (Model, Msg)
+import Modules.Home.View as Home
+import Modules.NotFound.View as NotFound
+import Modules.Post.View as Post
+import Modules.Projects.View as Projects
+import Modules.Resume.View as Resume
 import Routes exposing (Route(..))
-import Text
-import View.Home as Home
-import View.Navbar exposing (navbar)
-import View.NotFound as NotFound
-import View.Post as Post
-import View.Projects as Projects
-import View.Resume as Resume
+import UiFramework.Navbar exposing (navbar)
+import UiFramework.Text
 
 
 
@@ -44,7 +44,7 @@ tabBarTitle model =
             "Projects"
 
         Post fileName ->
-            "Post " ++ fileName
+            "Post"
 
         NotFound ->
             "Oops"
@@ -75,7 +75,7 @@ page model =
         [ Element.width Element.fill
         , Element.padding 40
         , Element.spacing 20
-        , Text.body
+        , UiFramework.Text.body
         ]
         [ FontAwesome.Styles.css |> Element.html
         , title model
@@ -109,7 +109,7 @@ title model =
     Element.el
         [ Font.size fontSize
         , Element.centerX
-        , Text.title
+        , UiFramework.Text.title
         ]
         (Element.text "Joshua Ji")
 

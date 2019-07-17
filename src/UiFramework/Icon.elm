@@ -1,4 +1,4 @@
-module Icon exposing (Icon, view)
+module UiFramework.Icon exposing (Icon, view)
 
 import Element exposing (Element, html)
 import FontAwesome.Icon

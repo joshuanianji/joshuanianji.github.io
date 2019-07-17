@@ -1,4 +1,4 @@
-module Text exposing (body, title)
+module UiFramework.Text exposing (body, title)
 
 {-
    This is where I put all the font attributes and whatnot

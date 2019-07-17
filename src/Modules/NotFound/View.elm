@@ -1,4 +1,4 @@
-module View.NotFound exposing (view)
+module Modules.NotFound.View exposing (view)
 
 -- I'm pretty sure we can't make our file names with numbers so I just called this 404 page "NotFound"
 

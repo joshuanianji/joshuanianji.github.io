@@ -1,4 +1,4 @@
-module View.Post exposing (view)
+module Modules.Post.View exposing (view)
 
 {-
    Where we show the "blog" posts and whatnot
@@ -8,7 +8,7 @@ import Element exposing (Element)
 import Mark
 import Mark.Error
 import Model exposing (Model, Msg)
-import View.BlogPost as BlogPost
+import Modules.Post.Constructor as Constructor
 
 
 view : Model -> Element Msg
@@ -19,7 +19,7 @@ view model =
 
         Just source ->
             source
-                |> BlogPost.fromMarkup
+                |> Constructor.fromMarkup
 
 
 viewErrors errors =
