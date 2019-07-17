@@ -9,16 +9,19 @@ import Element exposing (..)
 
 
 {-
-   Elm-ui does not have a "percent padding". For example, I can't get a 50% padding because I have to use pixels. Thus, I am going to use fillPortion, which works a bit like bootstrap where they will designate a specified ratio of the width of each element with the fillPortion.
+   Elm-ui does not have a "percent padding". For example, I can't get 50% padding because I have to use pixels.
+
+   Thus, I am going to use fillPortion, which works a bit like bootstrap
+   Elm-ui will automatically designate a specified ratio of the width of each element with the fillPortion in a row or column.
 
    Let's say I have (left, middle, right) as (1, 2, 1)
-   The Element.fillPortion will be 1 for the padding,
+   The Element.fillPortion will be 1 for the padding on the left and right,
    and the Element.fillPortion will be 2 for the content
 
    This means:
 
    | --  left   -- | --    middle (content)    --| --  right  -- |
-   Each padding will be half the length of the content, and will use `Element.none` to display nothing.
+   Each "padding," which is just Element.none to display nothing, will be half the length of the content.
 
      If you want 0 padding, just put 0 in the respective position
 -}
