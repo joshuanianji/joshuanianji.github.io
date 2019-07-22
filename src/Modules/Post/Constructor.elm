@@ -1,5 +1,7 @@
 {-
    Constructs Elm-Ui from Elm Markup strings
+
+   Completely separate from other model-view-msg! Notice the type signatures.
 -}
 
 

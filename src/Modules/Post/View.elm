@@ -5,27 +5,57 @@ module Modules.Post.View exposing (view)
 -}
 
 import Element exposing (Element)
+import Element.Font as Font
+import Http
 import Mark
 import Mark.Error
-import Model exposing (Model, Msg)
 import Modules.Post.Constructor as Constructor
+import Modules.Post.Types exposing (ExpectBlogPost(..), Model, Msg)
+import SharedState exposing (SharedState)
 
 
-view : Model -> Element Msg
-view model =
-    case model.router.blogSource of
-        Nothing ->
-            Element.text "File not found"
+view : Model -> SharedState -> Element Msg
+view model sharedState =
+    case model.blogSource of
+        Loading ->
+            Element.text "Loading..."
 
-        Just source ->
-            source
-                |> Constructor.fromMarkup
+        Loaded result ->
+            case result of
+                Ok source ->
+                    source
+                        |> Constructor.fromMarkup
+
+                Err error ->
+                    httpErrorView error
 
 
-viewErrors errors =
-    List.map
-        (Mark.Error.toHtml Mark.Error.Light)
-        errors
+httpErrorView : Http.Error -> Element Msg
+httpErrorView error =
+    case error of
+        Http.BadUrl url ->
+            Element.text (url ++ " is not a valid url!")
+
+        Http.Timeout ->
+            Element.text "Took too long to load!"
+
+        Http.NetworkError ->
+            Element.text "Netowrk error!"
+
+        Http.BadStatus int ->
+            Element.text ("Failure with status code " ++ String.fromInt int)
+
+        Http.BadBody string ->
+            Element.paragraph
+                []
+            <|
+                [ Element.text "Something weird happened with the .emu file. Here is the debugging message: "
+                , Element.el
+                    [ Font.family
+                        [ Font.typeface "Courier New" ]
+                    ]
+                    (Element.text string)
+                ]
 
 
 stringTest : String

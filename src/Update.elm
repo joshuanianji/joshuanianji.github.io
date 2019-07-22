@@ -7,7 +7,7 @@ import Http
 import Model exposing (Model, Msg(..))
 import Router
 import Routes exposing (Route(..))
-import SharedState exposing (SharedState)
+import SharedState exposing (SharedState, SharedStateUpdate)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -35,7 +35,9 @@ update msg model =
 
         -- every time the page reloads
         WindowResize windowSize ->
-            ( { model | device = Element.classifyDevice windowSize |> Debug.log "Device" }, Cmd.none )
+            updateSharedState
+                model
+                (SharedState.UpdateDevice (Element.classifyDevice windowSize |> Debug.log "Device"))
 
 
 
@@ -45,9 +47,23 @@ update msg model =
 updateRouter : Model -> Router.Msg -> ( Model, Cmd Msg )
 updateRouter model routerMsg =
     let
-        ( routerModel, routerCmd ) =
-            Router.update model.router routerMsg
+        ( nextRouterModel, routerCmd, sharedStateUpdate ) =
+            Router.update model.sharedState routerMsg model.router
+
+        nextSharedState =
+            SharedState.update model.sharedState sharedStateUpdate
     in
-    ( { model | router = routerModel }
+    ( { model | sharedState = nextSharedState, router = nextRouterModel }
     , Cmd.map RouterMsg routerCmd
+    )
+
+
+
+-- update the shared state
+
+
+updateSharedState : Model -> SharedStateUpdate -> ( Model, Cmd Msg )
+updateSharedState model ssupdate =
+    ( { model | sharedState = SharedState.update model.sharedState ssupdate }
+    , Cmd.none
     )

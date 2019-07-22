@@ -13,7 +13,7 @@ import Element exposing (Device)
 
 
 type alias SharedState =
-    { navKey : Browser.Navigation.Key
+    { navKey : Browser.Navigation.Key -- used by other pages to navigate (through Browser.Navigation.pushUrl)
     , device : Device
     }
 
@@ -27,6 +27,7 @@ init device key =
 
 type SharedStateUpdate
     = UpdateDevice Device
+    | NoUpdate
 
 
 update : SharedState -> SharedStateUpdate -> SharedState
@@ -34,3 +35,7 @@ update sharedState sharedStateUpdate =
     case sharedStateUpdate of
         UpdateDevice device ->
             { sharedState | device = device }
+
+        NoUpdate ->
+            -- when we have to output a SharedStateUpdate but don't want to change anything
+            sharedState

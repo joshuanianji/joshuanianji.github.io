@@ -1,7 +1,7 @@
 module Modules.Post.Test exposing (main)
 
 {-
-    Markup test
+   Markup test
 -}
 
 import Browser

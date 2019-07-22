@@ -8,43 +8,44 @@ module Modules.Home.View exposing (view)
 import Element exposing (Device, DeviceClass(..), Element, Orientation(..))
 import Element.Border as Border
 import Element.Font as Font
-import Model exposing (Model, Msg)
+import Modules.Home.Types exposing (Model, Msg)
+import SharedState exposing (SharedState)
 
 
-view : Model -> Element Msg
-view model =
-    case model.device.class of
+view : Model -> SharedState -> Element Msg
+view model sharedState =
+    case sharedState.device.class of
         BigDesktop ->
-            desktopDisplay Big model
+            desktopDisplay Big sharedState
 
         Desktop ->
-            desktopDisplay Small model
+            desktopDisplay Small sharedState
 
         Tablet ->
-            handheldDisplay Big model
+            handheldDisplay Big sharedState
 
         Phone ->
-            handheldDisplay Small model
+            handheldDisplay Small sharedState
 
 
 
 -- the code here may cause cancer sorry about that
 
 
-desktopDisplay : ScreenSize -> Model -> Element Msg
-desktopDisplay screenSize model =
+desktopDisplay : ScreenSize -> SharedState -> Element Msg
+desktopDisplay screenSize sharedState =
     Element.row
         [ Element.padding 40
         , Element.spacing 40
         , Element.centerX
         ]
-        [ profilePicWrap model
-        , about model
+        [ profilePicWrap sharedState
+        , about sharedState
         ]
 
 
-handheldDisplay : ScreenSize -> Model -> Element Msg
-handheldDisplay screenSize model =
+handheldDisplay : ScreenSize -> SharedState -> Element Msg
+handheldDisplay screenSize sharedState =
     let
         space =
             case screenSize of
@@ -59,8 +60,8 @@ handheldDisplay screenSize model =
         , Element.spacing space
         , Element.centerX
         ]
-        [ profilePicWrap model
-        , about model
+        [ profilePicWrap sharedState
+        , about sharedState
         ]
 
 
@@ -68,13 +69,13 @@ handheldDisplay screenSize model =
 -- wrapper for my profile pic to take up more room. Adds padding of device os a tablet
 
 
-profilePicWrap : Model -> Element Msg
-profilePicWrap model =
+profilePicWrap : SharedState -> Element Msg
+profilePicWrap sharedState =
     let
         attributes =
             [ Element.width (Element.fillPortion 1) ]
                 |> (::)
-                    (if model.device.class == Tablet then
+                    (if sharedState.device.class == Tablet then
                         Element.padding 30
 
                      else
@@ -83,18 +84,18 @@ profilePicWrap model =
     in
     Element.el
         attributes
-        (profilePic model)
+        (profilePic sharedState)
 
 
 
 -- changes size and alignment based on device
 
 
-profilePic : Model -> Element Msg
-profilePic model =
+profilePic : SharedState -> Element Msg
+profilePic sharedState =
     let
         ( maxSize, alignment ) =
-            case model.device.class of
+            case sharedState.device.class of
                 BigDesktop ->
                     ( 500, Element.alignRight )
 
@@ -129,14 +130,14 @@ type ScreenSize
 -- description
 
 
-about : Model -> Element Msg
-about model =
+about : SharedState -> Element Msg
+about sharedState =
     Element.column
         [ Element.spacing 20
         , Element.width (Element.fillPortion 1)
         ]
         [ greeting
-        , aboutContent model
+        , aboutContent sharedState
         ]
 
 
@@ -159,11 +160,11 @@ greeting =
 -}
 
 
-aboutContent : Model -> Element Msg
-aboutContent model =
+aboutContent : SharedState -> Element Msg
+aboutContent sharedState =
     let
         fontSize =
-            case model.device.class of
+            case sharedState.device.class of
                 BigDesktop ->
                     35
 
@@ -171,7 +172,7 @@ aboutContent model =
                     20
 
                 Tablet ->
-                    case model.device.orientation of
+                    case sharedState.device.orientation of
                         Portrait ->
                             30
 

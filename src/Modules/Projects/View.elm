@@ -1,36 +1,25 @@
 module Modules.Projects.View exposing (view)
 
+import Browser.Navigation as Navigation
 import Element exposing (Device, DeviceClass(..), Element, Orientation(..))
-import Model exposing (Model, Msg)
-import Modules.Projects.Group as ProjectGroup
-import Modules.Projects.Types exposing (Project)
+import Modules.Projects.Group as Group
+import Modules.Projects.Types exposing (Model, Msg(..), Project)
+import SharedState exposing (SharedState)
 import UiFramework.Padding
 
 
 
-{-
-      Elm-ui does not have a "percent padding" attribute which would be really useful here. For example, I can't get a 50% padding because I have to use pixels. Thus, I am going to use fillPortion, which works a bit like bootstrap where they will designate a specified ratio of the width of each element with the fillPortion.
-
-      Hypothetically, let's say I have (fillPadding, fillContent) as (1, 2) because the padding is symmetrical on both sides.
-      The Element.fillPortion will be 1 for the padding,
-      and the Element.fillPortion will be 2 for the content
-   This means:
-
-      | -- padding -- | --         content         --| -- padding -- |
-      The padding will be half the length of the content, and will use `Element.none` to display nothing.
-
-      In the case of the Phone, I use 0 because I dont want padding at all.
--}
+-- VIEW --
 
 
-view : Model -> Element Msg
-view model =
+view : Model -> SharedState -> Element Msg
+view model sharedState =
     Element.column
         [ Element.spacing 50 ]
         [ text
-        , ProjectGroup.view model compsciProjects
+        , Group.view model sharedState compsciProjects
         ]
-        |> UiFramework.Padding.responsive model.device
+        |> UiFramework.Padding.responsive sharedState.device
 
 
 

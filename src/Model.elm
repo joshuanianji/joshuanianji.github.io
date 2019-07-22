@@ -32,38 +32,34 @@ type alias WindowSize =
 {-
    Model :
 
-       router : Holds the Router model
-       device: what device the consumer is using
-       blogUrl : the Url to the the blog page (because we'll have to remember this when we change pages)
+       sharedState : the state that holds information all models need access to (e.g. device)
+       router : the router model because it holds thepage stuff we need access to.
 -}
 
 
 type alias Model =
-    { staredState : SharedState
+    { sharedState : SharedState
     , router : Router.Model
     }
 
 
+{-| the flag that we pass to the init function was created from the javascript elm.js. It is a record
 
--- the flag that we pass to the init function was created from the javascript elm.js. It is a record
+    I'm going to be completely honest with you I have no idea what Browser.Navigation.Key is.
+    I just know we need it to handle URL changes and to change them ourselves and whatnot. (https://package.elm-lang.org/packages/elm/browser/latest/Browser-Navigation#Key)
 
-
+-}
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
-    ( initModel flags url key
-    , Cmd.none
+    let
+        ( initRouterModel, routerCmd ) =
+            Router.init url key
+    in
+    ( { sharedState = SharedState.init (Element.classifyDevice flags) key
+      , router = initRouterModel
+      }
+    , Cmd.map RouterMsg routerCmd
     )
-
-
-
--- I'm going to be completely honest with you I have no idea what Browser.Navigation.Key is. I just know we need it to handle URL changes and to change them ourselves and whatnot. (https://package.elm-lang.org/packages/elm/browser/latest/Browser-Navigation#Key)
-
-
-initModel : Flags -> Url -> Nav.Key -> Model
-initModel flags url key =
-    { sharedState = SharedState.init (Element.classifyDevice flags) key
-    , router = Router.init url key
-    }
 
 
 

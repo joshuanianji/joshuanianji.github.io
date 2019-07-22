@@ -1,4 +1,4 @@
-module Modules.Projects.Types exposing (Model, Msg(..), Project, init, update)
+module Modules.Resume.Types exposing (Model, Msg(..), init, update)
 
 {-| To hold types used around the Project modules
 
@@ -9,23 +9,6 @@ module Modules.Projects.Types exposing (Model, Msg(..), Project, init, update)
 import Browser.Navigation as Navigation
 import Routes exposing (Route)
 import SharedState exposing (SharedState, SharedStateUpdate(..))
-
-
-
-{-
-   This is the type alias to hold all my information regarding a project
--}
-
-
-type alias Project =
-    { name : String
-    , imgLink : String
-    , blurb : String
-    , aboutLink : String
-    , link : String
-    , githubLink : String
-    , year : Int
-    }
 
 
 

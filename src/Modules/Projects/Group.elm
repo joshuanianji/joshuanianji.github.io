@@ -1,17 +1,17 @@
 module Modules.Projects.Group exposing (view)
 
 import Element exposing (Device, DeviceClass(..), Element, Orientation(..))
-import Model exposing (Model, Msg(..))
 import Modules.Projects.Single as Single
-import Modules.Projects.Types exposing (Project)
+import Modules.Projects.Types exposing (Model, Msg, Project)
+import SharedState exposing (SharedState)
 import Util
 
 
-view : Model -> List Project -> Element Msg
-view model projects =
+view : Model -> SharedState -> List Project -> Element Msg
+view model sharedState projects =
     let
         projectsPerRow =
-            case model.device.class of
+            case sharedState.device.class of
                 BigDesktop ->
                     2
 
@@ -19,7 +19,7 @@ view model projects =
                     2
 
                 Tablet ->
-                    case model.device.orientation of
+                    case sharedState.device.orientation of
                         Portrait ->
                             1
 

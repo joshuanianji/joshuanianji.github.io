@@ -7,9 +7,3 @@ Dad made each module have its separate model, update, and view for easy expandab
 I'll prolly end up doing it sooner or later though. I'm jsut putting this README here to assure that I think I know what I'm doing.
 
 Oh yeah btw the UiFramework folder is supposed to hold little tidbits of code to help me style things such as buttons, forms, etc., but I don't have any need for them right now lol.
-
-## TODO
-
-- Make each module have its model-view-update
-- YIKES ILL HAVE TO DO A SHARED STATE BECAUSE ILL HAVE TO STORE THE DEVICE INFORMATION OOF
-    - remove all instances of `import Model exposing (Model, Msg(..))` once you do that

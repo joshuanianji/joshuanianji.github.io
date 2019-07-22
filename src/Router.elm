@@ -1,34 +1,24 @@
-module Router exposing (Model, Msg(..), init, update)
+module Router exposing (Model, Msg(..), Page(..), init, update)
 
 {-
    This model deals with the dirty work for routing - the update function. init, routing model, etc.
+
+   I got a lot of the code from my dad's jHipster-elm-demo lol.
 -}
 
 import Browser exposing (UrlRequest(..))
 import Browser.Navigation as Nav
 import Http
+import Modules.Home.Types as Home
+import Modules.NotFound.Types as NotFound
+import Modules.Post.Types as Post
+import Modules.Projects.Types as Projects
+import Modules.Resume.Types as Resume
 import Routes exposing (Route(..))
+import SharedState exposing (SharedState, SharedStateUpdate)
+import Task
 import Url
 import Url.Parser as Url exposing ((</>), Parser)
-
-
-type Msg
-    = UrlChanged Url.Url -- when the user changes url from bar
-    | NavigateTo Route -- when the user clicks any link that changes the url
-    | HttpRequest String String -- first string is file name, second string is the URL we're getting the .emu file string from
-    | GotSrc String (Result Http.Error String) -- we carry the file name and markdown string for better code
-
-
-
--- blogSource is the markup string if we're in the blog page / project info page, and we have to store it here because here is the place we retrieve the string
-
-
-type alias Model =
-    { route : Routes.Route
-    , currentPage : Page
-    , navKey : Nav.Key
-    , blogSource : Maybe String
-    }
 
 
 {-| Page Type vs. Route Type
@@ -40,80 +30,155 @@ type alias Model =
 
 -}
 type Page
-    = NotFoundPage
-    | HomePage
-    | ResumePage
-    | ProjectPage
-    | PostPage
+    = NotFoundPage NotFound.Model
+    | HomePage Home.Model
+    | ResumePage Resume.Model
+    | ProjectsPage Projects.Model
+    | PostPage Post.Model
 
 
-init : Url.Url -> Nav.Key -> Model
-init url key =
-    { route = Routes.fromUrl url
-    , currentPage = NotFoundPage
-    , navKey = key
-    , blogSource = Nothing
+type Msg
+    = UrlChanged Url.Url -- when the user changes url from bar
+    | NavigateTo Route -- when the user clicks any link that changes the url
+    | HomeMsg Home.Msg
+    | NotFoundMsg NotFound.Msg
+    | PostMsg Post.Msg
+    | ProjectsMsg Projects.Msg
+    | ResumeMsg Resume.Msg
+
+
+
+-- Router model is p important lol
+
+
+type alias Model =
+    { route : Routes.Route
+    , currentPage : Page
+    , navKey : Nav.Key
     }
 
 
-update : Model -> Msg -> ( Model, Cmd Msg )
-update model msg =
-    case msg of
-        UrlChanged url ->
+{-| Dad uses a nice trick where he makes the current page a NotFoundPage, but sends a command where he changed the Url
+
+    This makes it easier for us because the NotFoundPage will always be the simplest model so we don't need to execute some init command
+
+-}
+init : Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init url key =
+    let
+        currentRoute =
+            Routes.fromUrl url
+    in
+    ( { route = currentRoute
+      , currentPage = NotFoundPage {}
+      , navKey = key
+      }
+    , (Task.perform identity << Task.succeed) <| UrlChanged url
+    )
+
+
+update : SharedState -> Msg -> Model -> ( Model, Cmd Msg, SharedStateUpdate )
+update sharedState msg model =
+    case ( msg, model.currentPage ) of
+        ( UrlChanged url, _ ) ->
             let
                 route =
                     Routes.fromUrl url
-            in
-            case route of
-                Post fileName ->
-                    -- first get the .emu file content, then change model
-                    let
-                        emuSrc =
-                            Routes.toEmuUrl fileName
-                    in
-                    update model (HttpRequest fileName emuSrc)
 
-                _ ->
-                    -- handles the Url changes
-                    ( { model | route = route }
-                    , Cmd.none
-                    )
-
-        NavigateTo route ->
-            let
-                url =
-                    Routes.toUrlString route
+                ( newModel, newCmd, newSharedStateUpdate ) =
+                    navigateTo route sharedState model
             in
+            ( { newModel | route = route }
+            , newCmd
+            , newSharedStateUpdate
+            )
+
+        ( NavigateTo route, _ ) ->
             -- changes url
             ( model
-            , Nav.pushUrl model.navKey url
+            , Nav.pushUrl model.navKey
+                (Routes.toUrlString route)
+            , SharedState.NoUpdate
             )
 
-        -- when we're requesting a .emu file via http
-        -- I carry the url as well just so that GotSrc can have cleaner code
-        HttpRequest fileName emuSrc ->
-            ( model
-            , Http.get
-                { url = emuSrc
-                , expect = Http.expectString (GotSrc fileName)
-                }
-            )
+        ( HomeMsg subMsg, HomePage subModel ) ->
+            Home.update sharedState subMsg subModel
+                |> updateWith HomePage HomeMsg model
 
-        -- after we've gotten the .emu file we update the url
-        -- I carry the fileName as well
-        GotSrc fileName result ->
-            case result of
-                Ok markdown ->
-                    ( { model
-                        | blogSource = Just markdown
-                        , route = Post fileName
-                      }
-                    , Cmd.none
-                    )
+        ( NotFoundMsg subMsg, NotFoundPage subModel ) ->
+            NotFound.update sharedState subMsg subModel
+                |> updateWith NotFoundPage NotFoundMsg model
 
-                Err err ->
-                    let
-                        _ =
-                            Debug.log "err" err
-                    in
-                    ( model, Cmd.none )
+        ( PostMsg subMsg, PostPage subModel ) ->
+            Post.update sharedState subMsg subModel
+                |> updateWith PostPage PostMsg model
+
+        ( ProjectsMsg subMsg, ProjectsPage subModel ) ->
+            Projects.update sharedState subMsg subModel
+                |> updateWith ProjectsPage ProjectsMsg model
+
+        ( ResumeMsg subMsg, ResumePage subModel ) ->
+            Resume.update sharedState subMsg subModel
+                |> updateWith ResumePage ResumeMsg model
+
+        ( _, _ ) ->
+            -- message arrived for the wron age. Ignore.
+            ( model, Cmd.none, SharedState.NoUpdate )
+
+
+{-| If I just left the update function as
+
+    ( HomeMsg subMsg, HomePage subModel ) ->
+            Home.update sharedState subMsg subModel
+
+    It wouldn't work because Home.update returns a
+    (#Resume.Model#,    Cmd #Resume.Msg#,  SharedStateUpdate)   type and we want a
+    ( Model,            Cmd Msg,           SharedStateUpdate )  type!\
+
+    We use this function to change the types and make it work.
+    Dad's updateWith function had a lot more features so the naming makes sense (e.g. toasties between pages) but I might want to change
+    the naming because I don't have that many features lol.
+
+-}
+updateWith :
+    (subModel -> Page)
+    -> (subMsg -> Msg)
+    -> Model
+    -> ( subModel, Cmd subMsg, SharedStateUpdate )
+    -> ( Model, Cmd Msg, SharedStateUpdate )
+updateWith toPage toMsg model ( subModel, subCmd, subSharedStateUpdate ) =
+    ( { model | currentPage = toPage subModel }
+    , Cmd.map toMsg subCmd
+    , subSharedStateUpdate
+    )
+
+
+
+-- changes the model's currentPage, mostly
+
+
+navigateTo : Route -> SharedState -> Model -> ( Model, Cmd Msg, SharedStateUpdate )
+navigateTo route sharedState model =
+    case route of
+        Home ->
+            Home.init |> initWith HomePage HomeMsg model SharedState.NoUpdate
+
+        Resume ->
+            Resume.init |> initWith ResumePage ResumeMsg model SharedState.NoUpdate
+
+        Projects ->
+            Projects.init |> initWith ProjectsPage ProjectsMsg model SharedState.NoUpdate
+
+        Post fileName ->
+            Post.init fileName |> initWith PostPage PostMsg model SharedState.NoUpdate
+
+        NotFound ->
+            NotFound.init |> initWith NotFoundPage NotFoundMsg model SharedState.NoUpdate
+
+
+initWith : (subModel -> Page) -> (subMsg -> Msg) -> Model -> SharedStateUpdate -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg, SharedStateUpdate )
+initWith toPage toMsg model sharedStateUpdate ( subModel, subCmd ) =
+    ( { model | currentPage = toPage subModel }
+    , Cmd.map toMsg subCmd
+    , sharedStateUpdate
+    )

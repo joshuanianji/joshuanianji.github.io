@@ -1,4 +1,4 @@
-module Modules.Projects.Types exposing (Model, Msg(..), Project, init, update)
+module Modules.NotFound.Types exposing (Model, Msg(..), init, update)
 
 {-| To hold types used around the Project modules
 
@@ -9,23 +9,6 @@ module Modules.Projects.Types exposing (Model, Msg(..), Project, init, update)
 import Browser.Navigation as Navigation
 import Routes exposing (Route)
 import SharedState exposing (SharedState, SharedStateUpdate(..))
-
-
-
-{-
-   This is the type alias to hold all my information regarding a project
--}
-
-
-type alias Project =
-    { name : String
-    , imgLink : String
-    , blurb : String
-    , aboutLink : String
-    , link : String
-    , githubLink : String
-    , year : Int
-    }
 
 
 
@@ -41,8 +24,12 @@ init =
     ( {}, Cmd.none )
 
 
+
+-- Msg type consists of nothing lmao
+
+
 type Msg
-    = NavigateTo Route
+    = NoOp
 
 
 
@@ -52,5 +39,5 @@ type Msg
 update : SharedState -> Msg -> Model -> ( Model, Cmd Msg, SharedStateUpdate )
 update sharedState msg model =
     case msg of
-        NavigateTo route ->
-            ( model, Navigation.pushUrl sharedState.navKey (Routes.toUrlString route), NoUpdate )
+        NoOp ->
+            ( model, Cmd.none, NoUpdate )

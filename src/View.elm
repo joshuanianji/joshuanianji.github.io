@@ -11,7 +11,9 @@ import Modules.NotFound.View as NotFound
 import Modules.Post.View as Post
 import Modules.Projects.View as Projects
 import Modules.Resume.View as Resume
+import Router exposing (Page(..))
 import Routes exposing (Route(..))
+import SharedState exposing (SharedState)
 import UiFramework.Navbar exposing (navbar)
 import UiFramework.Text
 
@@ -33,20 +35,20 @@ viewApplication model =
 
 tabBarTitle : Model -> String
 tabBarTitle model =
-    case model.router.route of
-        Home ->
+    case model.router.currentPage of
+        HomePage _ ->
             "Joshua's Website"
 
-        Resume ->
+        ResumePage _ ->
             "Resume"
 
-        Projects ->
+        ProjectsPage _ ->
             "Projects"
 
-        Post fileName ->
+        PostPage _ ->
             "Post"
 
-        NotFound ->
+        NotFoundPage _ ->
             "Oops"
 
 
@@ -88,7 +90,7 @@ title : Model -> Element Msg
 title model =
     let
         ( fontSize, padding ) =
-            case model.device.class of
+            case model.sharedState.device.class of
                 BigDesktop ->
                     ( 70, 0 )
 
@@ -96,7 +98,7 @@ title model =
                     ( 50, 0 )
 
                 Tablet ->
-                    case model.device.orientation of
+                    case model.sharedState.device.orientation of
                         Portrait ->
                             ( 80, 30 )
 
@@ -120,21 +122,37 @@ title model =
 
 content : Model -> Element Msg
 content model =
-    case model.router.route of
-        Home ->
-            Home.view model
+    case model.router.currentPage of
+        HomePage homeModel ->
+            Home.view homeModel model.sharedState
+                |> mapMsg Router.HomeMsg
 
-        Resume ->
-            Resume.view model
+        ResumePage resumeModel ->
+            Resume.view resumeModel model.sharedState
+                |> mapMsg Router.ResumeMsg
 
-        Projects ->
-            Projects.view model
+        ProjectsPage projectsModel ->
+            Projects.view projectsModel model.sharedState
+                |> mapMsg Router.ProjectsMsg
 
-        Post fileName ->
-            Post.view model
+        PostPage postModel ->
+            Post.view postModel model.sharedState
+                |> mapMsg Router.PostMsg
 
-        NotFound ->
-            NotFound.view
+        NotFoundPage notFoundModel ->
+            NotFound.view notFoundModel model.sharedState
+                |> mapMsg Router.NotFoundMsg
+
+
+
+-- convert the Msg types to the preferred msg type lmao
+
+
+mapMsg : (subMsg -> Router.Msg) -> Element subMsg -> Element Model.Msg
+mapMsg toMsg element =
+    element
+        |> Element.map toMsg
+        |> Element.map Model.RouterMsg
 
 
 

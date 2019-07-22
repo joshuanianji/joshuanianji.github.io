@@ -10,8 +10,7 @@ import Element.Events
 import Element.Font as Font
 import FontAwesome.Brands
 import FontAwesome.Solid
-import Model exposing (Msg(..))
-import Modules.Projects.Types exposing (Project)
+import Modules.Projects.Types exposing (Model, Msg(..), Project)
 import Routes exposing (Route(..))
 import UiFramework.Colour as Colour
 import UiFramework.Icon as Icon

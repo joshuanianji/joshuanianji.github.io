@@ -12,8 +12,9 @@ import Element exposing (Attribute, DeviceClass(..), Element, Orientation(..))
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
-import Model exposing (..)
+import Model exposing (Model, Msg(..))
 import Routes exposing (Route(..))
+import SharedState exposing (SharedState)
 import UiFramework.Colour as Colour
 
 
@@ -57,7 +58,7 @@ navbarElementAttributes : Model -> Route -> List (Attribute Msg)
 navbarElementAttributes model route =
     let
         fontSize =
-            case model.device.class of
+            case model.sharedState.device.class of
                 BigDesktop ->
                     25
 
@@ -65,7 +66,7 @@ navbarElementAttributes model route =
                     20
 
                 Tablet ->
-                    case model.device.orientation of
+                    case model.sharedState.device.orientation of
                         Portrait ->
                             30
 
