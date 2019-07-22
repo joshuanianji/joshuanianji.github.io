@@ -1,23 +1,24 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="UTF-8">
-    <title>Joshua's Blog</title>
-    <script src="elm.js"></script>
+    <title>Hello</title>
+    <meta name="description" content="Joshua Ji's Terrible Website">
+    <meta name="author" content="Joshua Ji">
 </head>
 
 <body>
     <div id="elm"></div>
+    <script src="elm.js"></script>
     <script>
         var app = Elm.Main.init({
             node: document.getElementById('elm'),
-            // we pass the window sizes to the elm app on startup
             flags: {
-                width: window.innerWidth,
-                height: window.innerHeight
+                height: window.innerHeight,
+                width: window.innerWidth
             }
-        });
+        })
     </script>
 </body>
 
