@@ -1,0 +1,125 @@
+<html>
+
+<head>
+    <title>My Most Important Project</title>
+    <meta name="description" content="The Best Website">
+    <meta name="author" content="Joshua Ji">
+    <script src="helper.js"></script>
+</head>
+
+<body>
+    <div id="elm"></div>
+    <script src="elm.js"></script>
+    <script>
+        /*
+            i would so things like set a global constant to document.getElementById('audio-player') but ill get a 
+            'cannot set property _ of null' because I have to wait for it to load or something smh.
+        
+        */
+        // load json file and send string via port
+        function loadFile(filePath) {
+            var result = null;
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("GET", filePath, false);
+            xmlhttp.send();
+            if (xmlhttp.status == 200) {
+                result = xmlhttp.responseText;
+            }
+            return result;
+        }
+        songsJson = loadFile("src/songs.json");
+        console.log(songsJson);
+
+        var app = Elm.Main.init({
+            node: document.getElementById('elm'),
+            flags: {
+                windowSize: {
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                },
+                songsJson: songsJson
+            }
+        })
+
+
+        app.ports.getFirstSong.subscribe(function (songs) {
+            var randSong = randItem(songs)
+            // pick a random song and send it over 
+            console.log("going to play " + JSON.stringify(randSong))
+            app.ports.nextSong.send(randSong)
+        })
+
+
+        console.log(app.ports);
+        app.ports.toggleMusic.subscribe(function (boolean) {
+            if (boolean) {
+                // elm wants us to play the music
+
+                var audioPlayer = document.getElementById('audio-player');
+                console.log("Play!");
+                audioPlayer.play();
+
+                // set autoplay to true. This is needed so when the user skips songs the song will automatically play 
+                audioPlayer.autoplay = true;
+            } else {
+                // Elm wants us to pause the music
+
+                var audioPlayer = document.getElementById('audio-player');
+                console.log("pause!");
+                audioPlayer.pause();
+
+                // song will not automatically play when the user skips songs
+                audioPlayer.autoplay = false;
+            }
+        });
+
+
+        app.ports.getNewSong.subscribe(function (data) {
+            /*
+                Elm sent us a tuple containing the current song and the list of songs, but in the port we
+                receive it as an array.
+
+                the current song is first, and the list of songs is second
+            */
+            currentSong = data[0]
+            songs = data[1]
+
+            var randSong = randItem(songs)
+            while (currentSong.name == randSong.name) {
+                //make sure we don't get a duplicate
+                randSong = randItem(songs)
+            }
+            console.log("going to play " + JSON.stringify(randSong))
+            app.ports.nextSong.send(randSong)
+        })
+
+        app.ports.playMusic.subscribe(function () {
+            // elm wants us to play the music
+            var audioPlayer = document.getElementById('audio-player');
+
+            // because of how chrome handles video autoplay, we need to handle a promise
+            var promise = audioPlayer.play()
+
+            // this is a really bad and hacky way of doing things lol. At least it works tho :))
+            if (promise !== undefined) {
+                promise.then(_ => {
+
+                    if (audioPlayer.autoplay == true) {
+                        // we want to automatically play the next song
+                        audioPlayer.play();
+                    }
+                }).catch(error => {
+                    // this really only happens at the beginning b/c I don't have the autoplay on the audio
+                    console.log("Initialization");
+                });
+            }
+
+            audioPlayer.onended = function () {
+                // random boolean because idk how to send an empty tuple
+                app.ports.songEnded.send(false)
+            };
+        });
+    </script>
+</body>
+
+</html>
