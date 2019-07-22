@@ -1,5 +1,8 @@
 module Modules.Projects.Group exposing (view)
 
+{-| Displays a list of projects
+-}
+
 import Element exposing (Device, DeviceClass(..), Element, Orientation(..))
 import Modules.Projects.Single as Single
 import Modules.Projects.Types exposing (Model, Msg, Project)
