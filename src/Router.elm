@@ -12,6 +12,7 @@ import Http
 import Modules.Home.Types as Home
 import Modules.NotFound.Types as NotFound
 import Modules.Post.Types as Post
+import Modules.PostOverview.Types as PostOverview
 import Modules.Projects.Types as Projects
 import Modules.Resume.Types as Resume
 import Routes exposing (Route(..))
@@ -30,21 +31,23 @@ import Url.Parser as Url exposing ((</>), Parser)
 
 -}
 type Page
-    = NotFoundPage NotFound.Model
-    | HomePage Home.Model
+    = HomePage Home.Model
     | ResumePage Resume.Model
     | ProjectsPage Projects.Model
+    | PostOverviewPage PostOverview.Model
     | PostPage Post.Model
+    | NotFoundPage NotFound.Model
 
 
 type Msg
     = UrlChanged Url.Url -- when the user changes url from bar
     | NavigateTo Route -- when the user clicks any link that changes the url
     | HomeMsg Home.Msg
-    | NotFoundMsg NotFound.Msg
-    | PostMsg Post.Msg
-    | ProjectsMsg Projects.Msg
     | ResumeMsg Resume.Msg
+    | ProjectsMsg Projects.Msg
+    | PostOverviewMsg PostOverview.Msg
+    | PostMsg Post.Msg
+    | NotFoundMsg NotFound.Msg
 
 
 
@@ -105,21 +108,25 @@ update sharedState msg model =
             Home.update sharedState subMsg subModel
                 |> updateWith HomePage HomeMsg model
 
-        ( NotFoundMsg subMsg, NotFoundPage subModel ) ->
-            NotFound.update sharedState subMsg subModel
-                |> updateWith NotFoundPage NotFoundMsg model
-
-        ( PostMsg subMsg, PostPage subModel ) ->
-            Post.update sharedState subMsg subModel
-                |> updateWith PostPage PostMsg model
+        ( ResumeMsg subMsg, ResumePage subModel ) ->
+            Resume.update sharedState subMsg subModel
+                |> updateWith ResumePage ResumeMsg model
 
         ( ProjectsMsg subMsg, ProjectsPage subModel ) ->
             Projects.update sharedState subMsg subModel
                 |> updateWith ProjectsPage ProjectsMsg model
 
-        ( ResumeMsg subMsg, ResumePage subModel ) ->
-            Resume.update sharedState subMsg subModel
-                |> updateWith ResumePage ResumeMsg model
+        ( PostOverviewMsg subMsg, PostOverviewPage subModel ) ->
+            PostOverview.update sharedState subMsg subModel
+                |> updateWith PostOverviewPage PostOverviewMsg model
+
+        ( PostMsg subMsg, PostPage subModel ) ->
+            Post.update sharedState subMsg subModel
+                |> updateWith PostPage PostMsg model
+
+        ( NotFoundMsg subMsg, NotFoundPage subModel ) ->
+            NotFound.update sharedState subMsg subModel
+                |> updateWith NotFoundPage NotFoundMsg model
 
         ( _, _ ) ->
             -- message arrived for the wron age. Ignore.
@@ -168,6 +175,9 @@ navigateTo route sharedState model =
 
         Projects ->
             Projects.init |> initWith ProjectsPage ProjectsMsg model SharedState.NoUpdate
+
+        PostOverview ->
+            PostOverview.init |> initWith PostOverviewPage PostOverviewMsg model SharedState.NoUpdate
 
         Post fileName ->
             Post.init fileName |> initWith PostPage PostMsg model SharedState.NoUpdate

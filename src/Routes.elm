@@ -17,6 +17,7 @@ type Route
     = Home
     | Resume
     | Projects
+    | PostOverview
     | Post String -- String is the name of the .emu file (without the .emu)
     | NotFound
 
@@ -103,6 +104,9 @@ toUrlString route =
                 Projects ->
                     [ "projects" ]
 
+                PostOverview ->
+                    [ "post" ]
+
                 Post link ->
                     [ "post", link ]
 
@@ -126,8 +130,9 @@ urlParser =
 
         -- Url.s matches URLs ending with some string, in our case '/cats'
         , Url.map Resume (Url.s "resume")
-
-        -- Again, Url.s matches a string. </> matches a '/' in the URL, and Url.int matches any integer and "returns" it, so that the user page value gets the user ID
         , Url.map Projects (Url.s "projects")
+        , Url.map PostOverview (Url.s "post")
+
+        -- Again, Url.s matches a string. </> matches a '/' in the URL, and Url.string matches any string and "returns" it, so out Post page matched the Url.String
         , Url.map Post (Url.s "post" </> Url.string)
         ]

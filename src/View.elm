@@ -9,6 +9,7 @@ import Model exposing (Model, Msg)
 import Modules.Home.View as Home
 import Modules.NotFound.View as NotFound
 import Modules.Post.View as Post
+import Modules.PostOverview.View as PostOverview
 import Modules.Projects.View as Projects
 import Modules.Resume.View as Resume
 import Router exposing (Page(..))
@@ -40,16 +41,19 @@ tabBarTitle model =
             "Joshua's Website"
 
         ResumePage _ ->
-            "Resume"
+            "Joshua's Resume"
 
         ProjectsPage _ ->
-            "Projects"
+            "Joshua's Projects"
+
+        PostOverviewPage _ ->
+            "Get out of here!"
 
         PostPage _ ->
             "Post"
 
         NotFoundPage _ ->
-            "Oops"
+            "Joshua Can't Find the Page!"
 
 
 
@@ -134,6 +138,10 @@ content model =
         ProjectsPage projectsModel ->
             Projects.view projectsModel model.sharedState
                 |> mapMsg Router.ProjectsMsg
+
+        PostOverviewPage postOverviewModel ->
+            PostOverview.view postOverviewModel model.sharedState
+                |> mapMsg Router.PostOverviewMsg
 
         PostPage postModel ->
             Post.view postModel model.sharedState

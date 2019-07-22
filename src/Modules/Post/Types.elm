@@ -22,8 +22,7 @@ type alias Model =
 
 {-| When I click on a post link on the projects page, it takes a fraction of a second to load the .emu file.
 
-    During that loading time, the blogSource is Nothing, so the Modules.Post.View module thinks that the file is not found!
-    I need a more expressive type so I can convey a "loading..." screen.
+    During that loading time, the blogSource is Loading, so I can convey a "loading..." screen.
 
 -}
 type ExpectBlogPost
