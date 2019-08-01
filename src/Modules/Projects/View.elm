@@ -58,7 +58,7 @@ divider options =
                 [ Element.height Element.fill
                 , Element.paddingXY 40 0
                 ]
-                { url = opt.logoLink
+                { url = opt.link
                 , label =
                     Element.image
                         [ Element.height (Element.px 60)
@@ -69,12 +69,18 @@ divider options =
                         }
                 }
     in
-    Element.paragraph
-        [ Font.size 30
-        , Element.onLeft (logo options)
-        , Element.paddingXY 0 15
+    Element.column
+        [ Element.paddingXY 0 15
+        , Element.width Element.fill
+        , Element.spacing 15
         ]
-        [ Element.text options.text ]
+        [ Element.el [ Element.centerX ] <| logo options
+        , Element.paragraph
+            [ Font.center
+            , Font.size 30
+            ]
+            [ Element.text options.text ]
+        ]
 
 
 type alias DividerOptions =
