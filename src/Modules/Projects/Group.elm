@@ -1,6 +1,6 @@
 module Modules.Projects.Group exposing (view)
 
-{-| Displays a list of projects
+{-| Displays a group of projects
 -}
 
 import Element exposing (Device, DeviceClass(..), Element, Orientation(..))

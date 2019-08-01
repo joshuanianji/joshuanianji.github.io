@@ -1,5 +1,8 @@
 module Modules.Projects.List exposing (compsciProjects, filter)
 
+{-| The List of Projects
+-}
+
 import Modules.Projects.Types exposing (Language(..), Project)
 
 

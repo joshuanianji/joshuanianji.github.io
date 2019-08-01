@@ -41,13 +41,13 @@ elmDivider =
     divider
         { logoImage = "src/img/elm_logo.png"
         , logoDescription = "Sexy elm logo. You should click it!"
-        , logoLink = "elm-lang.org"
+        , link = "elm-lang.org"
         , text = "Created with Elm"
         }
 
 
 
--- Dividers are there to separate the projects into multiple segments
+-- Dividers are there to separate the projects into multiple segments. It introduces a new section (e.g. a new language)
 
 
 divider : DividerOptions -> Element Msg
@@ -80,6 +80,6 @@ divider options =
 type alias DividerOptions =
     { logoImage : String
     , logoDescription : String
-    , logoLink : String
+    , link : String
     , text : String
     }
