@@ -1,6 +1,6 @@
 # My Website
 
-The source code for my [website](joshuaji.com), a single page application written in Elm. 
+The source code for my [website](https://joshuaji.com/), a single page application written in Elm. 
 
 ## Run Locally
 
