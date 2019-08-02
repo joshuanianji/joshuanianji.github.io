@@ -1,4 +1,4 @@
-module Modules.Projects.List exposing (compsciProjects, filter)
+module Modules.Projects.List exposing (filter, projects)
 
 {-| The List of Projects
 -}
@@ -11,19 +11,28 @@ import Modules.Projects.Types exposing (Language(..), Project)
 
 
 filter : Language -> List Project -> List Project
-filter language projects =
+filter language projs =
     List.filter
         (\project -> project.language == language)
-        projects
+        projs
 
 
 
 -- ordered by "newest first" because I'm too bad of a programmer to want to learn the Elm Time library oops
 
 
-compsciProjects : List Project
-compsciProjects =
-    [ { name = "Periodic Table"
+projects : List Project
+projects =
+    [ { name = "Ui Bootstrap Elm Demo"
+      , imgLink = "src/img/ui-bootstrap-demo.png"
+      , blurb = "A demo application for the Elm Ui Bootstrap project."
+      , aboutLink = "https://joshuaji.com/src/post/ui-bootstrap-demo.emu"
+      , link = "https://joshuaji.com/projects/ui-bootstrap-demo"
+      , githubLink = "https://github.com/joshuanianji/ui-bootstrap-demo"
+      , year = 2019
+      , language = Elm
+      }
+    , { name = "Periodic Table"
       , imgLink = "src/img/ptable_ss.png"
       , blurb = "A colour-coded periodic table app with a molar mass calculator."
       , aboutLink = "https://joshuaji.com/src/post/ptable.emu"

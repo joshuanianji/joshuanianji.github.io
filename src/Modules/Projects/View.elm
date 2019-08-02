@@ -4,7 +4,7 @@ import Browser.Navigation as Navigation
 import Element exposing (Device, DeviceClass(..), Element, Orientation(..))
 import Element.Font as Font
 import Modules.Projects.Group as Group
-import Modules.Projects.List as ProjectList exposing (compsciProjects)
+import Modules.Projects.List as ProjectList exposing (projects)
 import Modules.Projects.Types exposing (Language(..), Model, Msg(..), Project)
 import SharedState exposing (SharedState)
 import UiFramework.Padding
@@ -20,7 +20,7 @@ view model sharedState =
         [ Element.spacing 50 ]
         [ introText
         , elmDivider
-        , Group.view model sharedState (ProjectList.filter Elm compsciProjects)
+        , Group.view model sharedState (ProjectList.filter Elm projects)
         ]
         |> UiFramework.Padding.responsive sharedState.device
 
@@ -33,7 +33,7 @@ introText : Element Msg
 introText =
     Element.paragraph
         [ Element.paddingXY 0 30 ]
-        [ Element.text "Welcome to my projects page! Here are my projects from the past year, created in my Computer Science Class. Stay tuned as I add in more!" ]
+        [ Element.text "Welcome to my projects page! I am in the process or organizing them so they're just all grouped up as elm projects lol." ]
 
 
 elmDivider : Element Msg
