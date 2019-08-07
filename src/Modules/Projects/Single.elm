@@ -4,14 +4,16 @@ module Modules.Projects.Single exposing (view)
    To create each single module in the Projects page (the square that the user can hover over to direct it to different links and such)
 -}
 
-import Element exposing (Element)
+import Element exposing (DeviceClass(..), Element)
 import Element.Background as Background
+import Element.Border as Border
 import Element.Events
 import Element.Font as Font
 import FontAwesome.Brands
 import FontAwesome.Solid
-import Modules.Projects.Types exposing (Model, Msg(..), Project)
+import Modules.Projects.Types exposing (Msg(..), Project)
 import Routes exposing (Route(..))
+import SharedState exposing (SharedState)
 import UiFramework.Colour as Colour
 import UiFramework.Icon as Icon
 
@@ -20,10 +22,10 @@ import UiFramework.Icon as Icon
 -- the template for displaying a single project. We basically just show the picture and display an overlay when the user hovers over it
 
 
-view : Project -> Element Msg
-view project =
+view : SharedState -> Project -> Element Msg
+view sharedState project =
     Element.el
-        [ Element.inFront <| textBox project
+        [ Element.inFront <| textBox sharedState project
         , Element.width Element.fill
         ]
         (Element.image
@@ -36,15 +38,35 @@ view project =
 
 
 {- textbox inside the shaded area
-   honestly it feels really bad when i used :
-       Element.transparent True
-       , Element.mouseOver [ Element.transparent False ]
-   but I guess its the only way rip
+
+   I differentiated between touchscreen and on touch screen so that the user on a touchscreen can focus
+   on the text box first, then click on an icon
 -}
 
 
-textBox : Project -> Element Msg
-textBox project =
+textBox : SharedState -> Project -> Element Msg
+textBox sharedState project =
+    (case sharedState.device.class of
+        Phone ->
+            touchScreenTextBox project
+
+        Tablet ->
+            touchScreenTextBox project
+
+        Desktop ->
+            regularScreenTextBox project
+
+        BigDesktop ->
+            regularScreenTextBox project
+    )
+    <|
+        [ header project
+        , description project
+        ]
+
+
+regularScreenTextBox : Project -> List (Element Msg) -> Element Msg
+regularScreenTextBox project =
     Element.column
         [ Font.color Colour.white
         , Element.spacing 15
@@ -56,8 +78,18 @@ textBox project =
         , Element.mouseOver [ Element.transparent False ]
         , Element.inFront <| iconRow project
         ]
-        [ header project
-        , description project
+
+
+touchScreenTextBox : Project -> List (Element Msg) -> Element Msg
+touchScreenTextBox project =
+    Element.column
+        [ Font.color Colour.white
+        , Element.spacing 15
+        , Element.padding 40
+        , Element.width Element.fill
+        , Background.color Colour.shaded
+        , Element.height Element.fill
+        , Element.inFront <| iconRow project
         ]
 
 
@@ -118,7 +150,10 @@ linkWrap link icon =
     Element.newTabLink
         [ Element.width Element.fill
         , Element.height Element.fill
-        , Element.mouseOver [ Font.color Colour.gray ]
+        , Border.rounded 30
+        , Element.mouseOver
+            [ Font.size 40
+            ]
         ]
         { url = link
         , label = icon
@@ -126,7 +161,7 @@ linkWrap link icon =
 
 
 
--- same thing as linkWrap but it redirects to the blog page
+-- same thing as linkWrap but it redirects to the blog page. We need to navigate *within* our SPA so I need another wrapper lol.
 
 
 postLinkWrap : String -> Element Msg -> Element Msg
@@ -142,7 +177,9 @@ postLinkWrap link icon =
         , Element.height Element.fill
         , Element.pointer
         , Element.Events.onClick (NavigateTo (Post fileName))
-        , Element.mouseOver [ Font.color Colour.gray ]
+        , Element.mouseOver
+            [ Font.size 40
+            ]
         ]
         icon
 
