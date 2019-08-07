@@ -35,7 +35,7 @@ view model sharedState projects =
     if projectsPerRow == 1 then
         -- single list of projects
         projects
-            |> List.map Single.view
+            |> List.map (Single.view sharedState)
             --creating the content
             |> Element.column
                 [ Element.width Element.fill
@@ -46,11 +46,11 @@ view model sharedState projects =
         projects
             |> Util.toPairs
             |> List.map
-                (\( p, maybeP ) ->
+                (\( project, maybeProject ) ->
                     Element.row
                         [ Element.width Element.fill ]
-                        [ p |> Single.view
-                        , maybeP |> Maybe.map Single.view |> Maybe.withDefault Element.none |> Element.el [ Element.width Element.fill ]
+                        [ project |> Single.view sharedState
+                        , maybeProject |> Maybe.map (Single.view sharedState) |> Maybe.withDefault Element.none |> Element.el [ Element.width Element.fill ]
                         ]
                 )
             -- create content
