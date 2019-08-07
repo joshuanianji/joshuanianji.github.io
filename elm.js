@@ -4689,6 +4689,7 @@ var author$project$Routes$Home = {$: 'Home'};
 var author$project$Routes$Post = function (a) {
 	return {$: 'Post', a: a};
 };
+var author$project$Routes$PostOverview = {$: 'PostOverview'};
 var author$project$Routes$Projects = {$: 'Projects'};
 var author$project$Routes$Resume = {$: 'Resume'};
 var elm$core$Basics$EQ = {$: 'EQ'};
@@ -5031,6 +5032,10 @@ var author$project$Routes$urlParser = elm$url$Url$Parser$oneOf(
 			elm$url$Url$Parser$map,
 			author$project$Routes$Projects,
 			elm$url$Url$Parser$s('projects')),
+			A2(
+			elm$url$Url$Parser$map,
+			author$project$Routes$PostOverview,
+			elm$url$Url$Parser$s('post')),
 			A2(
 			elm$url$Url$Parser$map,
 			author$project$Routes$Post,
@@ -6703,6 +6708,9 @@ var author$project$Routes$toUrlString = function (route) {
 			case 'Projects':
 				return _List_fromArray(
 					['projects']);
+			case 'PostOverview':
+				return _List_fromArray(
+					['post']);
 			case 'Post':
 				var link = route.a;
 				return _List_fromArray(
@@ -6738,6 +6746,10 @@ var author$project$Modules$Post$Types$update = F3(
 				author$project$SharedState$NoUpdate);
 		}
 	});
+var author$project$Modules$PostOverview$Types$update = F3(
+	function (sharedState, msg, model) {
+		return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
+	});
 var author$project$Modules$Projects$Types$update = F3(
 	function (sharedState, msg, model) {
 		var route = msg.a;
@@ -6771,6 +6783,12 @@ var author$project$Router$NotFoundMsg = function (a) {
 };
 var author$project$Router$PostMsg = function (a) {
 	return {$: 'PostMsg', a: a};
+};
+var author$project$Router$PostOverviewMsg = function (a) {
+	return {$: 'PostOverviewMsg', a: a};
+};
+var author$project$Router$PostOverviewPage = function (a) {
+	return {$: 'PostOverviewPage', a: a};
 };
 var author$project$Router$PostPage = function (a) {
 	return {$: 'PostPage', a: a};
@@ -7064,6 +7082,9 @@ var author$project$Modules$Post$Types$init = function (fileName) {
 				url: author$project$Routes$toEmuUrl(fileName)
 			}));
 };
+var author$project$Modules$PostOverview$Types$init = _Utils_Tuple2(
+	{},
+	elm$core$Platform$Cmd$none);
 var author$project$Modules$Projects$Types$init = _Utils_Tuple2(
 	{},
 	elm$core$Platform$Cmd$none);
@@ -7092,6 +7113,8 @@ var author$project$Router$navigateTo = F3(
 				return A5(author$project$Router$initWith, author$project$Router$ResumePage, author$project$Router$ResumeMsg, model, author$project$SharedState$NoUpdate, author$project$Modules$Resume$Types$init);
 			case 'Projects':
 				return A5(author$project$Router$initWith, author$project$Router$ProjectsPage, author$project$Router$ProjectsMsg, model, author$project$SharedState$NoUpdate, author$project$Modules$Projects$Types$init);
+			case 'PostOverview':
+				return A5(author$project$Router$initWith, author$project$Router$PostOverviewPage, author$project$Router$PostOverviewMsg, model, author$project$SharedState$NoUpdate, author$project$Modules$PostOverview$Types$init);
 			case 'Post':
 				var fileName = route.a;
 				return A5(
@@ -7122,7 +7145,7 @@ var author$project$Router$updateWith = F4(
 var author$project$Router$update = F3(
 	function (sharedState, msg, model) {
 		var _n0 = _Utils_Tuple2(msg, model.currentPage);
-		_n0$7:
+		_n0$8:
 		while (true) {
 			switch (_n0.a.$) {
 				case 'UrlChanged':
@@ -7158,33 +7181,20 @@ var author$project$Router$update = F3(
 							model,
 							A3(author$project$Modules$Home$Types$update, sharedState, subMsg, subModel));
 					} else {
-						break _n0$7;
+						break _n0$8;
 					}
-				case 'NotFoundMsg':
-					if (_n0.b.$ === 'NotFoundPage') {
+				case 'ResumeMsg':
+					if (_n0.b.$ === 'ResumePage') {
 						var subMsg = _n0.a.a;
 						var subModel = _n0.b.a;
 						return A4(
 							author$project$Router$updateWith,
-							author$project$Router$NotFoundPage,
-							author$project$Router$NotFoundMsg,
+							author$project$Router$ResumePage,
+							author$project$Router$ResumeMsg,
 							model,
-							A3(author$project$Modules$NotFound$Types$update, sharedState, subMsg, subModel));
+							A3(author$project$Modules$Resume$Types$update, sharedState, subMsg, subModel));
 					} else {
-						break _n0$7;
-					}
-				case 'PostMsg':
-					if (_n0.b.$ === 'PostPage') {
-						var subMsg = _n0.a.a;
-						var subModel = _n0.b.a;
-						return A4(
-							author$project$Router$updateWith,
-							author$project$Router$PostPage,
-							author$project$Router$PostMsg,
-							model,
-							A3(author$project$Modules$Post$Types$update, sharedState, subMsg, subModel));
-					} else {
-						break _n0$7;
+						break _n0$8;
 					}
 				case 'ProjectsMsg':
 					if (_n0.b.$ === 'ProjectsPage') {
@@ -7197,20 +7207,46 @@ var author$project$Router$update = F3(
 							model,
 							A3(author$project$Modules$Projects$Types$update, sharedState, subMsg, subModel));
 					} else {
-						break _n0$7;
+						break _n0$8;
 					}
-				default:
-					if (_n0.b.$ === 'ResumePage') {
+				case 'PostOverviewMsg':
+					if (_n0.b.$ === 'PostOverviewPage') {
 						var subMsg = _n0.a.a;
 						var subModel = _n0.b.a;
 						return A4(
 							author$project$Router$updateWith,
-							author$project$Router$ResumePage,
-							author$project$Router$ResumeMsg,
+							author$project$Router$PostOverviewPage,
+							author$project$Router$PostOverviewMsg,
 							model,
-							A3(author$project$Modules$Resume$Types$update, sharedState, subMsg, subModel));
+							A3(author$project$Modules$PostOverview$Types$update, sharedState, subMsg, subModel));
 					} else {
-						break _n0$7;
+						break _n0$8;
+					}
+				case 'PostMsg':
+					if (_n0.b.$ === 'PostPage') {
+						var subMsg = _n0.a.a;
+						var subModel = _n0.b.a;
+						return A4(
+							author$project$Router$updateWith,
+							author$project$Router$PostPage,
+							author$project$Router$PostMsg,
+							model,
+							A3(author$project$Modules$Post$Types$update, sharedState, subMsg, subModel));
+					} else {
+						break _n0$8;
+					}
+				default:
+					if (_n0.b.$ === 'NotFoundPage') {
+						var subMsg = _n0.a.a;
+						var subModel = _n0.b.a;
+						return A4(
+							author$project$Router$updateWith,
+							author$project$Router$NotFoundPage,
+							author$project$Router$NotFoundMsg,
+							model,
+							A3(author$project$Modules$NotFound$Types$update, sharedState, subMsg, subModel));
+					} else {
+						break _n0$8;
 					}
 			}
 		}
@@ -7313,13 +7349,15 @@ var author$project$View$tabBarTitle = function (model) {
 		case 'HomePage':
 			return 'Joshua\'s Website';
 		case 'ResumePage':
-			return 'Resume';
+			return 'Joshua\'s Resume';
 		case 'ProjectsPage':
-			return 'Projects';
+			return 'Joshua\'s Projects';
+		case 'PostOverviewPage':
+			return 'Get out of here!';
 		case 'PostPage':
 			return 'Post';
 		default:
-			return 'Oops';
+			return 'Joshua Can\'t Find the Page!';
 	}
 };
 var author$project$View$focusStyle = {backgroundColor: elm$core$Maybe$Nothing, borderColor: elm$core$Maybe$Nothing, shadow: elm$core$Maybe$Nothing};
@@ -19343,6 +19381,10 @@ var author$project$Modules$Post$View$view = F2(
 			}
 		}
 	});
+var author$project$Modules$PostOverview$View$view = F2(
+	function (model, sharedState) {
+		return mdgriffith$elm_ui$Element$text('bruh dont look here smh');
+	});
 var mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
 	return {$: 'AlignY', a: a};
 };
@@ -19569,6 +19611,17 @@ var mdgriffith$elm_ui$Element$newTabLink = F2(
 				_List_fromArray(
 					[label])));
 	});
+var mdgriffith$elm_ui$Internal$Flag$borderRound = mdgriffith$elm_ui$Internal$Flag$flag(17);
+var mdgriffith$elm_ui$Element$Border$rounded = function (radius) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$borderRound,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$Single,
+			'br-' + elm$core$String$fromInt(radius),
+			'border-radius',
+			elm$core$String$fromInt(radius) + 'px'));
+};
 var author$project$Modules$Projects$Single$linkWrap = F2(
 	function (link, icon) {
 		return A2(
@@ -19577,10 +19630,11 @@ var author$project$Modules$Projects$Single$linkWrap = F2(
 				[
 					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
 					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$Border$rounded(30),
 					mdgriffith$elm_ui$Element$mouseOver(
 					_List_fromArray(
 						[
-							mdgriffith$elm_ui$Element$Font$color(author$project$UiFramework$Colour$gray)
+							mdgriffith$elm_ui$Element$Font$size(40)
 						]))
 				]),
 			{label: icon, url: link});
@@ -19683,7 +19737,7 @@ var author$project$Modules$Projects$Single$postLinkWrap = F2(
 					mdgriffith$elm_ui$Element$mouseOver(
 					_List_fromArray(
 						[
-							mdgriffith$elm_ui$Element$Font$color(author$project$UiFramework$Colour$gray)
+							mdgriffith$elm_ui$Element$Font$size(40)
 						]))
 				]),
 			icon);
@@ -20115,9 +20169,8 @@ var mdgriffith$elm_ui$Element$Background$color = function (clr) {
 			'background-color',
 			clr));
 };
-var author$project$Modules$Projects$Single$textBox = function (project) {
-	return A2(
-		mdgriffith$elm_ui$Element$column,
+var author$project$Modules$Projects$Single$regularScreenTextBox = function (project) {
+	return mdgriffith$elm_ui$Element$column(
 		_List_fromArray(
 			[
 				mdgriffith$elm_ui$Element$Font$color(author$project$UiFramework$Colour$white),
@@ -20134,30 +20187,61 @@ var author$project$Modules$Projects$Single$textBox = function (project) {
 					])),
 				mdgriffith$elm_ui$Element$inFront(
 				author$project$Modules$Projects$Single$iconRow(project))
-			]),
-		_List_fromArray(
-			[
-				author$project$Modules$Projects$Single$header(project),
-				author$project$Modules$Projects$Single$description(project)
 			]));
 };
-var author$project$Modules$Projects$Single$view = function (project) {
-	return A2(
-		mdgriffith$elm_ui$Element$el,
+var author$project$Modules$Projects$Single$touchScreenTextBox = function (project) {
+	return mdgriffith$elm_ui$Element$column(
 		_List_fromArray(
 			[
+				mdgriffith$elm_ui$Element$Font$color(author$project$UiFramework$Colour$white),
+				mdgriffith$elm_ui$Element$spacing(15),
+				mdgriffith$elm_ui$Element$padding(40),
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$Background$color(author$project$UiFramework$Colour$shaded),
+				mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
 				mdgriffith$elm_ui$Element$inFront(
-				author$project$Modules$Projects$Single$textBox(project)),
-				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
-			]),
-		A2(
-			mdgriffith$elm_ui$Element$image,
+				author$project$Modules$Projects$Single$iconRow(project))
+			]));
+};
+var author$project$Modules$Projects$Single$textBox = F2(
+	function (sharedState, project) {
+		return function () {
+			var _n0 = sharedState.device._class;
+			switch (_n0.$) {
+				case 'Phone':
+					return author$project$Modules$Projects$Single$touchScreenTextBox(project);
+				case 'Tablet':
+					return author$project$Modules$Projects$Single$touchScreenTextBox(project);
+				case 'Desktop':
+					return author$project$Modules$Projects$Single$regularScreenTextBox(project);
+				default:
+					return author$project$Modules$Projects$Single$regularScreenTextBox(project);
+			}
+		}()(
 			_List_fromArray(
 				[
+					author$project$Modules$Projects$Single$header(project),
+					author$project$Modules$Projects$Single$description(project)
+				]));
+	});
+var author$project$Modules$Projects$Single$view = F2(
+	function (sharedState, project) {
+		return A2(
+			mdgriffith$elm_ui$Element$el,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$inFront(
+					A2(author$project$Modules$Projects$Single$textBox, sharedState, project)),
 					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
 				]),
-			{description: 'project image for ' + project.name, src: project.imgLink}));
-};
+			A2(
+				mdgriffith$elm_ui$Element$image,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+					]),
+				{description: 'project image for ' + project.name, src: project.imgLink}));
+	});
 var author$project$Util$toPairs = function (list) {
 	if (!list.b) {
 		return _List_Nil;
@@ -20209,7 +20293,10 @@ var author$project$Modules$Projects$Group$view = F3(
 				[
 					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
 				]),
-			A2(elm$core$List$map, author$project$Modules$Projects$Single$view, projects)) : A2(
+			A2(
+				elm$core$List$map,
+				author$project$Modules$Projects$Single$view(sharedState),
+				projects)) : A2(
 			mdgriffith$elm_ui$Element$column,
 			_List_fromArray(
 				[
@@ -20219,8 +20306,8 @@ var author$project$Modules$Projects$Group$view = F3(
 			A2(
 				elm$core$List$map,
 				function (_n0) {
-					var p = _n0.a;
-					var maybeP = _n0.b;
+					var project = _n0.a;
+					var maybeProject = _n0.b;
 					return A2(
 						mdgriffith$elm_ui$Element$row,
 						_List_fromArray(
@@ -20229,7 +20316,7 @@ var author$project$Modules$Projects$Group$view = F3(
 							]),
 						_List_fromArray(
 							[
-								author$project$Modules$Projects$Single$view(p),
+								A2(author$project$Modules$Projects$Single$view, sharedState, project),
 								A2(
 								mdgriffith$elm_ui$Element$el,
 								_List_fromArray(
@@ -20239,17 +20326,31 @@ var author$project$Modules$Projects$Group$view = F3(
 								A2(
 									elm$core$Maybe$withDefault,
 									mdgriffith$elm_ui$Element$none,
-									A2(elm$core$Maybe$map, author$project$Modules$Projects$Single$view, maybeP)))
+									A2(
+										elm$core$Maybe$map,
+										author$project$Modules$Projects$Single$view(sharedState),
+										maybeProject)))
 							]));
 				},
 				author$project$Util$toPairs(projects)));
 	});
-var author$project$Modules$Projects$View$compsciProjects = _List_fromArray(
+var author$project$Modules$Projects$List$filter = F2(
+	function (language, projs) {
+		return A2(
+			elm$core$List$filter,
+			function (project) {
+				return _Utils_eq(project.language, language);
+			},
+			projs);
+	});
+var author$project$Modules$Projects$Types$Elm = {$: 'Elm'};
+var author$project$Modules$Projects$List$projects = _List_fromArray(
 	[
-		{aboutLink: 'https://joshuaji.com/src/post/ptable.emu', blurb: 'A colour-coded periodic table app with a molar mass calculator.', githubLink: 'https://github.com/joshuanianji/Compsci-IA', imgLink: 'src/img/ptable_ss.png', link: 'https://joshuaji.com/projects/ptable', name: 'Periodic Table', year: 2019},
-		{aboutLink: 'https://joshuaji.com/src/post/fact-finder.emu', blurb: 'An application that parses and displays information from 5 text files.', githubLink: 'https://github.com/joshuanianji/Country-Fact-Finder', imgLink: 'src/img/country_fact_finder.png', link: 'https://joshuaji.com/projects/fact-finder', name: 'Country Fact Finder', year: 2019},
-		{aboutLink: 'https://joshuaji.com/src/post/word-rank.emu', blurb: 'An application that ranks words based on usage from a string input or a text file.', githubLink: 'https://github.com/joshuanianji/Wordrank', imgLink: 'src/img/word_rank_ss.png', link: 'https://joshuaji.com/projects/word-rank', name: 'WordRank', year: 2019},
-		{aboutLink: 'https://joshuaji.com/src/post/cryptography.emu', blurb: 'An app that deals with Caesar and Viginere cyphers, and can calculate hashes.', githubLink: 'https://github.com/joshuanianji/Cryptography', imgLink: 'src/img/cryptography.png', link: 'https://joshuaji.com/projects/cryptography', name: 'Cryptography', year: 2018}
+		{aboutLink: 'https://joshuaji.com/src/post/ui-bootstrap-demo.emu', blurb: 'A demo application for the Elm Ui Bootstrap project.', githubLink: 'https://github.com/joshuanianji/ui-bootstrap-demo', imgLink: 'src/img/ui-bootstrap-demo.png', language: author$project$Modules$Projects$Types$Elm, link: 'https://joshuaji.com/projects/ui-bootstrap-demo', name: 'Ui Bootstrap Elm Demo', year: 2019},
+		{aboutLink: 'https://joshuaji.com/src/post/ptable.emu', blurb: 'A colour-coded periodic table app with a molar mass calculator.', githubLink: 'https://github.com/joshuanianji/Compsci-IA', imgLink: 'src/img/ptable_ss.png', language: author$project$Modules$Projects$Types$Elm, link: 'https://joshuaji.com/projects/ptable', name: 'Periodic Table', year: 2019},
+		{aboutLink: 'https://joshuaji.com/src/post/fact-finder.emu', blurb: 'An application that parses and displays information from 5 text files.', githubLink: 'https://github.com/joshuanianji/Country-Fact-Finder', imgLink: 'src/img/country_fact_finder.png', language: author$project$Modules$Projects$Types$Elm, link: 'https://joshuaji.com/projects/fact-finder', name: 'Country Fact Finder', year: 2019},
+		{aboutLink: 'https://joshuaji.com/src/post/word-rank.emu', blurb: 'An application that ranks words based on usage from a string input or a text file.', githubLink: 'https://github.com/joshuanianji/Wordrank', imgLink: 'src/img/word_rank_ss.png', language: author$project$Modules$Projects$Types$Elm, link: 'https://joshuaji.com/projects/word-rank', name: 'WordRank', year: 2019},
+		{aboutLink: 'https://joshuaji.com/src/post/cryptography.emu', blurb: 'An app that deals with Caesar and Viginere cyphers, and can calculate hashes.', githubLink: 'https://github.com/joshuanianji/Cryptography', imgLink: 'src/img/cryptography.png', language: author$project$Modules$Projects$Types$Elm, link: 'https://joshuaji.com/projects/cryptography', name: 'Cryptography', year: 2018}
 	]);
 var mdgriffith$elm_ui$Element$paddingXY = F2(
 	function (x, y) {
@@ -20273,7 +20374,63 @@ var mdgriffith$elm_ui$Element$paddingXY = F2(
 				y,
 				x));
 	});
-var author$project$Modules$Projects$View$text = A2(
+var mdgriffith$elm_ui$Internal$Model$Px = function (a) {
+	return {$: 'Px', a: a};
+};
+var mdgriffith$elm_ui$Element$px = mdgriffith$elm_ui$Internal$Model$Px;
+var author$project$Modules$Projects$View$divider = function (options) {
+	var logo = function (opt) {
+		return A2(
+			mdgriffith$elm_ui$Element$newTabLink,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+					A2(mdgriffith$elm_ui$Element$paddingXY, 40, 0)
+				]),
+			{
+				label: A2(
+					mdgriffith$elm_ui$Element$image,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$px(60)),
+							mdgriffith$elm_ui$Element$centerY
+						]),
+					{description: opt.logoDescription, src: opt.logoImage}),
+				url: opt.link
+			});
+	};
+	return A2(
+		mdgriffith$elm_ui$Element$column,
+		_List_fromArray(
+			[
+				A2(mdgriffith$elm_ui$Element$paddingXY, 0, 15),
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$spacing(15)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[mdgriffith$elm_ui$Element$centerX]),
+				logo(options)),
+				A2(
+				mdgriffith$elm_ui$Element$paragraph,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$Font$center,
+						mdgriffith$elm_ui$Element$Font$size(30)
+					]),
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$text(options.text)
+					]))
+			]));
+};
+var author$project$Modules$Projects$View$elmDivider = author$project$Modules$Projects$View$divider(
+	{link: 'elm-lang.org', logoDescription: 'Sexy elm logo. You should click it!', logoImage: 'src/img/elm_logo.png', text: 'Created with Elm'});
+var author$project$Modules$Projects$View$introText = A2(
 	mdgriffith$elm_ui$Element$paragraph,
 	_List_fromArray(
 		[
@@ -20281,7 +20438,7 @@ var author$project$Modules$Projects$View$text = A2(
 		]),
 	_List_fromArray(
 		[
-			mdgriffith$elm_ui$Element$text('Welcome to my projects page! Here are my projects from the past year, created in my Computer Science Class. Stay tuned as I add in more!')
+			mdgriffith$elm_ui$Element$text('Welcome to my projects page! I am in the process or organizing them so they\'re just all grouped up as elm projects lol.')
 		]));
 var author$project$UiFramework$Padding$responsive = F2(
 	function (device, content) {
@@ -20353,8 +20510,13 @@ var author$project$Modules$Projects$View$view = F2(
 					]),
 				_List_fromArray(
 					[
-						author$project$Modules$Projects$View$text,
-						A3(author$project$Modules$Projects$Group$view, model, sharedState, author$project$Modules$Projects$View$compsciProjects)
+						author$project$Modules$Projects$View$introText,
+						author$project$Modules$Projects$View$elmDivider,
+						A3(
+						author$project$Modules$Projects$Group$view,
+						model,
+						sharedState,
+						A2(author$project$Modules$Projects$List$filter, author$project$Modules$Projects$Types$Elm, author$project$Modules$Projects$List$projects))
 					])));
 	});
 var author$project$Modules$Resume$View$view = F2(
@@ -20390,6 +20552,12 @@ var author$project$View$content = function (model) {
 				author$project$View$mapMsg,
 				author$project$Router$ProjectsMsg,
 				A2(author$project$Modules$Projects$View$view, projectsModel, model.sharedState));
+		case 'PostOverviewPage':
+			var postOverviewModel = _n0.a;
+			return A2(
+				author$project$View$mapMsg,
+				author$project$Router$PostOverviewMsg,
+				A2(author$project$Modules$PostOverview$View$view, postOverviewModel, model.sharedState));
 		case 'PostPage':
 			var postModel = _n0.a;
 			return A2(
