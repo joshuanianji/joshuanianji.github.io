@@ -1,11 +1,5 @@
 module Modules.NotFound.Types exposing (Model, Msg(..), init, update)
 
-{-| To hold types used around the Project modules
-
-    Also hold the model - msg - update functions
-
--}
-
 import Browser.Navigation as Navigation
 import Routes exposing (Route)
 import SharedState exposing (SharedState, SharedStateUpdate(..))

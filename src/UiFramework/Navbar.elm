@@ -38,7 +38,7 @@ navbarMapList =
 
 
 
--- specifies fracework for every individual navbar button
+-- specifies framework for every individual navbar button
 
 
 navbarFramework : Model -> ( String, Route ) -> Element Msg

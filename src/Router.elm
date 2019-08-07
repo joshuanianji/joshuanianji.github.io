@@ -136,7 +136,7 @@ update sharedState msg model =
 {-| If I just left the update function as
 
     ( HomeMsg subMsg, HomePage subModel ) ->
-            Home.update sharedState subMsg subModel
+        Home.update sharedState subMsg subModel
 
     It wouldn't work because Home.update returns a
     (#Resume.Model#,    Cmd #Resume.Msg#,  SharedStateUpdate)   type and we want a
@@ -161,7 +161,7 @@ updateWith toPage toMsg model ( subModel, subCmd, subSharedStateUpdate ) =
 
 
 
--- changes the model's currentPage, mostly
+-- changes the model's currentPage and initializes the new page model.
 
 
 navigateTo : Route -> SharedState -> Model -> ( Model, Cmd Msg, SharedStateUpdate )
@@ -186,7 +186,13 @@ navigateTo route sharedState model =
             NotFound.init |> initWith NotFoundPage NotFoundMsg model SharedState.NoUpdate
 
 
-initWith : (subModel -> Page) -> (subMsg -> Msg) -> Model -> SharedStateUpdate -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg, SharedStateUpdate )
+initWith :
+    (subModel -> Page)
+    -> (subMsg -> Msg)
+    -> Model
+    -> SharedStateUpdate
+    -> ( subModel, Cmd subMsg )
+    -> ( Model, Cmd Msg, SharedStateUpdate )
 initWith toPage toMsg model sharedStateUpdate ( subModel, subCmd ) =
     ( { model | currentPage = toPage subModel }
     , Cmd.map toMsg subCmd
