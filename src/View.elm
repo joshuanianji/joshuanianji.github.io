@@ -82,11 +82,13 @@ page model =
         , Element.padding 40
         , Element.spacing 20
         , UiFramework.Text.body
+        , Element.height Element.fill
         ]
         [ FontAwesome.Styles.css |> Element.html
         , title model
         , navbar model
         , content model
+        , footer model
         ]
 
 
@@ -152,8 +154,51 @@ content model =
                 |> mapMsg Router.NotFoundMsg
 
 
+footer : Model -> Element Msg
+footer model =
+    case model.sharedState.device.class of
+        Phone ->
+            footerDesktop
 
--- convert the Msg types to the preferred msg type lmao
+        _ ->
+            footerDesktop
+
+
+
+-- footerMobile =
+-- Element.row
+
+
+footerDesktop =
+    Element.el
+        [ Element.width Element.fill
+        , Element.alignBottom
+        , Element.paddingEach paddings
+        ]
+        (Element.paragraph
+            [ Font.center
+            , Font.size 15
+            ]
+            [ Element.text "Created by Joshua Ji. Find the source code on my "
+            , Element.newTabLink
+                [ Font.underline ]
+                { url = "https://github.com/joshuanianji/website"
+                , label = Element.text "github!"
+                }
+            ]
+        )
+
+
+paddings =
+    { top = 40
+    , right = 0
+    , bottom = 0
+    , left = 0
+    }
+
+
+
+-- convert the Msg types to the preferred msg type
 
 
 mapMsg : (subMsg -> Router.Msg) -> Element subMsg -> Element Model.Msg
