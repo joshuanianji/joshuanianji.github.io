@@ -6,14 +6,13 @@ module UiFramework.Text exposing (body, title)
 
 import Element exposing (Attribute)
 import Element.Font as Font
-import Model exposing (Msg)
 
 
 
 -- body text
 
 
-body : Attribute Msg
+body : Attribute msg
 body =
     Font.family
         [ Font.external
@@ -24,7 +23,7 @@ body =
         ]
 
 
-title : Attribute Msg
+title : Attribute msg
 title =
     Font.family
         [ Font.external
