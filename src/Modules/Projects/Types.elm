@@ -1,4 +1,4 @@
-module Modules.Projects.Types exposing (Language(..), Model, Msg(..), Project, init, update)
+module Modules.Projects.Types exposing (Language(..), Model, Msg(..), Project, Purpose(..), init, update)
 
 {-| To hold types used around the Project modules
 
@@ -26,6 +26,7 @@ type alias Project =
     , githubLink : String
     , year : Int
     , language : Language
+    , purpose : Purpose
     }
 
 
@@ -36,6 +37,16 @@ type alias Project =
 type Language
     = Elm
     | Python
+
+
+
+--the purpose of the project
+
+
+type Purpose
+    = School
+    | Fancy -- working with Dad lol
+    | Personal
 
 
 
