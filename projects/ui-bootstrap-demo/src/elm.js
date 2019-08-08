@@ -6271,6 +6271,9 @@ var author$project$UiFramework$Colors$darken = F2(
 			author$project$UiFramework$Colors$limit(lightness - offset),
 			alpha);
 	});
+var author$project$UiFramework$Configuration$defaultBorderWidth = function (_n0) {
+	return 1;
+};
 var author$project$UiFramework$Configuration$defaultFontSize = function (size) {
 	switch (size.$) {
 		case 'SizeSmall':
@@ -6299,9 +6302,7 @@ var author$project$UiFramework$Configuration$defaultAlertConfig = function (them
 		borderRadius: function (_n0) {
 			return 4;
 		},
-		borderWidth: function (_n1) {
-			return 1;
-		},
+		borderWidth: author$project$UiFramework$Configuration$defaultBorderWidth,
 		fontColor: A2(
 			elm$core$Basics$composeR,
 			themeColor,
@@ -6332,23 +6333,22 @@ var author$project$UiFramework$Configuration$defaultBadgeConfig = function (them
 		pillPaddingX: 9
 	};
 };
+var author$project$UiFramework$Configuration$defaultBorderRadius = function (size) {
+	switch (size.$) {
+		case 'SizeSmall':
+			return 3;
+		case 'SizeDefault':
+			return 4;
+		default:
+			return 5;
+	}
+};
 var author$project$UiFramework$Configuration$defaultButtonConfig = function (themeColor) {
 	return {
 		backgroundColor: themeColor,
 		borderColor: themeColor,
-		borderRadius: function (size) {
-			switch (size.$) {
-				case 'SizeSmall':
-					return 3;
-				case 'SizeDefault':
-					return 4;
-				default:
-					return 5;
-			}
-		},
-		borderWidth: function (_n1) {
-			return 1;
-		},
+		borderRadius: author$project$UiFramework$Configuration$defaultBorderRadius,
+		borderWidth: author$project$UiFramework$Configuration$defaultBorderWidth,
 		fontColor: function (role) {
 			return A3(
 				author$project$UiFramework$Colors$contrastTextColor,
@@ -6436,6 +6436,49 @@ var author$project$UiFramework$Configuration$defaultInputConfig = function (them
 };
 var author$project$UiFramework$Configuration$defaultNavConfig = {disabledColor: author$project$UiFramework$Configuration$bootstrapColors.gray600, dividerColor: author$project$UiFramework$Configuration$bootstrapColors.gray200, dividerMarginY: 8, linkPaddingX: 16, linkPaddingY: 8};
 var author$project$UiFramework$Configuration$defaultNavbarConfig = {brandFontSize: 20, brandPaddingY: 4, menubarPaddingX: 8, menubarPaddingY: 8, paddingX: 16, paddingY: 8, togglerBorderRadius: 4, togglerPaddingX: 12, togglerPaddingY: 4};
+var author$project$UiFramework$Configuration$defaultPaginationConfig = function (themeColor) {
+	var paddingY = function (size) {
+		switch (size.$) {
+			case 'SizeSmall':
+				return 4;
+			case 'SizeDefault':
+				return 8;
+			default:
+				return 12;
+		}
+	};
+	var paddingX = function (size) {
+		switch (size.$) {
+			case 'SizeSmall':
+				return 8;
+			case 'SizeDefault':
+				return 12;
+			default:
+				return 24;
+		}
+	};
+	return {
+		activeBackgroundColor: themeColor(author$project$UiFramework$Types$Primary),
+		activeColor: author$project$UiFramework$Configuration$bootstrapColors.white,
+		backgroundColor: author$project$UiFramework$Configuration$bootstrapColors.white,
+		borderColor: author$project$UiFramework$Configuration$bootstrapColors.gray300,
+		borderRadius: author$project$UiFramework$Configuration$defaultBorderRadius,
+		borderWidth: author$project$UiFramework$Configuration$defaultBorderWidth,
+		color: themeColor(author$project$UiFramework$Types$Primary),
+		disabledBackgroundColor: author$project$UiFramework$Configuration$bootstrapColors.white,
+		disabledBorderColor: author$project$UiFramework$Configuration$bootstrapColors.gray300,
+		disabledColor: author$project$UiFramework$Configuration$bootstrapColors.gray600,
+		fontSize: author$project$UiFramework$Configuration$defaultFontSize,
+		hoverBackgroundColor: author$project$UiFramework$Configuration$bootstrapColors.gray200,
+		hoverBorderColor: author$project$UiFramework$Configuration$bootstrapColors.gray300,
+		hoverColor: A2(
+			author$project$UiFramework$Colors$darken,
+			0.15,
+			themeColor(author$project$UiFramework$Types$Primary)),
+		paddingX: paddingX,
+		paddingY: paddingY
+	};
+};
 var author$project$UiFramework$Configuration$defaultTableConfig = {
 	accentBackground: A2(author$project$UiFramework$Colors$alterColor, 5.0e-2, author$project$UiFramework$Configuration$bootstrapColors.black),
 	backgroundColor: author$project$UiFramework$Configuration$bootstrapColors.white,
@@ -6465,6 +6508,7 @@ var author$project$UiFramework$Configuration$defaultThemeConfig = function () {
 		inputConfig: author$project$UiFramework$Configuration$defaultInputConfig(themeColor),
 		navConfig: author$project$UiFramework$Configuration$defaultNavConfig,
 		navbarConfig: author$project$UiFramework$Configuration$defaultNavbarConfig,
+		paginationConfig: author$project$UiFramework$Configuration$defaultPaginationConfig(themeColor),
 		tableConfig: author$project$UiFramework$Configuration$defaultTableConfig,
 		themeColor: themeColor
 	};
@@ -6991,12 +7035,39 @@ var author$project$Main$subscriptions = function (model) {
 					A2(author$project$Main$WindowSize, x, y));
 			}));
 };
+var author$project$Routes$toUrlString = function (route) {
+	var pieces = function () {
+		switch (route.$) {
+			case 'Home':
+				return _List_Nil;
+			case 'Showroom':
+				return _List_fromArray(
+					['showroom']);
+			default:
+				return _List_fromArray(
+					['oops']);
+		}
+	}();
+	return '#/' + A2(elm$core$String$join, '/', pieces);
+};
 var author$project$SharedState$NoUpdate = {$: 'NoUpdate'};
+var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Modules$Home$Types$update = F3(
 	function (sharedState, msg, model) {
-		return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
+		if (msg.$ === 'NavigateTo') {
+			var route = msg.a;
+			return _Utils_Tuple3(
+				model,
+				A2(
+					elm$browser$Browser$Navigation$pushUrl,
+					sharedState.navKey,
+					author$project$Routes$toUrlString(route)),
+				author$project$SharedState$NoUpdate);
+		} else {
+			return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
+		}
 	});
 var author$project$Modules$NotFound$Types$update = F3(
 	function (sharedState, msg, model) {
@@ -7004,7 +7075,12 @@ var author$project$Modules$NotFound$Types$update = F3(
 	});
 var author$project$Modules$Showroom$Types$update = F3(
 	function (sharedState, msg, model) {
-		return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
+		if (msg.$ === 'NoOp') {
+			return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
+		} else {
+			var _int = msg.a;
+			return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
+		}
 	});
 var author$project$Router$HomeMsg = function (a) {
 	return {$: 'HomeMsg', a: a};
@@ -7069,25 +7145,9 @@ var author$project$Router$updateWith = F4(
 			A2(elm$core$Platform$Cmd$map, toMsg, subCmd),
 			subSharedStateUpdate);
 	});
-var author$project$Routes$toUrlString = function (route) {
-	var pieces = function () {
-		switch (route.$) {
-			case 'Home':
-				return _List_Nil;
-			case 'Showroom':
-				return _List_fromArray(
-					['showroom']);
-			default:
-				return _List_fromArray(
-					['oops']);
-		}
-	}();
-	return '#/' + A2(elm$core$String$join, '/', pieces);
-};
 var author$project$SharedState$UpdateTheme = function (a) {
 	return {$: 'UpdateTheme', a: a};
 };
-var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var elm$core$Basics$not = _Basics_not;
 var author$project$Router$update = F3(
 	function (sharedState, msg, model) {
@@ -7337,6 +7397,9 @@ var author$project$SharedState$getThemeConfig = function (theme) {
 		var config = theme.a;
 		return config;
 	}
+};
+var author$project$Modules$Home$Types$NavigateTo = function (a) {
+	return {$: 'NavigateTo', a: a};
 };
 var author$project$UiFramework$Button$Button = function (a) {
 	return {$: 'Button', a: a};
@@ -13657,7 +13720,11 @@ var author$project$Modules$Home$View$button = author$project$UiFramework$Button$
 		A2(
 			author$project$UiFramework$Button$withLabel,
 			'Learn more »',
-			A2(author$project$UiFramework$Button$withMessage, elm$core$Maybe$Nothing, author$project$UiFramework$Button$default))));
+			A2(
+				author$project$UiFramework$Button$withMessage,
+				elm$core$Maybe$Just(
+					author$project$Modules$Home$Types$NavigateTo(author$project$Routes$Showroom)),
+				author$project$UiFramework$Button$default))));
 var author$project$UiFramework$Internal$uiText = function (f) {
 	return author$project$UiFramework$Internal$Leaf(
 		function (context) {
@@ -14046,6 +14113,7 @@ var author$project$Modules$NotFound$View$view = F2(
 	function (sharedState, model) {
 		return mdgriffith$elm_ui$Element$text('Not found lol');
 	});
+var author$project$Modules$Showroom$Pagination$paginationState = {currentSliceNumber: 1, numberOfSlices: 10};
 var author$project$Modules$Showroom$Alerts$text = function (str) {
 	return author$project$UiFramework$uiText(
 		function (_n0) {
@@ -14593,6 +14661,272 @@ var author$project$Modules$Showroom$Buttons$buttons = A2(
 	_List_fromArray(
 		[author$project$Modules$Showroom$Buttons$coloursAndDisplays, author$project$Modules$Showroom$Buttons$sizes]));
 var author$project$Modules$Showroom$View$buttons = A2(author$project$Modules$Showroom$View$section, 'Buttons', author$project$Modules$Showroom$Buttons$buttons);
+var author$project$UiFramework$Pagination$EllipsisItem = {$: 'EllipsisItem'};
+var author$project$UiFramework$Pagination$NumberItem = function (a) {
+	return {$: 'NumberItem', a: a};
+};
+var author$project$Modules$Showroom$Pagination$paginationItems = _List_fromArray(
+	[
+		author$project$UiFramework$Pagination$NumberItem(1),
+		author$project$UiFramework$Pagination$NumberItem(2),
+		author$project$UiFramework$Pagination$NumberItem(3),
+		author$project$UiFramework$Pagination$EllipsisItem,
+		author$project$UiFramework$Pagination$NumberItem(9),
+		author$project$UiFramework$Pagination$NumberItem(10)
+	]);
+var author$project$Modules$Showroom$Types$PaginationMsg = function (a) {
+	return {$: 'PaginationMsg', a: a};
+};
+var author$project$UiFramework$Pagination$IconLabels = function (a) {
+	return {$: 'IconLabels', a: a};
+};
+var author$project$UiFramework$Pagination$Pagination = function (a) {
+	return {$: 'Pagination', a: a};
+};
+var lattyware$elm_fontawesome$FontAwesome$Icon$Icon = F5(
+	function (prefix, name, width, height, path) {
+		return {height: height, name: name, path: path, prefix: prefix, width: width};
+	});
+var lattyware$elm_fontawesome$FontAwesome$Solid$caretLeft = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'caret-left', 192, 512, 'M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z');
+var lattyware$elm_fontawesome$FontAwesome$Solid$caretRight = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'caret-right', 192, 512, 'M0 384.662V127.338c0-17.818 21.543-26.741 34.142-14.142l128.662 128.662c7.81 7.81 7.81 20.474 0 28.284L34.142 398.804C21.543 411.404 0 402.48 0 384.662z');
+var lattyware$elm_fontawesome$FontAwesome$Solid$ellipsisH = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'ellipsis-h', 512, 512, 'M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z');
+var lattyware$elm_fontawesome$FontAwesome$Solid$stepBackward = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'step-backward', 448, 512, 'M64 468V44c0-6.6 5.4-12 12-12h48c6.6 0 12 5.4 12 12v176.4l195.5-181C352.1 22.3 384 36.6 384 64v384c0 27.4-31.9 41.7-52.5 24.6L136 292.7V468c0 6.6-5.4 12-12 12H76c-6.6 0-12-5.4-12-12z');
+var lattyware$elm_fontawesome$FontAwesome$Solid$stepForward = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'step-forward', 448, 512, 'M384 44v424c0 6.6-5.4 12-12 12h-48c-6.6 0-12-5.4-12-12V291.6l-195.5 181C95.9 489.7 64 475.4 64 448V64c0-27.4 31.9-41.7 52.5-24.6L312 219.3V44c0-6.6 5.4-12 12-12h48c6.6 0 12 5.4 12 12z');
+var author$project$UiFramework$Pagination$default = function (selectedMsg) {
+	return author$project$UiFramework$Pagination$Pagination(
+		{
+			attributes: _List_Nil,
+			ellipsis: lattyware$elm_fontawesome$FontAwesome$Solid$ellipsisH,
+			items: _List_Nil,
+			labels: author$project$UiFramework$Pagination$IconLabels(
+				{first: lattyware$elm_fontawesome$FontAwesome$Solid$stepBackward, last: lattyware$elm_fontawesome$FontAwesome$Solid$stepForward, next: lattyware$elm_fontawesome$FontAwesome$Solid$caretRight, previous: lattyware$elm_fontawesome$FontAwesome$Solid$caretLeft}),
+			selectedMsg: selectedMsg,
+			size: author$project$UiFramework$Types$SizeDefault
+		});
+};
+var author$project$UiFramework$Pagination$renderItem = F3(
+	function (context, options, item) {
+		var config = context.themeConfig.paginationConfig;
+		var paddingX = config.paddingX(options.size);
+		var paddingY = config.paddingY(options.size);
+		if (item.$ === 'NumberItem') {
+			var index = item.a;
+			var _n1 = _Utils_eq(index, context.state.currentSliceNumber) ? _Utils_Tuple3(config.activeColor, config.activeBackgroundColor, config.activeBackgroundColor) : _Utils_Tuple3(config.color, config.borderColor, config.backgroundColor);
+			var color = _n1.a;
+			var borderColor = _n1.b;
+			var bgColor = _n1.c;
+			return A2(
+				mdgriffith$elm_ui$Element$Input$button,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+						A2(mdgriffith$elm_ui$Element$paddingXY, paddingX, paddingY),
+						mdgriffith$elm_ui$Element$Font$color(color),
+						mdgriffith$elm_ui$Element$Border$rounded(0),
+						mdgriffith$elm_ui$Element$Border$width(
+						config.borderWidth(options.size)),
+						mdgriffith$elm_ui$Element$Border$solid,
+						mdgriffith$elm_ui$Element$Border$color(borderColor),
+						mdgriffith$elm_ui$Element$Background$color(bgColor),
+						mdgriffith$elm_ui$Element$pointer
+					]),
+				{
+					label: mdgriffith$elm_ui$Element$text(
+						elm$core$String$fromInt(index)),
+					onPress: elm$core$Maybe$Just(
+						options.selectedMsg(index))
+				});
+		} else {
+			return A2(
+				mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+						A2(mdgriffith$elm_ui$Element$paddingXY, paddingX, paddingY),
+						mdgriffith$elm_ui$Element$Font$color(config.color)
+					]),
+				author$project$UiFramework$Icon$view(options.ellipsis));
+		}
+	});
+var mdgriffith$elm_ui$Element$Border$roundEach = function (_n0) {
+	var topLeft = _n0.topLeft;
+	var topRight = _n0.topRight;
+	var bottomLeft = _n0.bottomLeft;
+	var bottomRight = _n0.bottomRight;
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$borderRound,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$Single,
+			'br-' + (elm$core$String$fromInt(topLeft) + ('-' + (elm$core$String$fromInt(topRight) + (elm$core$String$fromInt(bottomLeft) + ('-' + elm$core$String$fromInt(bottomRight)))))),
+			'border-radius',
+			elm$core$String$fromInt(topLeft) + ('px ' + (elm$core$String$fromInt(topRight) + ('px ' + (elm$core$String$fromInt(bottomRight) + ('px ' + (elm$core$String$fromInt(bottomLeft) + 'px'))))))));
+};
+var author$project$UiFramework$Pagination$view = function (_n0) {
+	var options = _n0.a;
+	return author$project$UiFramework$Internal$fromElement(
+		function (context) {
+			var previousDisabled = context.state.currentSliceNumber === 1;
+			var nextDisabled = _Utils_eq(context.state.currentSliceNumber, context.state.numberOfSlices);
+			var linkItem = F4(
+				function (attrs, label, disabled, index) {
+					return disabled ? A2(mdgriffith$elm_ui$Element$el, attrs, label) : A2(
+						mdgriffith$elm_ui$Element$Input$button,
+						attrs,
+						{
+							label: label,
+							onPress: elm$core$Maybe$Just(
+								options.selectedMsg(index))
+						});
+				});
+			var lastDisabled = _Utils_eq(context.state.currentSliceNumber, context.state.numberOfSlices);
+			var firstDisabled = context.state.currentSliceNumber === 1;
+			var config = context.themeConfig.paginationConfig;
+			var getBackgroundColor = function (disabled) {
+				return disabled ? config.disabledBackgroundColor : config.backgroundColor;
+			};
+			var getBorderColor = function (disabled) {
+				return disabled ? config.disabledBorderColor : config.borderColor;
+			};
+			var getColor = function (disabled) {
+				return disabled ? config.disabledColor : config.color;
+			};
+			var paddingX = config.paddingX(options.size);
+			var paddingY = config.paddingY(options.size);
+			var commonAttrs = function (disabled) {
+				return _Utils_ap(
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+							A2(mdgriffith$elm_ui$Element$paddingXY, paddingX, paddingY),
+							mdgriffith$elm_ui$Element$Font$color(
+							getColor(disabled)),
+							mdgriffith$elm_ui$Element$Border$width(
+							config.borderWidth(options.size)),
+							mdgriffith$elm_ui$Element$Border$solid,
+							mdgriffith$elm_ui$Element$Border$color(
+							getBorderColor(disabled)),
+							mdgriffith$elm_ui$Element$Background$color(
+							getBackgroundColor(disabled))
+						]),
+					disabled ? _List_Nil : _List_fromArray(
+						[mdgriffith$elm_ui$Element$pointer]));
+			};
+			return A2(
+				mdgriffith$elm_ui$Element$row,
+				options.attributes,
+				_Utils_ap(
+					_List_fromArray(
+						[
+							A4(
+							linkItem,
+							A2(
+								elm$core$List$cons,
+								mdgriffith$elm_ui$Element$Border$roundEach(
+									{
+										bottomLeft: config.borderRadius(options.size),
+										bottomRight: 0,
+										topLeft: config.borderRadius(options.size),
+										topRight: 0
+									}),
+								commonAttrs(firstDisabled)),
+							function () {
+								var _n1 = options.labels;
+								if (_n1.$ === 'IconLabels') {
+									var icons = _n1.a;
+									return author$project$UiFramework$Icon$view(icons.first);
+								} else {
+									var labels = _n1.a;
+									return mdgriffith$elm_ui$Element$text(labels.first);
+								}
+							}(),
+							firstDisabled,
+							1),
+							A4(
+							linkItem,
+							A2(
+								elm$core$List$cons,
+								mdgriffith$elm_ui$Element$Border$rounded(0),
+								commonAttrs(previousDisabled)),
+							function () {
+								var _n2 = options.labels;
+								if (_n2.$ === 'IconLabels') {
+									var icons = _n2.a;
+									return author$project$UiFramework$Icon$view(icons.previous);
+								} else {
+									var labels = _n2.a;
+									return mdgriffith$elm_ui$Element$text(labels.previous);
+								}
+							}(),
+							previousDisabled,
+							context.state.currentSliceNumber - 1)
+						]),
+					_Utils_ap(
+						A2(
+							elm$core$List$map,
+							A2(author$project$UiFramework$Pagination$renderItem, context, options),
+							options.items),
+						_List_fromArray(
+							[
+								A4(
+								linkItem,
+								A2(
+									elm$core$List$cons,
+									mdgriffith$elm_ui$Element$Border$rounded(0),
+									commonAttrs(nextDisabled)),
+								function () {
+									var _n3 = options.labels;
+									if (_n3.$ === 'IconLabels') {
+										var icons = _n3.a;
+										return author$project$UiFramework$Icon$view(icons.next);
+									} else {
+										var labels = _n3.a;
+										return mdgriffith$elm_ui$Element$text(labels.next);
+									}
+								}(),
+								nextDisabled,
+								context.state.currentSliceNumber + 1),
+								A4(
+								linkItem,
+								A2(
+									elm$core$List$cons,
+									mdgriffith$elm_ui$Element$Border$roundEach(
+										{
+											bottomLeft: 0,
+											bottomRight: config.borderRadius(options.size),
+											topLeft: 0,
+											topRight: config.borderRadius(options.size)
+										}),
+									commonAttrs(lastDisabled)),
+								function () {
+									var _n4 = options.labels;
+									if (_n4.$ === 'IconLabels') {
+										var icons = _n4.a;
+										return author$project$UiFramework$Icon$view(icons.last);
+									} else {
+										var labels = _n4.a;
+										return mdgriffith$elm_ui$Element$text(labels.last);
+									}
+								}(),
+								lastDisabled,
+								context.state.numberOfSlices)
+							]))));
+		});
+};
+var author$project$UiFramework$Pagination$withItems = F2(
+	function (items, _n0) {
+		var options = _n0.a;
+		return author$project$UiFramework$Pagination$Pagination(
+			_Utils_update(
+				options,
+				{items: items}));
+	});
+var author$project$Modules$Showroom$Pagination$pagination = author$project$UiFramework$Pagination$view(
+	A2(
+		author$project$UiFramework$Pagination$withItems,
+		author$project$Modules$Showroom$Pagination$paginationItems,
+		author$project$UiFramework$Pagination$default(author$project$Modules$Showroom$Types$PaginationMsg)));
+var author$project$Modules$Showroom$View$pagination = A2(author$project$Modules$Showroom$View$section, 'Pagination', author$project$Modules$Showroom$Pagination$pagination);
 var author$project$Modules$Showroom$Table$information = _List_fromArray(
 	[
 		{column1: 'column 1', column2: 'column 2', column3: 'column 3', role: 'Row 1'},
@@ -14934,7 +15268,7 @@ var author$project$UiFramework$Table$view = F2(
 					[
 						mdgriffith$elm_ui$Element$Background$color(config.backgroundColor),
 						mdgriffith$elm_ui$Element$Font$color(config.color),
-						mdgriffith$elm_ui$Element$scrollbars
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
 					]);
 				var cellPaddingXY = options.compact ? A2(mdgriffith$elm_ui$Element$paddingXY, config.cellPaddingCompact, config.cellPaddingCompact) : A2(mdgriffith$elm_ui$Element$paddingXY, config.cellPadding, config.cellPadding);
 				var borderWidthY = function () {
@@ -14990,27 +15324,35 @@ var author$project$UiFramework$Table$view = F2(
 						A2(author$project$UiFramework$Internal$toElement, context, head));
 				};
 				return A2(
-					mdgriffith$elm_ui$Element$indexedTable,
-					tableAttributes,
-					{
-						columns: A2(
-							elm$core$List$map,
-							function (column) {
-								return {
-									header: headWrapper(column.head),
-									view: F2(
-										function (index, record) {
-											return A2(
-												cellWrapper,
-												index,
-												column.viewData(record));
-										}),
-									width: mdgriffith$elm_ui$Element$fill
-								};
-							},
-							options.columns),
-						data: data
-					});
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$scrollbars
+						]),
+					A2(
+						mdgriffith$elm_ui$Element$indexedTable,
+						tableAttributes,
+						{
+							columns: A2(
+								elm$core$List$map,
+								function (column) {
+									return {
+										header: headWrapper(column.head),
+										view: F2(
+											function (index, record) {
+												return A2(
+													cellWrapper,
+													index,
+													column.viewData(record));
+											}),
+										width: mdgriffith$elm_ui$Element$fill
+									};
+								},
+								options.columns),
+							data: data
+						}));
 			});
 	});
 var author$project$UiFramework$Table$withColumns = F2(
@@ -15182,12 +15524,13 @@ var author$project$Modules$Showroom$View$content = A2(
 			mdgriffith$elm_ui$Element$spacing(64)
 		]),
 	_List_fromArray(
-		[author$project$Modules$Showroom$View$title, author$project$Modules$Showroom$View$buttons, author$project$Modules$Showroom$View$typography, author$project$Modules$Showroom$View$badges, author$project$Modules$Showroom$View$alerts, author$project$Modules$Showroom$View$table]));
+		[author$project$Modules$Showroom$View$title, author$project$Modules$Showroom$View$buttons, author$project$Modules$Showroom$View$typography, author$project$Modules$Showroom$View$badges, author$project$Modules$Showroom$View$alerts, author$project$Modules$Showroom$View$table, author$project$Modules$Showroom$View$pagination]));
 var author$project$Modules$Showroom$View$view = F2(
 	function (sharedState, model) {
 		var context = {
 			device: sharedState.device,
 			parentRole: elm$core$Maybe$Nothing,
+			state: author$project$Modules$Showroom$Pagination$paginationState,
 			theme: sharedState.theme,
 			themeConfig: author$project$SharedState$getThemeConfig(sharedState.theme)
 		};
@@ -15292,6 +15635,35 @@ var author$project$Themes$Darkly$darklyInputConfig = function (themeColor) {
 		_default,
 		{borderColor: author$project$UiFramework$Colors$transparent, fontColor: author$project$UiFramework$Configuration$bootstrapColors.gray700});
 };
+var author$project$Themes$Darkly$darklyPaginationConfig = function (themeColor) {
+	var _default = author$project$UiFramework$Configuration$defaultPaginationConfig(themeColor);
+	return _Utils_update(
+		_default,
+		{
+			activeBackgroundColor: A2(
+				author$project$UiFramework$Colors$lighten,
+				0.1,
+				themeColor(author$project$UiFramework$Types$Success)),
+			backgroundColor: themeColor(author$project$UiFramework$Types$Success),
+			borderColor: author$project$UiFramework$Colors$transparent,
+			borderWidth: function (_n0) {
+				return 0;
+			},
+			color: author$project$UiFramework$Configuration$bootstrapColors.white,
+			disabledBackgroundColor: A2(
+				author$project$UiFramework$Colors$darken,
+				0.15,
+				themeColor(author$project$UiFramework$Types$Success)),
+			disabledBorderColor: author$project$UiFramework$Colors$transparent,
+			disabledColor: author$project$UiFramework$Configuration$bootstrapColors.white,
+			hoverBackgroundColor: A2(
+				author$project$UiFramework$Colors$lighten,
+				0.1,
+				themeColor(author$project$UiFramework$Types$Success)),
+			hoverBorderColor: author$project$UiFramework$Colors$transparent,
+			hoverColor: author$project$UiFramework$Configuration$bootstrapColors.white
+		});
+};
 var author$project$Themes$Darkly$darklyTableConfig = _Utils_update(
 	author$project$UiFramework$Configuration$defaultTableConfig,
 	{
@@ -15344,6 +15716,7 @@ var author$project$Themes$Darkly$darklyThemeConfig = function () {
 		inputConfig: author$project$Themes$Darkly$darklyInputConfig(themeColor),
 		navConfig: author$project$UiFramework$Configuration$defaultNavConfig,
 		navbarConfig: author$project$UiFramework$Configuration$defaultNavbarConfig,
+		paginationConfig: author$project$Themes$Darkly$darklyPaginationConfig(themeColor),
 		tableConfig: author$project$Themes$Darkly$darklyTableConfig,
 		themeColor: themeColor
 	};
@@ -15821,10 +16194,6 @@ var author$project$UiFramework$Navbar$withMenuTitle = F2(
 			default:
 				return item;
 		}
-	});
-var lattyware$elm_fontawesome$FontAwesome$Icon$Icon = F5(
-	function (prefix, name, width, height, path) {
-		return {height: height, name: name, path: path, prefix: prefix, width: width};
 	});
 var lattyware$elm_fontawesome$FontAwesome$Solid$flag = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'flag', 512, 512, 'M349.565 98.783C295.978 98.783 251.721 64 184.348 64c-24.955 0-47.309 4.384-68.045 12.013a55.947 55.947 0 0 0 3.586-23.562C118.117 24.015 94.806 1.206 66.338.048 34.345-1.254 8 24.296 8 56c0 19.026 9.497 35.825 24 45.945V488c0 13.255 10.745 24 24 24h16c13.255 0 24-10.745 24-24v-94.4c28.311-12.064 63.582-22.122 114.435-22.122 53.588 0 97.844 34.783 165.217 34.783 48.169 0 86.667-16.294 122.505-40.858C506.84 359.452 512 349.571 512 339.045v-243.1c0-23.393-24.269-38.87-45.485-29.016-34.338 15.948-76.454 31.854-116.95 31.854z');
 var lattyware$elm_fontawesome$FontAwesome$Solid$home = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'home', 576, 512, 'M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z');
