@@ -10,6 +10,7 @@ import Element.Input as Input
 import FontAwesome.Styles
 import Helpers.Colour as Colour
 import Helpers.FontFamily as FontFamily
+import Helpers.Util as Util
 import Html exposing (Html)
 import Http
 import Page.Home as Home
@@ -251,34 +252,33 @@ content model =
     case model.router.currentPage of
         HomePage homeModel ->
             Home.view homeModel model.sharedState
-                |> mapMsg Router.HomeMsg
+                |> Util.mapMsg Router.HomeMsg
+                |> Element.map RouterMsg
 
         ResumePage resumeModel ->
             Resume.view resumeModel model.sharedState
-                |> mapMsg Router.ResumeMsg
+                |> Util.mapMsg Router.ResumeMsg
+                |> Element.map RouterMsg
 
         ProjectsPage projectsModel ->
             Projects.view projectsModel model.sharedState
-                |> mapMsg Router.ProjectsMsg
+                |> Util.mapMsg Router.ProjectsMsg
+                |> Element.map RouterMsg
 
         PostOverviewPage postOverviewModel ->
             PostOverview.view postOverviewModel model.sharedState
-                |> mapMsg Router.PostOverviewMsg
+                |> Util.mapMsg Router.PostOverviewMsg
+                |> Element.map RouterMsg
 
         PostPage postModel ->
             Post.view postModel model.sharedState
-                |> mapMsg Router.PostMsg
+                |> Util.mapMsg Router.PostMsg
+                |> Element.map RouterMsg
 
         NotFoundPage notFoundModel ->
             NotFound.view notFoundModel model.sharedState
-                |> mapMsg Router.NotFoundMsg
-
-
-mapMsg : (subMsg -> Router.Msg) -> Element subMsg -> Element Msg
-mapMsg toMsg element =
-    element
-        |> Element.map toMsg
-        |> Element.map RouterMsg
+                |> Util.mapMsg Router.NotFoundMsg
+                |> Element.map RouterMsg
 
 
 footer : Model -> Element Msg
