@@ -1,12 +1,13 @@
-module Modules.NotFound.Types exposing (Model, Msg(..), init, update)
+module Page.Resume exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation as Navigation
+import Element exposing (Element)
 import Routes exposing (Route)
 import SharedState exposing (SharedState, SharedStateUpdate(..))
 
 
 
--- MODEL MSG UPDATE --
+-- MODEL
 
 
 type alias Model =
@@ -19,15 +20,21 @@ init =
 
 
 
--- Msg type consists of nothing lmao
+-- VIEW
+
+
+view : Model -> SharedState -> Element Msg
+view model sharedState =
+    "Lol nothing's here yet"
+        |> Element.text
+
+
+
+-- UPDATE
 
 
 type Msg
     = NoOp
-
-
-
--- because we can either change the sharedState or model, we return a tuple. This tuple is handled by the root Update.elm module
 
 
 update : SharedState -> Msg -> Model -> ( Model, Cmd Msg, SharedStateUpdate )

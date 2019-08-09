@@ -1,15 +1,28 @@
-module Modules.Home.View exposing (view)
+module Page.Home exposing (Model, Msg, init, update, view)
 
-{-
-   "Home" will also be the "About" page as well.
-
--}
-
+import Browser.Navigation as Navigation
 import Element exposing (Device, DeviceClass(..), Element, Orientation(..))
 import Element.Border as Border
 import Element.Font as Font
-import Modules.Home.Types exposing (Model, Msg)
-import SharedState exposing (SharedState)
+import Routes exposing (Route)
+import SharedState exposing (SharedState, SharedStateUpdate(..))
+
+
+
+-- MODEL
+
+
+type alias Model =
+    {}
+
+
+init : ( Model, Cmd Msg )
+init =
+    ( {}, Cmd.none )
+
+
+
+-- VIEW
 
 
 view : Model -> SharedState -> Element Msg
@@ -66,7 +79,7 @@ handheldDisplay screenSize sharedState =
 
 
 
--- wrapper for my profile pic to take up more room. Adds padding of device os a tablet
+-- wrapper for my profile pic to take up more room. Adds padding of device is a tablet
 
 
 profilePicWrap : SharedState -> Element Msg
@@ -136,22 +149,13 @@ about sharedState =
         [ Element.spacing 20
         , Element.width (Element.fillPortion 1)
         ]
-        [ greeting
+        [ Element.el
+            [ Font.size 55
+            , Font.bold
+            ]
+            (Element.text "Hey,")
         , aboutContent sharedState
         ]
-
-
-
--- BIG "hey" lmao
-
-
-greeting : Element Msg
-greeting =
-    Element.el
-        [ Font.size 55
-        , Font.bold
-        ]
-        (Element.text "Hey,")
 
 
 
@@ -192,3 +196,18 @@ aboutContent sharedState =
         , Element.paragraph [] [ Element.text "I program in Elm, Python and Java," ]
         , Element.paragraph [] [ Element.text "though I have ventured into HTML, CSS and Javascript." ]
         ]
+
+
+
+-- UPDATE
+
+
+type Msg
+    = NoOp
+
+
+update : SharedState -> Msg -> Model -> ( Model, Cmd Msg, SharedStateUpdate )
+update sharedState msg model =
+    case msg of
+        NoOp ->
+            ( model, Cmd.none, NoUpdate )

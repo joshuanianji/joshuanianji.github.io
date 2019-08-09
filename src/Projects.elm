@@ -1,13 +1,35 @@
-module Modules.Projects.List exposing (filter, projects)
+module Projects exposing (Language(..), Project, Purpose(..), filter, projects)
 
-{-| The List of Projects
+{-| interface for the Project data structure
 -}
 
-import Modules.Projects.Types exposing (Language(..), Project, Purpose(..))
+
+type alias Project =
+    { name : String
+    , imgLink : String
+    , blurb : String
+    , aboutLink : String
+    , link : String
+    , githubLink : String
+    , year : Int
+    , language : Language
+    , purpose : Purpose
+    }
+
+
+type Language
+    = Elm
+    | Python
+
+
+type Purpose
+    = School
+    | Fancy
+    | Personal
 
 
 
--- filter a list of projects based on their language
+-- Helpers
 
 
 filter : Language -> List Project -> List Project
@@ -18,9 +40,11 @@ filter language projs =
 
 
 
--- ordered by "newest first" because I'm too bad of a programmer to want to learn the Elm Time library oops
+-- DATA
 
 
+{-| This is ordered by newest first but I want to add in a time field one day
+-}
 projects : List Project
 projects =
     [ { name = "Ui Bootstrap Elm Demo"

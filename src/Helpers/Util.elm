@@ -1,4 +1,4 @@
-module Util exposing (toPairs)
+module Helpers.Util exposing (toPairs)
 
 {-
    Utilities

@@ -9,12 +9,12 @@ module Router exposing (Model, Msg(..), Page(..), init, update)
 import Browser exposing (UrlRequest(..))
 import Browser.Navigation as Nav
 import Http
-import Modules.Home.Types as Home
-import Modules.NotFound.Types as NotFound
-import Modules.Post.Types as Post
-import Modules.PostOverview.Types as PostOverview
-import Modules.Projects.Types as Projects
-import Modules.Resume.Types as Resume
+import Page.Home as Home
+import Page.NotFound as NotFound
+import Page.Post as Post
+import Page.PostOverview as PostOverview
+import Page.Projects as Projects
+import Page.Resume as Resume
 import Routes exposing (Route(..))
 import SharedState exposing (SharedState, SharedStateUpdate)
 import Task

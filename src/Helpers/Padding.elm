@@ -1,4 +1,4 @@
-module UiFramework.Padding exposing (responsive)
+module Helpers.Padding exposing (responsive)
 
 {-
    Responsive padding using fillPortion

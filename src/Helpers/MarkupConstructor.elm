@@ -1,11 +1,8 @@
+module Helpers.MarkupConstructor exposing (fromMarkup, test)
+
 {-
    Constructs Elm-Ui from Elm Markup strings
-
-   Completely separate from other model-view-msg! Notice the type signatures.
 -}
-
-
-module Modules.Post.Constructor exposing (fromMarkup, main)
 
 import Element exposing (Attribute, Element)
 import Element.Font as Font
@@ -19,7 +16,7 @@ import Mark.Error exposing (Error)
 -- this is used to test the markup parser from the string at the bottom of the file
 
 
-main =
+test =
     markupText
         |> fromMarkup
         |> Element.layout []

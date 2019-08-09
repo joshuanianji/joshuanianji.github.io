@@ -1,18 +1,13 @@
-module Modules.Home.Types exposing (Model, Msg(..), init, update)
-
-{-| To hold types used around the Project modules
-
-    Also hold the model - msg - update functions
-
--}
+module Page.NotFound exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation as Navigation
+import Element exposing (Element)
 import Routes exposing (Route)
 import SharedState exposing (SharedState, SharedStateUpdate(..))
 
 
 
--- MODEL MSG UPDATE --
+-- MODEL
 
 
 type alias Model =
@@ -25,15 +20,21 @@ init =
 
 
 
--- Msg type consists of nothing lmao
+-- VIEW
+
+
+view : Model -> SharedState -> Element Msg
+view model sharedState =
+    "Looks like your page wasn't found!"
+        |> Element.text
+
+
+
+-- UPDATE
 
 
 type Msg
     = NoOp
-
-
-
--- because we can either change the sharedState or model, we return a tuple. This tuple is handled by the root Update.elm module
 
 
 update : SharedState -> Msg -> Model -> ( Model, Cmd Msg, SharedStateUpdate )

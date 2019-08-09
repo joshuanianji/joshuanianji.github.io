@@ -1,4 +1,4 @@
-module UiFramework.Colour exposing (black, gray, shaded, white)
+module Helpers.Colour exposing (black, gray, shaded, white)
 
 import Element exposing (Color, rgb, rgb255, rgba255)
 
