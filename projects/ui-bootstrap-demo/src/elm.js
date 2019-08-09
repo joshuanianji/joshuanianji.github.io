@@ -7054,7 +7054,7 @@ var author$project$SharedState$NoUpdate = {$: 'NoUpdate'};
 var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
-var author$project$Modules$Home$Types$update = F3(
+var author$project$Page$Home$update = F3(
 	function (sharedState, msg, model) {
 		if (msg.$ === 'NavigateTo') {
 			var route = msg.a;
@@ -7069,11 +7069,11 @@ var author$project$Modules$Home$Types$update = F3(
 			return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
 		}
 	});
-var author$project$Modules$NotFound$Types$update = F3(
+var author$project$Page$NotFound$update = F3(
 	function (sharedState, msg, model) {
 		return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
 	});
-var author$project$Modules$Showroom$Types$update = F3(
+var author$project$Page$Showroom$update = F3(
 	function (sharedState, msg, model) {
 		if (msg.$ === 'NoOp') {
 			return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
@@ -7098,13 +7098,13 @@ var author$project$Router$ShowroomPage = function (a) {
 	return {$: 'ShowroomPage', a: a};
 };
 var author$project$Router$ThemeSelectOpen = {$: 'ThemeSelectOpen'};
-var author$project$Modules$Home$Types$init = _Utils_Tuple2(
+var author$project$Page$Home$init = _Utils_Tuple2(
 	{},
 	elm$core$Platform$Cmd$none);
-var author$project$Modules$NotFound$Types$init = _Utils_Tuple2(
+var author$project$Page$NotFound$init = _Utils_Tuple2(
 	{},
 	elm$core$Platform$Cmd$none);
-var author$project$Modules$Showroom$Types$init = _Utils_Tuple2(
+var author$project$Page$Showroom$init = _Utils_Tuple2(
 	{},
 	elm$core$Platform$Cmd$none);
 var author$project$Router$initWith = F5(
@@ -7124,11 +7124,11 @@ var author$project$Router$navigateTo = F3(
 	function (route, sharedState, model) {
 		switch (route.$) {
 			case 'Home':
-				return A5(author$project$Router$initWith, author$project$Router$HomePage, author$project$Router$HomeMsg, model, author$project$SharedState$NoUpdate, author$project$Modules$Home$Types$init);
+				return A5(author$project$Router$initWith, author$project$Router$HomePage, author$project$Router$HomeMsg, model, author$project$SharedState$NoUpdate, author$project$Page$Home$init);
 			case 'Showroom':
-				return A5(author$project$Router$initWith, author$project$Router$ShowroomPage, author$project$Router$ShowroomMsg, model, author$project$SharedState$NoUpdate, author$project$Modules$Showroom$Types$init);
+				return A5(author$project$Router$initWith, author$project$Router$ShowroomPage, author$project$Router$ShowroomMsg, model, author$project$SharedState$NoUpdate, author$project$Page$Showroom$init);
 			default:
-				return A5(author$project$Router$initWith, author$project$Router$NotFoundPage, author$project$Router$NotFoundMsg, model, author$project$SharedState$NoUpdate, author$project$Modules$NotFound$Types$init);
+				return A5(author$project$Router$initWith, author$project$Router$NotFoundPage, author$project$Router$NotFoundMsg, model, author$project$SharedState$NoUpdate, author$project$Page$NotFound$init);
 		}
 	});
 var author$project$Router$updateWith = F4(
@@ -7186,7 +7186,7 @@ var author$project$Router$update = F3(
 							author$project$Router$HomePage,
 							author$project$Router$HomeMsg,
 							model,
-							A3(author$project$Modules$Home$Types$update, sharedState, subMsg, subModel));
+							A3(author$project$Page$Home$update, sharedState, subMsg, subModel));
 					} else {
 						break _n0$8;
 					}
@@ -7199,7 +7199,7 @@ var author$project$Router$update = F3(
 							author$project$Router$ShowroomPage,
 							author$project$Router$ShowroomMsg,
 							model,
-							A3(author$project$Modules$Showroom$Types$update, sharedState, subMsg, subModel));
+							A3(author$project$Page$Showroom$update, sharedState, subMsg, subModel));
 					} else {
 						break _n0$8;
 					}
@@ -7212,7 +7212,7 @@ var author$project$Router$update = F3(
 							author$project$Router$NotFoundPage,
 							author$project$Router$NotFoundMsg,
 							model,
-							A3(author$project$Modules$NotFound$Types$update, sharedState, subMsg, subModel));
+							A3(author$project$Page$NotFound$update, sharedState, subMsg, subModel));
 					} else {
 						break _n0$8;
 					}
@@ -7372,7 +7372,8 @@ var author$project$Main$update = F2(
 						A2(
 							elm$core$Debug$log,
 							'Device',
-							mdgriffith$elm_ui$Element$classifyDevice(windowSize))));
+							mdgriffith$elm_ui$Element$classifyDevice(
+								A2(elm$core$Debug$log, 'Window Size', windowSize)))));
 			default:
 				var routerMsg = msg.a;
 				return A2(author$project$Main$updateRouter, model, routerMsg);
@@ -7398,7 +7399,7 @@ var author$project$SharedState$getThemeConfig = function (theme) {
 		return config;
 	}
 };
-var author$project$Modules$Home$Types$NavigateTo = function (a) {
+var author$project$Page$Home$NavigateTo = function (a) {
 	return {$: 'NavigateTo', a: a};
 };
 var author$project$UiFramework$Button$Button = function (a) {
@@ -13715,7 +13716,7 @@ var author$project$UiFramework$Button$withMessage = F2(
 				options,
 				{onPress: msg}));
 	});
-var author$project$Modules$Home$View$button = author$project$UiFramework$Button$view(
+var author$project$Page$Home$button = author$project$UiFramework$Button$view(
 	author$project$UiFramework$Button$withLarge(
 		A2(
 			author$project$UiFramework$Button$withLabel,
@@ -13723,7 +13724,7 @@ var author$project$Modules$Home$View$button = author$project$UiFramework$Button$
 			A2(
 				author$project$UiFramework$Button$withMessage,
 				elm$core$Maybe$Just(
-					author$project$Modules$Home$Types$NavigateTo(author$project$Routes$Showroom)),
+					author$project$Page$Home$NavigateTo(author$project$Routes$Showroom)),
 				author$project$UiFramework$Button$default))));
 var author$project$UiFramework$Internal$uiText = function (f) {
 	return author$project$UiFramework$Internal$Leaf(
@@ -13733,7 +13734,7 @@ var author$project$UiFramework$Internal$uiText = function (f) {
 		});
 };
 var author$project$UiFramework$uiText = author$project$UiFramework$Internal$uiText;
-var author$project$Modules$Home$View$text = function (str) {
+var author$project$Page$Home$text = function (str) {
 	return author$project$UiFramework$uiText(
 		function (_n0) {
 			return str;
@@ -13801,7 +13802,7 @@ var author$project$UiFramework$Internal$uiParagraph = function (attrs) {
 		});
 };
 var author$project$UiFramework$uiParagraph = author$project$UiFramework$Internal$uiParagraph;
-var author$project$Modules$Home$View$description = A2(
+var author$project$Page$Home$description = A2(
 	author$project$UiFramework$uiColumn,
 	_List_fromArray(
 		[
@@ -13814,14 +13815,14 @@ var author$project$Modules$Home$View$description = A2(
 			_List_Nil,
 			_List_fromArray(
 				[
-					author$project$Modules$Home$View$text('Go ahead and change the themes between the two preset ones we have right now.')
+					author$project$Page$Home$text('Go ahead and change the themes between the two preset ones we have right now.')
 				])),
 			A2(
 			author$project$UiFramework$uiParagraph,
 			_List_Nil,
 			_List_fromArray(
 				[
-					author$project$Modules$Home$View$text('We\'ll have to fix the button soon haha it looks a bit funky.')
+					author$project$Page$Home$text('We\'ll have to fix the button soon haha it looks a bit funky.')
 				]))
 		]));
 var author$project$UiFramework$Typography$SizeLead = {$: 'SizeLead'};
@@ -13894,7 +13895,7 @@ var author$project$UiFramework$Typography$textLead = function (listAttr) {
 		author$project$UiFramework$Typography$SizeLead,
 		A2(elm$core$List$cons, mdgriffith$elm_ui$Element$Font$light, listAttr));
 };
-var author$project$Modules$Home$View$lead = A2(
+var author$project$Page$Home$lead = A2(
 	author$project$UiFramework$uiParagraph,
 	_List_Nil,
 	_List_fromArray(
@@ -13902,7 +13903,7 @@ var author$project$Modules$Home$View$lead = A2(
 			A2(
 			author$project$UiFramework$Typography$textLead,
 			_List_Nil,
-			author$project$Modules$Home$View$text('This is a very simple demo template. Here we have a navigation bar with a dropdown, as well as a jumbotron.'))
+			author$project$Page$Home$text('This is a very simple demo template. Here we have a navigation bar with a dropdown, as well as a jumbotron.'))
 		]));
 var author$project$UiFramework$Typography$Display2 = {$: 'Display2'};
 var author$project$UiFramework$Typography$headingLevel = function (level) {
@@ -13993,13 +13994,19 @@ var author$project$UiFramework$Typography$display2 = function (listAttr) {
 		author$project$UiFramework$Typography$Display2,
 		A2(elm$core$List$cons, mdgriffith$elm_ui$Element$Font$light, listAttr));
 };
-var author$project$Modules$Home$View$title = A2(
+var author$project$Page$Home$title = A2(
 	author$project$UiFramework$Typography$display2,
 	_List_fromArray(
 		[
 			A2(mdgriffith$elm_ui$Element$paddingXY, 0, 30)
 		]),
-	author$project$Modules$Home$View$text('Hello, World!'));
+	A2(
+		author$project$UiFramework$uiParagraph,
+		_List_Nil,
+		_List_fromArray(
+			[
+				author$project$Page$Home$text('Hello, World!')
+			])));
 var author$project$UiFramework$Container$Container = function (a) {
 	return {$: 'Container', a: a};
 };
@@ -14010,11 +14017,11 @@ var author$project$UiFramework$Internal$uiNone = author$project$UiFramework$Inte
 	});
 var author$project$UiFramework$uiNone = author$project$UiFramework$Internal$uiNone;
 var author$project$UiFramework$Container$defaultOptions = {child: author$project$UiFramework$uiNone, fillWidth: false, jumbotron: false};
-var author$project$UiFramework$Container$default = author$project$UiFramework$Container$Container(author$project$UiFramework$Container$defaultOptions);
 var author$project$UiFramework$Container$jumbotron = author$project$UiFramework$Container$Container(
 	_Utils_update(
 		author$project$UiFramework$Container$defaultOptions,
 		{jumbotron: true}));
+var author$project$UiFramework$Container$default = author$project$UiFramework$Container$Container(author$project$UiFramework$Container$defaultOptions);
 var author$project$UiFramework$Container$maxWidth = function (device) {
 	switch (device.$) {
 		case 'Phone':
@@ -14074,6 +14081,10 @@ var author$project$UiFramework$Container$withChild = F2(
 				options,
 				{child: child}));
 	});
+var author$project$UiFramework$Container$simple = function (child) {
+	return author$project$UiFramework$Container$view(
+		A2(author$project$UiFramework$Container$withChild, child, author$project$UiFramework$Container$default));
+};
 var author$project$UiFramework$Container$withFullWidth = function (_n0) {
 	var options = _n0.a;
 	return author$project$UiFramework$Container$Container(
@@ -14081,7 +14092,7 @@ var author$project$UiFramework$Container$withFullWidth = function (_n0) {
 			options,
 			{fillWidth: true}));
 };
-var author$project$Modules$Home$View$jumbotron = function () {
+var author$project$Page$Home$jumbotron = function () {
 	var jumbotronContent = A2(
 		author$project$UiFramework$uiColumn,
 		_List_fromArray(
@@ -14091,35 +14102,133 @@ var author$project$Modules$Home$View$jumbotron = function () {
 				mdgriffith$elm_ui$Element$spacing(16)
 			]),
 		_List_fromArray(
-			[author$project$Modules$Home$View$title, author$project$Modules$Home$View$lead, author$project$Modules$Home$View$description, author$project$Modules$Home$View$button]));
+			[author$project$Page$Home$title, author$project$Page$Home$lead, author$project$Page$Home$description, author$project$Page$Home$button]));
 	return author$project$UiFramework$Container$view(
 		A2(
 			author$project$UiFramework$Container$withChild,
-			author$project$UiFramework$Container$view(
-				A2(author$project$UiFramework$Container$withChild, jumbotronContent, author$project$UiFramework$Container$default)),
+			author$project$UiFramework$Container$simple(jumbotronContent),
 			author$project$UiFramework$Container$withFullWidth(author$project$UiFramework$Container$jumbotron)));
 }();
 var author$project$UiFramework$toElement = author$project$UiFramework$Internal$toElement;
-var author$project$Modules$Home$View$view = F2(
+var author$project$Page$Home$view = F2(
 	function (sharedState, model) {
 		var context = {
 			device: sharedState.device,
 			parentRole: elm$core$Maybe$Nothing,
 			themeConfig: author$project$SharedState$getThemeConfig(sharedState.theme)
 		};
-		return A2(author$project$UiFramework$toElement, context, author$project$Modules$Home$View$jumbotron);
+		return A2(author$project$UiFramework$toElement, context, author$project$Page$Home$jumbotron);
 	});
-var author$project$Modules$NotFound$View$view = F2(
-	function (sharedState, model) {
-		return mdgriffith$elm_ui$Element$text('Not found lol');
+var author$project$UiFramework$fromElement = author$project$UiFramework$Internal$fromElement;
+var author$project$UiFramework$Types$Secondary = {$: 'Secondary'};
+var lattyware$elm_fontawesome$FontAwesome$Icon$Icon = F5(
+	function (prefix, name, width, height, path) {
+		return {height: height, name: name, path: path, prefix: prefix, width: width};
 	});
-var author$project$Modules$Showroom$Pagination$paginationState = {currentSliceNumber: 1, numberOfSlices: 10};
-var author$project$Modules$Showroom$Alerts$text = function (str) {
+var lattyware$elm_fontawesome$FontAwesome$Solid$frown = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'frown', 496, 512, 'M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm80 168c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zm-160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zm170.2 218.2C315.8 367.4 282.9 352 248 352s-67.8 15.4-90.2 42.2c-13.5 16.3-38.1-4.2-24.6-20.5C161.7 339.6 203.6 320 248 320s86.3 19.6 114.7 53.8c13.6 16.2-11 36.7-24.5 20.4z');
+var author$project$Page$NotFound$icon = author$project$UiFramework$fromElement(
+	function (context) {
+		return A2(
+			mdgriffith$elm_ui$Element$el,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$Font$color(
+					context.themeConfig.themeColor(author$project$UiFramework$Types$Secondary))
+				]),
+			author$project$UiFramework$Icon$view(lattyware$elm_fontawesome$FontAwesome$Solid$frown));
+	});
+var author$project$Page$NotFound$text = function (str) {
 	return author$project$UiFramework$uiText(
 		function (_n0) {
 			return str;
 		});
 };
+var author$project$UiFramework$Typography$Display1 = {$: 'Display1'};
+var author$project$UiFramework$Typography$display1 = function (listAttr) {
+	return A2(
+		author$project$UiFramework$Typography$heading,
+		author$project$UiFramework$Typography$Display1,
+		A2(elm$core$List$cons, mdgriffith$elm_ui$Element$Font$light, listAttr));
+};
+var mdgriffith$elm_ui$Element$padding = function (x) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$padding,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+			'p-' + elm$core$String$fromInt(x),
+			x,
+			x,
+			x,
+			x));
+};
+var author$project$Page$NotFound$sadness = A2(
+	author$project$UiFramework$uiColumn,
+	_List_fromArray(
+		[
+			mdgriffith$elm_ui$Element$centerX,
+			mdgriffith$elm_ui$Element$spacing(40),
+			mdgriffith$elm_ui$Element$padding(40)
+		]),
+	_List_fromArray(
+		[
+			A2(
+			author$project$UiFramework$Typography$display1,
+			_List_fromArray(
+				[mdgriffith$elm_ui$Element$centerX]),
+			author$project$Page$NotFound$icon),
+			A2(
+			author$project$UiFramework$Typography$textLead,
+			_List_Nil,
+			author$project$Page$NotFound$text('We cannot find the page :('))
+		]));
+var author$project$Page$NotFound$view = F2(
+	function (sharedState, model) {
+		var context = {
+			device: sharedState.device,
+			parentRole: elm$core$Maybe$Nothing,
+			themeConfig: author$project$SharedState$getThemeConfig(sharedState.theme)
+		};
+		return A2(
+			author$project$UiFramework$toElement,
+			context,
+			author$project$UiFramework$Container$simple(author$project$Page$NotFound$sadness));
+	});
+var author$project$Page$Showroom$text = function (str) {
+	return author$project$UiFramework$uiText(
+		function (_n0) {
+			return str;
+		});
+};
+var author$project$UiFramework$Typography$SizeH1 = {$: 'SizeH1'};
+var mdgriffith$elm_ui$Element$Font$bold = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$fontWeight, mdgriffith$elm_ui$Internal$Style$classes.bold);
+var author$project$UiFramework$Typography$h1 = function (listAttr) {
+	return A2(
+		author$project$UiFramework$Typography$heading,
+		author$project$UiFramework$Typography$SizeH1,
+		A2(elm$core$List$cons, mdgriffith$elm_ui$Element$Font$bold, listAttr));
+};
+var author$project$Page$Showroom$section = F2(
+	function (sectionTitle, sectionContent) {
+		return A2(
+			author$project$UiFramework$uiColumn,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$spacing(16)
+				]),
+			_List_fromArray(
+				[
+					A2(
+					author$project$UiFramework$Typography$h1,
+					_List_fromArray(
+						[
+							A2(mdgriffith$elm_ui$Element$paddingXY, 0, 32)
+						]),
+					author$project$Page$Showroom$text(sectionTitle)),
+					sectionContent
+				]));
+	});
 var author$project$UiFramework$Alert$Alert = function (a) {
 	return {$: 'Alert', a: a};
 };
@@ -14191,192 +14300,170 @@ var author$project$UiFramework$Alert$withRole = F2(
 				{role: role}));
 	});
 var author$project$UiFramework$Types$Danger = {$: 'Danger'};
+var author$project$UiFramework$Types$Info = {$: 'Info'};
+var author$project$UiFramework$Types$Success = {$: 'Success'};
+var author$project$UiFramework$Types$Warning = {$: 'Warning'};
 var author$project$UiFramework$Typography$SizeH4 = {$: 'SizeH4'};
-var mdgriffith$elm_ui$Element$Font$bold = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$fontWeight, mdgriffith$elm_ui$Internal$Style$classes.bold);
 var author$project$UiFramework$Typography$h4 = function (listAttr) {
 	return A2(
 		author$project$UiFramework$Typography$heading,
 		author$project$UiFramework$Typography$SizeH4,
 		A2(elm$core$List$cons, mdgriffith$elm_ui$Element$Font$bold, listAttr));
 };
-var author$project$Modules$Showroom$Alerts$danger = author$project$UiFramework$Alert$view(
-	A2(
-		author$project$UiFramework$Alert$withChild,
-		A2(
-			author$project$UiFramework$uiColumn,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-					mdgriffith$elm_ui$Element$spacing(8)
-				]),
-			_List_fromArray(
-				[
-					A2(
-					author$project$UiFramework$Typography$h4,
-					_List_Nil,
-					author$project$Modules$Showroom$Alerts$text('Uh Oh!')),
-					A2(
-					author$project$UiFramework$uiParagraph,
-					_List_Nil,
+var author$project$Page$Showroom$alerts = A2(
+	author$project$Page$Showroom$section,
+	'Alert',
+	function () {
+		var warning = author$project$UiFramework$Alert$view(
+			A2(
+				author$project$UiFramework$Alert$withChild,
+				A2(
+					author$project$UiFramework$uiColumn,
 					_List_fromArray(
 						[
-							author$project$Modules$Showroom$Alerts$text('Change a few things and try again.')
-						]))
-				])),
-		A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Danger, author$project$UiFramework$Alert$default)));
-var author$project$UiFramework$Types$Info = {$: 'Info'};
-var author$project$Modules$Showroom$Alerts$info = author$project$UiFramework$Alert$view(
-	A2(
-		author$project$UiFramework$Alert$withChild,
-		A2(
-			author$project$UiFramework$uiColumn,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-					mdgriffith$elm_ui$Element$spacing(8)
-				]),
-			_List_fromArray(
-				[
-					A2(
-					author$project$UiFramework$Typography$h4,
-					_List_Nil,
-					author$project$Modules$Showroom$Alerts$text('Heads up!')),
-					A2(
-					author$project$UiFramework$uiParagraph,
-					_List_Nil,
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$spacing(8)
+						]),
 					_List_fromArray(
 						[
-							author$project$Modules$Showroom$Alerts$text('This alert is an attention whore.')
-						]))
-				])),
-		A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Info, author$project$UiFramework$Alert$default)));
-var author$project$Modules$Showroom$Alerts$primary = author$project$UiFramework$Alert$view(
-	A2(
-		author$project$UiFramework$Alert$withChild,
-		A2(
-			author$project$UiFramework$uiColumn,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-					mdgriffith$elm_ui$Element$spacing(8)
-				]),
-			_List_fromArray(
-				[
-					A2(
-					author$project$UiFramework$Typography$h4,
-					_List_Nil,
-					author$project$Modules$Showroom$Alerts$text('Hmmm...')),
-					A2(
-					author$project$UiFramework$uiParagraph,
-					_List_Nil,
+							A2(
+							author$project$UiFramework$Typography$h4,
+							_List_Nil,
+							author$project$Page$Showroom$text('Whoa bro!')),
+							A2(
+							author$project$UiFramework$uiParagraph,
+							_List_Nil,
+							_List_fromArray(
+								[
+									author$project$Page$Showroom$text('Watch out - you got warning.')
+								]))
+						])),
+				A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Warning, author$project$UiFramework$Alert$default)));
+		var success = author$project$UiFramework$Alert$view(
+			A2(
+				author$project$UiFramework$Alert$withChild,
+				A2(
+					author$project$UiFramework$uiColumn,
 					_List_fromArray(
 						[
-							author$project$Modules$Showroom$Alerts$text('The \"primary\" and the \"info\" roles look pretty similar, colour-wise.')
-						]))
-				])),
-		A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Primary, author$project$UiFramework$Alert$default)));
-var author$project$UiFramework$Types$Secondary = {$: 'Secondary'};
-var author$project$Modules$Showroom$Alerts$secondary = author$project$UiFramework$Alert$view(
-	A2(
-		author$project$UiFramework$Alert$withChild,
-		A2(
-			author$project$UiFramework$uiColumn,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-					mdgriffith$elm_ui$Element$spacing(8)
-				]),
-			_List_fromArray(
-				[
-					A2(
-					author$project$UiFramework$Typography$h4,
-					_List_Nil,
-					author$project$Modules$Showroom$Alerts$text('Aww man')),
-					A2(
-					author$project$UiFramework$uiParagraph,
-					_List_Nil,
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$spacing(8)
+						]),
 					_List_fromArray(
 						[
-							author$project$Modules$Showroom$Alerts$text('Being the \"secondary\" role, this alert has a major inferiority complex.')
-						]))
-				])),
-		A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Secondary, author$project$UiFramework$Alert$default)));
-var author$project$UiFramework$Types$Success = {$: 'Success'};
-var author$project$Modules$Showroom$Alerts$success = author$project$UiFramework$Alert$view(
-	A2(
-		author$project$UiFramework$Alert$withChild,
-		A2(
-			author$project$UiFramework$uiColumn,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-					mdgriffith$elm_ui$Element$spacing(8)
-				]),
-			_List_fromArray(
-				[
-					A2(
-					author$project$UiFramework$Typography$h4,
-					_List_Nil,
-					author$project$Modules$Showroom$Alerts$text('Yee Haw!')),
-					A2(
-					author$project$UiFramework$uiParagraph,
-					_List_Nil,
+							A2(
+							author$project$UiFramework$Typography$h4,
+							_List_Nil,
+							author$project$Page$Showroom$text('Yee Haw!')),
+							A2(
+							author$project$UiFramework$uiParagraph,
+							_List_Nil,
+							_List_fromArray(
+								[
+									author$project$Page$Showroom$text('You did it!')
+								]))
+						])),
+				A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Success, author$project$UiFramework$Alert$default)));
+		var secondary = author$project$UiFramework$Alert$view(
+			A2(
+				author$project$UiFramework$Alert$withChild,
+				A2(
+					author$project$UiFramework$uiColumn,
 					_List_fromArray(
 						[
-							author$project$Modules$Showroom$Alerts$text('You did it!')
-						]))
-				])),
-		A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Success, author$project$UiFramework$Alert$default)));
-var author$project$UiFramework$Types$Warning = {$: 'Warning'};
-var author$project$Modules$Showroom$Alerts$warning = author$project$UiFramework$Alert$view(
-	A2(
-		author$project$UiFramework$Alert$withChild,
-		A2(
-			author$project$UiFramework$uiColumn,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-					mdgriffith$elm_ui$Element$spacing(8)
-				]),
-			_List_fromArray(
-				[
-					A2(
-					author$project$UiFramework$Typography$h4,
-					_List_Nil,
-					author$project$Modules$Showroom$Alerts$text('Whoa bro!')),
-					A2(
-					author$project$UiFramework$uiParagraph,
-					_List_Nil,
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$spacing(8)
+						]),
 					_List_fromArray(
 						[
-							author$project$Modules$Showroom$Alerts$text('Watch out - you got warning.')
-						]))
-				])),
-		A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Warning, author$project$UiFramework$Alert$default)));
-var author$project$Modules$Showroom$Alerts$alerts = A2(
-	author$project$UiFramework$uiColumn,
-	_List_fromArray(
-		[
-			mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-			mdgriffith$elm_ui$Element$spacing(16)
-		]),
-	_List_fromArray(
-		[author$project$Modules$Showroom$Alerts$warning, author$project$Modules$Showroom$Alerts$danger, author$project$Modules$Showroom$Alerts$success, author$project$Modules$Showroom$Alerts$info, author$project$Modules$Showroom$Alerts$primary, author$project$Modules$Showroom$Alerts$secondary]));
-var author$project$Modules$Showroom$View$text = function (str) {
-	return author$project$UiFramework$uiText(
-		function (_n0) {
-			return str;
-		});
-};
-var author$project$UiFramework$Typography$SizeH1 = {$: 'SizeH1'};
-var author$project$UiFramework$Typography$h1 = function (listAttr) {
-	return A2(
-		author$project$UiFramework$Typography$heading,
-		author$project$UiFramework$Typography$SizeH1,
-		A2(elm$core$List$cons, mdgriffith$elm_ui$Element$Font$bold, listAttr));
-};
-var author$project$Modules$Showroom$View$section = F2(
-	function (sectionTitle, sectionContent) {
+							A2(
+							author$project$UiFramework$Typography$h4,
+							_List_Nil,
+							author$project$Page$Showroom$text('Aww man')),
+							A2(
+							author$project$UiFramework$uiParagraph,
+							_List_Nil,
+							_List_fromArray(
+								[
+									author$project$Page$Showroom$text('Being the \"secondary\" role, this alert has a major inferiority complex.')
+								]))
+						])),
+				A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Secondary, author$project$UiFramework$Alert$default)));
+		var primary = author$project$UiFramework$Alert$view(
+			A2(
+				author$project$UiFramework$Alert$withChild,
+				A2(
+					author$project$UiFramework$uiColumn,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$spacing(8)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							author$project$UiFramework$Typography$h4,
+							_List_Nil,
+							author$project$Page$Showroom$text('Hmmm...')),
+							A2(
+							author$project$UiFramework$uiParagraph,
+							_List_Nil,
+							_List_fromArray(
+								[
+									author$project$Page$Showroom$text('The \"primary\" and the \"info\" roles look pretty similar, colour-wise.')
+								]))
+						])),
+				A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Primary, author$project$UiFramework$Alert$default)));
+		var info = author$project$UiFramework$Alert$view(
+			A2(
+				author$project$UiFramework$Alert$withChild,
+				A2(
+					author$project$UiFramework$uiColumn,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$spacing(8)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							author$project$UiFramework$Typography$h4,
+							_List_Nil,
+							author$project$Page$Showroom$text('Heads up!')),
+							A2(
+							author$project$UiFramework$uiParagraph,
+							_List_Nil,
+							_List_fromArray(
+								[
+									author$project$Page$Showroom$text('This alert is an attention whore.')
+								]))
+						])),
+				A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Info, author$project$UiFramework$Alert$default)));
+		var danger = author$project$UiFramework$Alert$view(
+			A2(
+				author$project$UiFramework$Alert$withChild,
+				A2(
+					author$project$UiFramework$uiColumn,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$spacing(8)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							author$project$UiFramework$Typography$h4,
+							_List_Nil,
+							author$project$Page$Showroom$text('Uh Oh!')),
+							A2(
+							author$project$UiFramework$uiParagraph,
+							_List_Nil,
+							_List_fromArray(
+								[
+									author$project$Page$Showroom$text('Change a few things and try again.')
+								]))
+						])),
+				A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Danger, author$project$UiFramework$Alert$default)));
 		return A2(
 			author$project$UiFramework$uiColumn,
 			_List_fromArray(
@@ -14385,21 +14472,11 @@ var author$project$Modules$Showroom$View$section = F2(
 					mdgriffith$elm_ui$Element$spacing(16)
 				]),
 			_List_fromArray(
-				[
-					A2(
-					author$project$UiFramework$Typography$h1,
-					_List_fromArray(
-						[
-							A2(mdgriffith$elm_ui$Element$paddingXY, 0, 32)
-						]),
-					author$project$Modules$Showroom$View$text(sectionTitle)),
-					sectionContent
-				]));
-	});
-var author$project$Modules$Showroom$View$alerts = A2(author$project$Modules$Showroom$View$section, 'Alert', author$project$Modules$Showroom$Alerts$alerts);
+				[warning, danger, success, info, primary, secondary]));
+	}());
 var author$project$UiFramework$Types$Dark = {$: 'Dark'};
 var author$project$UiFramework$Types$Light = {$: 'Light'};
-var author$project$Modules$Showroom$Badges$badgeRoles = _List_fromArray(
+var author$project$Page$Showroom$rolesAndNames = _List_fromArray(
 	[
 		_Utils_Tuple2(author$project$UiFramework$Types$Primary, 'Primary'),
 		_Utils_Tuple2(author$project$UiFramework$Types$Secondary, 'Secondary'),
@@ -14410,13 +14487,183 @@ var author$project$Modules$Showroom$Badges$badgeRoles = _List_fromArray(
 		_Utils_Tuple2(author$project$UiFramework$Types$Light, 'Light'),
 		_Utils_Tuple2(author$project$UiFramework$Types$Dark, 'Dark')
 	]);
-var author$project$UiFramework$Internal$uiRow = function (attrs) {
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
+var mdgriffith$elm_ui$Internal$Model$Padding = F5(
+	function (a, b, c, d, e) {
+		return {$: 'Padding', a: a, b: b, c: c, d: d, e: e};
+	});
+var mdgriffith$elm_ui$Internal$Model$Spaced = F3(
+	function (a, b, c) {
+		return {$: 'Spaced', a: a, b: b, c: c};
+	});
+var mdgriffith$elm_ui$Internal$Model$extractSpacingAndPadding = function (attrs) {
+	return A3(
+		elm$core$List$foldr,
+		F2(
+			function (attr, _n0) {
+				var pad = _n0.a;
+				var spacing = _n0.b;
+				return _Utils_Tuple2(
+					function () {
+						if (pad.$ === 'Just') {
+							var x = pad.a;
+							return pad;
+						} else {
+							if ((attr.$ === 'StyleClass') && (attr.b.$ === 'PaddingStyle')) {
+								var _n3 = attr.b;
+								var name = _n3.a;
+								var t = _n3.b;
+								var r = _n3.c;
+								var b = _n3.d;
+								var l = _n3.e;
+								return elm$core$Maybe$Just(
+									A5(mdgriffith$elm_ui$Internal$Model$Padding, name, t, r, b, l));
+							} else {
+								return elm$core$Maybe$Nothing;
+							}
+						}
+					}(),
+					function () {
+						if (spacing.$ === 'Just') {
+							var x = spacing.a;
+							return spacing;
+						} else {
+							if ((attr.$ === 'StyleClass') && (attr.b.$ === 'SpacingStyle')) {
+								var _n6 = attr.b;
+								var name = _n6.a;
+								var x = _n6.b;
+								var y = _n6.c;
+								return elm$core$Maybe$Just(
+									A3(mdgriffith$elm_ui$Internal$Model$Spaced, name, x, y));
+							} else {
+								return elm$core$Maybe$Nothing;
+							}
+						}
+					}());
+			}),
+		_Utils_Tuple2(elm$core$Maybe$Nothing, elm$core$Maybe$Nothing),
+		attrs);
+};
+var mdgriffith$elm_ui$Element$wrappedRow = F2(
+	function (attrs, children) {
+		var _n0 = mdgriffith$elm_ui$Internal$Model$extractSpacingAndPadding(attrs);
+		var padded = _n0.a;
+		var spaced = _n0.b;
+		if (spaced.$ === 'Nothing') {
+			return A4(
+				mdgriffith$elm_ui$Internal$Model$element,
+				mdgriffith$elm_ui$Internal$Model$asRow,
+				mdgriffith$elm_ui$Internal$Model$div,
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + (mdgriffith$elm_ui$Internal$Style$classes.contentCenterY + (' ' + mdgriffith$elm_ui$Internal$Style$classes.wrapped)))),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
+						A2(
+							elm$core$List$cons,
+							mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+							attrs))),
+				mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+		} else {
+			var _n2 = spaced.a;
+			var spaceName = _n2.a;
+			var x = _n2.b;
+			var y = _n2.c;
+			var newPadding = function () {
+				if (padded.$ === 'Just') {
+					var _n5 = padded.a;
+					var name = _n5.a;
+					var t = _n5.b;
+					var r = _n5.c;
+					var b = _n5.d;
+					var l = _n5.e;
+					return ((_Utils_cmp(r, (x / 2) | 0) > -1) && (_Utils_cmp(b, (y / 2) | 0) > -1)) ? elm$core$Maybe$Just(
+						mdgriffith$elm_ui$Element$paddingEach(
+							{bottom: b - ((y / 2) | 0), left: l - ((x / 2) | 0), right: r - ((x / 2) | 0), top: t - ((y / 2) | 0)})) : elm$core$Maybe$Nothing;
+				} else {
+					return elm$core$Maybe$Nothing;
+				}
+			}();
+			if (newPadding.$ === 'Just') {
+				var pad = newPadding.a;
+				return A4(
+					mdgriffith$elm_ui$Internal$Model$element,
+					mdgriffith$elm_ui$Internal$Model$asRow,
+					mdgriffith$elm_ui$Internal$Model$div,
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + (mdgriffith$elm_ui$Internal$Style$classes.contentCenterY + (' ' + mdgriffith$elm_ui$Internal$Style$classes.wrapped)))),
+						A2(
+							elm$core$List$cons,
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
+							A2(
+								elm$core$List$cons,
+								mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+								_Utils_ap(
+									attrs,
+									_List_fromArray(
+										[pad]))))),
+					mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+			} else {
+				var halfY = -(y / 2);
+				var halfX = -(x / 2);
+				return A4(
+					mdgriffith$elm_ui$Internal$Model$element,
+					mdgriffith$elm_ui$Internal$Model$asEl,
+					mdgriffith$elm_ui$Internal$Model$div,
+					attrs,
+					mdgriffith$elm_ui$Internal$Model$Unkeyed(
+						_List_fromArray(
+							[
+								A4(
+								mdgriffith$elm_ui$Internal$Model$element,
+								mdgriffith$elm_ui$Internal$Model$asRow,
+								mdgriffith$elm_ui$Internal$Model$div,
+								A2(
+									elm$core$List$cons,
+									mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + (mdgriffith$elm_ui$Internal$Style$classes.contentCenterY + (' ' + mdgriffith$elm_ui$Internal$Style$classes.wrapped)))),
+									A2(
+										elm$core$List$cons,
+										mdgriffith$elm_ui$Internal$Model$Attr(
+											A2(
+												elm$html$Html$Attributes$style,
+												'margin',
+												elm$core$String$fromFloat(halfY) + ('px' + (' ' + (elm$core$String$fromFloat(halfX) + 'px'))))),
+										A2(
+											elm$core$List$cons,
+											mdgriffith$elm_ui$Internal$Model$Attr(
+												A2(
+													elm$html$Html$Attributes$style,
+													'width',
+													'calc(100% + ' + (elm$core$String$fromInt(x) + 'px)'))),
+											A2(
+												elm$core$List$cons,
+												mdgriffith$elm_ui$Internal$Model$Attr(
+													A2(
+														elm$html$Html$Attributes$style,
+														'height',
+														'calc(100% + ' + (elm$core$String$fromInt(y) + 'px)'))),
+												A2(
+													elm$core$List$cons,
+													A2(
+														mdgriffith$elm_ui$Internal$Model$StyleClass,
+														mdgriffith$elm_ui$Internal$Flag$spacing,
+														A3(mdgriffith$elm_ui$Internal$Model$SpacingStyle, spaceName, x, y)),
+													_List_Nil))))),
+								mdgriffith$elm_ui$Internal$Model$Unkeyed(children))
+							])));
+			}
+		}
+	});
+var author$project$UiFramework$Internal$uiWrappedRow = function (attrs) {
 	return author$project$UiFramework$Internal$node(
 		function (_n0) {
-			return mdgriffith$elm_ui$Element$row(attrs);
+			return mdgriffith$elm_ui$Element$wrappedRow(attrs);
 		});
 };
-var author$project$UiFramework$uiRow = author$project$UiFramework$Internal$uiRow;
+var author$project$UiFramework$uiWrappedRow = author$project$UiFramework$Internal$uiWrappedRow;
 var author$project$UiFramework$Badge$Badge = function (a) {
 	return {$: 'Badge', a: a};
 };
@@ -14483,61 +14730,52 @@ var author$project$UiFramework$Badge$withPill = function (_n0) {
 			options,
 			{pill: true}));
 };
-var author$project$Modules$Showroom$Badges$badges = A2(
-	author$project$UiFramework$uiColumn,
-	_List_fromArray(
-		[
-			mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-			mdgriffith$elm_ui$Element$spacing(16)
-		]),
-	_List_fromArray(
-		[
-			A2(
-			author$project$UiFramework$uiRow,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$spacing(4)
-				]),
-			A2(
-				elm$core$List$map,
-				function (_n0) {
-					var role = _n0.a;
-					var name = _n0.b;
-					return A2(author$project$UiFramework$Badge$simple, role, name);
-				},
-				author$project$Modules$Showroom$Badges$badgeRoles)),
-			A2(
-			author$project$UiFramework$uiRow,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$spacing(4)
-				]),
-			A2(
-				elm$core$List$map,
-				function (_n1) {
-					var role = _n1.a;
-					var name = _n1.b;
-					return author$project$UiFramework$Badge$view(
-						author$project$UiFramework$Badge$withPill(
-							A2(
-								author$project$UiFramework$Badge$withLabel,
-								name,
-								A2(author$project$UiFramework$Badge$withRole, role, author$project$UiFramework$Badge$default))));
-				},
-				author$project$Modules$Showroom$Badges$badgeRoles))
-		]));
-var author$project$Modules$Showroom$View$badges = A2(author$project$Modules$Showroom$View$section, 'Badges', author$project$Modules$Showroom$Badges$badges);
-var author$project$Modules$Showroom$Buttons$buttonRoles = _List_fromArray(
-	[
-		_Utils_Tuple2(author$project$UiFramework$Types$Primary, 'Primary'),
-		_Utils_Tuple2(author$project$UiFramework$Types$Secondary, 'Secondary'),
-		_Utils_Tuple2(author$project$UiFramework$Types$Success, 'Success'),
-		_Utils_Tuple2(author$project$UiFramework$Types$Info, 'Info'),
-		_Utils_Tuple2(author$project$UiFramework$Types$Warning, 'Warning'),
-		_Utils_Tuple2(author$project$UiFramework$Types$Danger, 'Danger'),
-		_Utils_Tuple2(author$project$UiFramework$Types$Light, 'Light'),
-		_Utils_Tuple2(author$project$UiFramework$Types$Dark, 'Dark')
-	]);
+var author$project$Page$Showroom$badges = A2(
+	author$project$Page$Showroom$section,
+	'Badges',
+	A2(
+		author$project$UiFramework$uiColumn,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$spacing(16)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				author$project$UiFramework$uiWrappedRow,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$spacing(4)
+					]),
+				A2(
+					elm$core$List$map,
+					function (_n0) {
+						var role = _n0.a;
+						var name = _n0.b;
+						return A2(author$project$UiFramework$Badge$simple, role, name);
+					},
+					author$project$Page$Showroom$rolesAndNames)),
+				A2(
+				author$project$UiFramework$uiWrappedRow,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$spacing(4)
+					]),
+				A2(
+					elm$core$List$map,
+					function (_n1) {
+						var role = _n1.a;
+						var name = _n1.b;
+						return author$project$UiFramework$Badge$view(
+							author$project$UiFramework$Badge$withPill(
+								A2(
+									author$project$UiFramework$Badge$withLabel,
+									name,
+									A2(author$project$UiFramework$Badge$withRole, role, author$project$UiFramework$Badge$default))));
+					},
+					author$project$Page$Showroom$rolesAndNames))
+			])));
 var author$project$UiFramework$Button$withDisabled = function (_n0) {
 	var options = _n0.a;
 	return author$project$UiFramework$Button$Button(
@@ -14560,72 +14798,6 @@ var author$project$UiFramework$Button$withRole = F2(
 				options,
 				{role: role}));
 	});
-var author$project$Modules$Showroom$Buttons$coloursAndDisplays = A2(
-	author$project$UiFramework$uiColumn,
-	_List_fromArray(
-		[
-			mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-			mdgriffith$elm_ui$Element$spacing(16)
-		]),
-	_List_fromArray(
-		[
-			A2(
-			author$project$UiFramework$uiRow,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$spacing(4)
-				]),
-			A2(
-				elm$core$List$map,
-				function (_n0) {
-					var role = _n0.a;
-					var name = _n0.b;
-					return author$project$UiFramework$Button$view(
-						A2(
-							author$project$UiFramework$Button$withRole,
-							role,
-							A2(author$project$UiFramework$Button$withLabel, name, author$project$UiFramework$Button$default)));
-				},
-				author$project$Modules$Showroom$Buttons$buttonRoles)),
-			A2(
-			author$project$UiFramework$uiRow,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$spacing(4)
-				]),
-			A2(
-				elm$core$List$map,
-				function (_n1) {
-					var role = _n1.a;
-					var name = _n1.b;
-					return author$project$UiFramework$Button$view(
-						author$project$UiFramework$Button$withDisabled(
-							A2(
-								author$project$UiFramework$Button$withRole,
-								role,
-								A2(author$project$UiFramework$Button$withLabel, name, author$project$UiFramework$Button$default))));
-				},
-				author$project$Modules$Showroom$Buttons$buttonRoles)),
-			A2(
-			author$project$UiFramework$uiRow,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$spacing(4)
-				]),
-			A2(
-				elm$core$List$map,
-				function (_n2) {
-					var role = _n2.a;
-					var name = _n2.b;
-					return author$project$UiFramework$Button$view(
-						author$project$UiFramework$Button$withOutlined(
-							A2(
-								author$project$UiFramework$Button$withRole,
-								role,
-								A2(author$project$UiFramework$Button$withLabel, name, author$project$UiFramework$Button$default))));
-				},
-				author$project$Modules$Showroom$Buttons$buttonRoles))
-		]));
 var author$project$UiFramework$Types$SizeSmall = {$: 'SizeSmall'};
 var author$project$UiFramework$Button$withSmall = function (_n0) {
 	var options = _n0.a;
@@ -14634,48 +14806,108 @@ var author$project$UiFramework$Button$withSmall = function (_n0) {
 			options,
 			{size: author$project$UiFramework$Types$SizeSmall}));
 };
-var author$project$Modules$Showroom$Buttons$sizes = A2(
-	author$project$UiFramework$uiRow,
-	_List_fromArray(
-		[
-			mdgriffith$elm_ui$Element$spacing(8)
-		]),
-	_List_fromArray(
-		[
-			author$project$UiFramework$Button$view(
-			author$project$UiFramework$Button$withLarge(
-				A2(author$project$UiFramework$Button$withLabel, 'Large Button', author$project$UiFramework$Button$default))),
-			author$project$UiFramework$Button$view(
-			A2(author$project$UiFramework$Button$withLabel, 'Default Button', author$project$UiFramework$Button$default)),
-			author$project$UiFramework$Button$view(
-			author$project$UiFramework$Button$withSmall(
-				A2(author$project$UiFramework$Button$withLabel, 'Small Button', author$project$UiFramework$Button$default)))
-		]));
-var author$project$Modules$Showroom$Buttons$buttons = A2(
-	author$project$UiFramework$uiColumn,
-	_List_fromArray(
-		[
-			mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-			mdgriffith$elm_ui$Element$spacing(32)
-		]),
-	_List_fromArray(
-		[author$project$Modules$Showroom$Buttons$coloursAndDisplays, author$project$Modules$Showroom$Buttons$sizes]));
-var author$project$Modules$Showroom$View$buttons = A2(author$project$Modules$Showroom$View$section, 'Buttons', author$project$Modules$Showroom$Buttons$buttons);
+var author$project$Page$Showroom$buttons = A2(
+	author$project$Page$Showroom$section,
+	'Buttons',
+	A2(
+		author$project$UiFramework$uiColumn,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$spacing(32)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				author$project$UiFramework$uiColumn,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+						mdgriffith$elm_ui$Element$spacing(16)
+					]),
+				_List_fromArray(
+					[
+						A2(
+						author$project$UiFramework$uiWrappedRow,
+						_List_fromArray(
+							[
+								mdgriffith$elm_ui$Element$spacing(4)
+							]),
+						A2(
+							elm$core$List$map,
+							function (_n0) {
+								var role = _n0.a;
+								var name = _n0.b;
+								return author$project$UiFramework$Button$view(
+									A2(
+										author$project$UiFramework$Button$withRole,
+										role,
+										A2(author$project$UiFramework$Button$withLabel, name, author$project$UiFramework$Button$default)));
+							},
+							author$project$Page$Showroom$rolesAndNames)),
+						A2(
+						author$project$UiFramework$uiWrappedRow,
+						_List_fromArray(
+							[
+								mdgriffith$elm_ui$Element$spacing(4)
+							]),
+						A2(
+							elm$core$List$map,
+							function (_n1) {
+								var role = _n1.a;
+								var name = _n1.b;
+								return author$project$UiFramework$Button$view(
+									author$project$UiFramework$Button$withDisabled(
+										A2(
+											author$project$UiFramework$Button$withRole,
+											role,
+											A2(author$project$UiFramework$Button$withLabel, name, author$project$UiFramework$Button$default))));
+							},
+							author$project$Page$Showroom$rolesAndNames)),
+						A2(
+						author$project$UiFramework$uiWrappedRow,
+						_List_fromArray(
+							[
+								mdgriffith$elm_ui$Element$spacing(4)
+							]),
+						A2(
+							elm$core$List$map,
+							function (_n2) {
+								var role = _n2.a;
+								var name = _n2.b;
+								return author$project$UiFramework$Button$view(
+									author$project$UiFramework$Button$withOutlined(
+										A2(
+											author$project$UiFramework$Button$withRole,
+											role,
+											A2(author$project$UiFramework$Button$withLabel, name, author$project$UiFramework$Button$default))));
+							},
+							author$project$Page$Showroom$rolesAndNames))
+					])),
+				A2(
+				author$project$UiFramework$uiWrappedRow,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$spacing(8)
+					]),
+				_List_fromArray(
+					[
+						author$project$UiFramework$Button$view(
+						author$project$UiFramework$Button$withLarge(
+							A2(author$project$UiFramework$Button$withLabel, 'Large Button', author$project$UiFramework$Button$default))),
+						author$project$UiFramework$Button$view(
+						A2(author$project$UiFramework$Button$withLabel, 'Default Button', author$project$UiFramework$Button$default)),
+						author$project$UiFramework$Button$view(
+						author$project$UiFramework$Button$withSmall(
+							A2(author$project$UiFramework$Button$withLabel, 'Small Button', author$project$UiFramework$Button$default)))
+					]))
+			])));
+var author$project$Page$Showroom$PaginationMsg = function (a) {
+	return {$: 'PaginationMsg', a: a};
+};
 var author$project$UiFramework$Pagination$EllipsisItem = {$: 'EllipsisItem'};
 var author$project$UiFramework$Pagination$NumberItem = function (a) {
 	return {$: 'NumberItem', a: a};
-};
-var author$project$Modules$Showroom$Pagination$paginationItems = _List_fromArray(
-	[
-		author$project$UiFramework$Pagination$NumberItem(1),
-		author$project$UiFramework$Pagination$NumberItem(2),
-		author$project$UiFramework$Pagination$NumberItem(3),
-		author$project$UiFramework$Pagination$EllipsisItem,
-		author$project$UiFramework$Pagination$NumberItem(9),
-		author$project$UiFramework$Pagination$NumberItem(10)
-	]);
-var author$project$Modules$Showroom$Types$PaginationMsg = function (a) {
-	return {$: 'PaginationMsg', a: a};
 };
 var author$project$UiFramework$Pagination$IconLabels = function (a) {
 	return {$: 'IconLabels', a: a};
@@ -14683,10 +14915,6 @@ var author$project$UiFramework$Pagination$IconLabels = function (a) {
 var author$project$UiFramework$Pagination$Pagination = function (a) {
 	return {$: 'Pagination', a: a};
 };
-var lattyware$elm_fontawesome$FontAwesome$Icon$Icon = F5(
-	function (prefix, name, width, height, path) {
-		return {height: height, name: name, path: path, prefix: prefix, width: width};
-	});
 var lattyware$elm_fontawesome$FontAwesome$Solid$caretLeft = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'caret-left', 192, 512, 'M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z');
 var lattyware$elm_fontawesome$FontAwesome$Solid$caretRight = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'caret-right', 192, 512, 'M0 384.662V127.338c0-17.818 21.543-26.741 34.142-14.142l128.662 128.662c7.81 7.81 7.81 20.474 0 28.284L34.142 398.804C21.543 411.404 0 402.48 0 384.662z');
 var lattyware$elm_fontawesome$FontAwesome$Solid$ellipsisH = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'ellipsis-h', 512, 512, 'M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z');
@@ -14921,77 +15149,26 @@ var author$project$UiFramework$Pagination$withItems = F2(
 				options,
 				{items: items}));
 	});
-var author$project$Modules$Showroom$Pagination$pagination = author$project$UiFramework$Pagination$view(
-	A2(
-		author$project$UiFramework$Pagination$withItems,
-		author$project$Modules$Showroom$Pagination$paginationItems,
-		author$project$UiFramework$Pagination$default(author$project$Modules$Showroom$Types$PaginationMsg)));
-var author$project$Modules$Showroom$View$pagination = A2(author$project$Modules$Showroom$View$section, 'Pagination', author$project$Modules$Showroom$Pagination$pagination);
-var author$project$Modules$Showroom$Table$information = _List_fromArray(
-	[
-		{column1: 'column 1', column2: 'column 2', column3: 'column 3', role: 'Row 1'},
-		{column1: 'column 1', column2: 'column 2', column3: 'column 3', role: 'Row 2'},
-		{column1: 'column 1', column2: 'column 2', column3: 'column 3', role: 'Row 3'},
-		{column1: 'column 1', column2: 'column 2', column3: 'column 3', role: 'Row 4'}
-	]);
-var author$project$Modules$Showroom$Table$text = function (str) {
-	return author$project$UiFramework$uiText(
-		function (_n0) {
-			return str;
-		});
-};
-var author$project$Modules$Showroom$Table$tableColumn = _List_fromArray(
-	[
-		{
-		head: author$project$Modules$Showroom$Table$text('Role'),
-		viewData: function (data) {
-			return A2(
-				author$project$UiFramework$uiParagraph,
-				_List_fromArray(
-					[mdgriffith$elm_ui$Element$Font$bold]),
-				_List_fromArray(
-					[
-						author$project$Modules$Showroom$Table$text(data.role)
-					]));
-		}
-	},
-		{
-		head: author$project$Modules$Showroom$Table$text('Column 1'),
-		viewData: function (data) {
-			return A2(
-				author$project$UiFramework$uiParagraph,
-				_List_Nil,
-				_List_fromArray(
-					[
-						author$project$Modules$Showroom$Table$text(data.column1)
-					]));
-		}
-	},
-		{
-		head: author$project$Modules$Showroom$Table$text('Column 2'),
-		viewData: function (data) {
-			return A2(
-				author$project$UiFramework$uiParagraph,
-				_List_Nil,
-				_List_fromArray(
-					[
-						author$project$Modules$Showroom$Table$text(data.column2)
-					]));
-		}
-	},
-		{
-		head: author$project$Modules$Showroom$Table$text('Column 3'),
-		viewData: function (data) {
-			return A2(
-				author$project$UiFramework$uiParagraph,
-				_List_Nil,
-				_List_fromArray(
-					[
-						author$project$Modules$Showroom$Table$text(data.column3)
-					]));
-		}
-	}
-	]);
+var author$project$Page$Showroom$pagination = A2(
+	author$project$Page$Showroom$section,
+	'Pagination',
+	function () {
+		var paginationItems = _List_fromArray(
+			[
+				author$project$UiFramework$Pagination$NumberItem(1),
+				author$project$UiFramework$Pagination$NumberItem(2),
+				author$project$UiFramework$Pagination$NumberItem(3),
+				author$project$UiFramework$Pagination$EllipsisItem,
+				author$project$UiFramework$Pagination$NumberItem(9),
+				author$project$UiFramework$Pagination$NumberItem(10)
+			]);
+		return author$project$UiFramework$Pagination$view(
+			A2(
+				author$project$UiFramework$Pagination$withItems,
+				paginationItems,
+				author$project$UiFramework$Pagination$default(author$project$Page$Showroom$PaginationMsg)));
+	}());
+var author$project$Page$Showroom$paginationState = {currentSliceNumber: 1, numberOfSlices: 10};
 var author$project$UiFramework$Table$Default = {$: 'Default'};
 var author$project$UiFramework$Table$Table = function (a) {
 	return {$: 'Table', a: a};
@@ -15363,29 +15540,74 @@ var author$project$UiFramework$Table$withColumns = F2(
 				options,
 				{columns: columns}));
 	});
-var author$project$Modules$Showroom$Table$table = A2(
-	author$project$UiFramework$Table$view,
-	author$project$Modules$Showroom$Table$information,
-	A2(author$project$UiFramework$Table$withColumns, author$project$Modules$Showroom$Table$tableColumn, author$project$UiFramework$Table$simpleTable));
-var author$project$Modules$Showroom$View$table = A2(author$project$Modules$Showroom$View$section, 'Table', author$project$Modules$Showroom$Table$table);
-var author$project$Modules$Showroom$View$subTitleText = author$project$UiFramework$uiText(
-	function (context) {
-		var _n0 = context.theme;
-		if (_n0.$ === 'Default') {
-			return 'Basic Bootstrap';
-		} else {
-			return 'Night Mode';
-		}
-	});
-var author$project$Modules$Showroom$View$titleText = author$project$UiFramework$uiText(
-	function (context) {
-		var _n0 = context.theme;
-		if (_n0.$ === 'Default') {
-			return 'Default';
-		} else {
-			return 'Darkly';
-		}
-	});
+var author$project$Page$Showroom$table = A2(
+	author$project$Page$Showroom$section,
+	'Table',
+	function () {
+		var tableColumn = _List_fromArray(
+			[
+				{
+				head: author$project$Page$Showroom$text('Role'),
+				viewData: function (data) {
+					return A2(
+						author$project$UiFramework$uiParagraph,
+						_List_fromArray(
+							[mdgriffith$elm_ui$Element$Font$bold]),
+						_List_fromArray(
+							[
+								author$project$Page$Showroom$text(data.role)
+							]));
+				}
+			},
+				{
+				head: author$project$Page$Showroom$text('Column 1'),
+				viewData: function (data) {
+					return A2(
+						author$project$UiFramework$uiParagraph,
+						_List_Nil,
+						_List_fromArray(
+							[
+								author$project$Page$Showroom$text(data.column1)
+							]));
+				}
+			},
+				{
+				head: author$project$Page$Showroom$text('Column 2'),
+				viewData: function (data) {
+					return A2(
+						author$project$UiFramework$uiParagraph,
+						_List_Nil,
+						_List_fromArray(
+							[
+								author$project$Page$Showroom$text(data.column2)
+							]));
+				}
+			},
+				{
+				head: author$project$Page$Showroom$text('Column 3'),
+				viewData: function (data) {
+					return A2(
+						author$project$UiFramework$uiParagraph,
+						_List_Nil,
+						_List_fromArray(
+							[
+								author$project$Page$Showroom$text(data.column3)
+							]));
+				}
+			}
+			]);
+		var information = _List_fromArray(
+			[
+				{column1: 'column 1', column2: 'column 2', column3: 'column 3', role: 'Row 1'},
+				{column1: 'column 1', column2: 'column 2', column3: 'column 3', role: 'Row 2'},
+				{column1: 'column 1', column2: 'column 2', column3: 'column 3', role: 'Row 3'},
+				{column1: 'column 1', column2: 'column 2', column3: 'column 3', role: 'Row 4'}
+			]);
+		return A2(
+			author$project$UiFramework$Table$view,
+			information,
+			A2(author$project$UiFramework$Table$withColumns, tableColumn, author$project$UiFramework$Table$simpleTable));
+	}());
 var author$project$UiFramework$Internal$flatMap = function (f) {
 	return author$project$UiFramework$Internal$fromElement(
 		function (context) {
@@ -15403,16 +15625,26 @@ var author$project$UiFramework$Typography$display4 = function (listAttr) {
 		author$project$UiFramework$Typography$Display4,
 		A2(elm$core$List$cons, mdgriffith$elm_ui$Element$Font$light, listAttr));
 };
-var author$project$Modules$Showroom$View$title = author$project$UiFramework$flatMap(
+var author$project$Page$Showroom$title = author$project$UiFramework$flatMap(
 	function (context) {
 		var align = function () {
-			var _n0 = context.device._class;
-			if (_n0.$ === 'Phone') {
+			var _n2 = context.device._class;
+			if (_n2.$ === 'Phone') {
 				return mdgriffith$elm_ui$Element$centerX;
 			} else {
 				return mdgriffith$elm_ui$Element$alignLeft;
 			}
 		}();
+		var _n0 = function () {
+			var _n1 = context.theme;
+			if (_n1.$ === 'Default') {
+				return _Utils_Tuple2('Default', 'Basic Bootstrap');
+			} else {
+				return _Utils_Tuple2('Darkly', 'Night Mode');
+			}
+		}();
+		var titleText = _n0.a;
+		var subTitleText = _n0.b;
 		return A2(
 			author$project$UiFramework$uiColumn,
 			_List_fromArray(
@@ -15426,20 +15658,21 @@ var author$project$Modules$Showroom$View$title = author$project$UiFramework$flat
 					author$project$UiFramework$Typography$display4,
 					_List_fromArray(
 						[align]),
-					author$project$Modules$Showroom$View$titleText),
+					author$project$Page$Showroom$text(titleText)),
 					A2(
 					author$project$UiFramework$Typography$textLead,
 					_List_fromArray(
 						[align]),
-					author$project$Modules$Showroom$View$subTitleText)
+					author$project$Page$Showroom$text(subTitleText))
 				]));
 	});
-var author$project$Modules$Showroom$Typography$text = function (str) {
-	return author$project$UiFramework$uiText(
+var author$project$UiFramework$Internal$uiRow = function (attrs) {
+	return author$project$UiFramework$Internal$node(
 		function (_n0) {
-			return str;
+			return mdgriffith$elm_ui$Element$row(attrs);
 		});
 };
+var author$project$UiFramework$uiRow = author$project$UiFramework$Internal$uiRow;
 var author$project$UiFramework$Typography$SizeH2 = {$: 'SizeH2'};
 var author$project$UiFramework$Typography$h2 = function (listAttr) {
 	return A2(
@@ -15468,69 +15701,62 @@ var author$project$UiFramework$Typography$h6 = function (listAttr) {
 		author$project$UiFramework$Typography$SizeH6,
 		A2(elm$core$List$cons, mdgriffith$elm_ui$Element$Font$bold, listAttr));
 };
-var author$project$Modules$Showroom$Typography$headings = A2(
-	author$project$UiFramework$uiColumn,
-	_List_fromArray(
-		[
-			mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-			mdgriffith$elm_ui$Element$spacing(16)
-		]),
-	_List_fromArray(
-		[
-			A2(
-			author$project$UiFramework$Typography$h1,
-			_List_Nil,
-			author$project$Modules$Showroom$Typography$text('Heading 1')),
-			A2(
-			author$project$UiFramework$Typography$h2,
-			_List_Nil,
-			author$project$Modules$Showroom$Typography$text('Heading 2')),
-			A2(
-			author$project$UiFramework$Typography$h3,
-			_List_Nil,
-			author$project$Modules$Showroom$Typography$text('Heading 3')),
-			A2(
-			author$project$UiFramework$Typography$h4,
-			_List_Nil,
-			author$project$Modules$Showroom$Typography$text('Heading 4')),
-			A2(
-			author$project$UiFramework$Typography$h5,
-			_List_Nil,
-			author$project$Modules$Showroom$Typography$text('Heading 5')),
-			A2(
-			author$project$UiFramework$Typography$h6,
-			_List_Nil,
-			author$project$Modules$Showroom$Typography$text('Heading 6')),
-			A2(
-			author$project$UiFramework$Typography$textLead,
-			_List_Nil,
-			author$project$Modules$Showroom$Typography$text('Lead Text'))
-		]));
-var author$project$Modules$Showroom$Typography$typography = A2(
-	author$project$UiFramework$uiRow,
-	_List_fromArray(
-		[
-			mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
-		]),
-	_List_fromArray(
-		[author$project$Modules$Showroom$Typography$headings]));
-var author$project$Modules$Showroom$View$typography = A2(author$project$Modules$Showroom$View$section, 'Typography', author$project$Modules$Showroom$Typography$typography);
-var author$project$Modules$Showroom$View$content = A2(
-	author$project$UiFramework$uiColumn,
-	_List_fromArray(
-		[
-			A2(mdgriffith$elm_ui$Element$paddingXY, 0, 64),
-			mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-			mdgriffith$elm_ui$Element$spacing(64)
-		]),
-	_List_fromArray(
-		[author$project$Modules$Showroom$View$title, author$project$Modules$Showroom$View$buttons, author$project$Modules$Showroom$View$typography, author$project$Modules$Showroom$View$badges, author$project$Modules$Showroom$View$alerts, author$project$Modules$Showroom$View$table, author$project$Modules$Showroom$View$pagination]));
-var author$project$Modules$Showroom$View$view = F2(
+var author$project$Page$Showroom$typography = A2(
+	author$project$Page$Showroom$section,
+	'Typography',
+	A2(
+		author$project$UiFramework$uiRow,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				author$project$UiFramework$uiColumn,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+						mdgriffith$elm_ui$Element$spacing(16)
+					]),
+				_List_fromArray(
+					[
+						A2(
+						author$project$UiFramework$Typography$h1,
+						_List_Nil,
+						author$project$Page$Showroom$text('Heading 1')),
+						A2(
+						author$project$UiFramework$Typography$h2,
+						_List_Nil,
+						author$project$Page$Showroom$text('Heading 2')),
+						A2(
+						author$project$UiFramework$Typography$h3,
+						_List_Nil,
+						author$project$Page$Showroom$text('Heading 3')),
+						A2(
+						author$project$UiFramework$Typography$h4,
+						_List_Nil,
+						author$project$Page$Showroom$text('Heading 4')),
+						A2(
+						author$project$UiFramework$Typography$h5,
+						_List_Nil,
+						author$project$Page$Showroom$text('Heading 5')),
+						A2(
+						author$project$UiFramework$Typography$h6,
+						_List_Nil,
+						author$project$Page$Showroom$text('Heading 6')),
+						A2(
+						author$project$UiFramework$Typography$textLead,
+						_List_Nil,
+						author$project$Page$Showroom$text('Lead Text'))
+					]))
+			])));
+var author$project$Page$Showroom$view = F2(
 	function (sharedState, model) {
 		var context = {
 			device: sharedState.device,
 			parentRole: elm$core$Maybe$Nothing,
-			state: author$project$Modules$Showroom$Pagination$paginationState,
+			state: author$project$Page$Showroom$paginationState,
 			theme: sharedState.theme,
 			themeConfig: author$project$SharedState$getThemeConfig(sharedState.theme)
 		};
@@ -15538,7 +15764,19 @@ var author$project$Modules$Showroom$View$view = F2(
 			author$project$UiFramework$toElement,
 			context,
 			author$project$UiFramework$Container$view(
-				A2(author$project$UiFramework$Container$withChild, author$project$Modules$Showroom$View$content, author$project$UiFramework$Container$default)));
+				A2(
+					author$project$UiFramework$Container$withChild,
+					A2(
+						author$project$UiFramework$uiColumn,
+						_List_fromArray(
+							[
+								A2(mdgriffith$elm_ui$Element$paddingXY, 0, 64),
+								mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+								mdgriffith$elm_ui$Element$spacing(64)
+							]),
+						_List_fromArray(
+							[author$project$Page$Showroom$title, author$project$Page$Showroom$buttons, author$project$Page$Showroom$typography, author$project$Page$Showroom$badges, author$project$Page$Showroom$alerts, author$project$Page$Showroom$table, author$project$Page$Showroom$pagination])),
+					author$project$UiFramework$Container$default)));
 	});
 var mdgriffith$elm_ui$Element$map = mdgriffith$elm_ui$Internal$Model$map;
 var author$project$View$mapMsg = F2(
@@ -15554,19 +15792,19 @@ var author$project$View$content = F2(
 				return A2(
 					author$project$View$mapMsg,
 					author$project$Router$HomeMsg,
-					A2(author$project$Modules$Home$View$view, sharedState, pageModel));
+					A2(author$project$Page$Home$view, sharedState, pageModel));
 			case 'ShowroomPage':
 				var pageModel = _n0.a;
 				return A2(
 					author$project$View$mapMsg,
 					author$project$Router$ShowroomMsg,
-					A2(author$project$Modules$Showroom$View$view, sharedState, pageModel));
+					A2(author$project$Page$Showroom$view, sharedState, pageModel));
 			default:
 				var pageModel = _n0.a;
 				return A2(
 					author$project$View$mapMsg,
 					author$project$Router$NotFoundMsg,
-					A2(author$project$Modules$NotFound$View$view, sharedState, pageModel));
+					A2(author$project$Page$NotFound$view, sharedState, pageModel));
 		}
 	});
 var author$project$Router$NavigateTo = function (a) {
@@ -15977,18 +16215,6 @@ var author$project$UiFramework$Navbar$viewMenubarList = function (items) {
 						author$project$UiFramework$Internal$toElement(context)),
 					items));
 		});
-};
-var mdgriffith$elm_ui$Element$padding = function (x) {
-	return A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$padding,
-		A5(
-			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-			'p-' + elm$core$String$fromInt(x),
-			x,
-			x,
-			x,
-			x));
 };
 var author$project$UiFramework$Navbar$view = function (_n0) {
 	var options = _n0.a;
