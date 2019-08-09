@@ -166,8 +166,23 @@ groupView model sharedState projects =
 
 singleProjectView : SharedState -> Project -> Element Msg
 singleProjectView sharedState project =
+    let
+        containerInFront =
+            case sharedState.device.class of
+                Phone ->
+                    textBox False 12 project
+
+                Tablet ->
+                    textBox False 15 project
+
+                Desktop ->
+                    textBox True 14 project
+
+                BigDesktop ->
+                    textBox True 16 project
+    in
     Element.el
-        [ Element.inFront <| textBox sharedState project
+        [ Element.inFront <| containerInFront
         , Element.width Element.fill
         ]
         (Element.image
@@ -178,52 +193,32 @@ singleProjectView sharedState project =
         )
 
 
-textBox : SharedState -> Project -> Element Msg
-textBox sharedState project =
-    (case sharedState.device.class of
-        Phone ->
-            touchScreenTextBox project
+{-| TextBox needs to be responsive,
+and that also means it needs to scale its font size to the screen width.
 
-        Tablet ->
-            touchScreenTextBox project
+    The isTransparent parameter decides whether or not it's showing.
+    The parentFontSize parameter is similar to em in css,
+    where child elements can scale their font sizes based on that.
 
-        Desktop ->
-            regularScreenTextBox project
+    This is probably a bad way to do this but whatever lol
 
-        BigDesktop ->
-            regularScreenTextBox project
-    )
-    <|
-        [ header project
-        , description project
-        ]
-
-
-regularScreenTextBox : Project -> List (Element Msg) -> Element Msg
-regularScreenTextBox project =
+-}
+textBox : Bool -> Int -> Project -> Element Msg
+textBox isTransparent parentFontSize project =
     Element.column
         [ Font.color Colour.white
         , Element.spacing 15
-        , Element.padding 40
+        , Element.padding <| parentFontSize * 3
         , Element.width Element.fill
         , Background.color Colour.shaded
         , Element.height Element.fill
-        , Element.transparent True
+        , Element.transparent isTransparent
         , Element.mouseOver [ Element.transparent False ]
-        , Element.inFront <| iconRow project
+        , Element.inFront <| iconRow parentFontSize project
+        , Font.size parentFontSize
         ]
-
-
-touchScreenTextBox : Project -> List (Element Msg) -> Element Msg
-touchScreenTextBox project =
-    Element.column
-        [ Font.color Colour.white
-        , Element.spacing 15
-        , Element.padding 40
-        , Element.width Element.fill
-        , Background.color Colour.shaded
-        , Element.height Element.fill
-        , Element.inFront <| iconRow project
+        [ header parentFontSize project
+        , description parentFontSize project
         ]
 
 
@@ -231,14 +226,14 @@ touchScreenTextBox project =
 -- holds the title and the date
 
 
-header : Project -> Element Msg
-header project =
+header : Int -> Project -> Element Msg
+header parentFontSize project =
     Element.column [ Element.spacing 20 ]
         [ Element.el
-            [ Font.size 30 ]
+            [ Font.size <| parentFontSize * 2 ]
             (Element.text project.name)
         , Element.el
-            [ Font.size 15 ]
+            [ Font.size parentFontSize ]
             (Element.text (project.year |> String.fromInt))
         ]
 
@@ -247,17 +242,17 @@ header project =
 -- row of the icons that are overlaid on top of the text box
 
 
-iconRow : Project -> Element Msg
-iconRow project =
+iconRow : Int -> Project -> Element Msg
+iconRow parentFontSize project =
     Element.row
         [ Element.width Element.fill
         , Element.height Element.fill
         ]
-        [ linkWrap project.githubLink <|
+        [ linkWrap parentFontSize project.githubLink <|
             iconWrapper (Icon.view FontAwesome.Brands.github)
-        , postLinkWrap project.aboutLink <|
+        , postLinkWrap parentFontSize project.aboutLink <|
             iconWrapper (Icon.view FontAwesome.Solid.info)
-        , linkWrap project.link <|
+        , linkWrap parentFontSize project.link <|
             iconWrapper (Icon.view FontAwesome.Solid.link)
         ]
 
@@ -275,14 +270,14 @@ iconWrapper icon =
 -- the big box that covers the entire height of the textBox and has a `width fill` attribute. This makes a bigger area clickable. It redirects the user to a link
 
 
-linkWrap : String -> Element Msg -> Element Msg
-linkWrap link icon =
+linkWrap : Int -> String -> Element Msg -> Element Msg
+linkWrap parentFontSize link icon =
     Element.newTabLink
         [ Element.width Element.fill
         , Element.height Element.fill
         , Border.rounded 30
         , Element.mouseOver
-            [ Font.size 40
+            [ Font.size <| parentFontSize * 2
             ]
         ]
         { url = link
@@ -294,8 +289,8 @@ linkWrap link icon =
 -- same thing as linkWrap but it redirects to the blog page. We need to navigate *within* our SPA so I need another wrapper lol.
 
 
-postLinkWrap : String -> Element Msg -> Element Msg
-postLinkWrap link icon =
+postLinkWrap : Int -> String -> Element Msg -> Element Msg
+postLinkWrap parentFontSize link icon =
     let
         -- the filename is just the name of the .emu file without the .emu
         fileName =
@@ -308,17 +303,17 @@ postLinkWrap link icon =
         , Element.pointer
         , Element.Events.onClick (NavigateTo (Post fileName))
         , Element.mouseOver
-            [ Font.size 40
+            [ Font.size <| parentFontSize * 2
             ]
         ]
         icon
 
 
-description : Project -> Element Msg
-description project =
+description : Int -> Project -> Element Msg
+description parentFontSize project =
     Element.paragraph
-        [ Font.size 20
-        , Element.alignBottom
+        [ Element.alignBottom
+        , Font.size parentFontSize
         ]
         [ Element.text project.blurb ]
 
