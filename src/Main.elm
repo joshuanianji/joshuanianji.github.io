@@ -156,24 +156,13 @@ view model =
 title : Model -> Element Msg
 title model =
     let
-        ( fontSize, padding ) =
+        fontSize =
             case model.sharedState.device.class of
                 BigDesktop ->
-                    ( 70, 0 )
+                    70
 
-                Desktop ->
-                    ( 50, 0 )
-
-                Tablet ->
-                    case model.sharedState.device.orientation of
-                        Portrait ->
-                            ( 80, 30 )
-
-                        Landscape ->
-                            ( 50, 0 )
-
-                Phone ->
-                    ( 80, 30 )
+                _ ->
+                    50
     in
     Element.el
         [ Font.size fontSize
@@ -228,7 +217,7 @@ navbarElementAttributes model route =
                             25
 
                 Phone ->
-                    30
+                    25
 
         basicNavBarAttributes =
             [ Element.padding 15
@@ -349,7 +338,7 @@ update msg model =
         WindowResize windowSize ->
             updateSharedState
                 model
-                (SharedState.UpdateDevice (Element.classifyDevice windowSize |> Debug.log "Device"))
+                (SharedState.UpdateDevice (Element.classifyDevice (Debug.log "window size" windowSize) |> Debug.log "Device"))
 
 
 

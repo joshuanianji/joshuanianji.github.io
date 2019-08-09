@@ -66,7 +66,7 @@ handheldDisplay screenSize sharedState =
                     40
 
                 Small ->
-                    10
+                    20
     in
     Element.column
         [ Element.padding space
@@ -150,7 +150,7 @@ about sharedState =
         , Element.width (Element.fillPortion 1)
         ]
         [ Element.el
-            [ Font.size 55
+            [ Font.size 40
             , Font.bold
             ]
             (Element.text "Hey,")
@@ -184,11 +184,12 @@ aboutContent sharedState =
                             25
 
                 Phone ->
-                    30
+                    20
     in
     Element.textColumn
         [ Font.size fontSize
         , Element.spacing 15
+        , Element.width Element.fill
         ]
         [ Element.paragraph [] [ Element.text "my name is Joshua Ji." ]
         , Element.paragraph [] [ Element.text "I am a 17 year old high school student passionate about Computer Science." ]
