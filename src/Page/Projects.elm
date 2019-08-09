@@ -5,6 +5,9 @@ module Page.Projects exposing (Model, Msg, init, update, view)
 
 import Browser.Navigation as Navigation
 import Element exposing (Device, DeviceClass(..), Element, Orientation(..))
+import Element.Background as Background
+import Element.Border as Border
+import Element.Events
 import Element.Font as Font
 import FontAwesome.Brands
 import FontAwesome.Solid
@@ -15,9 +18,7 @@ import Helpers.Util as Util
 import Projects exposing (..)
 import Routes exposing (Route(..))
 import SharedState exposing (SharedState, SharedStateUpdate(..))
-import Element.Background as Background
-import Element.Events
-import Element.Border as Border
+
 
 
 -- MODEL
@@ -141,7 +142,7 @@ groupView model sharedState projects =
                 ]
 
     else
-        -- a row of pairs of projects
+        -- a column of pairs of projects
         projects
             |> Util.toPairs
             |> List.map
