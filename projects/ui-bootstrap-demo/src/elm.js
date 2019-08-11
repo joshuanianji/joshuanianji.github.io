@@ -2330,41 +2330,105 @@ function _Platform_mergeExportsDebug(moduleName, obj, exports)
 }
 
 
+// CREATE
 
-var _Bitwise_and = F2(function(a, b)
+var _Regex_never = /.^/;
+
+var _Regex_fromStringWith = F2(function(options, string)
 {
-	return a & b;
+	var flags = 'g';
+	if (options.multiline) { flags += 'm'; }
+	if (options.caseInsensitive) { flags += 'i'; }
+
+	try
+	{
+		return elm$core$Maybe$Just(new RegExp(string, flags));
+	}
+	catch(error)
+	{
+		return elm$core$Maybe$Nothing;
+	}
 });
 
-var _Bitwise_or = F2(function(a, b)
+
+// USE
+
+var _Regex_contains = F2(function(re, string)
 {
-	return a | b;
+	return string.match(re) !== null;
 });
 
-var _Bitwise_xor = F2(function(a, b)
+
+var _Regex_findAtMost = F3(function(n, re, str)
 {
-	return a ^ b;
+	var out = [];
+	var number = 0;
+	var string = str;
+	var lastIndex = re.lastIndex;
+	var prevLastIndex = -1;
+	var result;
+	while (number++ < n && (result = re.exec(string)))
+	{
+		if (prevLastIndex == re.lastIndex) break;
+		var i = result.length - 1;
+		var subs = new Array(i);
+		while (i > 0)
+		{
+			var submatch = result[i];
+			subs[--i] = submatch
+				? elm$core$Maybe$Just(submatch)
+				: elm$core$Maybe$Nothing;
+		}
+		out.push(A4(elm$regex$Regex$Match, result[0], result.index, number, _List_fromArray(subs)));
+		prevLastIndex = re.lastIndex;
+	}
+	re.lastIndex = lastIndex;
+	return _List_fromArray(out);
 });
 
-function _Bitwise_complement(a)
-{
-	return ~a;
-};
 
-var _Bitwise_shiftLeftBy = F2(function(offset, a)
+var _Regex_replaceAtMost = F4(function(n, re, replacer, string)
 {
-	return a << offset;
+	var count = 0;
+	function jsReplacer(match)
+	{
+		if (count++ >= n)
+		{
+			return match;
+		}
+		var i = arguments.length - 3;
+		var submatches = new Array(i);
+		while (i > 0)
+		{
+			var submatch = arguments[i];
+			submatches[--i] = submatch
+				? elm$core$Maybe$Just(submatch)
+				: elm$core$Maybe$Nothing;
+		}
+		return replacer(A4(elm$regex$Regex$Match, match, arguments[arguments.length - 2], count, _List_fromArray(submatches)));
+	}
+	return string.replace(re, jsReplacer);
 });
 
-var _Bitwise_shiftRightBy = F2(function(offset, a)
+var _Regex_splitAtMost = F3(function(n, re, str)
 {
-	return a >> offset;
+	var string = str;
+	var out = [];
+	var start = re.lastIndex;
+	var restoreLastIndex = re.lastIndex;
+	while (n--)
+	{
+		var result = re.exec(string);
+		if (!result) break;
+		out.push(string.slice(start, result.index));
+		start = re.lastIndex;
+	}
+	out.push(string.slice(start));
+	re.lastIndex = restoreLastIndex;
+	return _List_fromArray(out);
 });
 
-var _Bitwise_shiftRightZfBy = F2(function(offset, a)
-{
-	return a >>> offset;
-});
+var _Regex_infinity = Infinity;
 
 
 
@@ -4364,6 +4428,43 @@ function _Browser_load(url)
 		}
 	}));
 }
+
+
+
+var _Bitwise_and = F2(function(a, b)
+{
+	return a & b;
+});
+
+var _Bitwise_or = F2(function(a, b)
+{
+	return a | b;
+});
+
+var _Bitwise_xor = F2(function(a, b)
+{
+	return a ^ b;
+});
+
+function _Bitwise_complement(a)
+{
+	return ~a;
+};
+
+var _Bitwise_shiftLeftBy = F2(function(offset, a)
+{
+	return a << offset;
+});
+
+var _Bitwise_shiftRightBy = F2(function(offset, a)
+{
+	return a >> offset;
+});
+
+var _Bitwise_shiftRightZfBy = F2(function(offset, a)
+{
+	return a >>> offset;
+});
 var author$project$Main$LinkClicked = function (a) {
 	return {$: 'LinkClicked', a: a};
 };
@@ -5802,347 +5903,366 @@ var mdgriffith$elm_ui$Element$toRgb = function (_n0) {
 	var a = _n0.d;
 	return {alpha: a, blue: b, green: g, red: r};
 };
-var author$project$UiFramework$Colors$contrastTextColor = F3(
+var author$project$UiFramework$ColorUtils$contrastTextColor = F3(
 	function (backgroundColor, darkColor, lightColor) {
 		var rgbRec = mdgriffith$elm_ui$Element$toRgb(backgroundColor);
 		var contrast = ((((rgbRec.red * 299.0) + (rgbRec.green * 587.0)) + (rgbRec.blue * 114.0)) * 256) / 1000.0;
 		return (contrast > 150.0) ? darkColor : lightColor;
 	});
-var elm$core$Char$toLower = _Char_toLower;
-var author$project$UiFramework$Colors$hexToInt = function (_char) {
-	var _n0 = elm$core$Char$toLower(_char);
-	switch (_n0.valueOf()) {
-		case '0':
-			return elm$core$Maybe$Just(0);
-		case '1':
-			return elm$core$Maybe$Just(1);
-		case '2':
-			return elm$core$Maybe$Just(2);
-		case '3':
-			return elm$core$Maybe$Just(3);
-		case '4':
-			return elm$core$Maybe$Just(4);
-		case '5':
-			return elm$core$Maybe$Just(5);
-		case '6':
-			return elm$core$Maybe$Just(6);
-		case '7':
-			return elm$core$Maybe$Just(7);
-		case '8':
-			return elm$core$Maybe$Just(8);
-		case '9':
-			return elm$core$Maybe$Just(9);
-		case 'a':
-			return elm$core$Maybe$Just(10);
-		case 'b':
-			return elm$core$Maybe$Just(11);
-		case 'c':
-			return elm$core$Maybe$Just(12);
-		case 'd':
-			return elm$core$Maybe$Just(13);
-		case 'e':
-			return elm$core$Maybe$Just(14);
-		case 'f':
-			return elm$core$Maybe$Just(15);
-		default:
-			return elm$core$Maybe$Nothing;
-	}
+var avh4$elm_color$Color$toRgba = function (_n0) {
+	var r = _n0.a;
+	var g = _n0.b;
+	var b = _n0.c;
+	var a = _n0.d;
+	return {alpha: a, blue: b, green: g, red: r};
 };
-var elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
-var elm$core$Maybe$map2 = F3(
-	function (func, ma, mb) {
-		if (ma.$ === 'Nothing') {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var a = ma.a;
-			if (mb.$ === 'Nothing') {
-				return elm$core$Maybe$Nothing;
-			} else {
-				var b = mb.a;
-				return elm$core$Maybe$Just(
-					A2(func, a, b));
-			}
-		}
-	});
-var author$project$UiFramework$Colors$hex2ToInt = F2(
-	function (c1, c2) {
-		return A3(
-			elm$core$Maybe$map2,
-			F2(
-				function (v1, v2) {
-					return (v1 << 4) + v2;
-				}),
-			author$project$UiFramework$Colors$hexToInt(c1),
-			author$project$UiFramework$Colors$hexToInt(c2));
-	});
-var elm$core$Maybe$map4 = F5(
-	function (func, ma, mb, mc, md) {
-		if (ma.$ === 'Nothing') {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var a = ma.a;
-			if (mb.$ === 'Nothing') {
-				return elm$core$Maybe$Nothing;
-			} else {
-				var b = mb.a;
-				if (mc.$ === 'Nothing') {
-					return elm$core$Maybe$Nothing;
-				} else {
-					var c = mc.a;
-					if (md.$ === 'Nothing') {
-						return elm$core$Maybe$Nothing;
-					} else {
-						var d = md.a;
-						return elm$core$Maybe$Just(
-							A4(func, a, b, c, d));
-					}
-				}
-			}
-		}
-	});
 var mdgriffith$elm_ui$Internal$Model$Rgba = F4(
 	function (a, b, c, d) {
 		return {$: 'Rgba', a: a, b: b, c: c, d: d};
 	});
 var mdgriffith$elm_ui$Element$rgba = mdgriffith$elm_ui$Internal$Model$Rgba;
-var author$project$UiFramework$Colors$fromHex8 = F4(
-	function (_n0, _n1, _n2, _n3) {
-		var r1 = _n0.a;
-		var r2 = _n0.b;
-		var g1 = _n1.a;
-		var g2 = _n1.b;
-		var b1 = _n2.a;
-		var b2 = _n2.b;
-		var a1 = _n3.a;
-		var a2 = _n3.b;
-		return A5(
-			elm$core$Maybe$map4,
-			F4(
-				function (r, g, b, a) {
-					return A4(mdgriffith$elm_ui$Element$rgba, r / 255, g / 255, b / 255, a / 255);
-				}),
-			A2(author$project$UiFramework$Colors$hex2ToInt, r1, r2),
-			A2(author$project$UiFramework$Colors$hex2ToInt, g1, g2),
-			A2(author$project$UiFramework$Colors$hex2ToInt, b1, b2),
-			A2(author$project$UiFramework$Colors$hex2ToInt, a1, a2));
+var author$project$UiFramework$ColorUtils$fromColor = function (elementColor) {
+	var cl = avh4$elm_color$Color$toRgba(elementColor);
+	return A4(mdgriffith$elm_ui$Element$rgba, cl.red, cl.green, cl.blue, cl.alpha);
+};
+var avh4$elm_color$Color$RgbaSpace = F4(
+	function (a, b, c, d) {
+		return {$: 'RgbaSpace', a: a, b: b, c: c, d: d};
 	});
+var avh4$elm_color$Color$rgb = F3(
+	function (r, g, b) {
+		return A4(avh4$elm_color$Color$RgbaSpace, r, g, b, 1.0);
+	});
+var elm$core$Result$withDefault = F2(
+	function (def, result) {
+		if (result.$ === 'Ok') {
+			var a = result.a;
+			return a;
+		} else {
+			return def;
+		}
+	});
+var avh4$elm_color$Color$rgba = F4(
+	function (r, g, b, a) {
+		return A4(avh4$elm_color$Color$RgbaSpace, r, g, b, a);
+	});
+var elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var elm$core$List$maybeCons = F3(
+	function (f, mx, xs) {
+		var _n0 = f(mx);
+		if (_n0.$ === 'Just') {
+			var x = _n0.a;
+			return A2(elm$core$List$cons, x, xs);
+		} else {
+			return xs;
+		}
+	});
+var elm$core$List$filterMap = F2(
+	function (f, xs) {
+		return A3(
+			elm$core$List$foldr,
+			elm$core$List$maybeCons(f),
+			_List_Nil,
+			xs);
+	});
+var elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return elm$core$Maybe$Just(x);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
+var elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
+var elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
+var elm$core$Result$andThen = F2(
+	function (callback, result) {
+		if (result.$ === 'Ok') {
+			var value = result.a;
+			return callback(value);
+		} else {
+			var msg = result.a;
+			return elm$core$Result$Err(msg);
+		}
+	});
+var elm$core$Result$fromMaybe = F2(
+	function (err, maybe) {
+		if (maybe.$ === 'Just') {
+			var v = maybe.a;
+			return elm$core$Result$Ok(v);
+		} else {
+			return elm$core$Result$Err(err);
+		}
+	});
+var elm$core$Result$map = F2(
+	function (func, ra) {
+		if (ra.$ === 'Ok') {
+			var a = ra.a;
+			return elm$core$Result$Ok(
+				func(a));
+		} else {
+			var e = ra.a;
+			return elm$core$Result$Err(e);
+		}
+	});
+var elm$core$String$fromList = _String_fromList;
 var elm$core$String$foldr = _String_foldr;
 var elm$core$String$toList = function (string) {
 	return A3(elm$core$String$foldr, elm$core$List$cons, _List_Nil, string);
 };
-var author$project$UiFramework$Colors$fromHex = function (hexString) {
-	var _n0 = elm$core$String$toList(hexString);
-	_n0$8:
-	while (true) {
-		if ((_n0.b && _n0.b.b) && _n0.b.b.b) {
-			if (!_n0.b.b.b.b) {
-				var r = _n0.a;
-				var _n4 = _n0.b;
-				var g = _n4.a;
-				var _n5 = _n4.b;
-				var b = _n5.a;
-				return A4(
-					author$project$UiFramework$Colors$fromHex8,
-					_Utils_Tuple2(r, r),
-					_Utils_Tuple2(g, g),
-					_Utils_Tuple2(b, b),
-					_Utils_Tuple2(
-						_Utils_chr('f'),
-						_Utils_chr('f')));
-			} else {
-				if (!_n0.b.b.b.b.b) {
-					if ('#' === _n0.a.valueOf()) {
-						var _n1 = _n0.b;
-						var r = _n1.a;
-						var _n2 = _n1.b;
-						var g = _n2.a;
-						var _n3 = _n2.b;
-						var b = _n3.a;
-						return A4(
-							author$project$UiFramework$Colors$fromHex8,
-							_Utils_Tuple2(r, r),
-							_Utils_Tuple2(g, g),
-							_Utils_Tuple2(b, b),
-							_Utils_Tuple2(
-								_Utils_chr('f'),
-								_Utils_chr('f')));
-					} else {
-						var r = _n0.a;
-						var _n10 = _n0.b;
-						var g = _n10.a;
-						var _n11 = _n10.b;
-						var b = _n11.a;
-						var _n12 = _n11.b;
-						var a = _n12.a;
-						return A4(
-							author$project$UiFramework$Colors$fromHex8,
-							_Utils_Tuple2(r, r),
-							_Utils_Tuple2(g, g),
-							_Utils_Tuple2(b, b),
-							_Utils_Tuple2(a, a));
-					}
-				} else {
-					if (!_n0.b.b.b.b.b.b) {
-						if ('#' === _n0.a.valueOf()) {
-							var _n6 = _n0.b;
-							var r = _n6.a;
-							var _n7 = _n6.b;
-							var g = _n7.a;
-							var _n8 = _n7.b;
-							var b = _n8.a;
-							var _n9 = _n8.b;
-							var a = _n9.a;
-							return A4(
-								author$project$UiFramework$Colors$fromHex8,
-								_Utils_Tuple2(r, r),
-								_Utils_Tuple2(g, g),
-								_Utils_Tuple2(b, b),
-								_Utils_Tuple2(a, a));
-						} else {
-							break _n0$8;
-						}
-					} else {
-						if (!_n0.b.b.b.b.b.b.b) {
-							var r1 = _n0.a;
-							var _n19 = _n0.b;
-							var r2 = _n19.a;
-							var _n20 = _n19.b;
-							var g1 = _n20.a;
-							var _n21 = _n20.b;
-							var g2 = _n21.a;
-							var _n22 = _n21.b;
-							var b1 = _n22.a;
-							var _n23 = _n22.b;
-							var b2 = _n23.a;
-							return A4(
-								author$project$UiFramework$Colors$fromHex8,
-								_Utils_Tuple2(r1, r2),
-								_Utils_Tuple2(g1, g2),
-								_Utils_Tuple2(b1, b2),
-								_Utils_Tuple2(
-									_Utils_chr('f'),
-									_Utils_chr('f')));
-						} else {
-							if (!_n0.b.b.b.b.b.b.b.b) {
-								if ('#' === _n0.a.valueOf()) {
-									var _n13 = _n0.b;
-									var r1 = _n13.a;
-									var _n14 = _n13.b;
-									var r2 = _n14.a;
-									var _n15 = _n14.b;
-									var g1 = _n15.a;
-									var _n16 = _n15.b;
-									var g2 = _n16.a;
-									var _n17 = _n16.b;
-									var b1 = _n17.a;
-									var _n18 = _n17.b;
-									var b2 = _n18.a;
-									return A4(
-										author$project$UiFramework$Colors$fromHex8,
-										_Utils_Tuple2(r1, r2),
-										_Utils_Tuple2(g1, g2),
-										_Utils_Tuple2(b1, b2),
-										_Utils_Tuple2(
-											_Utils_chr('f'),
-											_Utils_chr('f')));
-								} else {
-									break _n0$8;
-								}
-							} else {
-								if (_n0.b.b.b.b.b.b.b.b.b) {
-									if (('#' === _n0.a.valueOf()) && (!_n0.b.b.b.b.b.b.b.b.b.b)) {
-										var _n24 = _n0.b;
-										var r1 = _n24.a;
-										var _n25 = _n24.b;
-										var r2 = _n25.a;
-										var _n26 = _n25.b;
-										var g1 = _n26.a;
-										var _n27 = _n26.b;
-										var g2 = _n27.a;
-										var _n28 = _n27.b;
-										var b1 = _n28.a;
-										var _n29 = _n28.b;
-										var b2 = _n29.a;
-										var _n30 = _n29.b;
-										var a1 = _n30.a;
-										var _n31 = _n30.b;
-										var a2 = _n31.a;
-										return A4(
-											author$project$UiFramework$Colors$fromHex8,
-											_Utils_Tuple2(r1, r2),
-											_Utils_Tuple2(g1, g2),
-											_Utils_Tuple2(b1, b2),
-											_Utils_Tuple2(a1, a2));
-									} else {
-										break _n0$8;
-									}
-								} else {
-									var r1 = _n0.a;
-									var _n32 = _n0.b;
-									var r2 = _n32.a;
-									var _n33 = _n32.b;
-									var g1 = _n33.a;
-									var _n34 = _n33.b;
-									var g2 = _n34.a;
-									var _n35 = _n34.b;
-									var b1 = _n35.a;
-									var _n36 = _n35.b;
-									var b2 = _n36.a;
-									var _n37 = _n36.b;
-									var a1 = _n37.a;
-									var _n38 = _n37.b;
-									var a2 = _n38.a;
-									return A4(
-										author$project$UiFramework$Colors$fromHex8,
-										_Utils_Tuple2(r1, r2),
-										_Utils_Tuple2(g1, g2),
-										_Utils_Tuple2(b1, b2),
-										_Utils_Tuple2(a1, a2));
-								}
-							}
-						}
-					}
-				}
-			}
-		} else {
-			break _n0$8;
-		}
-	}
-	return elm$core$Maybe$Nothing;
-};
-var mdgriffith$elm_ui$Element$rgb255 = F3(
-	function (red, green, blue) {
-		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, 1);
+var elm$core$String$toLower = _String_toLower;
+var elm$regex$Regex$Match = F4(
+	function (match, index, number, submatches) {
+		return {index: index, match: match, number: number, submatches: submatches};
 	});
-var author$project$UiFramework$Colors$getColor = function (hexStr) {
+var elm$regex$Regex$findAtMost = _Regex_findAtMost;
+var elm$regex$Regex$fromStringWith = _Regex_fromStringWith;
+var elm$regex$Regex$fromString = function (string) {
 	return A2(
-		elm$core$Maybe$withDefault,
-		A3(mdgriffith$elm_ui$Element$rgb255, 0, 0, 0),
-		author$project$UiFramework$Colors$fromHex(hexStr));
+		elm$regex$Regex$fromStringWith,
+		{caseInsensitive: false, multiline: false},
+		string);
+};
+var elm$core$String$reverse = _String_reverse;
+var fredcy$elm_parseint$ParseInt$InvalidRadix = function (a) {
+	return {$: 'InvalidRadix', a: a};
+};
+var fredcy$elm_parseint$ParseInt$InvalidChar = function (a) {
+	return {$: 'InvalidChar', a: a};
+};
+var fredcy$elm_parseint$ParseInt$OutOfRange = function (a) {
+	return {$: 'OutOfRange', a: a};
+};
+var fredcy$elm_parseint$ParseInt$charOffset = F2(
+	function (basis, c) {
+		return elm$core$Char$toCode(c) - elm$core$Char$toCode(basis);
+	});
+var fredcy$elm_parseint$ParseInt$isBetween = F3(
+	function (lower, upper, c) {
+		var ci = elm$core$Char$toCode(c);
+		return (_Utils_cmp(
+			elm$core$Char$toCode(lower),
+			ci) < 1) && (_Utils_cmp(
+			ci,
+			elm$core$Char$toCode(upper)) < 1);
+	});
+var fredcy$elm_parseint$ParseInt$intFromChar = F2(
+	function (radix, c) {
+		var validInt = function (i) {
+			return (_Utils_cmp(i, radix) < 0) ? elm$core$Result$Ok(i) : elm$core$Result$Err(
+				fredcy$elm_parseint$ParseInt$OutOfRange(c));
+		};
+		var toInt = A3(
+			fredcy$elm_parseint$ParseInt$isBetween,
+			_Utils_chr('0'),
+			_Utils_chr('9'),
+			c) ? elm$core$Result$Ok(
+			A2(
+				fredcy$elm_parseint$ParseInt$charOffset,
+				_Utils_chr('0'),
+				c)) : (A3(
+			fredcy$elm_parseint$ParseInt$isBetween,
+			_Utils_chr('a'),
+			_Utils_chr('z'),
+			c) ? elm$core$Result$Ok(
+			10 + A2(
+				fredcy$elm_parseint$ParseInt$charOffset,
+				_Utils_chr('a'),
+				c)) : (A3(
+			fredcy$elm_parseint$ParseInt$isBetween,
+			_Utils_chr('A'),
+			_Utils_chr('Z'),
+			c) ? elm$core$Result$Ok(
+			10 + A2(
+				fredcy$elm_parseint$ParseInt$charOffset,
+				_Utils_chr('A'),
+				c)) : elm$core$Result$Err(
+			fredcy$elm_parseint$ParseInt$InvalidChar(c))));
+		return A2(elm$core$Result$andThen, validInt, toInt);
+	});
+var fredcy$elm_parseint$ParseInt$parseIntR = F2(
+	function (radix, rstring) {
+		var _n0 = elm$core$String$uncons(rstring);
+		if (_n0.$ === 'Nothing') {
+			return elm$core$Result$Ok(0);
+		} else {
+			var _n1 = _n0.a;
+			var c = _n1.a;
+			var rest = _n1.b;
+			return A2(
+				elm$core$Result$andThen,
+				function (ci) {
+					return A2(
+						elm$core$Result$andThen,
+						function (ri) {
+							return elm$core$Result$Ok(ci + (ri * radix));
+						},
+						A2(fredcy$elm_parseint$ParseInt$parseIntR, radix, rest));
+				},
+				A2(fredcy$elm_parseint$ParseInt$intFromChar, radix, c));
+		}
+	});
+var fredcy$elm_parseint$ParseInt$parseIntRadix = F2(
+	function (radix, string) {
+		return ((2 <= radix) && (radix <= 36)) ? A2(
+			fredcy$elm_parseint$ParseInt$parseIntR,
+			radix,
+			elm$core$String$reverse(string)) : elm$core$Result$Err(
+			fredcy$elm_parseint$ParseInt$InvalidRadix(radix));
+	});
+var fredcy$elm_parseint$ParseInt$parseIntHex = fredcy$elm_parseint$ParseInt$parseIntRadix(16);
+var elm$core$Basics$pow = _Basics_pow;
+var elm$core$Basics$round = _Basics_round;
+var noahzgordon$elm_color_extra$Color$Convert$roundToPlaces = F2(
+	function (places, number) {
+		var multiplier = A2(elm$core$Basics$pow, 10, places);
+		return elm$core$Basics$round(number * multiplier) / multiplier;
+	});
+var noahzgordon$elm_color_extra$Color$Convert$hexToColor = function () {
+	var pattern = '' + ('^' + ('#?' + ('(?:' + ('(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))' + ('|' + ('(?:([a-f\\d])([a-f\\d])([a-f\\d]))' + ('|' + ('(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))' + ('|' + ('(?:([a-f\\d])([a-f\\d])([a-f\\d])([a-f\\d]))' + (')' + '$')))))))))));
+	var extend = function (token) {
+		var _n6 = elm$core$String$toList(token);
+		if (_n6.b && (!_n6.b.b)) {
+			var token_ = _n6.a;
+			return elm$core$String$fromList(
+				_List_fromArray(
+					[token_, token_]));
+		} else {
+			return token;
+		}
+	};
+	return A2(
+		elm$core$Basics$composeR,
+		elm$core$String$toLower,
+		A2(
+			elm$core$Basics$composeR,
+			function (str) {
+				return A2(
+					elm$core$Maybe$map,
+					function (regex) {
+						return A3(elm$regex$Regex$findAtMost, 1, regex, str);
+					},
+					elm$regex$Regex$fromString(pattern));
+			},
+			A2(
+				elm$core$Basics$composeR,
+				elm$core$Maybe$andThen(elm$core$List$head),
+				A2(
+					elm$core$Basics$composeR,
+					elm$core$Maybe$map(
+						function ($) {
+							return $.submatches;
+						}),
+					A2(
+						elm$core$Basics$composeR,
+						elm$core$Maybe$map(
+							elm$core$List$filterMap(elm$core$Basics$identity)),
+						A2(
+							elm$core$Basics$composeR,
+							elm$core$Result$fromMaybe('Parsing hex regex failed'),
+							elm$core$Result$andThen(
+								function (colors) {
+									var _n0 = A2(
+										elm$core$List$map,
+										A2(
+											elm$core$Basics$composeR,
+											extend,
+											A2(
+												elm$core$Basics$composeR,
+												fredcy$elm_parseint$ParseInt$parseIntHex,
+												elm$core$Result$map(elm$core$Basics$toFloat))),
+										colors);
+									_n0$2:
+									while (true) {
+										if (((((_n0.b && (_n0.a.$ === 'Ok')) && _n0.b.b) && (_n0.b.a.$ === 'Ok')) && _n0.b.b.b) && (_n0.b.b.a.$ === 'Ok')) {
+											if (_n0.b.b.b.b) {
+												if ((_n0.b.b.b.a.$ === 'Ok') && (!_n0.b.b.b.b.b)) {
+													var r = _n0.a.a;
+													var _n1 = _n0.b;
+													var g = _n1.a.a;
+													var _n2 = _n1.b;
+													var b = _n2.a.a;
+													var _n3 = _n2.b;
+													var a = _n3.a.a;
+													return elm$core$Result$Ok(
+														A4(
+															avh4$elm_color$Color$rgba,
+															r / 255,
+															g / 255,
+															b / 255,
+															A2(noahzgordon$elm_color_extra$Color$Convert$roundToPlaces, 2, a / 255)));
+												} else {
+													break _n0$2;
+												}
+											} else {
+												var r = _n0.a.a;
+												var _n4 = _n0.b;
+												var g = _n4.a.a;
+												var _n5 = _n4.b;
+												var b = _n5.a.a;
+												return elm$core$Result$Ok(
+													A3(avh4$elm_color$Color$rgb, r / 255, g / 255, b / 255));
+											}
+										} else {
+											break _n0$2;
+										}
+									}
+									return elm$core$Result$Err('Parsing ints from hex failed');
+								})))))));
+}();
+var author$project$UiFramework$ColorUtils$hexToColor = function (string) {
+	var cl = noahzgordon$elm_color_extra$Color$Convert$hexToColor(string);
+	return author$project$UiFramework$ColorUtils$fromColor(
+		A2(
+			elm$core$Result$withDefault,
+			A3(avh4$elm_color$Color$rgb, 0, 0, 0),
+			cl));
 };
 var author$project$UiFramework$Configuration$bootstrapColors = {
-	black: author$project$UiFramework$Colors$getColor('#000'),
-	blue: author$project$UiFramework$Colors$getColor('#007bff'),
-	cyan: author$project$UiFramework$Colors$getColor('#17a2b8'),
-	gray: author$project$UiFramework$Colors$getColor('#6c757d'),
-	gray100: author$project$UiFramework$Colors$getColor('#f8f9fa'),
-	gray200: author$project$UiFramework$Colors$getColor('#e9ecef'),
-	gray300: author$project$UiFramework$Colors$getColor('#dee2e6'),
-	gray400: author$project$UiFramework$Colors$getColor('#ced4da'),
-	gray500: author$project$UiFramework$Colors$getColor('#adb5bd'),
-	gray600: author$project$UiFramework$Colors$getColor('#6c757d'),
-	gray700: author$project$UiFramework$Colors$getColor('#495057'),
-	gray800: author$project$UiFramework$Colors$getColor('#343a40'),
-	gray900: author$project$UiFramework$Colors$getColor('#212529'),
-	green: author$project$UiFramework$Colors$getColor('#28a745'),
-	indigo: author$project$UiFramework$Colors$getColor('#6610f2'),
-	orange: author$project$UiFramework$Colors$getColor('#fd7e14'),
-	pink: author$project$UiFramework$Colors$getColor('#e83e8c'),
-	purple: author$project$UiFramework$Colors$getColor('#6f42c1'),
-	red: author$project$UiFramework$Colors$getColor('#dc3545'),
-	teal: author$project$UiFramework$Colors$getColor('#20c997'),
-	white: author$project$UiFramework$Colors$getColor('#fff'),
-	yellow: author$project$UiFramework$Colors$getColor('#ffc107')
+	black: author$project$UiFramework$ColorUtils$hexToColor('#000'),
+	blue: author$project$UiFramework$ColorUtils$hexToColor('#007bff'),
+	cyan: author$project$UiFramework$ColorUtils$hexToColor('#17a2b8'),
+	gray: author$project$UiFramework$ColorUtils$hexToColor('#6c757d'),
+	gray100: author$project$UiFramework$ColorUtils$hexToColor('#f8f9fa'),
+	gray200: author$project$UiFramework$ColorUtils$hexToColor('#e9ecef'),
+	gray300: author$project$UiFramework$ColorUtils$hexToColor('#dee2e6'),
+	gray400: author$project$UiFramework$ColorUtils$hexToColor('#ced4da'),
+	gray500: author$project$UiFramework$ColorUtils$hexToColor('#adb5bd'),
+	gray600: author$project$UiFramework$ColorUtils$hexToColor('#6c757d'),
+	gray700: author$project$UiFramework$ColorUtils$hexToColor('#495057'),
+	gray800: author$project$UiFramework$ColorUtils$hexToColor('#343a40'),
+	gray900: author$project$UiFramework$ColorUtils$hexToColor('#212529'),
+	green: author$project$UiFramework$ColorUtils$hexToColor('#28a745'),
+	indigo: author$project$UiFramework$ColorUtils$hexToColor('#6610f2'),
+	orange: author$project$UiFramework$ColorUtils$hexToColor('#fd7e14'),
+	pink: author$project$UiFramework$ColorUtils$hexToColor('#e83e8c'),
+	purple: author$project$UiFramework$ColorUtils$hexToColor('#6f42c1'),
+	red: author$project$UiFramework$ColorUtils$hexToColor('#dc3545'),
+	teal: author$project$UiFramework$ColorUtils$hexToColor('#20c997'),
+	white: author$project$UiFramework$ColorUtils$hexToColor('#fff'),
+	yellow: author$project$UiFramework$ColorUtils$hexToColor('#ffc107')
 };
 var author$project$UiFramework$Configuration$bootstrapThemeColor = F2(
 	function (colors, role) {
@@ -6165,52 +6285,54 @@ var author$project$UiFramework$Configuration$bootstrapThemeColor = F2(
 				return colors.gray800;
 		}
 	});
+var author$project$UiFramework$ColorUtils$toColor = function (elementColor) {
+	var cl = mdgriffith$elm_ui$Element$toRgb(elementColor);
+	return A4(avh4$elm_color$Color$rgba, cl.red, cl.green, cl.blue, cl.alpha);
+};
 var elm$core$Basics$negate = function (n) {
 	return -n;
 };
-var author$project$UiFramework$Colors$calculateWeight = F3(
+var elm$core$Basics$abs = function (n) {
+	return (n < 0) ? (-n) : n;
+};
+var elm$core$Basics$clamp = F3(
+	function (low, high, number) {
+		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
+	});
+var noahzgordon$elm_color_extra$Color$Manipulate$calculateWeight = F3(
 	function (a1, a2, weight) {
 		var w1 = (weight * 2) - 1;
 		var a = a1 - a2;
 		var w2 = _Utils_eq(w1 * a, -1) ? w1 : ((w1 + a) / (1 + (w1 * a)));
 		return (w2 + 1) / 2;
 	});
-var author$project$UiFramework$Colors$mixChannel = F3(
+var noahzgordon$elm_color_extra$Color$Manipulate$mixChannel = F3(
 	function (weight, c1, c2) {
 		return (c1 * weight) + (c2 * (1 - weight));
 	});
-var elm$core$Basics$clamp = F3(
-	function (low, high, number) {
-		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
-	});
-var author$project$UiFramework$Colors$weightedMix = F3(
+var noahzgordon$elm_color_extra$Color$Manipulate$weightedMix = F3(
 	function (color1, color2, weight) {
 		var clampedWeight = A3(elm$core$Basics$clamp, 0, 1, weight);
-		var c2 = mdgriffith$elm_ui$Element$toRgb(color2);
-		var c1 = mdgriffith$elm_ui$Element$toRgb(color1);
-		var w = A3(author$project$UiFramework$Colors$calculateWeight, c1.alpha, c2.alpha, clampedWeight);
-		var gMixed = A3(author$project$UiFramework$Colors$mixChannel, w, c1.green, c2.green);
-		var rMixed = A3(author$project$UiFramework$Colors$mixChannel, w, c1.red, c2.red);
-		var bMixed = A3(author$project$UiFramework$Colors$mixChannel, w, c1.blue, c2.blue);
+		var c2 = avh4$elm_color$Color$toRgba(color2);
+		var c1 = avh4$elm_color$Color$toRgba(color1);
+		var w = A3(noahzgordon$elm_color_extra$Color$Manipulate$calculateWeight, c1.alpha, c2.alpha, clampedWeight);
+		var gMixed = A3(noahzgordon$elm_color_extra$Color$Manipulate$mixChannel, w, c1.green, c2.green);
+		var rMixed = A3(noahzgordon$elm_color_extra$Color$Manipulate$mixChannel, w, c1.red, c2.red);
+		var bMixed = A3(noahzgordon$elm_color_extra$Color$Manipulate$mixChannel, w, c1.blue, c2.blue);
 		var alphaMixed = (c1.alpha * clampedWeight) + (c2.alpha * (1 - clampedWeight));
-		return A4(mdgriffith$elm_ui$Element$rgba, rMixed, gMixed, bMixed, alphaMixed);
+		return A4(avh4$elm_color$Color$rgba, rMixed, gMixed, bMixed, alphaMixed);
 	});
-var elm$core$Basics$abs = function (n) {
-	return (n < 0) ? (-n) : n;
-};
-var author$project$UiFramework$Colors$colorLevel = F2(
+var author$project$UiFramework$ColorUtils$colorLevel = F2(
 	function (level, color) {
-		var baseColor = (level > 0) ? author$project$UiFramework$Colors$getColor('#000') : author$project$UiFramework$Colors$getColor('#fff');
-		return A3(
-			author$project$UiFramework$Colors$weightedMix,
-			baseColor,
-			color,
-			8.0e-2 * elm$core$Basics$abs(level));
+		var baseColor = (level > 0) ? author$project$UiFramework$ColorUtils$hexToColor('#000') : author$project$UiFramework$ColorUtils$hexToColor('#fff');
+		return author$project$UiFramework$ColorUtils$fromColor(
+			A3(
+				noahzgordon$elm_color_extra$Color$Manipulate$weightedMix,
+				author$project$UiFramework$ColorUtils$toColor(baseColor),
+				author$project$UiFramework$ColorUtils$toColor(color),
+				8.0e-2 * elm$core$Basics$abs(level)));
 	});
-var mdgriffith$elm_ui$Element$fromRgb = function (clr) {
-	return A4(mdgriffith$elm_ui$Internal$Model$Rgba, clr.red, clr.green, clr.blue, clr.alpha);
-};
-var author$project$UiFramework$Colors$hsla = F4(
+var avh4$elm_color$Color$hsla = F4(
 	function (hue, sat, light, alpha) {
 		var _n0 = _Utils_Tuple3(hue, sat, light);
 		var h = _n0.a;
@@ -6225,51 +6347,53 @@ var author$project$UiFramework$Colors$hsla = F4(
 		var b = hueToRgb(h - (1 / 3));
 		var g = hueToRgb(h);
 		var r = hueToRgb(h + (1 / 3));
-		return mdgriffith$elm_ui$Element$fromRgb(
-			{alpha: alpha, blue: b, green: g, red: r});
+		return A4(avh4$elm_color$Color$RgbaSpace, r, g, b, alpha);
 	});
-var author$project$UiFramework$Colors$limit = A2(elm$core$Basics$clamp, 0, 1);
 var elm$core$Basics$isNaN = _Basics_isNaN;
 var elm$core$Basics$min = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
-var author$project$UiFramework$Colors$toHsla = function (color) {
-	var rgba = mdgriffith$elm_ui$Element$toRgb(color);
-	var _n0 = _Utils_Tuple2(rgba.red, rgba.green);
+var avh4$elm_color$Color$toHsla = function (_n0) {
 	var r = _n0.a;
 	var g = _n0.b;
-	var _n1 = _Utils_Tuple2(rgba.blue, rgba.alpha);
-	var b = _n1.a;
-	var a = _n1.b;
-	var maxColor = A2(
-		elm$core$Basics$max,
-		r,
-		A2(elm$core$Basics$max, g, b));
+	var b = _n0.c;
+	var a = _n0.d;
 	var minColor = A2(
 		elm$core$Basics$min,
 		r,
 		A2(elm$core$Basics$min, g, b));
+	var maxColor = A2(
+		elm$core$Basics$max,
+		r,
+		A2(elm$core$Basics$max, g, b));
+	var l = (minColor + maxColor) / 2;
+	var s = _Utils_eq(minColor, maxColor) ? 0 : ((l < 0.5) ? ((maxColor - minColor) / (maxColor + minColor)) : ((maxColor - minColor) / ((2 - maxColor) - minColor)));
 	var h1 = _Utils_eq(maxColor, r) ? ((g - b) / (maxColor - minColor)) : (_Utils_eq(maxColor, g) ? (2 + ((b - r) / (maxColor - minColor))) : (4 + ((r - g) / (maxColor - minColor))));
 	var h2 = h1 * (1 / 6);
 	var h3 = elm$core$Basics$isNaN(h2) ? 0 : ((h2 < 0) ? (h2 + 1) : h2);
-	var l = (minColor + maxColor) / 2;
-	var s = _Utils_eq(minColor, maxColor) ? 0 : ((l < 0.5) ? ((maxColor - minColor) / (maxColor + minColor)) : ((maxColor - minColor) / ((2 - maxColor) - minColor)));
 	return {alpha: a, hue: h3, lightness: l, saturation: s};
 };
-var author$project$UiFramework$Colors$darken = F2(
+var noahzgordon$elm_color_extra$Color$Manipulate$limit = A2(elm$core$Basics$clamp, 0, 1);
+var noahzgordon$elm_color_extra$Color$Manipulate$darken = F2(
 	function (offset, cl) {
-		var _n0 = author$project$UiFramework$Colors$toHsla(cl);
+		var _n0 = avh4$elm_color$Color$toHsla(cl);
 		var hue = _n0.hue;
 		var saturation = _n0.saturation;
 		var lightness = _n0.lightness;
 		var alpha = _n0.alpha;
 		return A4(
-			author$project$UiFramework$Colors$hsla,
+			avh4$elm_color$Color$hsla,
 			hue,
 			saturation,
-			author$project$UiFramework$Colors$limit(lightness - offset),
+			noahzgordon$elm_color_extra$Color$Manipulate$limit(lightness - offset),
 			alpha);
+	});
+var author$project$UiFramework$ColorUtils$darken = F2(
+	function (offset, elementColor) {
+		var cl = author$project$UiFramework$ColorUtils$toColor(elementColor);
+		return author$project$UiFramework$ColorUtils$fromColor(
+			A2(noahzgordon$elm_color_extra$Color$Manipulate$darken, offset, cl));
 	});
 var author$project$UiFramework$Configuration$defaultBorderWidth = function (_n0) {
 	return 1;
@@ -6284,21 +6408,16 @@ var author$project$UiFramework$Configuration$defaultFontSize = function (size) {
 			return 20;
 	}
 };
-var elm$core$Basics$composeR = F3(
-	function (f, g, x) {
-		return g(
-			f(x));
-	});
 var author$project$UiFramework$Configuration$defaultAlertConfig = function (themeColor) {
 	return {
 		backgroundColor: A2(
 			elm$core$Basics$composeR,
 			themeColor,
-			author$project$UiFramework$Colors$colorLevel(-10)),
+			author$project$UiFramework$ColorUtils$colorLevel(-10)),
 		borderColor: A2(
 			elm$core$Basics$composeR,
 			themeColor,
-			author$project$UiFramework$Colors$colorLevel(-9)),
+			author$project$UiFramework$ColorUtils$colorLevel(-9)),
 		borderRadius: function (_n0) {
 			return 4;
 		},
@@ -6306,12 +6425,12 @@ var author$project$UiFramework$Configuration$defaultAlertConfig = function (them
 		fontColor: A2(
 			elm$core$Basics$composeR,
 			themeColor,
-			author$project$UiFramework$Colors$colorLevel(6)),
+			author$project$UiFramework$ColorUtils$colorLevel(6)),
 		fontSize: author$project$UiFramework$Configuration$defaultFontSize,
 		linkFontColor: A2(
 			elm$core$Basics$composeR,
 			themeColor,
-			author$project$UiFramework$Colors$darken(0.3)),
+			author$project$UiFramework$ColorUtils$darken(0.3)),
 		paddingX: 20,
 		paddingY: 12
 	};
@@ -6322,7 +6441,7 @@ var author$project$UiFramework$Configuration$defaultBadgeConfig = function (them
 		borderRadius: 4,
 		fontColor: function (role) {
 			return A3(
-				author$project$UiFramework$Colors$contrastTextColor,
+				author$project$UiFramework$ColorUtils$contrastTextColor,
 				themeColor(role),
 				author$project$UiFramework$Configuration$bootstrapColors.gray900,
 				author$project$UiFramework$Configuration$bootstrapColors.white);
@@ -6351,7 +6470,7 @@ var author$project$UiFramework$Configuration$defaultButtonConfig = function (the
 		borderWidth: author$project$UiFramework$Configuration$defaultBorderWidth,
 		fontColor: function (role) {
 			return A3(
-				author$project$UiFramework$Colors$contrastTextColor,
+				author$project$UiFramework$ColorUtils$contrastTextColor,
 				themeColor(role),
 				author$project$UiFramework$Configuration$bootstrapColors.gray900,
 				author$project$UiFramework$Configuration$bootstrapColors.white);
@@ -6394,7 +6513,10 @@ var author$project$UiFramework$Configuration$defaultContainerConfig = {
 		}
 	}
 };
-var author$project$UiFramework$Colors$alterColor = F2(
+var mdgriffith$elm_ui$Element$fromRgb = function (clr) {
+	return A4(mdgriffith$elm_ui$Internal$Model$Rgba, clr.red, clr.green, clr.blue, clr.alpha);
+};
+var author$project$UiFramework$ColorUtils$alterColor = F2(
 	function (alpha, color) {
 		var rgba = mdgriffith$elm_ui$Element$toRgb(color);
 		return mdgriffith$elm_ui$Element$fromRgb(
@@ -6402,7 +6524,7 @@ var author$project$UiFramework$Colors$alterColor = F2(
 	});
 var author$project$UiFramework$Configuration$defaultDropdownConfig = {
 	backgroundColor: author$project$UiFramework$Configuration$bootstrapColors.white,
-	borderColor: A2(author$project$UiFramework$Colors$alterColor, 0.15, author$project$UiFramework$Configuration$bootstrapColors.black),
+	borderColor: A2(author$project$UiFramework$ColorUtils$alterColor, 0.15, author$project$UiFramework$Configuration$bootstrapColors.black),
 	borderRadius: 4,
 	borderWidth: 1,
 	fontColor: author$project$UiFramework$Configuration$bootstrapColors.gray900,
@@ -6414,9 +6536,15 @@ var author$project$UiFramework$Configuration$defaultDropdownConfig = {
 var mdgriffith$elm_ui$Internal$Model$SansSerif = {$: 'SansSerif'};
 var mdgriffith$elm_ui$Element$Font$sansSerif = mdgriffith$elm_ui$Internal$Model$SansSerif;
 var author$project$UiFramework$Configuration$defaultFontConfig = {typeface: 'Noto Sans', typefaceFallback: mdgriffith$elm_ui$Element$Font$sansSerif, url: 'https://fonts.googleapis.com/css?family=Noto+Sans'};
-var author$project$UiFramework$Colors$lighten = F2(
+var noahzgordon$elm_color_extra$Color$Manipulate$lighten = F2(
 	function (offset, cl) {
-		return A2(author$project$UiFramework$Colors$darken, -offset, cl);
+		return A2(noahzgordon$elm_color_extra$Color$Manipulate$darken, -offset, cl);
+	});
+var author$project$UiFramework$ColorUtils$lighten = F2(
+	function (offset, elementColor) {
+		var cl = author$project$UiFramework$ColorUtils$toColor(elementColor);
+		return author$project$UiFramework$ColorUtils$fromColor(
+			A2(noahzgordon$elm_color_extra$Color$Manipulate$lighten, offset, cl));
 	});
 var author$project$UiFramework$Types$Primary = {$: 'Primary'};
 var author$project$UiFramework$Types$SizeDefault = {$: 'SizeDefault'};
@@ -6427,7 +6555,7 @@ var author$project$UiFramework$Configuration$defaultInputConfig = function (them
 		focusedBorderColor: A2(
 			elm$core$Basics$composeR,
 			themeColor,
-			author$project$UiFramework$Colors$lighten(0.25))(author$project$UiFramework$Types$Primary),
+			author$project$UiFramework$ColorUtils$lighten(0.25))(author$project$UiFramework$Types$Primary),
 		fontColor: author$project$UiFramework$Configuration$bootstrapColors.gray600,
 		fontSize: author$project$UiFramework$Configuration$defaultFontSize(author$project$UiFramework$Types$SizeDefault),
 		paddingX: 12,
@@ -6472,7 +6600,7 @@ var author$project$UiFramework$Configuration$defaultPaginationConfig = function 
 		hoverBackgroundColor: author$project$UiFramework$Configuration$bootstrapColors.gray200,
 		hoverBorderColor: author$project$UiFramework$Configuration$bootstrapColors.gray300,
 		hoverColor: A2(
-			author$project$UiFramework$Colors$darken,
+			author$project$UiFramework$ColorUtils$darken,
 			0.15,
 			themeColor(author$project$UiFramework$Types$Primary)),
 		paddingX: paddingX,
@@ -6480,7 +6608,7 @@ var author$project$UiFramework$Configuration$defaultPaginationConfig = function 
 	};
 };
 var author$project$UiFramework$Configuration$defaultTableConfig = {
-	accentBackground: A2(author$project$UiFramework$Colors$alterColor, 5.0e-2, author$project$UiFramework$Configuration$bootstrapColors.black),
+	accentBackground: A2(author$project$UiFramework$ColorUtils$alterColor, 5.0e-2, author$project$UiFramework$Configuration$bootstrapColors.black),
 	backgroundColor: author$project$UiFramework$Configuration$bootstrapColors.white,
 	borderColor: author$project$UiFramework$Configuration$bootstrapColors.gray300,
 	borderWidth: 1,
@@ -6502,7 +6630,7 @@ var author$project$UiFramework$Configuration$defaultThemeConfig = function () {
 		containerConfig: author$project$UiFramework$Configuration$defaultContainerConfig,
 		dropdownConfig: author$project$UiFramework$Configuration$defaultDropdownConfig,
 		fontColor: function (bgColor) {
-			return A3(author$project$UiFramework$Colors$contrastTextColor, bgColor, author$project$UiFramework$Configuration$bootstrapColors.gray900, author$project$UiFramework$Configuration$bootstrapColors.white);
+			return A3(author$project$UiFramework$ColorUtils$contrastTextColor, bgColor, author$project$UiFramework$Configuration$bootstrapColors.gray900, author$project$UiFramework$Configuration$bootstrapColors.white);
 		},
 		fontConfig: author$project$UiFramework$Configuration$defaultFontConfig,
 		inputConfig: author$project$UiFramework$Configuration$defaultInputConfig(themeColor),
@@ -6951,24 +7079,6 @@ var elm$browser$Browser$Events$onEffects = F3(
 				elm$core$Task$sequence(
 					A2(elm$core$List$map, elm$core$Process$kill, deadPids))));
 	});
-var elm$core$List$maybeCons = F3(
-	function (f, mx, xs) {
-		var _n0 = f(mx);
-		if (_n0.$ === 'Just') {
-			var x = _n0.a;
-			return A2(elm$core$List$cons, x, xs);
-		} else {
-			return xs;
-		}
-	});
-var elm$core$List$filterMap = F2(
-	function (f, xs) {
-		return A3(
-			elm$core$List$foldr,
-			elm$core$List$maybeCons(f),
-			_List_Nil,
-			xs);
-	});
 var elm$browser$Browser$Events$onSelfMsg = F3(
 	function (router, _n0, state) {
 		var key = _n0.key;
@@ -7073,13 +7183,60 @@ var author$project$Page$NotFound$update = F3(
 	function (sharedState, msg, model) {
 		return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
 	});
+var elm$core$Basics$not = _Basics_not;
+var author$project$Page$Showroom$updateNavbarToggle = function (state) {
+	return _Utils_update(
+		state,
+		{toggleMenuState: !state.toggleMenuState});
+};
+var author$project$Page$Showroom$updatePaginationSlice = F2(
+	function (newSlice, state) {
+		return _Utils_update(
+			state,
+			{currentSliceNumber: newSlice});
+	});
 var author$project$Page$Showroom$update = F3(
 	function (sharedState, msg, model) {
-		if (msg.$ === 'NoOp') {
-			return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
-		} else {
-			var _int = msg.a;
-			return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
+		switch (msg.$) {
+			case 'NoOp':
+				return _Utils_Tuple3(model, elm$core$Platform$Cmd$none, author$project$SharedState$NoUpdate);
+			case 'PaginationMsg':
+				var _int = msg.a;
+				return _Utils_Tuple3(
+					_Utils_update(
+						model,
+						{
+							paginationState: A2(author$project$Page$Showroom$updatePaginationSlice, _int, model.paginationState)
+						}),
+					elm$core$Platform$Cmd$none,
+					author$project$SharedState$NoUpdate);
+			case 'TogglePrimaryNav':
+				return _Utils_Tuple3(
+					_Utils_update(
+						model,
+						{
+							primaryNavState: author$project$Page$Showroom$updateNavbarToggle(model.primaryNavState)
+						}),
+					elm$core$Platform$Cmd$none,
+					author$project$SharedState$NoUpdate);
+			case 'ToggleDarkNav':
+				return _Utils_Tuple3(
+					_Utils_update(
+						model,
+						{
+							darkNavState: author$project$Page$Showroom$updateNavbarToggle(model.darkNavState)
+						}),
+					elm$core$Platform$Cmd$none,
+					author$project$SharedState$NoUpdate);
+			default:
+				return _Utils_Tuple3(
+					_Utils_update(
+						model,
+						{
+							lightNavState: author$project$Page$Showroom$updateNavbarToggle(model.lightNavState)
+						}),
+					elm$core$Platform$Cmd$none,
+					author$project$SharedState$NoUpdate);
 		}
 	});
 var author$project$Router$HomeMsg = function (a) {
@@ -7104,8 +7261,11 @@ var author$project$Page$Home$init = _Utils_Tuple2(
 var author$project$Page$NotFound$init = _Utils_Tuple2(
 	{},
 	elm$core$Platform$Cmd$none);
+var author$project$Page$Showroom$LmaoIDontHaveDropdowns = {$: 'LmaoIDontHaveDropdowns'};
+var author$project$Page$Showroom$initNavState = {dropdownState: author$project$Page$Showroom$LmaoIDontHaveDropdowns, toggleMenuState: false};
+var author$project$Page$Showroom$initPaginationState = {currentSliceNumber: 0, numberOfSlices: 10};
 var author$project$Page$Showroom$init = _Utils_Tuple2(
-	{},
+	{darkNavState: author$project$Page$Showroom$initNavState, lightNavState: author$project$Page$Showroom$initNavState, paginationState: author$project$Page$Showroom$initPaginationState, primaryNavState: author$project$Page$Showroom$initNavState},
 	elm$core$Platform$Cmd$none);
 var author$project$Router$initWith = F5(
 	function (toPage, toMsg, model, sharedStateUpdate, _n0) {
@@ -7148,7 +7308,6 @@ var author$project$Router$updateWith = F4(
 var author$project$SharedState$UpdateTheme = function (a) {
 	return {$: 'UpdateTheme', a: a};
 };
-var elm$core$Basics$not = _Basics_not;
 var author$project$Router$update = F3(
 	function (sharedState, msg, model) {
 		var _n0 = _Utils_Tuple2(msg, model.currentPage);
@@ -7379,7 +7538,7 @@ var author$project$Main$update = F2(
 				return A2(author$project$Main$updateRouter, model, routerMsg);
 		}
 	});
-var author$project$View$tabBarTitle = function (model) {
+var author$project$Router$tabBarTitle = function (model) {
 	var _n0 = model.currentPage;
 	switch (_n0.$) {
 		case 'HomePage':
@@ -7390,15 +7549,6 @@ var author$project$View$tabBarTitle = function (model) {
 			return 'Not Found';
 	}
 };
-var author$project$SharedState$getThemeConfig = function (theme) {
-	if (theme.$ === 'Default') {
-		var config = theme.a;
-		return config;
-	} else {
-		var config = theme.a;
-		return config;
-	}
-};
 var author$project$Page$Home$NavigateTo = function (a) {
 	return {$: 'NavigateTo', a: a};
 };
@@ -7407,32 +7557,28 @@ var author$project$UiFramework$Button$Button = function (a) {
 };
 var author$project$UiFramework$Button$defaultOptions = {attributes: _List_Nil, block: false, disabled: false, icon: elm$core$Maybe$Nothing, label: '', onPress: elm$core$Maybe$Nothing, outlined: false, role: author$project$UiFramework$Types$Primary, size: author$project$UiFramework$Types$SizeDefault};
 var author$project$UiFramework$Button$default = author$project$UiFramework$Button$Button(author$project$UiFramework$Button$defaultOptions);
-var author$project$UiFramework$Button$defaultButtonColors = F2(
-	function (config, options) {
-		return {
+var author$project$UiFramework$ColorUtils$transparent = A4(mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0);
+var author$project$UiFramework$Button$buttonColors = F2(
+	function (context, options) {
+		var config = context.themeConfig.buttonConfig;
+		var defaultColors = {
 			background: config.backgroundColor(options.role),
 			border: config.backgroundColor(options.role),
 			font: config.fontColor(options.role),
 			hoverBackground: A2(
-				author$project$UiFramework$Colors$darken,
+				author$project$UiFramework$ColorUtils$darken,
 				7.5e-2,
 				config.backgroundColor(options.role)),
 			hoverBorder: A2(
-				author$project$UiFramework$Colors$darken,
+				author$project$UiFramework$ColorUtils$darken,
 				7.5e-2,
 				config.backgroundColor(options.role)),
 			hoverFont: config.fontColor(options.role)
 		};
-	});
-var author$project$UiFramework$Colors$transparent = A4(mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0);
-var author$project$UiFramework$Button$buttonColors = F2(
-	function (context, options) {
-		var config = context.themeConfig.buttonConfig;
-		var defaultColors = A2(author$project$UiFramework$Button$defaultButtonColors, config, options);
 		return options.outlined ? _Utils_update(
 			defaultColors,
 			{
-				background: author$project$UiFramework$Colors$transparent,
+				background: author$project$UiFramework$ColorUtils$transparent,
 				border: config.backgroundColor(options.role),
 				font: config.backgroundColor(options.role),
 				hoverBackground: config.backgroundColor(options.role),
@@ -7441,23 +7587,24 @@ var author$project$UiFramework$Button$buttonColors = F2(
 			defaultColors,
 			{
 				background: A2(
-					author$project$UiFramework$Colors$alterColor,
+					author$project$UiFramework$ColorUtils$alterColor,
 					0.65,
 					config.backgroundColor(options.role)),
 				border: A2(
-					author$project$UiFramework$Colors$alterColor,
+					author$project$UiFramework$ColorUtils$alterColor,
 					0.65,
 					config.backgroundColor(options.role)),
 				hoverBackground: A2(
-					author$project$UiFramework$Colors$alterColor,
+					author$project$UiFramework$ColorUtils$alterColor,
 					0.65,
 					config.backgroundColor(options.role)),
 				hoverBorder: A2(
-					author$project$UiFramework$Colors$alterColor,
+					author$project$UiFramework$ColorUtils$alterColor,
 					0.65,
 					config.backgroundColor(options.role))
 			}) : defaultColors);
 	});
+var elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
 var mdgriffith$elm_ui$Internal$Flag$Flag = function (a) {
 	return {$: 'Flag', a: a};
 };
@@ -7807,7 +7954,6 @@ var mdgriffith$elm_ui$Internal$Model$Colored = F3(
 	function (a, b, c) {
 		return {$: 'Colored', a: a, b: b, c: c};
 	});
-var elm$core$Basics$round = _Basics_round;
 var mdgriffith$elm_ui$Internal$Model$floatClass = function (x) {
 	return elm$core$String$fromInt(
 		elm$core$Basics$round(x * 255));
@@ -7938,16 +8084,6 @@ var lattyware$elm_fontawesome$FontAwesome$Icon$present = function (icon) {
 var elm$core$Basics$always = F2(
 	function (a, _n0) {
 		return a;
-	});
-var elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return elm$core$Maybe$Nothing;
-		}
 	});
 var elm$virtual_dom$VirtualDom$attribute = F2(
 	function (key, value) {
@@ -14049,7 +14185,7 @@ var author$project$UiFramework$Container$viewAttributes = F2(
 		var config = context.themeConfig.containerConfig;
 		var _n0 = options.jumbotron ? _Utils_Tuple2(
 			config.jumbotronBackgroundColor,
-			config.jumbotronPadding(context.device._class)) : _Utils_Tuple2(author$project$UiFramework$Colors$transparent, config.containerPadding);
+			config.jumbotronPadding(context.device._class)) : _Utils_Tuple2(author$project$UiFramework$ColorUtils$transparent, config.containerPadding);
 		var backgroundColor = _n0.a;
 		var padding = _n0.b;
 		return _List_fromArray(
@@ -14109,6 +14245,15 @@ var author$project$Page$Home$jumbotron = function () {
 			author$project$UiFramework$Container$simple(jumbotronContent),
 			author$project$UiFramework$Container$withFullWidth(author$project$UiFramework$Container$jumbotron)));
 }();
+var author$project$SharedState$getThemeConfig = function (theme) {
+	if (theme.$ === 'Default') {
+		var config = theme.a;
+		return config;
+	} else {
+		var config = theme.a;
+		return config;
+	}
+};
 var author$project$UiFramework$toElement = author$project$UiFramework$Internal$toElement;
 var author$project$Page$Home$view = F2(
 	function (sharedState, model) {
@@ -14902,6 +15047,544 @@ var author$project$Page$Showroom$buttons = A2(
 							A2(author$project$UiFramework$Button$withLabel, 'Small Button', author$project$UiFramework$Button$default)))
 					]))
 			])));
+var author$project$Page$Showroom$NoOp = {$: 'NoOp'};
+var author$project$Page$Showroom$ToggleDarkNav = {$: 'ToggleDarkNav'};
+var author$project$Page$Showroom$ToggleLightNav = {$: 'ToggleLightNav'};
+var author$project$Page$Showroom$TogglePrimaryNav = {$: 'TogglePrimaryNav'};
+var author$project$UiFramework$Navbar$Navbar = function (a) {
+	return {$: 'Navbar', a: a};
+};
+var author$project$UiFramework$Navbar$Roled = function (a) {
+	return {$: 'Roled', a: a};
+};
+var author$project$UiFramework$Navbar$default = function (msg) {
+	return author$project$UiFramework$Navbar$Navbar(
+		{
+			attributes: _List_Nil,
+			backgroundColor: author$project$UiFramework$Navbar$Roled(author$project$UiFramework$Types$Light),
+			brand: elm$core$Maybe$Nothing,
+			items: _List_Nil,
+			toggleMenuMsg: msg
+		});
+};
+var author$project$UiFramework$Navbar$LinkItem = function (a) {
+	return {$: 'LinkItem', a: a};
+};
+var author$project$UiFramework$Navbar$linkItem = function (msg) {
+	return author$project$UiFramework$Navbar$LinkItem(
+		{icon: elm$core$Maybe$Nothing, title: '', triggerMsg: msg});
+};
+var author$project$UiFramework$Internal$flatMap = function (f) {
+	return author$project$UiFramework$Internal$fromElement(
+		function (context) {
+			return A2(
+				author$project$UiFramework$Internal$toElement,
+				context,
+				f(context));
+		});
+};
+var author$project$UiFramework$Internal$uiRow = function (attrs) {
+	return author$project$UiFramework$Internal$node(
+		function (_n0) {
+			return mdgriffith$elm_ui$Element$row(attrs);
+		});
+};
+var author$project$UiFramework$Navbar$collapseNavbar = function (device) {
+	var _n0 = device._class;
+	switch (_n0.$) {
+		case 'Phone':
+			return true;
+		case 'Tablet':
+			return _Utils_eq(device.orientation, mdgriffith$elm_ui$Element$Portrait) ? true : false;
+		default:
+			return false;
+	}
+};
+var elm$virtual_dom$VirtualDom$Custom = function (a) {
+	return {$: 'Custom', a: a};
+};
+var elm$html$Html$Events$custom = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Custom(decoder));
+	});
+var mdgriffith$elm_ui$Element$htmlAttribute = mdgriffith$elm_ui$Internal$Model$Attr;
+var author$project$UiFramework$Navbar$onClick = function (message) {
+	return mdgriffith$elm_ui$Element$htmlAttribute(
+		A2(
+			elm$html$Html$Events$custom,
+			'click',
+			elm$json$Json$Decode$succeed(
+				{message: message, preventDefault: false, stopPropagation: true})));
+};
+var author$project$UiFramework$Dropdown$onClick = function (message) {
+	return mdgriffith$elm_ui$Element$htmlAttribute(
+		A2(
+			elm$html$Html$Events$custom,
+			'click',
+			elm$json$Json$Decode$succeed(
+				{message: message, preventDefault: false, stopPropagation: true})));
+};
+var author$project$UiFramework$Dropdown$viewLinkItem = function (options) {
+	return author$project$UiFramework$Internal$fromElement(
+		function (context) {
+			return A2(
+				mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						author$project$UiFramework$Dropdown$onClick(options.triggerMsg),
+						A2(mdgriffith$elm_ui$Element$paddingXY, context.themeConfig.navConfig.linkPaddingX, context.themeConfig.navConfig.linkPaddingY),
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+						mdgriffith$elm_ui$Element$pointer
+					]),
+				function () {
+					var _n0 = options.icon;
+					if (_n0.$ === 'Nothing') {
+						return mdgriffith$elm_ui$Element$text(options.title);
+					} else {
+						var icon = _n0.a;
+						return A2(
+							mdgriffith$elm_ui$Element$row,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$spacing(5)
+								]),
+							_List_fromArray(
+								[
+									A2(
+									mdgriffith$elm_ui$Element$el,
+									_List_Nil,
+									author$project$UiFramework$Icon$view(icon)),
+									A2(
+									mdgriffith$elm_ui$Element$el,
+									_List_Nil,
+									mdgriffith$elm_ui$Element$text(options.title))
+								]));
+					}
+				}());
+		});
+};
+var mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
+var mdgriffith$elm_ui$Element$alignRight = mdgriffith$elm_ui$Internal$Model$AlignX(mdgriffith$elm_ui$Internal$Model$Right);
+var author$project$UiFramework$Dropdown$viewDropdownMenu = function (items) {
+	return author$project$UiFramework$Internal$fromElement(
+		function (context) {
+			var menuAlignment = mdgriffith$elm_ui$Element$alignRight;
+			var dropdownConfig = context.themeConfig.dropdownConfig;
+			return A2(
+				mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[menuAlignment]),
+				A2(
+					mdgriffith$elm_ui$Element$column,
+					_List_fromArray(
+						[
+							A2(mdgriffith$elm_ui$Element$paddingXY, dropdownConfig.paddingX, dropdownConfig.paddingY),
+							mdgriffith$elm_ui$Element$spacing(dropdownConfig.spacer),
+							mdgriffith$elm_ui$Element$Background$color(dropdownConfig.backgroundColor),
+							mdgriffith$elm_ui$Element$Font$color(dropdownConfig.fontColor),
+							mdgriffith$elm_ui$Element$Font$alignLeft,
+							mdgriffith$elm_ui$Element$Border$rounded(dropdownConfig.borderRadius),
+							mdgriffith$elm_ui$Element$Border$color(dropdownConfig.borderColor),
+							mdgriffith$elm_ui$Element$Border$solid,
+							mdgriffith$elm_ui$Element$Border$width(dropdownConfig.borderWidth)
+						]),
+					A2(
+						elm$core$List$map,
+						function (item) {
+							if (item.$ === 'LinkItem') {
+								var options = item.a;
+								return A2(
+									author$project$UiFramework$Internal$toElement,
+									context,
+									author$project$UiFramework$Dropdown$viewLinkItem(options));
+							} else {
+								return mdgriffith$elm_ui$Element$none;
+							}
+						},
+						items)));
+		});
+};
+var mdgriffith$elm_ui$Element$createNearby = F2(
+	function (loc, element) {
+		if (element.$ === 'Empty') {
+			return mdgriffith$elm_ui$Internal$Model$NoAttribute;
+		} else {
+			return A2(mdgriffith$elm_ui$Internal$Model$Nearby, loc, element);
+		}
+	});
+var mdgriffith$elm_ui$Internal$Model$Below = {$: 'Below'};
+var mdgriffith$elm_ui$Element$below = function (element) {
+	return A2(mdgriffith$elm_ui$Element$createNearby, mdgriffith$elm_ui$Internal$Model$Below, element);
+};
+var author$project$UiFramework$Dropdown$view = F2(
+	function (dropdownState, _n0) {
+		var options = _n0.a;
+		return author$project$UiFramework$Internal$fromElement(
+			function (context) {
+				return A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							author$project$UiFramework$Dropdown$onClick(options.toggleDropdownMsg),
+							A2(mdgriffith$elm_ui$Element$paddingXY, context.themeConfig.navConfig.linkPaddingX, context.themeConfig.navConfig.linkPaddingY),
+							mdgriffith$elm_ui$Element$pointer,
+							mdgriffith$elm_ui$Element$below(
+							_Utils_eq(dropdownState, options.openState) ? A2(
+								author$project$UiFramework$Internal$toElement,
+								context,
+								author$project$UiFramework$Dropdown$viewDropdownMenu(options.items)) : mdgriffith$elm_ui$Element$none)
+						]),
+					function () {
+						var _n1 = options.icon;
+						if (_n1.$ === 'Nothing') {
+							return mdgriffith$elm_ui$Element$text(options.title + ' ▾');
+						} else {
+							var icon = _n1.a;
+							return A2(
+								mdgriffith$elm_ui$Element$row,
+								_List_fromArray(
+									[
+										mdgriffith$elm_ui$Element$spacing(5)
+									]),
+								_List_fromArray(
+									[
+										A2(
+										mdgriffith$elm_ui$Element$el,
+										_List_Nil,
+										author$project$UiFramework$Icon$view(icon)),
+										A2(
+										mdgriffith$elm_ui$Element$el,
+										_List_Nil,
+										mdgriffith$elm_ui$Element$text(options.title + ' ▾'))
+									]));
+						}
+					}());
+			});
+	});
+var author$project$UiFramework$Navbar$viewLinkItem = function (options) {
+	return author$project$UiFramework$Internal$fromElement(
+		function (context) {
+			return A2(
+				mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						author$project$UiFramework$Navbar$onClick(options.triggerMsg),
+						A2(mdgriffith$elm_ui$Element$paddingXY, context.themeConfig.navConfig.linkPaddingX, context.themeConfig.navConfig.linkPaddingY),
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+						mdgriffith$elm_ui$Element$pointer
+					]),
+				function () {
+					var _n0 = options.icon;
+					if (_n0.$ === 'Nothing') {
+						return mdgriffith$elm_ui$Element$text(options.title);
+					} else {
+						var icon = _n0.a;
+						return A2(
+							mdgriffith$elm_ui$Element$row,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$spacing(5)
+								]),
+							_List_fromArray(
+								[
+									A2(
+									mdgriffith$elm_ui$Element$el,
+									_List_Nil,
+									author$project$UiFramework$Icon$view(icon)),
+									A2(
+									mdgriffith$elm_ui$Element$el,
+									_List_Nil,
+									mdgriffith$elm_ui$Element$text(options.title))
+								]));
+					}
+				}());
+		});
+};
+var author$project$UiFramework$Navbar$viewMenuItem = F2(
+	function (dropdownState, item) {
+		switch (item.$) {
+			case 'LinkItem':
+				var options = item.a;
+				return author$project$UiFramework$Navbar$viewLinkItem(options);
+			case 'DropdownItem':
+				var dropdown = item.a;
+				return A2(author$project$UiFramework$Dropdown$view, dropdownState, dropdown);
+			default:
+				return author$project$UiFramework$Internal$uiNone;
+		}
+	});
+var mdgriffith$elm_ui$Internal$Model$Navigation = {$: 'Navigation'};
+var mdgriffith$elm_ui$Element$Region$navigation = mdgriffith$elm_ui$Internal$Model$Describe(mdgriffith$elm_ui$Internal$Model$Navigation);
+var author$project$UiFramework$Navbar$viewCollapsedMenuList = F2(
+	function (dropdownState, items) {
+		return author$project$UiFramework$Internal$fromElement(
+			function (context) {
+				return A2(
+					mdgriffith$elm_ui$Element$column,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$Region$navigation,
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$alignLeft,
+							mdgriffith$elm_ui$Element$Font$alignLeft
+						]),
+					A2(
+						elm$core$List$map,
+						A2(
+							elm$core$Basics$composeR,
+							author$project$UiFramework$Navbar$viewMenuItem(dropdownState),
+							author$project$UiFramework$Internal$toElement(context)),
+						items));
+			});
+	});
+var author$project$UiFramework$Navbar$viewMenubarList = F2(
+	function (dropdownState, items) {
+		return author$project$UiFramework$Internal$fromElement(
+			function (context) {
+				return A2(
+					mdgriffith$elm_ui$Element$row,
+					_List_fromArray(
+						[mdgriffith$elm_ui$Element$Region$navigation, mdgriffith$elm_ui$Element$alignRight, mdgriffith$elm_ui$Element$Font$center]),
+					A2(
+						elm$core$List$map,
+						A2(
+							elm$core$Basics$composeR,
+							author$project$UiFramework$Navbar$viewMenuItem(dropdownState),
+							author$project$UiFramework$Internal$toElement(context)),
+						items));
+			});
+	});
+var mdgriffith$elm_ui$Internal$Model$Px = function (a) {
+	return {$: 'Px', a: a};
+};
+var mdgriffith$elm_ui$Element$px = mdgriffith$elm_ui$Internal$Model$Px;
+var author$project$UiFramework$Navbar$view = F2(
+	function (_n0, _n1) {
+		var toggleMenuState = _n0.toggleMenuState;
+		var dropdownState = _n0.dropdownState;
+		var options = _n1.a;
+		return author$project$UiFramework$Internal$flatMap(
+			function (context) {
+				var navbarConfig = context.themeConfig.navbarConfig;
+				var brand = function (attrs) {
+					return author$project$UiFramework$Internal$fromElement(
+						function (_n4) {
+							return A2(
+								mdgriffith$elm_ui$Element$el,
+								attrs,
+								A2(elm$core$Maybe$withDefault, mdgriffith$elm_ui$Element$none, options.brand));
+						});
+				};
+				var backgroundColor = function () {
+					var _n3 = options.backgroundColor;
+					if (_n3.$ === 'Roled') {
+						var role = _n3.a;
+						return context.themeConfig.themeColor(role);
+					} else {
+						var color = _n3.a;
+						return color;
+					}
+				}();
+				var fontColor = context.themeConfig.fontColor(backgroundColor);
+				var iconBar = A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(
+							mdgriffith$elm_ui$Element$px(24)),
+							mdgriffith$elm_ui$Element$height(
+							mdgriffith$elm_ui$Element$px(2)),
+							mdgriffith$elm_ui$Element$Background$color(fontColor),
+							mdgriffith$elm_ui$Element$Border$rounded(1)
+						]),
+					mdgriffith$elm_ui$Element$none);
+				var navButton = function (toggleMenuMsg) {
+					return author$project$UiFramework$Internal$fromElement(
+						function (_n2) {
+							return A2(
+								mdgriffith$elm_ui$Element$el,
+								_List_fromArray(
+									[
+										author$project$UiFramework$Navbar$onClick(toggleMenuMsg),
+										mdgriffith$elm_ui$Element$alignLeft,
+										A2(mdgriffith$elm_ui$Element$paddingXY, navbarConfig.togglerPaddingX, navbarConfig.togglerPaddingY),
+										mdgriffith$elm_ui$Element$Border$color(fontColor),
+										mdgriffith$elm_ui$Element$Border$solid,
+										mdgriffith$elm_ui$Element$Border$width(1),
+										mdgriffith$elm_ui$Element$Border$rounded(navbarConfig.togglerBorderRadius),
+										mdgriffith$elm_ui$Element$pointer
+									]),
+								A2(
+									mdgriffith$elm_ui$Element$column,
+									_List_fromArray(
+										[
+											mdgriffith$elm_ui$Element$spacing(6),
+											mdgriffith$elm_ui$Element$padding(6)
+										]),
+									_List_fromArray(
+										[iconBar, iconBar, iconBar])));
+						});
+				};
+				var headerAttrs = _List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+						A2(mdgriffith$elm_ui$Element$paddingXY, navbarConfig.paddingX, navbarConfig.paddingY),
+						mdgriffith$elm_ui$Element$Background$color(backgroundColor),
+						mdgriffith$elm_ui$Element$Font$color(fontColor)
+					]);
+				return author$project$UiFramework$Navbar$collapseNavbar(context.device) ? A2(
+					author$project$UiFramework$Internal$uiColumn,
+					headerAttrs,
+					_Utils_ap(
+						_List_fromArray(
+							[
+								A2(
+								author$project$UiFramework$Internal$uiRow,
+								_List_fromArray(
+									[
+										mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
+									]),
+								_List_fromArray(
+									[
+										navButton(options.toggleMenuMsg),
+										brand(
+										_List_fromArray(
+											[mdgriffith$elm_ui$Element$alignRight]))
+									]))
+							]),
+						toggleMenuState ? _List_fromArray(
+							[
+								A2(author$project$UiFramework$Navbar$viewCollapsedMenuList, dropdownState, options.items)
+							]) : _List_Nil)) : A2(
+					author$project$UiFramework$Internal$uiRow,
+					headerAttrs,
+					_List_fromArray(
+						[
+							brand(
+							_List_fromArray(
+								[mdgriffith$elm_ui$Element$alignLeft])),
+							A2(author$project$UiFramework$Navbar$viewMenubarList, dropdownState, options.items)
+						]));
+			});
+	});
+var author$project$UiFramework$Navbar$withBackground = F2(
+	function (role, _n0) {
+		var options = _n0.a;
+		return author$project$UiFramework$Navbar$Navbar(
+			_Utils_update(
+				options,
+				{
+					backgroundColor: author$project$UiFramework$Navbar$Roled(role)
+				}));
+	});
+var author$project$UiFramework$Navbar$withBrand = F2(
+	function (brand, _n0) {
+		var options = _n0.a;
+		return author$project$UiFramework$Navbar$Navbar(
+			_Utils_update(
+				options,
+				{
+					brand: elm$core$Maybe$Just(brand)
+				}));
+	});
+var author$project$UiFramework$Navbar$withMenuItems = F2(
+	function (items, _n0) {
+		var options = _n0.a;
+		return author$project$UiFramework$Navbar$Navbar(
+			_Utils_update(
+				options,
+				{items: items}));
+	});
+var author$project$UiFramework$Dropdown$Dropdown = function (a) {
+	return {$: 'Dropdown', a: a};
+};
+var author$project$UiFramework$Dropdown$withTitle = F2(
+	function (title, _n0) {
+		var options = _n0.a;
+		return author$project$UiFramework$Dropdown$Dropdown(
+			_Utils_update(
+				options,
+				{title: title}));
+	});
+var author$project$UiFramework$Navbar$DropdownItem = function (a) {
+	return {$: 'DropdownItem', a: a};
+};
+var author$project$UiFramework$Navbar$withMenuTitle = F2(
+	function (title, item) {
+		switch (item.$) {
+			case 'LinkItem':
+				var options = item.a;
+				return author$project$UiFramework$Navbar$LinkItem(
+					_Utils_update(
+						options,
+						{title: title}));
+			case 'DropdownItem':
+				var dropdown = item.a;
+				return author$project$UiFramework$Navbar$DropdownItem(
+					A2(author$project$UiFramework$Dropdown$withTitle, title, dropdown));
+			default:
+				return item;
+		}
+	});
+var author$project$Page$Showroom$navbars = function (model) {
+	return A2(
+		author$project$Page$Showroom$section,
+		'Navbars',
+		function () {
+			var item2 = A2(
+				author$project$UiFramework$Navbar$withMenuTitle,
+				'Item 2',
+				author$project$UiFramework$Navbar$linkItem(author$project$Page$Showroom$NoOp));
+			var item1 = A2(
+				author$project$UiFramework$Navbar$withMenuTitle,
+				'Item 1',
+				author$project$UiFramework$Navbar$linkItem(author$project$Page$Showroom$NoOp));
+			var homeItem = A2(
+				author$project$UiFramework$Navbar$withMenuTitle,
+				'Home',
+				author$project$UiFramework$Navbar$linkItem(author$project$Page$Showroom$NoOp));
+			var brand = A2(
+				mdgriffith$elm_ui$Element$row,
+				_List_Nil,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$text('Navbar')
+					]));
+			var navTemplate = F3(
+				function (backgroundColorRole, msg, state) {
+					return A2(
+						author$project$UiFramework$Navbar$view,
+						state,
+						A2(
+							author$project$UiFramework$Navbar$withMenuItems,
+							_List_fromArray(
+								[homeItem, item1, item2]),
+							A2(
+								author$project$UiFramework$Navbar$withBrand,
+								brand,
+								A2(
+									author$project$UiFramework$Navbar$withBackground,
+									backgroundColorRole,
+									author$project$UiFramework$Navbar$default(msg)))));
+				});
+			return A2(
+				author$project$UiFramework$uiColumn,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+						mdgriffith$elm_ui$Element$spacing(16)
+					]),
+				_List_fromArray(
+					[
+						A3(navTemplate, author$project$UiFramework$Types$Primary, author$project$Page$Showroom$TogglePrimaryNav, model.primaryNavState),
+						A3(navTemplate, author$project$UiFramework$Types$Dark, author$project$Page$Showroom$ToggleDarkNav, model.darkNavState),
+						A3(navTemplate, author$project$UiFramework$Types$Light, author$project$Page$Showroom$ToggleLightNav, model.lightNavState)
+					]));
+		}());
+};
 var author$project$Page$Showroom$PaginationMsg = function (a) {
 	return {$: 'PaginationMsg', a: a};
 };
@@ -14925,6 +15608,10 @@ var author$project$UiFramework$Pagination$default = function (selectedMsg) {
 		{
 			attributes: _List_Nil,
 			ellipsis: lattyware$elm_fontawesome$FontAwesome$Solid$ellipsisH,
+			itemLabel: function (i) {
+				return mdgriffith$elm_ui$Element$text(
+					elm$core$String$fromInt(i + 1));
+			},
 			items: _List_Nil,
 			labels: author$project$UiFramework$Pagination$IconLabels(
 				{first: lattyware$elm_fontawesome$FontAwesome$Solid$stepBackward, last: lattyware$elm_fontawesome$FontAwesome$Solid$stepForward, next: lattyware$elm_fontawesome$FontAwesome$Solid$caretRight, previous: lattyware$elm_fontawesome$FontAwesome$Solid$caretLeft}),
@@ -14932,14 +15619,14 @@ var author$project$UiFramework$Pagination$default = function (selectedMsg) {
 			size: author$project$UiFramework$Types$SizeDefault
 		});
 };
-var author$project$UiFramework$Pagination$renderItem = F3(
-	function (context, options, item) {
+var author$project$UiFramework$Pagination$renderItem = F4(
+	function (state, context, options, item) {
 		var config = context.themeConfig.paginationConfig;
 		var paddingX = config.paddingX(options.size);
 		var paddingY = config.paddingY(options.size);
 		if (item.$ === 'NumberItem') {
 			var index = item.a;
-			var _n1 = _Utils_eq(index, context.state.currentSliceNumber) ? _Utils_Tuple3(config.activeColor, config.activeBackgroundColor, config.activeBackgroundColor) : _Utils_Tuple3(config.color, config.borderColor, config.backgroundColor);
+			var _n1 = _Utils_eq(index, state.currentSliceNumber) ? _Utils_Tuple3(config.activeColor, config.activeBackgroundColor, config.activeBackgroundColor) : _Utils_Tuple3(config.color, config.borderColor, config.backgroundColor);
 			var color = _n1.a;
 			var borderColor = _n1.b;
 			var bgColor = _n1.c;
@@ -14959,8 +15646,7 @@ var author$project$UiFramework$Pagination$renderItem = F3(
 						mdgriffith$elm_ui$Element$pointer
 					]),
 				{
-					label: mdgriffith$elm_ui$Element$text(
-						elm$core$String$fromInt(index)),
+					label: options.itemLabel(index),
 					onPress: elm$core$Maybe$Just(
 						options.selectedMsg(index))
 				});
@@ -14990,157 +15676,166 @@ var mdgriffith$elm_ui$Element$Border$roundEach = function (_n0) {
 			'border-radius',
 			elm$core$String$fromInt(topLeft) + ('px ' + (elm$core$String$fromInt(topRight) + ('px ' + (elm$core$String$fromInt(bottomRight) + ('px ' + (elm$core$String$fromInt(bottomLeft) + 'px'))))))));
 };
-var author$project$UiFramework$Pagination$view = function (_n0) {
-	var options = _n0.a;
-	return author$project$UiFramework$Internal$fromElement(
-		function (context) {
-			var previousDisabled = context.state.currentSliceNumber === 1;
-			var nextDisabled = _Utils_eq(context.state.currentSliceNumber, context.state.numberOfSlices);
-			var linkItem = F4(
-				function (attrs, label, disabled, index) {
-					return disabled ? A2(mdgriffith$elm_ui$Element$el, attrs, label) : A2(
-						mdgriffith$elm_ui$Element$Input$button,
-						attrs,
-						{
-							label: label,
-							onPress: elm$core$Maybe$Just(
-								options.selectedMsg(index))
-						});
-				});
-			var lastDisabled = _Utils_eq(context.state.currentSliceNumber, context.state.numberOfSlices);
-			var firstDisabled = context.state.currentSliceNumber === 1;
-			var config = context.themeConfig.paginationConfig;
-			var getBackgroundColor = function (disabled) {
-				return disabled ? config.disabledBackgroundColor : config.backgroundColor;
-			};
-			var getBorderColor = function (disabled) {
-				return disabled ? config.disabledBorderColor : config.borderColor;
-			};
-			var getColor = function (disabled) {
-				return disabled ? config.disabledColor : config.color;
-			};
-			var paddingX = config.paddingX(options.size);
-			var paddingY = config.paddingY(options.size);
-			var commonAttrs = function (disabled) {
-				return _Utils_ap(
-					_List_fromArray(
-						[
-							mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
-							A2(mdgriffith$elm_ui$Element$paddingXY, paddingX, paddingY),
-							mdgriffith$elm_ui$Element$Font$color(
-							getColor(disabled)),
-							mdgriffith$elm_ui$Element$Border$width(
-							config.borderWidth(options.size)),
-							mdgriffith$elm_ui$Element$Border$solid,
-							mdgriffith$elm_ui$Element$Border$color(
-							getBorderColor(disabled)),
-							mdgriffith$elm_ui$Element$Background$color(
-							getBackgroundColor(disabled))
-						]),
-					disabled ? _List_Nil : _List_fromArray(
-						[mdgriffith$elm_ui$Element$pointer]));
-			};
-			return A2(
-				mdgriffith$elm_ui$Element$row,
-				options.attributes,
-				_Utils_ap(
-					_List_fromArray(
-						[
-							A4(
-							linkItem,
-							A2(
-								elm$core$List$cons,
-								mdgriffith$elm_ui$Element$Border$roundEach(
-									{
-										bottomLeft: config.borderRadius(options.size),
-										bottomRight: 0,
-										topLeft: config.borderRadius(options.size),
-										topRight: 0
-									}),
-								commonAttrs(firstDisabled)),
-							function () {
-								var _n1 = options.labels;
-								if (_n1.$ === 'IconLabels') {
-									var icons = _n1.a;
-									return author$project$UiFramework$Icon$view(icons.first);
-								} else {
-									var labels = _n1.a;
-									return mdgriffith$elm_ui$Element$text(labels.first);
-								}
-							}(),
-							firstDisabled,
-							1),
-							A4(
-							linkItem,
-							A2(
-								elm$core$List$cons,
-								mdgriffith$elm_ui$Element$Border$rounded(0),
-								commonAttrs(previousDisabled)),
-							function () {
-								var _n2 = options.labels;
-								if (_n2.$ === 'IconLabels') {
-									var icons = _n2.a;
-									return author$project$UiFramework$Icon$view(icons.previous);
-								} else {
-									var labels = _n2.a;
-									return mdgriffith$elm_ui$Element$text(labels.previous);
-								}
-							}(),
-							previousDisabled,
-							context.state.currentSliceNumber - 1)
-						]),
+var author$project$UiFramework$Pagination$view = F2(
+	function (state, _n0) {
+		var options = _n0.a;
+		return author$project$UiFramework$Internal$fromElement(
+			function (context) {
+				var previousDisabled = !state.currentSliceNumber;
+				var nextDisabled = _Utils_eq(state.currentSliceNumber, state.numberOfSlices - 1);
+				var linkItem = F4(
+					function (attrs, label, disabled, index) {
+						return disabled ? A2(mdgriffith$elm_ui$Element$el, attrs, label) : A2(
+							mdgriffith$elm_ui$Element$Input$button,
+							attrs,
+							{
+								label: label,
+								onPress: elm$core$Maybe$Just(
+									options.selectedMsg(index))
+							});
+					});
+				var lastDisabled = _Utils_eq(state.currentSliceNumber, state.numberOfSlices - 1);
+				var firstDisabled = !state.currentSliceNumber;
+				var config = context.themeConfig.paginationConfig;
+				var getBackgroundColor = function (disabled) {
+					return disabled ? config.disabledBackgroundColor : config.backgroundColor;
+				};
+				var getBorderColor = function (disabled) {
+					return disabled ? config.disabledBorderColor : config.borderColor;
+				};
+				var getColor = function (disabled) {
+					return disabled ? config.disabledColor : config.color;
+				};
+				var paddingX = config.paddingX(options.size);
+				var paddingY = config.paddingY(options.size);
+				var commonAttrs = function (disabled) {
+					return _Utils_ap(
+						_List_fromArray(
+							[
+								mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+								A2(mdgriffith$elm_ui$Element$paddingXY, paddingX, paddingY),
+								mdgriffith$elm_ui$Element$Font$color(
+								getColor(disabled)),
+								mdgriffith$elm_ui$Element$Border$width(
+								config.borderWidth(options.size)),
+								mdgriffith$elm_ui$Element$Border$solid,
+								mdgriffith$elm_ui$Element$Border$color(
+								getBorderColor(disabled)),
+								mdgriffith$elm_ui$Element$Background$color(
+								getBackgroundColor(disabled))
+							]),
+						disabled ? _List_Nil : _List_fromArray(
+							[mdgriffith$elm_ui$Element$pointer]));
+				};
+				return A2(
+					mdgriffith$elm_ui$Element$row,
+					options.attributes,
 					_Utils_ap(
-						A2(
-							elm$core$List$map,
-							A2(author$project$UiFramework$Pagination$renderItem, context, options),
-							options.items),
 						_List_fromArray(
 							[
 								A4(
 								linkItem,
 								A2(
 									elm$core$List$cons,
-									mdgriffith$elm_ui$Element$Border$rounded(0),
-									commonAttrs(nextDisabled)),
+									mdgriffith$elm_ui$Element$Border$roundEach(
+										{
+											bottomLeft: config.borderRadius(options.size),
+											bottomRight: 0,
+											topLeft: config.borderRadius(options.size),
+											topRight: 0
+										}),
+									commonAttrs(firstDisabled)),
 								function () {
-									var _n3 = options.labels;
-									if (_n3.$ === 'IconLabels') {
-										var icons = _n3.a;
-										return author$project$UiFramework$Icon$view(icons.next);
+									var _n1 = options.labels;
+									if (_n1.$ === 'IconLabels') {
+										var icons = _n1.a;
+										return author$project$UiFramework$Icon$view(icons.first);
 									} else {
-										var labels = _n3.a;
-										return mdgriffith$elm_ui$Element$text(labels.next);
+										var labels = _n1.a;
+										return mdgriffith$elm_ui$Element$text(labels.first);
 									}
 								}(),
-								nextDisabled,
-								context.state.currentSliceNumber + 1),
+								firstDisabled,
+								0),
 								A4(
 								linkItem,
 								A2(
 									elm$core$List$cons,
-									mdgriffith$elm_ui$Element$Border$roundEach(
-										{
-											bottomLeft: 0,
-											bottomRight: config.borderRadius(options.size),
-											topLeft: 0,
-											topRight: config.borderRadius(options.size)
-										}),
-									commonAttrs(lastDisabled)),
+									mdgriffith$elm_ui$Element$Border$rounded(0),
+									commonAttrs(previousDisabled)),
 								function () {
-									var _n4 = options.labels;
-									if (_n4.$ === 'IconLabels') {
-										var icons = _n4.a;
-										return author$project$UiFramework$Icon$view(icons.last);
+									var _n2 = options.labels;
+									if (_n2.$ === 'IconLabels') {
+										var icons = _n2.a;
+										return author$project$UiFramework$Icon$view(icons.previous);
 									} else {
-										var labels = _n4.a;
-										return mdgriffith$elm_ui$Element$text(labels.last);
+										var labels = _n2.a;
+										return mdgriffith$elm_ui$Element$text(labels.previous);
 									}
 								}(),
-								lastDisabled,
-								context.state.numberOfSlices)
-							]))));
-		});
-};
+								previousDisabled,
+								state.currentSliceNumber - 1)
+							]),
+						_Utils_ap(
+							A2(
+								elm$core$List$map,
+								A3(author$project$UiFramework$Pagination$renderItem, state, context, options),
+								options.items),
+							_List_fromArray(
+								[
+									A4(
+									linkItem,
+									A2(
+										elm$core$List$cons,
+										mdgriffith$elm_ui$Element$Border$rounded(0),
+										commonAttrs(nextDisabled)),
+									function () {
+										var _n3 = options.labels;
+										if (_n3.$ === 'IconLabels') {
+											var icons = _n3.a;
+											return author$project$UiFramework$Icon$view(icons.next);
+										} else {
+											var labels = _n3.a;
+											return mdgriffith$elm_ui$Element$text(labels.next);
+										}
+									}(),
+									nextDisabled,
+									state.currentSliceNumber + 1),
+									A4(
+									linkItem,
+									A2(
+										elm$core$List$cons,
+										mdgriffith$elm_ui$Element$Border$roundEach(
+											{
+												bottomLeft: 0,
+												bottomRight: config.borderRadius(options.size),
+												topLeft: 0,
+												topRight: config.borderRadius(options.size)
+											}),
+										commonAttrs(lastDisabled)),
+									function () {
+										var _n4 = options.labels;
+										if (_n4.$ === 'IconLabels') {
+											var icons = _n4.a;
+											return author$project$UiFramework$Icon$view(icons.last);
+										} else {
+											var labels = _n4.a;
+											return mdgriffith$elm_ui$Element$text(labels.last);
+										}
+									}(),
+									lastDisabled,
+									state.numberOfSlices - 1)
+								]))));
+			});
+	});
+var author$project$UiFramework$Pagination$withExtraAttrs = F2(
+	function (attributes, _n0) {
+		var options = _n0.a;
+		return author$project$UiFramework$Pagination$Pagination(
+			_Utils_update(
+				options,
+				{attributes: attributes}));
+	});
 var author$project$UiFramework$Pagination$withItems = F2(
 	function (items, _n0) {
 		var options = _n0.a;
@@ -15149,26 +15844,64 @@ var author$project$UiFramework$Pagination$withItems = F2(
 				options,
 				{items: items}));
 	});
-var author$project$Page$Showroom$pagination = A2(
-	author$project$Page$Showroom$section,
-	'Pagination',
-	function () {
-		var paginationItems = _List_fromArray(
-			[
-				author$project$UiFramework$Pagination$NumberItem(1),
-				author$project$UiFramework$Pagination$NumberItem(2),
-				author$project$UiFramework$Pagination$NumberItem(3),
-				author$project$UiFramework$Pagination$EllipsisItem,
-				author$project$UiFramework$Pagination$NumberItem(9),
-				author$project$UiFramework$Pagination$NumberItem(10)
-			]);
-		return author$project$UiFramework$Pagination$view(
-			A2(
-				author$project$UiFramework$Pagination$withItems,
-				paginationItems,
-				author$project$UiFramework$Pagination$default(author$project$Page$Showroom$PaginationMsg)));
-	}());
-var author$project$Page$Showroom$paginationState = {currentSliceNumber: 1, numberOfSlices: 10};
+var author$project$Page$Showroom$pagination = function (state) {
+	return A2(
+		author$project$Page$Showroom$section,
+		'Pagination',
+		function () {
+			var _n0 = (state.numberOfSlices <= 5) ? _Utils_Tuple2(0, state.numberOfSlices - 1) : _Utils_Tuple2(
+				A2(elm$core$Basics$max, 0, state.currentSliceNumber - 2),
+				A2(elm$core$Basics$min, state.numberOfSlices - 1, state.currentSliceNumber + 2));
+			var startNumber = _n0.a;
+			var endNumber = _n0.b;
+			var itemList = _Utils_ap(
+				(startNumber > 0) ? _List_fromArray(
+					[author$project$UiFramework$Pagination$EllipsisItem]) : _List_Nil,
+				_Utils_ap(
+					A2(
+						elm$core$List$map,
+						function (index) {
+							return author$project$UiFramework$Pagination$NumberItem(index);
+						},
+						A2(elm$core$List$range, startNumber, endNumber)),
+					(_Utils_cmp(endNumber, state.numberOfSlices - 1) < 0) ? _List_fromArray(
+						[author$project$UiFramework$Pagination$EllipsisItem]) : _List_Nil));
+			return function (paginationElement) {
+				return A2(
+					author$project$UiFramework$uiColumn,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$spacing(20)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							author$project$UiFramework$uiParagraph,
+							_List_fromArray(
+								[mdgriffith$elm_ui$Element$Font$center]),
+							_List_fromArray(
+								[
+									author$project$Page$Showroom$text('Currently on slice #'),
+									author$project$Page$Showroom$text(
+									elm$core$String$fromInt(state.currentSliceNumber + 1))
+								])),
+							paginationElement
+						]));
+			}(
+				A2(
+					author$project$UiFramework$Pagination$view,
+					state,
+					A2(
+						author$project$UiFramework$Pagination$withExtraAttrs,
+						_List_fromArray(
+							[mdgriffith$elm_ui$Element$centerX]),
+						A2(
+							author$project$UiFramework$Pagination$withItems,
+							itemList,
+							author$project$UiFramework$Pagination$default(author$project$Page$Showroom$PaginationMsg)))));
+		}());
+};
 var author$project$UiFramework$Table$Default = {$: 'Default'};
 var author$project$UiFramework$Table$Table = function (a) {
 	return {$: 'Table', a: a};
@@ -15207,10 +15940,6 @@ var elm$core$List$repeat = F2(
 	function (n, value) {
 		return A3(elm$core$List$repeatHelp, _List_Nil, n, value);
 	});
-var mdgriffith$elm_ui$Internal$Model$Px = function (a) {
-	return {$: 'Px', a: a};
-};
-var mdgriffith$elm_ui$Element$px = mdgriffith$elm_ui$Internal$Model$Px;
 var mdgriffith$elm_ui$Internal$Flag$gridPosition = mdgriffith$elm_ui$Internal$Flag$flag(35);
 var mdgriffith$elm_ui$Internal$Flag$gridTemplate = mdgriffith$elm_ui$Internal$Flag$flag(34);
 var mdgriffith$elm_ui$Internal$Model$GridPosition = function (a) {
@@ -15608,15 +16337,6 @@ var author$project$Page$Showroom$table = A2(
 			information,
 			A2(author$project$UiFramework$Table$withColumns, tableColumn, author$project$UiFramework$Table$simpleTable));
 	}());
-var author$project$UiFramework$Internal$flatMap = function (f) {
-	return author$project$UiFramework$Internal$fromElement(
-		function (context) {
-			return A2(
-				author$project$UiFramework$Internal$toElement,
-				context,
-				f(context));
-		});
-};
 var author$project$UiFramework$flatMap = author$project$UiFramework$Internal$flatMap;
 var author$project$UiFramework$Typography$Display4 = {$: 'Display4'};
 var author$project$UiFramework$Typography$display4 = function (listAttr) {
@@ -15666,12 +16386,6 @@ var author$project$Page$Showroom$title = author$project$UiFramework$flatMap(
 					author$project$Page$Showroom$text(subTitleText))
 				]));
 	});
-var author$project$UiFramework$Internal$uiRow = function (attrs) {
-	return author$project$UiFramework$Internal$node(
-		function (_n0) {
-			return mdgriffith$elm_ui$Element$row(attrs);
-		});
-};
 var author$project$UiFramework$uiRow = author$project$UiFramework$Internal$uiRow;
 var author$project$UiFramework$Typography$SizeH2 = {$: 'SizeH2'};
 var author$project$UiFramework$Typography$h2 = function (listAttr) {
@@ -15756,7 +16470,6 @@ var author$project$Page$Showroom$view = F2(
 		var context = {
 			device: sharedState.device,
 			parentRole: elm$core$Maybe$Nothing,
-			state: author$project$Page$Showroom$paginationState,
 			theme: sharedState.theme,
 			themeConfig: author$project$SharedState$getThemeConfig(sharedState.theme)
 		};
@@ -15775,34 +16488,43 @@ var author$project$Page$Showroom$view = F2(
 								mdgriffith$elm_ui$Element$spacing(64)
 							]),
 						_List_fromArray(
-							[author$project$Page$Showroom$title, author$project$Page$Showroom$buttons, author$project$Page$Showroom$typography, author$project$Page$Showroom$badges, author$project$Page$Showroom$alerts, author$project$Page$Showroom$table, author$project$Page$Showroom$pagination])),
+							[
+								author$project$Page$Showroom$title,
+								author$project$Page$Showroom$navbars(model),
+								author$project$Page$Showroom$buttons,
+								author$project$Page$Showroom$typography,
+								author$project$Page$Showroom$badges,
+								author$project$Page$Showroom$alerts,
+								author$project$Page$Showroom$table,
+								author$project$Page$Showroom$pagination(model.paginationState)
+							])),
 					author$project$UiFramework$Container$default)));
 	});
 var mdgriffith$elm_ui$Element$map = mdgriffith$elm_ui$Internal$Model$map;
-var author$project$View$mapMsg = F2(
+var author$project$Router$mapMsg = F2(
 	function (toMsg, element) {
 		return A2(mdgriffith$elm_ui$Element$map, toMsg, element);
 	});
-var author$project$View$content = F2(
+var author$project$Router$content = F2(
 	function (model, sharedState) {
 		var _n0 = model.currentPage;
 		switch (_n0.$) {
 			case 'HomePage':
 				var pageModel = _n0.a;
 				return A2(
-					author$project$View$mapMsg,
+					author$project$Router$mapMsg,
 					author$project$Router$HomeMsg,
 					A2(author$project$Page$Home$view, sharedState, pageModel));
 			case 'ShowroomPage':
 				var pageModel = _n0.a;
 				return A2(
-					author$project$View$mapMsg,
+					author$project$Router$mapMsg,
 					author$project$Router$ShowroomMsg,
 					A2(author$project$Page$Showroom$view, sharedState, pageModel));
 			default:
 				var pageModel = _n0.a;
 				return A2(
-					author$project$View$mapMsg,
+					author$project$Router$mapMsg,
 					author$project$Router$NotFoundMsg,
 					A2(author$project$Page$NotFound$view, sharedState, pageModel));
 		}
@@ -15819,30 +16541,30 @@ var author$project$SharedState$Darkly = function (a) {
 	return {$: 'Darkly', a: a};
 };
 var author$project$Themes$Darkly$darklyColors = {
-	black: author$project$UiFramework$Colors$getColor('#000'),
-	blue: author$project$UiFramework$Colors$getColor('#375a7f'),
-	cyan: author$project$UiFramework$Colors$getColor('#3498DB'),
-	gray: author$project$UiFramework$Colors$getColor('#6c757d'),
-	gray100: author$project$UiFramework$Colors$getColor('#f8f9fa'),
-	gray200: author$project$UiFramework$Colors$getColor('#ebebeb'),
-	gray300: author$project$UiFramework$Colors$getColor('#dee2e6'),
-	gray400: author$project$UiFramework$Colors$getColor('#ced4da'),
-	gray500: author$project$UiFramework$Colors$getColor('#adb5bd'),
-	gray600: author$project$UiFramework$Colors$getColor('#999'),
-	gray700: author$project$UiFramework$Colors$getColor('#444'),
-	gray800: author$project$UiFramework$Colors$getColor('#303030'),
-	gray900: author$project$UiFramework$Colors$getColor('#222'),
-	green: author$project$UiFramework$Colors$getColor('#00bc8c'),
-	indigo: author$project$UiFramework$Colors$getColor('#6610f2'),
-	orange: author$project$UiFramework$Colors$getColor('#fd7e14'),
-	pink: author$project$UiFramework$Colors$getColor('#e83e8c'),
-	purple: author$project$UiFramework$Colors$getColor('#6f42c1'),
-	red: author$project$UiFramework$Colors$getColor('#E74C3C'),
-	teal: author$project$UiFramework$Colors$getColor('#20c997'),
-	white: author$project$UiFramework$Colors$getColor('#fff'),
-	yellow: author$project$UiFramework$Colors$getColor('#F39C12')
+	black: author$project$UiFramework$ColorUtils$hexToColor('#000'),
+	blue: author$project$UiFramework$ColorUtils$hexToColor('#375a7f'),
+	cyan: author$project$UiFramework$ColorUtils$hexToColor('#3498DB'),
+	gray: author$project$UiFramework$ColorUtils$hexToColor('#6c757d'),
+	gray100: author$project$UiFramework$ColorUtils$hexToColor('#f8f9fa'),
+	gray200: author$project$UiFramework$ColorUtils$hexToColor('#ebebeb'),
+	gray300: author$project$UiFramework$ColorUtils$hexToColor('#dee2e6'),
+	gray400: author$project$UiFramework$ColorUtils$hexToColor('#ced4da'),
+	gray500: author$project$UiFramework$ColorUtils$hexToColor('#adb5bd'),
+	gray600: author$project$UiFramework$ColorUtils$hexToColor('#999'),
+	gray700: author$project$UiFramework$ColorUtils$hexToColor('#444'),
+	gray800: author$project$UiFramework$ColorUtils$hexToColor('#303030'),
+	gray900: author$project$UiFramework$ColorUtils$hexToColor('#222'),
+	green: author$project$UiFramework$ColorUtils$hexToColor('#00bc8c'),
+	indigo: author$project$UiFramework$ColorUtils$hexToColor('#6610f2'),
+	orange: author$project$UiFramework$ColorUtils$hexToColor('#fd7e14'),
+	pink: author$project$UiFramework$ColorUtils$hexToColor('#e83e8c'),
+	purple: author$project$UiFramework$ColorUtils$hexToColor('#6f42c1'),
+	red: author$project$UiFramework$ColorUtils$hexToColor('#E74C3C'),
+	teal: author$project$UiFramework$ColorUtils$hexToColor('#20c997'),
+	white: author$project$UiFramework$ColorUtils$hexToColor('#fff'),
+	yellow: author$project$UiFramework$ColorUtils$hexToColor('#F39C12')
 };
-var author$project$Themes$Darkly$alertConfig = function (themeColor) {
+var author$project$Themes$Darkly$darklyAlertConfig = function (themeColor) {
 	var _default = author$project$UiFramework$Configuration$defaultAlertConfig(themeColor);
 	return _Utils_update(
 		_default,
@@ -15867,11 +16589,14 @@ var author$project$Themes$Darkly$alertConfig = function (themeColor) {
 var author$project$Themes$Darkly$darklyContainerConfig = _Utils_update(
 	author$project$UiFramework$Configuration$defaultContainerConfig,
 	{backgroundColor: author$project$Themes$Darkly$darklyColors.gray900, jumbotronBackgroundColor: author$project$Themes$Darkly$darklyColors.gray800});
+var author$project$Themes$Darkly$darklyDropdownConfig = _Utils_update(
+	author$project$UiFramework$Configuration$defaultDropdownConfig,
+	{backgroundColor: author$project$Themes$Darkly$darklyColors.gray900, borderColor: author$project$Themes$Darkly$darklyColors.gray700, fontColor: author$project$Themes$Darkly$darklyColors.white});
 var author$project$Themes$Darkly$darklyInputConfig = function (themeColor) {
 	var _default = author$project$UiFramework$Configuration$defaultInputConfig(themeColor);
 	return _Utils_update(
 		_default,
-		{borderColor: author$project$UiFramework$Colors$transparent, fontColor: author$project$UiFramework$Configuration$bootstrapColors.gray700});
+		{borderColor: author$project$UiFramework$ColorUtils$transparent, fontColor: author$project$UiFramework$Configuration$bootstrapColors.gray700});
 };
 var author$project$Themes$Darkly$darklyPaginationConfig = function (themeColor) {
 	var _default = author$project$UiFramework$Configuration$defaultPaginationConfig(themeColor);
@@ -15879,35 +16604,35 @@ var author$project$Themes$Darkly$darklyPaginationConfig = function (themeColor) 
 		_default,
 		{
 			activeBackgroundColor: A2(
-				author$project$UiFramework$Colors$lighten,
+				author$project$UiFramework$ColorUtils$lighten,
 				0.1,
 				themeColor(author$project$UiFramework$Types$Success)),
 			backgroundColor: themeColor(author$project$UiFramework$Types$Success),
-			borderColor: author$project$UiFramework$Colors$transparent,
+			borderColor: author$project$UiFramework$ColorUtils$transparent,
 			borderWidth: function (_n0) {
 				return 0;
 			},
 			color: author$project$UiFramework$Configuration$bootstrapColors.white,
 			disabledBackgroundColor: A2(
-				author$project$UiFramework$Colors$darken,
+				author$project$UiFramework$ColorUtils$darken,
 				0.15,
 				themeColor(author$project$UiFramework$Types$Success)),
-			disabledBorderColor: author$project$UiFramework$Colors$transparent,
+			disabledBorderColor: author$project$UiFramework$ColorUtils$transparent,
 			disabledColor: author$project$UiFramework$Configuration$bootstrapColors.white,
 			hoverBackgroundColor: A2(
-				author$project$UiFramework$Colors$lighten,
+				author$project$UiFramework$ColorUtils$lighten,
 				0.1,
 				themeColor(author$project$UiFramework$Types$Success)),
-			hoverBorderColor: author$project$UiFramework$Colors$transparent,
+			hoverBorderColor: author$project$UiFramework$ColorUtils$transparent,
 			hoverColor: author$project$UiFramework$Configuration$bootstrapColors.white
 		});
 };
 var author$project$Themes$Darkly$darklyTableConfig = _Utils_update(
 	author$project$UiFramework$Configuration$defaultTableConfig,
 	{
-		accentBackground: A2(author$project$UiFramework$Colors$alterColor, 5.0e-2, author$project$Themes$Darkly$darklyColors.white),
+		accentBackground: A2(author$project$UiFramework$ColorUtils$alterColor, 5.0e-2, author$project$Themes$Darkly$darklyColors.white),
 		backgroundColor: author$project$Themes$Darkly$darklyColors.gray800,
-		borderColor: A2(author$project$UiFramework$Colors$lighten, 7.5e-2, author$project$Themes$Darkly$darklyColors.gray800),
+		borderColor: A2(author$project$UiFramework$ColorUtils$lighten, 7.5e-2, author$project$Themes$Darkly$darklyColors.gray800),
 		color: author$project$Themes$Darkly$darklyColors.white,
 		headBackgroundColor: author$project$Themes$Darkly$darklyColors.gray900,
 		headColor: author$project$Themes$Darkly$darklyColors.white
@@ -15933,22 +16658,19 @@ var author$project$Themes$Darkly$darklyThemeColor = F2(
 				return colors.gray800;
 		}
 	});
-var author$project$Themes$Darkly$dropdownConfig = _Utils_update(
-	author$project$UiFramework$Configuration$defaultDropdownConfig,
-	{backgroundColor: author$project$Themes$Darkly$darklyColors.gray900, borderColor: author$project$Themes$Darkly$darklyColors.gray700, fontColor: author$project$Themes$Darkly$darklyColors.white});
 var author$project$Themes$Darkly$darklyThemeConfig = function () {
 	var themeColor = author$project$Themes$Darkly$darklyThemeColor(author$project$Themes$Darkly$darklyColors);
 	return {
-		alertConfig: author$project$Themes$Darkly$alertConfig(themeColor),
+		alertConfig: author$project$Themes$Darkly$darklyAlertConfig(themeColor),
 		badgeConfig: author$project$UiFramework$Configuration$defaultBadgeConfig(themeColor),
 		bodyBackground: author$project$Themes$Darkly$darklyColors.gray900,
 		bodyColor: author$project$Themes$Darkly$darklyColors.white,
 		buttonConfig: author$project$UiFramework$Configuration$defaultButtonConfig(themeColor),
 		colors: author$project$Themes$Darkly$darklyColors,
 		containerConfig: author$project$Themes$Darkly$darklyContainerConfig,
-		dropdownConfig: author$project$Themes$Darkly$dropdownConfig,
+		dropdownConfig: author$project$Themes$Darkly$darklyDropdownConfig,
 		fontColor: function (bgColor) {
-			return A3(author$project$UiFramework$Colors$contrastTextColor, bgColor, author$project$Themes$Darkly$darklyColors.gray900, author$project$Themes$Darkly$darklyColors.white);
+			return A3(author$project$UiFramework$ColorUtils$contrastTextColor, bgColor, author$project$Themes$Darkly$darklyColors.gray900, author$project$Themes$Darkly$darklyColors.white);
 		},
 		fontConfig: author$project$UiFramework$Configuration$defaultFontConfig,
 		inputConfig: author$project$Themes$Darkly$darklyInputConfig(themeColor),
@@ -15959,409 +16681,41 @@ var author$project$Themes$Darkly$darklyThemeConfig = function () {
 		themeColor: themeColor
 	};
 }();
-var author$project$UiFramework$Navbar$DropdownItem = function (a) {
-	return {$: 'DropdownItem', a: a};
-};
-var author$project$UiFramework$Navbar$Navbar = function (a) {
-	return {$: 'Navbar', a: a};
-};
-var author$project$UiFramework$Navbar$Roled = function (a) {
-	return {$: 'Roled', a: a};
-};
-var author$project$UiFramework$Navbar$default = function (msg) {
-	return author$project$UiFramework$Navbar$Navbar(
-		{
-			attributes: _List_Nil,
-			backgroundColor: author$project$UiFramework$Navbar$Roled(author$project$UiFramework$Types$Light),
-			brand: elm$core$Maybe$Nothing,
-			items: _List_Nil,
-			toggleMenuMsg: msg
-		});
-};
-var author$project$UiFramework$Navbar$Dropdown = function (a) {
-	return {$: 'Dropdown', a: a};
-};
-var author$project$UiFramework$Navbar$dropdown = F2(
+var author$project$UiFramework$Dropdown$default = F2(
 	function (msg, openState) {
-		return author$project$UiFramework$Navbar$Dropdown(
+		return author$project$UiFramework$Dropdown$Dropdown(
 			{icon: elm$core$Maybe$Nothing, items: _List_Nil, openState: openState, title: '', toggleDropdownMsg: msg});
 	});
-var author$project$UiFramework$Navbar$DropdownMenuLinkItem = function (a) {
-	return {$: 'DropdownMenuLinkItem', a: a};
-};
-var author$project$UiFramework$Navbar$dropdownMenuLinkItem = function (msg) {
-	return author$project$UiFramework$Navbar$DropdownMenuLinkItem(
-		{icon: elm$core$Maybe$Nothing, title: '', triggerMsg: msg});
-};
-var author$project$UiFramework$Navbar$LinkItem = function (a) {
+var author$project$UiFramework$Dropdown$LinkItem = function (a) {
 	return {$: 'LinkItem', a: a};
 };
-var author$project$UiFramework$Navbar$linkItem = function (msg) {
-	return author$project$UiFramework$Navbar$LinkItem(
+var author$project$UiFramework$Dropdown$menuLinkItem = function (msg) {
+	return author$project$UiFramework$Dropdown$LinkItem(
 		{icon: elm$core$Maybe$Nothing, title: '', triggerMsg: msg});
 };
-var author$project$UiFramework$Navbar$collapseNavbar = function (device) {
-	var _n0 = device._class;
-	switch (_n0.$) {
-		case 'Phone':
-			return true;
-		case 'Tablet':
-			return _Utils_eq(device.orientation, mdgriffith$elm_ui$Element$Portrait) ? true : false;
-		default:
-			return false;
-	}
-};
-var elm$virtual_dom$VirtualDom$Custom = function (a) {
-	return {$: 'Custom', a: a};
-};
-var elm$html$Html$Events$custom = F2(
-	function (event, decoder) {
-		return A2(
-			elm$virtual_dom$VirtualDom$on,
-			event,
-			elm$virtual_dom$VirtualDom$Custom(decoder));
-	});
-var mdgriffith$elm_ui$Element$htmlAttribute = mdgriffith$elm_ui$Internal$Model$Attr;
-var author$project$UiFramework$Navbar$onClick = function (message) {
-	return mdgriffith$elm_ui$Element$htmlAttribute(
-		A2(
-			elm$html$Html$Events$custom,
-			'click',
-			elm$json$Json$Decode$succeed(
-				{message: message, preventDefault: false, stopPropagation: true})));
-};
-var author$project$UiFramework$Navbar$viewLinkItem = function (options) {
-	return author$project$UiFramework$Internal$fromElement(
-		function (context) {
-			return A2(
-				mdgriffith$elm_ui$Element$el,
-				_List_fromArray(
-					[
-						author$project$UiFramework$Navbar$onClick(options.triggerMsg),
-						A2(mdgriffith$elm_ui$Element$paddingXY, context.themeConfig.navConfig.linkPaddingX, context.themeConfig.navConfig.linkPaddingY),
-						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-						mdgriffith$elm_ui$Element$pointer
-					]),
-				function () {
-					var _n0 = options.icon;
-					if (_n0.$ === 'Nothing') {
-						return mdgriffith$elm_ui$Element$text(options.title);
-					} else {
-						var icon = _n0.a;
-						return A2(
-							mdgriffith$elm_ui$Element$row,
-							_List_fromArray(
-								[
-									mdgriffith$elm_ui$Element$spacing(5)
-								]),
-							_List_fromArray(
-								[
-									A2(
-									mdgriffith$elm_ui$Element$el,
-									_List_Nil,
-									author$project$UiFramework$Icon$view(icon)),
-									A2(
-									mdgriffith$elm_ui$Element$el,
-									_List_Nil,
-									mdgriffith$elm_ui$Element$text(options.title))
-								]));
-					}
-				}());
-		});
-};
-var mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
-var mdgriffith$elm_ui$Element$alignRight = mdgriffith$elm_ui$Internal$Model$AlignX(mdgriffith$elm_ui$Internal$Model$Right);
-var author$project$UiFramework$Navbar$viewDropdownMenu = function (items) {
-	return author$project$UiFramework$Internal$fromElement(
-		function (context) {
-			var menuAlignment = author$project$UiFramework$Navbar$collapseNavbar(context.device) ? mdgriffith$elm_ui$Element$alignLeft : mdgriffith$elm_ui$Element$alignRight;
-			var dropdownConfig = context.themeConfig.dropdownConfig;
-			return A2(
-				mdgriffith$elm_ui$Element$el,
-				_List_fromArray(
-					[menuAlignment]),
-				A2(
-					mdgriffith$elm_ui$Element$column,
-					_List_fromArray(
-						[
-							A2(mdgriffith$elm_ui$Element$paddingXY, dropdownConfig.paddingX, dropdownConfig.paddingY),
-							mdgriffith$elm_ui$Element$spacing(dropdownConfig.spacer),
-							mdgriffith$elm_ui$Element$Background$color(dropdownConfig.backgroundColor),
-							mdgriffith$elm_ui$Element$Font$color(dropdownConfig.fontColor),
-							mdgriffith$elm_ui$Element$Font$alignLeft,
-							mdgriffith$elm_ui$Element$Border$rounded(dropdownConfig.borderRadius),
-							mdgriffith$elm_ui$Element$Border$color(dropdownConfig.borderColor),
-							mdgriffith$elm_ui$Element$Border$solid,
-							mdgriffith$elm_ui$Element$Border$width(dropdownConfig.borderWidth)
-						]),
-					A2(
-						elm$core$List$map,
-						function (item) {
-							if (item.$ === 'DropdownMenuLinkItem') {
-								var options = item.a;
-								return A2(
-									author$project$UiFramework$Internal$toElement,
-									context,
-									author$project$UiFramework$Navbar$viewLinkItem(options));
-							} else {
-								return mdgriffith$elm_ui$Element$none;
-							}
-						},
-						items)));
-		});
-};
-var mdgriffith$elm_ui$Element$createNearby = F2(
-	function (loc, element) {
-		if (element.$ === 'Empty') {
-			return mdgriffith$elm_ui$Internal$Model$NoAttribute;
-		} else {
-			return A2(mdgriffith$elm_ui$Internal$Model$Nearby, loc, element);
-		}
-	});
-var mdgriffith$elm_ui$Internal$Model$Below = {$: 'Below'};
-var mdgriffith$elm_ui$Element$below = function (element) {
-	return A2(mdgriffith$elm_ui$Element$createNearby, mdgriffith$elm_ui$Internal$Model$Below, element);
-};
-var author$project$UiFramework$Navbar$viewDropdownItem = function (options) {
-	return author$project$UiFramework$Internal$fromElement(
-		function (context) {
-			return A2(
-				mdgriffith$elm_ui$Element$el,
-				_List_fromArray(
-					[
-						author$project$UiFramework$Navbar$onClick(options.toggleDropdownMsg),
-						A2(mdgriffith$elm_ui$Element$paddingXY, context.themeConfig.navConfig.linkPaddingX, context.themeConfig.navConfig.linkPaddingY),
-						mdgriffith$elm_ui$Element$pointer,
-						mdgriffith$elm_ui$Element$below(
-						_Utils_eq(context.state.dropdownState, options.openState) ? A2(
-							author$project$UiFramework$Internal$toElement,
-							context,
-							author$project$UiFramework$Navbar$viewDropdownMenu(options.items)) : mdgriffith$elm_ui$Element$none)
-					]),
-				function () {
-					var _n0 = options.icon;
-					if (_n0.$ === 'Nothing') {
-						return mdgriffith$elm_ui$Element$text(options.title + ' ▾');
-					} else {
-						var icon = _n0.a;
-						return A2(
-							mdgriffith$elm_ui$Element$row,
-							_List_fromArray(
-								[
-									mdgriffith$elm_ui$Element$spacing(5)
-								]),
-							_List_fromArray(
-								[
-									A2(
-									mdgriffith$elm_ui$Element$el,
-									_List_Nil,
-									author$project$UiFramework$Icon$view(icon)),
-									A2(
-									mdgriffith$elm_ui$Element$el,
-									_List_Nil,
-									mdgriffith$elm_ui$Element$text(options.title + ' ▾'))
-								]));
-					}
-				}());
-		});
-};
-var author$project$UiFramework$Navbar$viewMenuItem = function (item) {
-	switch (item.$) {
-		case 'LinkItem':
-			var options = item.a;
-			return author$project$UiFramework$Navbar$viewLinkItem(options);
-		case 'DropdownItem':
-			var options = item.a.a;
-			return author$project$UiFramework$Navbar$viewDropdownItem(options);
-		default:
-			return author$project$UiFramework$Internal$uiNone;
-	}
-};
-var mdgriffith$elm_ui$Internal$Model$Navigation = {$: 'Navigation'};
-var mdgriffith$elm_ui$Element$Region$navigation = mdgriffith$elm_ui$Internal$Model$Describe(mdgriffith$elm_ui$Internal$Model$Navigation);
-var author$project$UiFramework$Navbar$viewCollapsedMenuList = function (items) {
-	return author$project$UiFramework$Internal$fromElement(
-		function (context) {
-			return A2(
-				mdgriffith$elm_ui$Element$column,
-				_List_fromArray(
-					[
-						mdgriffith$elm_ui$Element$Region$navigation,
-						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-						mdgriffith$elm_ui$Element$alignLeft,
-						mdgriffith$elm_ui$Element$Font$alignLeft
-					]),
-				A2(
-					elm$core$List$map,
-					A2(
-						elm$core$Basics$composeR,
-						author$project$UiFramework$Navbar$viewMenuItem,
-						author$project$UiFramework$Internal$toElement(context)),
-					items));
-		});
-};
-var author$project$UiFramework$Navbar$viewMenubarList = function (items) {
-	return author$project$UiFramework$Internal$fromElement(
-		function (context) {
-			return A2(
-				mdgriffith$elm_ui$Element$row,
-				_List_fromArray(
-					[mdgriffith$elm_ui$Element$Region$navigation, mdgriffith$elm_ui$Element$alignRight, mdgriffith$elm_ui$Element$Font$center]),
-				A2(
-					elm$core$List$map,
-					A2(
-						elm$core$Basics$composeR,
-						author$project$UiFramework$Navbar$viewMenuItem,
-						author$project$UiFramework$Internal$toElement(context)),
-					items));
-		});
-};
-var author$project$UiFramework$Navbar$view = function (_n0) {
-	var options = _n0.a;
-	return author$project$UiFramework$Internal$flatMap(
-		function (context) {
-			var navbarConfig = context.themeConfig.navbarConfig;
-			var brand = function (attrs) {
-				return author$project$UiFramework$Internal$fromElement(
-					function (_n3) {
-						return A2(
-							mdgriffith$elm_ui$Element$el,
-							attrs,
-							A2(elm$core$Maybe$withDefault, mdgriffith$elm_ui$Element$none, options.brand));
-					});
-			};
-			var backgroundColor = function () {
-				var _n2 = options.backgroundColor;
-				switch (_n2.$) {
-					case 'Roled':
-						var role = _n2.a;
-						return context.themeConfig.themeColor(role);
-					case 'Custom':
-						var color = _n2.a;
-						return color;
-					default:
-						var cssStr = _n2.a;
-						return author$project$UiFramework$Colors$getColor(cssStr);
-				}
-			}();
-			var fontColor = context.themeConfig.fontColor(backgroundColor);
-			var iconBar = A2(
-				mdgriffith$elm_ui$Element$el,
-				_List_fromArray(
-					[
-						mdgriffith$elm_ui$Element$width(
-						mdgriffith$elm_ui$Element$px(24)),
-						mdgriffith$elm_ui$Element$height(
-						mdgriffith$elm_ui$Element$px(2)),
-						mdgriffith$elm_ui$Element$Background$color(fontColor),
-						mdgriffith$elm_ui$Element$Border$rounded(1)
-					]),
-				mdgriffith$elm_ui$Element$none);
-			var navButton = function (toggleMenuMsg) {
-				return author$project$UiFramework$Internal$fromElement(
-					function (_n1) {
-						return A2(
-							mdgriffith$elm_ui$Element$el,
-							_List_fromArray(
-								[
-									author$project$UiFramework$Navbar$onClick(toggleMenuMsg),
-									mdgriffith$elm_ui$Element$alignLeft,
-									A2(mdgriffith$elm_ui$Element$paddingXY, navbarConfig.togglerPaddingX, navbarConfig.togglerPaddingY),
-									mdgriffith$elm_ui$Element$Border$color(fontColor),
-									mdgriffith$elm_ui$Element$Border$solid,
-									mdgriffith$elm_ui$Element$Border$width(1),
-									mdgriffith$elm_ui$Element$Border$rounded(navbarConfig.togglerBorderRadius),
-									mdgriffith$elm_ui$Element$pointer
-								]),
-							A2(
-								mdgriffith$elm_ui$Element$column,
-								_List_fromArray(
-									[
-										mdgriffith$elm_ui$Element$spacing(6),
-										mdgriffith$elm_ui$Element$padding(6)
-									]),
-								_List_fromArray(
-									[iconBar, iconBar, iconBar])));
-					});
-			};
-			var headerAttrs = _List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-					A2(mdgriffith$elm_ui$Element$paddingXY, navbarConfig.paddingX, navbarConfig.paddingY),
-					mdgriffith$elm_ui$Element$Background$color(backgroundColor),
-					mdgriffith$elm_ui$Element$Font$color(fontColor)
-				]);
-			return author$project$UiFramework$Navbar$collapseNavbar(context.device) ? A2(
-				author$project$UiFramework$Internal$uiColumn,
-				headerAttrs,
-				_Utils_ap(
-					_List_fromArray(
-						[
-							A2(
-							author$project$UiFramework$Internal$uiRow,
-							_List_fromArray(
-								[
-									mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill)
-								]),
-							_List_fromArray(
-								[
-									navButton(options.toggleMenuMsg),
-									brand(
-									_List_fromArray(
-										[mdgriffith$elm_ui$Element$alignRight]))
-								]))
-						]),
-					context.state.toggleMenuState ? _List_fromArray(
-						[
-							author$project$UiFramework$Navbar$viewCollapsedMenuList(options.items)
-						]) : _List_Nil)) : A2(
-				author$project$UiFramework$Internal$uiRow,
-				headerAttrs,
-				_List_fromArray(
-					[
-						brand(
-						_List_fromArray(
-							[mdgriffith$elm_ui$Element$alignLeft])),
-						author$project$UiFramework$Navbar$viewMenubarList(options.items)
-					]));
-		});
-};
-var author$project$UiFramework$Navbar$Custom = function (a) {
-	return {$: 'Custom', a: a};
-};
-var author$project$UiFramework$Navbar$withBackgroundColor = F2(
-	function (color, _n0) {
+var author$project$UiFramework$Dropdown$withIcon = F2(
+	function (icon, _n0) {
 		var options = _n0.a;
-		return author$project$UiFramework$Navbar$Navbar(
+		return author$project$UiFramework$Dropdown$Dropdown(
 			_Utils_update(
 				options,
 				{
-					backgroundColor: author$project$UiFramework$Navbar$Custom(color)
+					icon: elm$core$Maybe$Just(icon)
 				}));
 	});
-var author$project$UiFramework$Navbar$withBrand = F2(
-	function (brand, _n0) {
-		var options = _n0.a;
-		return author$project$UiFramework$Navbar$Navbar(
-			_Utils_update(
-				options,
-				{
-					brand: elm$core$Maybe$Just(brand)
-				}));
-	});
-var author$project$UiFramework$Navbar$withDropdownMenuItems = F2(
+var author$project$UiFramework$Dropdown$withMenuItems = F2(
 	function (items, _n0) {
 		var options = _n0.a;
-		return author$project$UiFramework$Navbar$Dropdown(
+		return author$project$UiFramework$Dropdown$Dropdown(
 			_Utils_update(
 				options,
 				{items: items}));
 	});
-var author$project$UiFramework$Navbar$withDropdownMenuTitle = F2(
+var author$project$UiFramework$Dropdown$withMenuTitle = F2(
 	function (title, item) {
-		if (item.$ === 'DropdownMenuLinkItem') {
+		if (item.$ === 'LinkItem') {
 			var options = item.a;
-			return author$project$UiFramework$Navbar$DropdownMenuLinkItem(
+			return author$project$UiFramework$Dropdown$LinkItem(
 				_Utils_update(
 					options,
 					{title: title}));
@@ -16381,42 +16735,9 @@ var author$project$UiFramework$Navbar$withMenuIcon = F2(
 							icon: elm$core$Maybe$Just(icon)
 						}));
 			case 'DropdownItem':
-				var options = item.a.a;
+				var dropdown = item.a;
 				return author$project$UiFramework$Navbar$DropdownItem(
-					author$project$UiFramework$Navbar$Dropdown(
-						_Utils_update(
-							options,
-							{
-								icon: elm$core$Maybe$Just(icon)
-							})));
-			default:
-				return item;
-		}
-	});
-var author$project$UiFramework$Navbar$withMenuItems = F2(
-	function (items, _n0) {
-		var options = _n0.a;
-		return author$project$UiFramework$Navbar$Navbar(
-			_Utils_update(
-				options,
-				{items: items}));
-	});
-var author$project$UiFramework$Navbar$withMenuTitle = F2(
-	function (title, item) {
-		switch (item.$) {
-			case 'LinkItem':
-				var options = item.a;
-				return author$project$UiFramework$Navbar$LinkItem(
-					_Utils_update(
-						options,
-						{title: title}));
-			case 'DropdownItem':
-				var options = item.a.a;
-				return author$project$UiFramework$Navbar$DropdownItem(
-					author$project$UiFramework$Navbar$Dropdown(
-						_Utils_update(
-							options,
-							{title: title})));
+					A2(author$project$UiFramework$Dropdown$withIcon, icon, dropdown));
 			default:
 				return item;
 		}
@@ -16424,33 +16745,33 @@ var author$project$UiFramework$Navbar$withMenuTitle = F2(
 var lattyware$elm_fontawesome$FontAwesome$Solid$flag = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'flag', 512, 512, 'M349.565 98.783C295.978 98.783 251.721 64 184.348 64c-24.955 0-47.309 4.384-68.045 12.013a55.947 55.947 0 0 0 3.586-23.562C118.117 24.015 94.806 1.206 66.338.048 34.345-1.254 8 24.296 8 56c0 19.026 9.497 35.825 24 45.945V488c0 13.255 10.745 24 24 24h16c13.255 0 24-10.745 24-24v-94.4c28.311-12.064 63.582-22.122 114.435-22.122 53.588 0 97.844 34.783 165.217 34.783 48.169 0 86.667-16.294 122.505-40.858C506.84 359.452 512 349.571 512 339.045v-243.1c0-23.393-24.269-38.87-45.485-29.016-34.338 15.948-76.454 31.854-116.95 31.854z');
 var lattyware$elm_fontawesome$FontAwesome$Solid$home = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'home', 576, 512, 'M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z');
 var lattyware$elm_fontawesome$FontAwesome$Solid$laptopCode = A5(lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'laptop-code', 640, 512, 'M255.03 261.65c6.25 6.25 16.38 6.25 22.63 0l11.31-11.31c6.25-6.25 6.25-16.38 0-22.63L253.25 192l35.71-35.72c6.25-6.25 6.25-16.38 0-22.63l-11.31-11.31c-6.25-6.25-16.38-6.25-22.63 0l-58.34 58.34c-6.25 6.25-6.25 16.38 0 22.63l58.35 58.34zm96.01-11.3l11.31 11.31c6.25 6.25 16.38 6.25 22.63 0l58.34-58.34c6.25-6.25 6.25-16.38 0-22.63l-58.34-58.34c-6.25-6.25-16.38-6.25-22.63 0l-11.31 11.31c-6.25 6.25-6.25 16.38 0 22.63L386.75 192l-35.71 35.72c-6.25 6.25-6.25 16.38 0 22.63zM624 416H381.54c-.74 19.81-14.71 32-32.74 32H288c-18.69 0-33.02-17.47-32.77-32H16c-8.8 0-16 7.2-16 16v16c0 35.2 28.8 64 64 64h512c35.2 0 64-28.8 64-64v-16c0-8.8-7.2-16-16-16zM576 48c0-26.4-21.6-48-48-48H112C85.6 0 64 21.6 64 48v336h512V48zm-64 272H128V64h384v256z');
-var author$project$View$navbar = F2(
+var author$project$Router$navbar = F2(
 	function (model, sharedState) {
-		var themeSelect = A2(
-			author$project$UiFramework$Navbar$withMenuTitle,
-			'Theme',
+		var themeSelect = author$project$UiFramework$Navbar$DropdownItem(
 			A2(
-				author$project$UiFramework$Navbar$withMenuIcon,
-				lattyware$elm_fontawesome$FontAwesome$Solid$flag,
-				author$project$UiFramework$Navbar$DropdownItem(
+				author$project$UiFramework$Dropdown$withMenuItems,
+				_List_fromArray(
+					[
+						A2(
+						author$project$UiFramework$Dropdown$withMenuTitle,
+						'Default',
+						author$project$UiFramework$Dropdown$menuLinkItem(
+							author$project$Router$SelectTheme(
+								author$project$SharedState$Default(author$project$UiFramework$Configuration$defaultThemeConfig)))),
+						A2(
+						author$project$UiFramework$Dropdown$withMenuTitle,
+						'Dark',
+						author$project$UiFramework$Dropdown$menuLinkItem(
+							author$project$Router$SelectTheme(
+								author$project$SharedState$Darkly(author$project$Themes$Darkly$darklyThemeConfig))))
+					]),
+				A2(
+					author$project$UiFramework$Dropdown$withTitle,
+					'Theme',
 					A2(
-						author$project$UiFramework$Navbar$withDropdownMenuItems,
-						_List_fromArray(
-							[
-								A2(
-								author$project$UiFramework$Navbar$withDropdownMenuTitle,
-								'Default',
-								author$project$UiFramework$Navbar$dropdownMenuLinkItem(
-									author$project$Router$SelectTheme(
-										author$project$SharedState$Default(author$project$UiFramework$Configuration$defaultThemeConfig)))),
-								A2(
-								author$project$UiFramework$Navbar$withDropdownMenuTitle,
-								'Dark',
-								author$project$UiFramework$Navbar$dropdownMenuLinkItem(
-									author$project$Router$SelectTheme(
-										author$project$SharedState$Darkly(author$project$Themes$Darkly$darklyThemeConfig))))
-							]),
-						A2(author$project$UiFramework$Navbar$dropdown, author$project$Router$ToggleDropdown, author$project$Router$ThemeSelectOpen)))));
+						author$project$UiFramework$Dropdown$withIcon,
+						lattyware$elm_fontawesome$FontAwesome$Solid$flag,
+						A2(author$project$UiFramework$Dropdown$default, author$project$Router$ToggleDropdown, author$project$Router$ThemeSelectOpen)))));
 		var showRoomItem = A2(
 			author$project$UiFramework$Navbar$withMenuTitle,
 			'Showroom',
@@ -16471,7 +16792,6 @@ var author$project$View$navbar = F2(
 		var context = {
 			device: sharedState.device,
 			parentRole: elm$core$Maybe$Nothing,
-			state: navbarState,
 			themeConfig: author$project$SharedState$getThemeConfig(sharedState.theme)
 		};
 		var brand = A2(
@@ -16484,14 +16804,16 @@ var author$project$View$navbar = F2(
 		return A2(
 			author$project$UiFramework$toElement,
 			context,
-			author$project$UiFramework$Navbar$view(
+			A2(
+				author$project$UiFramework$Navbar$view,
+				navbarState,
 				A2(
 					author$project$UiFramework$Navbar$withMenuItems,
 					_List_fromArray(
 						[homeItem, showRoomItem, themeSelect]),
 					A2(
-						author$project$UiFramework$Navbar$withBackgroundColor,
-						A3(mdgriffith$elm_ui$Element$rgb255, 53, 61, 71),
+						author$project$UiFramework$Navbar$withBackground,
+						author$project$UiFramework$Types$Dark,
 						A2(
 							author$project$UiFramework$Navbar$withBrand,
 							brand,
@@ -16663,7 +16985,6 @@ var mdgriffith$elm_ui$Internal$Model$FontFamily = F2(
 var mdgriffith$elm_ui$Internal$Model$Typeface = function (a) {
 	return {$: 'Typeface', a: a};
 };
-var elm$core$String$toLower = _String_toLower;
 var elm$core$String$words = _String_words;
 var mdgriffith$elm_ui$Internal$Model$renderFontClassName = F2(
 	function (font, current) {
@@ -16762,7 +17083,7 @@ var mdgriffith$elm_ui$Element$layoutWith = F3(
 	});
 var mdgriffith$elm_ui$Element$layout = mdgriffith$elm_ui$Element$layoutWith(
 	{options: _List_Nil});
-var author$project$View$view = F3(
+var author$project$Router$view = F3(
 	function (toMsg, model, sharedState) {
 		var themeConfig = author$project$SharedState$getThemeConfig(sharedState.theme);
 		return A2(
@@ -16773,7 +17094,7 @@ var author$project$View$view = F3(
 				_List_fromArray(
 					[
 						mdgriffith$elm_ui$Element$inFront(
-						A2(author$project$View$navbar, model, sharedState))
+						A2(author$project$Router$navbar, model, sharedState))
 					]),
 				A2(
 					mdgriffith$elm_ui$Element$column,
@@ -16789,21 +17110,21 @@ var author$project$View$view = F3(
 					_List_fromArray(
 						[
 							mdgriffith$elm_ui$Element$html(lattyware$elm_fontawesome$FontAwesome$Styles$css),
-							A2(author$project$View$content, model, sharedState)
+							A2(author$project$Router$content, model, sharedState)
 						]))));
 	});
-var author$project$View$viewApplication = F3(
+var author$project$Router$viewApplication = F3(
 	function (toMsg, model, sharedState) {
 		return {
 			body: _List_fromArray(
 				[
-					A3(author$project$View$view, toMsg, model, sharedState)
+					A3(author$project$Router$view, toMsg, model, sharedState)
 				]),
-			title: author$project$View$tabBarTitle(model)
+			title: author$project$Router$tabBarTitle(model)
 		};
 	});
 var author$project$Main$view = function (model) {
-	return A3(author$project$View$viewApplication, author$project$Main$RouterMsg, model.routerModel, model.sharedState);
+	return A3(author$project$Router$viewApplication, author$project$Main$RouterMsg, model.routerModel, model.sharedState);
 };
 var elm$browser$Browser$application = _Browser_application;
 var author$project$Main$main = elm$browser$Browser$application(
