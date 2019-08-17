@@ -6495,7 +6495,8 @@ var author$project$UiFramework$Configuration$defaultButtonConfig = function (the
 				default:
 					return 8;
 			}
-		}
+		},
+		withShadow: elm$core$Maybe$Nothing
 	};
 };
 var author$project$UiFramework$Configuration$defaultContainerConfig = {
@@ -6533,9 +6534,23 @@ var author$project$UiFramework$Configuration$defaultDropdownConfig = {
 	paddingY: 8,
 	spacer: 2
 };
+var mdgriffith$elm_ui$Internal$Model$Monospace = {$: 'Monospace'};
+var mdgriffith$elm_ui$Element$Font$monospace = mdgriffith$elm_ui$Internal$Model$Monospace;
 var mdgriffith$elm_ui$Internal$Model$SansSerif = {$: 'SansSerif'};
 var mdgriffith$elm_ui$Element$Font$sansSerif = mdgriffith$elm_ui$Internal$Model$SansSerif;
-var author$project$UiFramework$Configuration$defaultFontConfig = {typeface: 'Noto Sans', typefaceFallback: mdgriffith$elm_ui$Element$Font$sansSerif, url: 'https://fonts.googleapis.com/css?family=Noto+Sans'};
+var mdgriffith$elm_ui$Internal$Model$Typeface = function (a) {
+	return {$: 'Typeface', a: a};
+};
+var mdgriffith$elm_ui$Element$Font$typeface = mdgriffith$elm_ui$Internal$Model$Typeface;
+var author$project$UiFramework$Configuration$defaultFontConfig = {
+	fontFamily: _List_fromArray(
+		[
+			mdgriffith$elm_ui$Element$Font$typeface('Segoe UI'),
+			mdgriffith$elm_ui$Element$Font$sansSerif
+		]),
+	fontFamilyMonospace: _List_fromArray(
+		[mdgriffith$elm_ui$Element$Font$monospace])
+};
 var noahzgordon$elm_color_extra$Color$Manipulate$lighten = F2(
 	function (offset, cl) {
 		return A2(noahzgordon$elm_color_extra$Color$Manipulate$darken, -offset, cl);
@@ -6563,7 +6578,7 @@ var author$project$UiFramework$Configuration$defaultInputConfig = function (them
 	};
 };
 var author$project$UiFramework$Configuration$defaultNavConfig = {disabledColor: author$project$UiFramework$Configuration$bootstrapColors.gray600, dividerColor: author$project$UiFramework$Configuration$bootstrapColors.gray200, dividerMarginY: 8, linkPaddingX: 16, linkPaddingY: 8};
-var author$project$UiFramework$Configuration$defaultNavbarConfig = {brandFontSize: 20, brandPaddingY: 4, menubarPaddingX: 8, menubarPaddingY: 8, paddingX: 16, paddingY: 8, togglerBorderRadius: 4, togglerPaddingX: 12, togglerPaddingY: 4};
+var author$project$UiFramework$Configuration$defaultNavbarConfig = {brandFontSize: 20, brandPaddingY: 4, menubarPaddingX: 8, menubarPaddingY: 8, paddingX: 16, paddingY: 8, togglerBorderRadius: 4, togglerPaddingX: 12, togglerPaddingY: 4, withShadow: elm$core$Maybe$Nothing};
 var author$project$UiFramework$Configuration$defaultPaginationConfig = function (themeColor) {
 	var paddingY = function (size) {
 		switch (size.$) {
@@ -6649,23 +6664,19 @@ var author$project$SharedState$init = F2(
 			theme: author$project$SharedState$Default(author$project$UiFramework$Configuration$defaultThemeConfig)
 		};
 	});
-var elm$core$Platform$Cmd$map = _Platform_map;
 var mdgriffith$elm_ui$Element$BigDesktop = {$: 'BigDesktop'};
 var mdgriffith$elm_ui$Element$Desktop = {$: 'Desktop'};
 var mdgriffith$elm_ui$Element$Landscape = {$: 'Landscape'};
 var mdgriffith$elm_ui$Element$Phone = {$: 'Phone'};
 var mdgriffith$elm_ui$Element$Portrait = {$: 'Portrait'};
 var mdgriffith$elm_ui$Element$Tablet = {$: 'Tablet'};
-var mdgriffith$elm_ui$Element$classifyDevice = function (window) {
+var author$project$UiFramework$ResponsiveUtils$classifyDevice = function (window) {
 	return {
-		_class: function () {
-			var shortSide = A2(elm$core$Basics$min, window.width, window.height);
-			var longSide = A2(elm$core$Basics$max, window.width, window.height);
-			return (shortSide < 600) ? mdgriffith$elm_ui$Element$Phone : ((longSide <= 1200) ? mdgriffith$elm_ui$Element$Tablet : (((longSide > 1200) && (longSide <= 1920)) ? mdgriffith$elm_ui$Element$Desktop : mdgriffith$elm_ui$Element$BigDesktop));
-		}(),
+		_class: (window.width < 768) ? mdgriffith$elm_ui$Element$Phone : ((window.width < 992) ? mdgriffith$elm_ui$Element$Tablet : ((window.width < 1200) ? mdgriffith$elm_ui$Element$Desktop : mdgriffith$elm_ui$Element$BigDesktop)),
 		orientation: (_Utils_cmp(window.width, window.height) < 0) ? mdgriffith$elm_ui$Element$Portrait : mdgriffith$elm_ui$Element$Landscape
 	};
 };
+var elm$core$Platform$Cmd$map = _Platform_map;
 var author$project$Main$init = F3(
 	function (flags, url, key) {
 		var _n0 = A2(author$project$Router$init, url, key);
@@ -6676,7 +6687,7 @@ var author$project$Main$init = F3(
 				routerModel: initRouterModel,
 				sharedState: A2(
 					author$project$SharedState$init,
-					mdgriffith$elm_ui$Element$classifyDevice(flags),
+					author$project$UiFramework$ResponsiveUtils$classifyDevice(flags),
 					key)
 			},
 			A2(elm$core$Platform$Cmd$map, author$project$Main$RouterMsg, routerCmd));
@@ -7531,7 +7542,7 @@ var author$project$Main$update = F2(
 						A2(
 							elm$core$Debug$log,
 							'Device',
-							mdgriffith$elm_ui$Element$classifyDevice(
+							author$project$UiFramework$ResponsiveUtils$classifyDevice(
 								A2(elm$core$Debug$log, 'Window Size', windowSize)))));
 			default:
 				var routerMsg = msg.a;
@@ -8001,6 +8012,70 @@ var mdgriffith$elm_ui$Element$Border$rounded = function (radius) {
 			'border-radius',
 			elm$core$String$fromInt(radius) + 'px'));
 };
+var mdgriffith$elm_ui$Internal$Flag$shadows = mdgriffith$elm_ui$Internal$Flag$flag(19);
+var elm$core$String$concat = function (strings) {
+	return A2(elm$core$String$join, '', strings);
+};
+var elm$core$Tuple$second = function (_n0) {
+	var y = _n0.b;
+	return y;
+};
+var mdgriffith$elm_ui$Internal$Model$boxShadowClass = function (shadow) {
+	return elm$core$String$concat(
+		_List_fromArray(
+			[
+				shadow.inset ? 'box-inset' : 'box-',
+				mdgriffith$elm_ui$Internal$Model$floatClass(shadow.offset.a) + 'px',
+				mdgriffith$elm_ui$Internal$Model$floatClass(shadow.offset.b) + 'px',
+				mdgriffith$elm_ui$Internal$Model$floatClass(shadow.blur) + 'px',
+				mdgriffith$elm_ui$Internal$Model$floatClass(shadow.size) + 'px',
+				mdgriffith$elm_ui$Internal$Model$formatColorClass(shadow.color)
+			]));
+};
+var elm$core$String$fromFloat = _String_fromNumber;
+var mdgriffith$elm_ui$Internal$Model$formatColor = function (_n0) {
+	var red = _n0.a;
+	var green = _n0.b;
+	var blue = _n0.c;
+	var alpha = _n0.d;
+	return 'rgba(' + (elm$core$String$fromInt(
+		elm$core$Basics$round(red * 255)) + ((',' + elm$core$String$fromInt(
+		elm$core$Basics$round(green * 255))) + ((',' + elm$core$String$fromInt(
+		elm$core$Basics$round(blue * 255))) + (',' + (elm$core$String$fromFloat(alpha) + ')')))));
+};
+var mdgriffith$elm_ui$Internal$Model$formatBoxShadow = function (shadow) {
+	return A2(
+		elm$core$String$join,
+		' ',
+		A2(
+			elm$core$List$filterMap,
+			elm$core$Basics$identity,
+			_List_fromArray(
+				[
+					shadow.inset ? elm$core$Maybe$Just('inset') : elm$core$Maybe$Nothing,
+					elm$core$Maybe$Just(
+					elm$core$String$fromFloat(shadow.offset.a) + 'px'),
+					elm$core$Maybe$Just(
+					elm$core$String$fromFloat(shadow.offset.b) + 'px'),
+					elm$core$Maybe$Just(
+					elm$core$String$fromFloat(shadow.blur) + 'px'),
+					elm$core$Maybe$Just(
+					elm$core$String$fromFloat(shadow.size) + 'px'),
+					elm$core$Maybe$Just(
+					mdgriffith$elm_ui$Internal$Model$formatColor(shadow.color))
+				])));
+};
+var mdgriffith$elm_ui$Element$Border$shadow = function (almostShade) {
+	var shade = {blur: almostShade.blur, color: almostShade.color, inset: false, offset: almostShade.offset, size: almostShade.size};
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$shadows,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$Single,
+			mdgriffith$elm_ui$Internal$Model$boxShadowClass(shade),
+			'box-shadow',
+			mdgriffith$elm_ui$Internal$Model$formatBoxShadow(shade)));
+};
 var mdgriffith$elm_ui$Internal$Flag$borderStyle = mdgriffith$elm_ui$Internal$Flag$flag(11);
 var mdgriffith$elm_ui$Internal$Style$classes = {above: 'a', active: 'atv', alignBottom: 'ab', alignCenterX: 'cx', alignCenterY: 'cy', alignContainerBottom: 'acb', alignContainerCenterX: 'accx', alignContainerCenterY: 'accy', alignContainerRight: 'acr', alignLeft: 'al', alignRight: 'ar', alignTop: 'at', alignedHorizontally: 'ah', alignedVertically: 'av', any: 's', behind: 'bh', below: 'b', bold: 'w7', borderDashed: 'bd', borderDotted: 'bdt', borderNone: 'bn', borderSolid: 'bs', capturePointerEvents: 'cpe', clip: 'cp', clipX: 'cpx', clipY: 'cpy', column: 'c', container: 'ctr', contentBottom: 'cb', contentCenterX: 'ccx', contentCenterY: 'ccy', contentLeft: 'cl', contentRight: 'cr', contentTop: 'ct', cursorPointer: 'cptr', cursorText: 'ctxt', focus: 'fcs', focusedWithin: 'focus-within', fullSize: 'fs', grid: 'g', hasBehind: 'hbh', heightContent: 'hc', heightExact: 'he', heightFill: 'hf', heightFillPortion: 'hfp', hover: 'hv', imageContainer: 'ic', inFront: 'fr', inputMultiline: 'iml', inputMultilineFiller: 'imlf', inputMultilineParent: 'imlp', inputMultilineWrapper: 'implw', inputText: 'it', italic: 'i', link: 'lnk', nearby: 'nb', noTextSelection: 'notxt', onLeft: 'ol', onRight: 'or', opaque: 'oq', overflowHidden: 'oh', page: 'pg', paragraph: 'p', passPointerEvents: 'ppe', root: 'ui', row: 'r', scrollbars: 'sb', scrollbarsX: 'sbx', scrollbarsY: 'sby', seButton: 'sbt', single: 'e', sizeByCapital: 'cap', spaceEvenly: 'sev', strike: 'sk', text: 't', textCenter: 'tc', textExtraBold: 'w8', textExtraLight: 'w2', textHeavy: 'w9', textJustify: 'tj', textJustifyAll: 'tja', textLeft: 'tl', textLight: 'w3', textMedium: 'w5', textNormalWeight: 'w4', textRight: 'tr', textSemiBold: 'w6', textThin: 'w1', textUnitalicized: 'tun', transition: 'ts', transparent: 'clr', underline: 'u', widthContent: 'wc', widthExact: 'we', widthFill: 'wf', widthFillPortion: 'wfp', wrapped: 'wrp'};
 var mdgriffith$elm_ui$Element$Border$solid = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$borderStyle, mdgriffith$elm_ui$Internal$Style$classes.borderSolid);
@@ -8071,7 +8146,22 @@ var author$project$UiFramework$Button$viewAttributes = F2(
 						mdgriffith$elm_ui$Element$Background$color(btnColors.hoverBackground),
 						mdgriffith$elm_ui$Element$Font$color(btnColors.hoverFont),
 						mdgriffith$elm_ui$Element$Border$color(btnColors.hoverBorder)
-					]))
+					])),
+				mdgriffith$elm_ui$Element$Border$shadow(
+				function () {
+					var _n0 = config.withShadow;
+					if (_n0.$ === 'Nothing') {
+						return {
+							blur: 0,
+							color: A4(mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 1),
+							offset: _Utils_Tuple2(0, 0),
+							size: 0
+						};
+					} else {
+						var shadow = _n0.a;
+						return shadow;
+					}
+				}())
 			]);
 	});
 var lattyware$elm_fontawesome$FontAwesome$Icon$Presentation = function (a) {
@@ -8330,7 +8420,6 @@ var lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaningfulTransfor
 	var combined = lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$combine(transforms);
 	return _Utils_eq(combined, lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$meaninglessTransform) ? elm$core$Maybe$Nothing : elm$core$Maybe$Just(combined);
 };
-var elm$core$String$fromFloat = _String_fromNumber;
 var elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
 var lattyware$elm_fontawesome$FontAwesome$Transforms$Internal$transformForSvg = F3(
 	function (containerWidth, iconWidth, transform) {
@@ -8609,10 +8698,6 @@ var elm$core$Set$Set_elm_builtin = function (a) {
 	return {$: 'Set_elm_builtin', a: a};
 };
 var elm$core$Set$empty = elm$core$Set$Set_elm_builtin(elm$core$Dict$empty);
-var elm$core$Tuple$second = function (_n0) {
-	var y = _n0.b;
-	return y;
-};
 var elm$core$Set$insert = F2(
 	function (key, _n0) {
 		var dict = _n0.a;
@@ -8806,38 +8891,6 @@ var mdgriffith$elm_ui$Internal$Model$Style = F2(
 	function (a, b) {
 		return {$: 'Style', a: a, b: b};
 	});
-var mdgriffith$elm_ui$Internal$Model$formatColor = function (_n0) {
-	var red = _n0.a;
-	var green = _n0.b;
-	var blue = _n0.c;
-	var alpha = _n0.d;
-	return 'rgba(' + (elm$core$String$fromInt(
-		elm$core$Basics$round(red * 255)) + ((',' + elm$core$String$fromInt(
-		elm$core$Basics$round(green * 255))) + ((',' + elm$core$String$fromInt(
-		elm$core$Basics$round(blue * 255))) + (',' + (elm$core$String$fromFloat(alpha) + ')')))));
-};
-var mdgriffith$elm_ui$Internal$Model$formatBoxShadow = function (shadow) {
-	return A2(
-		elm$core$String$join,
-		' ',
-		A2(
-			elm$core$List$filterMap,
-			elm$core$Basics$identity,
-			_List_fromArray(
-				[
-					shadow.inset ? elm$core$Maybe$Just('inset') : elm$core$Maybe$Nothing,
-					elm$core$Maybe$Just(
-					elm$core$String$fromFloat(shadow.offset.a) + 'px'),
-					elm$core$Maybe$Just(
-					elm$core$String$fromFloat(shadow.offset.b) + 'px'),
-					elm$core$Maybe$Just(
-					elm$core$String$fromFloat(shadow.blur) + 'px'),
-					elm$core$Maybe$Just(
-					elm$core$String$fromFloat(shadow.size) + 'px'),
-					elm$core$Maybe$Just(
-					mdgriffith$elm_ui$Internal$Model$formatColor(shadow.color))
-				])));
-};
 var mdgriffith$elm_ui$Internal$Style$dot = function (c) {
 	return '.' + c;
 };
@@ -10739,9 +10792,6 @@ var mdgriffith$elm_ui$Internal$Style$sliderReset = '\ninput[type=range] {\n  -we
 var mdgriffith$elm_ui$Internal$Style$thumbReset = '\ninput[type=range]::-webkit-slider-thumb {\n    -webkit-appearance: none;\n    opacity: 0.5;\n    width: 80px;\n    height: 80px;\n    background-color: black;\n    border:none;\n    border-radius: 5px;\n}\ninput[type=range]::-moz-range-thumb {\n    opacity: 0.5;\n    width: 80px;\n    height: 80px;\n    background-color: black;\n    border:none;\n    border-radius: 5px;\n}\ninput[type=range]::-ms-thumb {\n    opacity: 0.5;\n    width: 80px;\n    height: 80px;\n    background-color: black;\n    border:none;\n    border-radius: 5px;\n}\ninput[type=range][orient=vertical]{\n    writing-mode: bt-lr; /* IE */\n    -webkit-appearance: slider-vertical;  /* WebKit */\n}\n';
 var mdgriffith$elm_ui$Internal$Style$trackReset = '\ninput[type=range]::-moz-range-track {\n    background: transparent;\n    cursor: pointer;\n}\ninput[type=range]::-ms-track {\n    background: transparent;\n    cursor: pointer;\n}\ninput[type=range]::-webkit-slider-runnable-track {\n    background: transparent;\n    cursor: pointer;\n}\n';
 var mdgriffith$elm_ui$Internal$Style$overrides = '@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {' + (mdgriffith$elm_ui$Internal$Style$dot(mdgriffith$elm_ui$Internal$Style$classes.any) + (mdgriffith$elm_ui$Internal$Style$dot(mdgriffith$elm_ui$Internal$Style$classes.row) + (' > ' + (mdgriffith$elm_ui$Internal$Style$dot(mdgriffith$elm_ui$Internal$Style$classes.any) + (' { flex-basis: auto !important; } ' + (mdgriffith$elm_ui$Internal$Style$dot(mdgriffith$elm_ui$Internal$Style$classes.any) + (mdgriffith$elm_ui$Internal$Style$dot(mdgriffith$elm_ui$Internal$Style$classes.row) + (' > ' + (mdgriffith$elm_ui$Internal$Style$dot(mdgriffith$elm_ui$Internal$Style$classes.any) + (mdgriffith$elm_ui$Internal$Style$dot(mdgriffith$elm_ui$Internal$Style$classes.container) + (' { flex-basis: auto !important; }}' + (mdgriffith$elm_ui$Internal$Style$inputTextReset + (mdgriffith$elm_ui$Internal$Style$sliderReset + (mdgriffith$elm_ui$Internal$Style$trackReset + (mdgriffith$elm_ui$Internal$Style$thumbReset + mdgriffith$elm_ui$Internal$Style$explainer)))))))))))))));
-var elm$core$String$concat = function (strings) {
-	return A2(elm$core$String$join, '', strings);
-};
 var mdgriffith$elm_ui$Internal$Style$Intermediate = function (a) {
 	return {$: 'Intermediate', a: a};
 };
@@ -14152,7 +14202,7 @@ var author$project$UiFramework$Internal$uiNone = author$project$UiFramework$Inte
 		return mdgriffith$elm_ui$Element$none;
 	});
 var author$project$UiFramework$uiNone = author$project$UiFramework$Internal$uiNone;
-var author$project$UiFramework$Container$defaultOptions = {child: author$project$UiFramework$uiNone, fillWidth: false, jumbotron: false};
+var author$project$UiFramework$Container$defaultOptions = {attributes: _List_Nil, child: author$project$UiFramework$uiNone, fillWidth: false, jumbotron: false};
 var author$project$UiFramework$Container$jumbotron = author$project$UiFramework$Container$Container(
 	_Utils_update(
 		author$project$UiFramework$Container$defaultOptions,
@@ -14188,16 +14238,18 @@ var author$project$UiFramework$Container$viewAttributes = F2(
 			config.jumbotronPadding(context.device._class)) : _Utils_Tuple2(author$project$UiFramework$ColorUtils$transparent, config.containerPadding);
 		var backgroundColor = _n0.a;
 		var padding = _n0.b;
-		return _List_fromArray(
-			[
-				A2(mdgriffith$elm_ui$Element$paddingXY, padding.x, padding.y),
-				mdgriffith$elm_ui$Element$Border$rounded(config.borderRadius),
-				mdgriffith$elm_ui$Element$Border$color(config.borderColor),
-				mdgriffith$elm_ui$Element$Border$width(config.borderWidth),
-				mdgriffith$elm_ui$Element$Background$color(backgroundColor),
-				mdgriffith$elm_ui$Element$width(width),
-				mdgriffith$elm_ui$Element$centerX
-			]);
+		return _Utils_ap(
+			_List_fromArray(
+				[
+					A2(mdgriffith$elm_ui$Element$paddingXY, padding.x, padding.y),
+					mdgriffith$elm_ui$Element$Border$rounded(config.borderRadius),
+					mdgriffith$elm_ui$Element$Border$color(config.borderColor),
+					mdgriffith$elm_ui$Element$Border$width(config.borderWidth),
+					mdgriffith$elm_ui$Element$Background$color(backgroundColor),
+					mdgriffith$elm_ui$Element$width(width),
+					mdgriffith$elm_ui$Element$centerX
+				]),
+			options.attributes);
 	});
 var author$project$UiFramework$Container$view = function (_n0) {
 	var options = _n0.a;
@@ -14217,10 +14269,22 @@ var author$project$UiFramework$Container$withChild = F2(
 				options,
 				{child: child}));
 	});
-var author$project$UiFramework$Container$simple = function (child) {
-	return author$project$UiFramework$Container$view(
-		A2(author$project$UiFramework$Container$withChild, child, author$project$UiFramework$Container$default));
-};
+var author$project$UiFramework$Container$withExtraAttributes = F2(
+	function (attributes, _n0) {
+		var options = _n0.a;
+		return author$project$UiFramework$Container$Container(
+			_Utils_update(
+				options,
+				{attributes: attributes}));
+	});
+var author$project$UiFramework$Container$simple = F2(
+	function (attributes, child) {
+		return author$project$UiFramework$Container$view(
+			A2(
+				author$project$UiFramework$Container$withChild,
+				child,
+				A2(author$project$UiFramework$Container$withExtraAttributes, attributes, author$project$UiFramework$Container$default)));
+	});
 var author$project$UiFramework$Container$withFullWidth = function (_n0) {
 	var options = _n0.a;
 	return author$project$UiFramework$Container$Container(
@@ -14242,16 +14306,20 @@ var author$project$Page$Home$jumbotron = function () {
 	return author$project$UiFramework$Container$view(
 		A2(
 			author$project$UiFramework$Container$withChild,
-			author$project$UiFramework$Container$simple(jumbotronContent),
+			A2(author$project$UiFramework$Container$simple, _List_Nil, jumbotronContent),
 			author$project$UiFramework$Container$withFullWidth(author$project$UiFramework$Container$jumbotron)));
 }();
 var author$project$SharedState$getThemeConfig = function (theme) {
-	if (theme.$ === 'Default') {
-		var config = theme.a;
-		return config;
-	} else {
-		var config = theme.a;
-		return config;
+	switch (theme.$) {
+		case 'Default':
+			var config = theme.a;
+			return config;
+		case 'Darkly':
+			var config = theme.a;
+			return config;
+		default:
+			var config = theme.a;
+			return config;
 	}
 };
 var author$project$UiFramework$toElement = author$project$UiFramework$Internal$toElement;
@@ -14337,7 +14405,7 @@ var author$project$Page$NotFound$view = F2(
 		return A2(
 			author$project$UiFramework$toElement,
 			context,
-			author$project$UiFramework$Container$simple(author$project$Page$NotFound$sadness));
+			A2(author$project$UiFramework$Container$simple, _List_Nil, author$project$Page$NotFound$sadness));
 	});
 var author$project$Page$Showroom$text = function (str) {
 	return author$project$UiFramework$uiText(
@@ -14499,7 +14567,7 @@ var author$project$Page$Showroom$alerts = A2(
 							A2(
 							author$project$UiFramework$Typography$h4,
 							_List_Nil,
-							author$project$Page$Showroom$text('Yee Haw!')),
+							author$project$Page$Showroom$text('Yee haw!')),
 							A2(
 							author$project$UiFramework$uiParagraph,
 							_List_Nil,
@@ -14530,7 +14598,7 @@ var author$project$Page$Showroom$alerts = A2(
 							_List_Nil,
 							_List_fromArray(
 								[
-									author$project$Page$Showroom$text('Being the \"secondary\" role, this alert has a major inferiority complex.')
+									author$project$Page$Showroom$text('Being the \'secondary\' role, this alert has a major inferiority complex.')
 								]))
 						])),
 				A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Secondary, author$project$UiFramework$Alert$default)));
@@ -14549,13 +14617,13 @@ var author$project$Page$Showroom$alerts = A2(
 							A2(
 							author$project$UiFramework$Typography$h4,
 							_List_Nil,
-							author$project$Page$Showroom$text('Hmmm...')),
+							author$project$Page$Showroom$text('The Primary Role')),
 							A2(
 							author$project$UiFramework$uiParagraph,
 							_List_Nil,
 							_List_fromArray(
 								[
-									author$project$Page$Showroom$text('The \"primary\" and the \"info\" roles look pretty similar, colour-wise.')
+									author$project$Page$Showroom$text('People say I\'m the best boss. They go, \'God, we\'ve never worked in a place like this. You\'re hilarious, and you get the best out of us.\'')
 								]))
 						])),
 				A2(author$project$UiFramework$Alert$withRole, author$project$UiFramework$Types$Primary, author$project$UiFramework$Alert$default)));
@@ -14599,7 +14667,7 @@ var author$project$Page$Showroom$alerts = A2(
 							A2(
 							author$project$UiFramework$Typography$h4,
 							_List_Nil,
-							author$project$Page$Showroom$text('Uh Oh!')),
+							author$project$Page$Showroom$text('Uh oh!')),
 							A2(
 							author$project$UiFramework$uiParagraph,
 							_List_Nil,
@@ -15371,7 +15439,7 @@ var author$project$UiFramework$Navbar$view = F2(
 				var navbarConfig = context.themeConfig.navbarConfig;
 				var brand = function (attrs) {
 					return author$project$UiFramework$Internal$fromElement(
-						function (_n4) {
+						function (_n5) {
 							return A2(
 								mdgriffith$elm_ui$Element$el,
 								attrs,
@@ -15379,12 +15447,12 @@ var author$project$UiFramework$Navbar$view = F2(
 						});
 				};
 				var backgroundColor = function () {
-					var _n3 = options.backgroundColor;
-					if (_n3.$ === 'Roled') {
-						var role = _n3.a;
+					var _n4 = options.backgroundColor;
+					if (_n4.$ === 'Roled') {
+						var role = _n4.a;
 						return context.themeConfig.themeColor(role);
 					} else {
-						var color = _n3.a;
+						var color = _n4.a;
 						return color;
 					}
 				}();
@@ -15403,7 +15471,7 @@ var author$project$UiFramework$Navbar$view = F2(
 					mdgriffith$elm_ui$Element$none);
 				var navButton = function (toggleMenuMsg) {
 					return author$project$UiFramework$Internal$fromElement(
-						function (_n2) {
+						function (_n3) {
 							return A2(
 								mdgriffith$elm_ui$Element$el,
 								_List_fromArray(
@@ -15433,7 +15501,22 @@ var author$project$UiFramework$Navbar$view = F2(
 						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
 						A2(mdgriffith$elm_ui$Element$paddingXY, navbarConfig.paddingX, navbarConfig.paddingY),
 						mdgriffith$elm_ui$Element$Background$color(backgroundColor),
-						mdgriffith$elm_ui$Element$Font$color(fontColor)
+						mdgriffith$elm_ui$Element$Font$color(fontColor),
+						mdgriffith$elm_ui$Element$Border$shadow(
+						function () {
+							var _n2 = navbarConfig.withShadow;
+							if (_n2.$ === 'Nothing') {
+								return {
+									blur: 0,
+									color: A4(mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 1),
+									offset: _Utils_Tuple2(0, 0),
+									size: 0
+								};
+							} else {
+								var shadow = _n2.a;
+								return shadow;
+							}
+						}())
 					]);
 				return author$project$UiFramework$Navbar$collapseNavbar(context.device) ? A2(
 					author$project$UiFramework$Internal$uiColumn,
@@ -16357,10 +16440,13 @@ var author$project$Page$Showroom$title = author$project$UiFramework$flatMap(
 		}();
 		var _n0 = function () {
 			var _n1 = context.theme;
-			if (_n1.$ === 'Default') {
-				return _Utils_Tuple2('Default', 'Basic Bootstrap');
-			} else {
-				return _Utils_Tuple2('Darkly', 'Night Mode');
+			switch (_n1.$) {
+				case 'Default':
+					return _Utils_Tuple2('Default', 'Basic Bootstrap');
+				case 'Darkly':
+					return _Utils_Tuple2('Darkly', 'Night Mode');
+				default:
+					return _Utils_Tuple2('Materia', 'Material Design');
 			}
 		}();
 		var titleText = _n0.a;
@@ -16540,6 +16626,9 @@ var author$project$Router$ToggleMenu = {$: 'ToggleMenu'};
 var author$project$SharedState$Darkly = function (a) {
 	return {$: 'Darkly', a: a};
 };
+var author$project$SharedState$Materia = function (a) {
+	return {$: 'Materia', a: a};
+};
 var author$project$Themes$Darkly$darklyColors = {
 	black: author$project$UiFramework$ColorUtils$hexToColor('#000'),
 	blue: author$project$UiFramework$ColorUtils$hexToColor('#375a7f'),
@@ -16592,6 +16681,15 @@ var author$project$Themes$Darkly$darklyContainerConfig = _Utils_update(
 var author$project$Themes$Darkly$darklyDropdownConfig = _Utils_update(
 	author$project$UiFramework$Configuration$defaultDropdownConfig,
 	{backgroundColor: author$project$Themes$Darkly$darklyColors.gray900, borderColor: author$project$Themes$Darkly$darklyColors.gray700, fontColor: author$project$Themes$Darkly$darklyColors.white});
+var author$project$Themes$Darkly$darklyFontConfig = _Utils_update(
+	author$project$UiFramework$Configuration$defaultFontConfig,
+	{
+		fontFamily: _List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$Font$typeface('Lato'),
+				mdgriffith$elm_ui$Element$Font$sansSerif
+			])
+	});
 var author$project$Themes$Darkly$darklyInputConfig = function (themeColor) {
 	var _default = author$project$UiFramework$Configuration$defaultInputConfig(themeColor);
 	return _Utils_update(
@@ -16672,12 +16770,159 @@ var author$project$Themes$Darkly$darklyThemeConfig = function () {
 		fontColor: function (bgColor) {
 			return A3(author$project$UiFramework$ColorUtils$contrastTextColor, bgColor, author$project$Themes$Darkly$darklyColors.gray900, author$project$Themes$Darkly$darklyColors.white);
 		},
-		fontConfig: author$project$UiFramework$Configuration$defaultFontConfig,
+		fontConfig: author$project$Themes$Darkly$darklyFontConfig,
 		inputConfig: author$project$Themes$Darkly$darklyInputConfig(themeColor),
 		navConfig: author$project$UiFramework$Configuration$defaultNavConfig,
 		navbarConfig: author$project$UiFramework$Configuration$defaultNavbarConfig,
 		paginationConfig: author$project$Themes$Darkly$darklyPaginationConfig(themeColor),
 		tableConfig: author$project$Themes$Darkly$darklyTableConfig,
+		themeColor: themeColor
+	};
+}();
+var author$project$Themes$Materia$materiaAlertConfig = function (themeColor) {
+	var _default = author$project$UiFramework$Configuration$defaultAlertConfig(themeColor);
+	return _Utils_update(
+		_default,
+		{
+			backgroundColor: A2(
+				elm$core$Basics$composeR,
+				themeColor,
+				author$project$UiFramework$ColorUtils$colorLevel(-2)),
+			fontColor: function (role) {
+				return A3(
+					author$project$UiFramework$ColorUtils$contrastTextColor,
+					themeColor(role),
+					author$project$UiFramework$Configuration$bootstrapColors.gray900,
+					author$project$UiFramework$Configuration$bootstrapColors.white);
+			}
+		});
+};
+var author$project$Themes$Materia$boxShadows = {
+	blur: 4,
+	color: A4(mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0.4),
+	offset: _Utils_Tuple2(0, 1),
+	size: 0
+};
+var author$project$Themes$Materia$materiaButtonConfig = function (themeColor) {
+	var _default = author$project$UiFramework$Configuration$defaultButtonConfig(themeColor);
+	return _Utils_update(
+		_default,
+		{
+			borderWidth: function (_n0) {
+				return 0;
+			},
+			paddingX: function (size) {
+				switch (size.$) {
+					case 'SizeSmall':
+						return 8;
+					case 'SizeDefault':
+						return 16;
+					default:
+						return 16;
+				}
+			},
+			paddingY: function (size) {
+				switch (size.$) {
+					case 'SizeSmall':
+						return 4;
+					case 'SizeDefault':
+						return 16;
+					default:
+						return 8;
+				}
+			},
+			withShadow: elm$core$Maybe$Just(author$project$Themes$Materia$boxShadows)
+		});
+};
+var author$project$Themes$Materia$materiaColors = {
+	black: author$project$UiFramework$ColorUtils$hexToColor('#000'),
+	blue: author$project$UiFramework$ColorUtils$hexToColor('#2196F3'),
+	cyan: author$project$UiFramework$ColorUtils$hexToColor('#9C27B0'),
+	gray: author$project$UiFramework$ColorUtils$hexToColor('#6c757d'),
+	gray100: author$project$UiFramework$ColorUtils$hexToColor('#f8f9fa'),
+	gray200: author$project$UiFramework$ColorUtils$hexToColor('#eee'),
+	gray300: author$project$UiFramework$ColorUtils$hexToColor('#dee2e6'),
+	gray400: author$project$UiFramework$ColorUtils$hexToColor('#ced4da'),
+	gray500: author$project$UiFramework$ColorUtils$hexToColor('#bbb'),
+	gray600: author$project$UiFramework$ColorUtils$hexToColor('#666'),
+	gray700: author$project$UiFramework$ColorUtils$hexToColor('#444'),
+	gray800: author$project$UiFramework$ColorUtils$hexToColor('#222'),
+	gray900: author$project$UiFramework$ColorUtils$hexToColor('#212121'),
+	green: author$project$UiFramework$ColorUtils$hexToColor('#4CAF50'),
+	indigo: author$project$UiFramework$ColorUtils$hexToColor('#6610f2'),
+	orange: author$project$UiFramework$ColorUtils$hexToColor('#fd7e14'),
+	pink: author$project$UiFramework$ColorUtils$hexToColor('#e83e8c'),
+	purple: author$project$UiFramework$ColorUtils$hexToColor('#6f42c1'),
+	red: author$project$UiFramework$ColorUtils$hexToColor('#e51c23'),
+	teal: author$project$UiFramework$ColorUtils$hexToColor('#20c997'),
+	white: author$project$UiFramework$ColorUtils$hexToColor('#fff'),
+	yellow: author$project$UiFramework$ColorUtils$hexToColor('#ff9800')
+};
+var author$project$Themes$Materia$materiaFontConfig = _Utils_update(
+	author$project$UiFramework$Configuration$defaultFontConfig,
+	{
+		fontFamily: _List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$Font$typeface('Roboto'),
+				mdgriffith$elm_ui$Element$Font$sansSerif
+			])
+	});
+var author$project$Themes$Materia$materiaInputConfig = function (themeColor) {
+	var _default = author$project$UiFramework$Configuration$defaultInputConfig(themeColor);
+	return _Utils_update(
+		_default,
+		{borderColor: author$project$UiFramework$ColorUtils$transparent, borderRadius: 0, paddingX: 16, paddingY: 0});
+};
+var author$project$Themes$Materia$materiaNavConfig = _Utils_update(
+	author$project$UiFramework$Configuration$defaultNavConfig,
+	{disabledColor: author$project$UiFramework$Configuration$bootstrapColors.gray500, linkPaddingY: 18});
+var author$project$Themes$Materia$materiaNavbarConfig = _Utils_update(
+	author$project$UiFramework$Configuration$defaultNavbarConfig,
+	{
+		paddingY: 16,
+		withShadow: elm$core$Maybe$Just(author$project$Themes$Materia$boxShadows)
+	});
+var author$project$Themes$Materia$materiaThemeColor = F2(
+	function (colors, role) {
+		switch (role.$) {
+			case 'Primary':
+				return colors.blue;
+			case 'Secondary':
+				return colors.white;
+			case 'Success':
+				return colors.green;
+			case 'Info':
+				return colors.cyan;
+			case 'Warning':
+				return colors.yellow;
+			case 'Danger':
+				return colors.red;
+			case 'Light':
+				return colors.gray200;
+			default:
+				return colors.gray800;
+		}
+	});
+var author$project$Themes$Materia$materiaThemeConfig = function () {
+	var themeColor = author$project$Themes$Materia$materiaThemeColor(author$project$Themes$Materia$materiaColors);
+	return {
+		alertConfig: author$project$Themes$Materia$materiaAlertConfig(themeColor),
+		badgeConfig: author$project$UiFramework$Configuration$defaultBadgeConfig(themeColor),
+		bodyBackground: author$project$Themes$Materia$materiaColors.white,
+		bodyColor: author$project$Themes$Materia$materiaColors.gray700,
+		buttonConfig: author$project$Themes$Materia$materiaButtonConfig(themeColor),
+		colors: author$project$Themes$Materia$materiaColors,
+		containerConfig: author$project$UiFramework$Configuration$defaultContainerConfig,
+		dropdownConfig: author$project$UiFramework$Configuration$defaultDropdownConfig,
+		fontColor: function (bgColor) {
+			return A3(author$project$UiFramework$ColorUtils$contrastTextColor, bgColor, author$project$Themes$Materia$materiaColors.gray900, author$project$Themes$Materia$materiaColors.white);
+		},
+		fontConfig: author$project$Themes$Materia$materiaFontConfig,
+		inputConfig: author$project$Themes$Materia$materiaInputConfig(themeColor),
+		navConfig: author$project$Themes$Materia$materiaNavConfig,
+		navbarConfig: author$project$Themes$Materia$materiaNavbarConfig,
+		paginationConfig: author$project$UiFramework$Configuration$defaultPaginationConfig(themeColor),
+		tableConfig: author$project$UiFramework$Configuration$defaultTableConfig,
 		themeColor: themeColor
 	};
 }();
@@ -16763,7 +17008,13 @@ var author$project$Router$navbar = F2(
 						'Dark',
 						author$project$UiFramework$Dropdown$menuLinkItem(
 							author$project$Router$SelectTheme(
-								author$project$SharedState$Darkly(author$project$Themes$Darkly$darklyThemeConfig))))
+								author$project$SharedState$Darkly(author$project$Themes$Darkly$darklyThemeConfig)))),
+						A2(
+						author$project$UiFramework$Dropdown$withMenuTitle,
+						'Materia',
+						author$project$UiFramework$Dropdown$menuLinkItem(
+							author$project$Router$SelectTheme(
+								author$project$SharedState$Materia(author$project$Themes$Materia$materiaThemeConfig))))
 					]),
 				A2(
 					author$project$UiFramework$Dropdown$withTitle,
@@ -16820,15 +17071,6 @@ var author$project$Router$navbar = F2(
 							author$project$UiFramework$Navbar$default(author$project$Router$ToggleMenu))))));
 	});
 var elm$html$Html$map = elm$virtual_dom$VirtualDom$map;
-var elm$html$Html$node = elm$virtual_dom$VirtualDom$node;
-var lattyware$elm_fontawesome$FontAwesome$Styles$css = A3(
-	elm$html$Html$node,
-	'style',
-	_List_Nil,
-	_List_fromArray(
-		[
-			elm$html$Html$text('svg:not(:root).svg-inline--fa {  overflow: visible;}.svg-inline--fa {  display: inline-block;  font-size: inherit;  height: 1em;  overflow: visible;  vertical-align: -0.125em;}.svg-inline--fa.fa-lg {  vertical-align: -0.225em;}.svg-inline--fa.fa-w-1 {  width: 0.0625em;}.svg-inline--fa.fa-w-2 {  width: 0.125em;}.svg-inline--fa.fa-w-3 {  width: 0.1875em;}.svg-inline--fa.fa-w-4 {  width: 0.25em;}.svg-inline--fa.fa-w-5 {  width: 0.3125em;}.svg-inline--fa.fa-w-6 {  width: 0.375em;}.svg-inline--fa.fa-w-7 {  width: 0.4375em;}.svg-inline--fa.fa-w-8 {  width: 0.5em;}.svg-inline--fa.fa-w-9 {  width: 0.5625em;}.svg-inline--fa.fa-w-10 {  width: 0.625em;}.svg-inline--fa.fa-w-11 {  width: 0.6875em;}.svg-inline--fa.fa-w-12 {  width: 0.75em;}.svg-inline--fa.fa-w-13 {  width: 0.8125em;}.svg-inline--fa.fa-w-14 {  width: 0.875em;}.svg-inline--fa.fa-w-15 {  width: 0.9375em;}.svg-inline--fa.fa-w-16 {  width: 1em;}.svg-inline--fa.fa-w-17 {  width: 1.0625em;}.svg-inline--fa.fa-w-18 {  width: 1.125em;}.svg-inline--fa.fa-w-19 {  width: 1.1875em;}.svg-inline--fa.fa-w-20 {  width: 1.25em;}.svg-inline--fa.fa-pull-left {  margin-right: 0.3em;  width: auto;}.svg-inline--fa.fa-pull-right {  margin-left: 0.3em;  width: auto;}.svg-inline--fa.fa-border {  height: 1.5em;}.svg-inline--fa.fa-li {  width: 2em;}.svg-inline--fa.fa-fw {  width: 1.25em;}.fa-layers svg.svg-inline--fa {  bottom: 0;  left: 0;  margin: auto;  position: absolute;  right: 0;  top: 0;}.fa-layers {  display: inline-block;  height: 1em;  position: relative;  text-align: center;  vertical-align: -0.125em;  width: 1em;}.fa-layers svg.svg-inline--fa {  -webkit-transform-origin: center center;          transform-origin: center center;}.fa-layers-counter, .fa-layers-text {  display: inline-block;  position: absolute;  text-align: center;}.fa-layers-text {  left: 50%;  top: 50%;  -webkit-transform: translate(-50%, -50%);          transform: translate(-50%, -50%);  -webkit-transform-origin: center center;          transform-origin: center center;}.fa-layers-counter {  background-color: #ff253a;  border-radius: 1em;  -webkit-box-sizing: border-box;          box-sizing: border-box;  color: #fff;  height: 1.5em;  line-height: 1;  max-width: 5em;  min-width: 1.5em;  overflow: hidden;  padding: 0.25em;  right: 0;  text-overflow: ellipsis;  top: 0;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: top right;          transform-origin: top right;}.fa-layers-bottom-right {  bottom: 0;  right: 0;  top: auto;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: bottom right;          transform-origin: bottom right;}.fa-layers-bottom-left {  bottom: 0;  left: 0;  right: auto;  top: auto;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: bottom left;          transform-origin: bottom left;}.fa-layers-top-right {  right: 0;  top: 0;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: top right;          transform-origin: top right;}.fa-layers-top-left {  left: 0;  right: auto;  top: 0;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: top left;          transform-origin: top left;}.fa-lg {  font-size: 1.3333333333em;  line-height: 0.75em;  vertical-align: -0.0667em;}.fa-xs {  font-size: 0.75em;}.fa-sm {  font-size: 0.875em;}.fa-1x {  font-size: 1em;}.fa-2x {  font-size: 2em;}.fa-3x {  font-size: 3em;}.fa-4x {  font-size: 4em;}.fa-5x {  font-size: 5em;}.fa-6x {  font-size: 6em;}.fa-7x {  font-size: 7em;}.fa-8x {  font-size: 8em;}.fa-9x {  font-size: 9em;}.fa-10x {  font-size: 10em;}.fa-fw {  text-align: center;  width: 1.25em;}.fa-ul {  list-style-type: none;  margin-left: 2.5em;  padding-left: 0;}.fa-ul > li {  position: relative;}.fa-li {  left: -2em;  position: absolute;  text-align: center;  width: 2em;  line-height: inherit;}.fa-border {  border: solid 0.08em #eee;  border-radius: 0.1em;  padding: 0.2em 0.25em 0.15em;}.fa-pull-left {  float: left;}.fa-pull-right {  float: right;}.fa.fa-pull-left,.fas.fa-pull-left,.far.fa-pull-left,.fal.fa-pull-left,.fab.fa-pull-left {  margin-right: 0.3em;}.fa.fa-pull-right,.fas.fa-pull-right,.far.fa-pull-right,.fal.fa-pull-right,.fab.fa-pull-right {  margin-left: 0.3em;}.fa-spin {  -webkit-animation: fa-spin 2s infinite linear;          animation: fa-spin 2s infinite linear;}.fa-pulse {  -webkit-animation: fa-spin 1s infinite steps(8);          animation: fa-spin 1s infinite steps(8);}@-webkit-keyframes fa-spin {  0% {    -webkit-transform: rotate(0deg);            transform: rotate(0deg);  }  100% {    -webkit-transform: rotate(360deg);            transform: rotate(360deg);  }}@keyframes fa-spin {  0% {    -webkit-transform: rotate(0deg);            transform: rotate(0deg);  }  100% {    -webkit-transform: rotate(360deg);            transform: rotate(360deg);  }}.fa-rotate-90 {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=1)\";  -webkit-transform: rotate(90deg);          transform: rotate(90deg);}.fa-rotate-180 {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=2)\";  -webkit-transform: rotate(180deg);          transform: rotate(180deg);}.fa-rotate-270 {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=3)\";  -webkit-transform: rotate(270deg);          transform: rotate(270deg);}.fa-flip-horizontal {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1)\";  -webkit-transform: scale(-1, 1);          transform: scale(-1, 1);}.fa-flip-vertical {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)\";  -webkit-transform: scale(1, -1);          transform: scale(1, -1);}.fa-flip-both, .fa-flip-horizontal.fa-flip-vertical {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)\";  -webkit-transform: scale(-1, -1);          transform: scale(-1, -1);}:root .fa-rotate-90,:root .fa-rotate-180,:root .fa-rotate-270,:root .fa-flip-horizontal,:root .fa-flip-vertical,:root .fa-flip-both {  -webkit-filter: none;          filter: none;}.fa-stack {  display: inline-block;  height: 2em;  position: relative;  width: 2.5em;}.fa-stack-1x,.fa-stack-2x {  bottom: 0;  left: 0;  margin: auto;  position: absolute;  right: 0;  top: 0;}.svg-inline--fa.fa-stack-1x {  height: 1em;  width: 1.25em;}.svg-inline--fa.fa-stack-2x {  height: 2em;  width: 2.5em;}.fa-inverse {  color: #fff;}.sr-only {  border: 0;  clip: rect(0, 0, 0, 0);  height: 1px;  margin: -1px;  overflow: hidden;  padding: 0;  position: absolute;  width: 1px;}.sr-only-focusable:active, .sr-only-focusable:focus {  clip: auto;  height: auto;  margin: 0;  overflow: visible;  position: static;  width: auto;}')
-		]));
 var mdgriffith$elm_ui$Internal$Model$InFront = {$: 'InFront'};
 var mdgriffith$elm_ui$Element$inFront = function (element) {
 	return A2(mdgriffith$elm_ui$Element$createNearby, mdgriffith$elm_ui$Internal$Model$InFront, element);
@@ -16982,9 +17224,6 @@ var mdgriffith$elm_ui$Internal$Model$FontFamily = F2(
 	function (a, b) {
 		return {$: 'FontFamily', a: a, b: b};
 	});
-var mdgriffith$elm_ui$Internal$Model$Typeface = function (a) {
-	return {$: 'Typeface', a: a};
-};
 var elm$core$String$words = _String_words;
 var mdgriffith$elm_ui$Internal$Model$renderFontClassName = F2(
 	function (font, current) {
@@ -17083,6 +17322,15 @@ var mdgriffith$elm_ui$Element$layoutWith = F3(
 	});
 var mdgriffith$elm_ui$Element$layout = mdgriffith$elm_ui$Element$layoutWith(
 	{options: _List_Nil});
+var mdgriffith$elm_ui$Element$Font$family = function (families) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$fontFamily,
+		A2(
+			mdgriffith$elm_ui$Internal$Model$FontFamily,
+			A3(elm$core$List$foldl, mdgriffith$elm_ui$Internal$Model$renderFontClassName, 'ff-', families),
+			families));
+};
 var author$project$Router$view = F3(
 	function (toMsg, model, sharedState) {
 		var themeConfig = author$project$SharedState$getThemeConfig(sharedState.theme);
@@ -17094,10 +17342,11 @@ var author$project$Router$view = F3(
 				_List_fromArray(
 					[
 						mdgriffith$elm_ui$Element$inFront(
-						A2(author$project$Router$navbar, model, sharedState))
+						A2(author$project$Router$navbar, model, sharedState)),
+						mdgriffith$elm_ui$Element$Font$family(themeConfig.fontConfig.fontFamily)
 					]),
 				A2(
-					mdgriffith$elm_ui$Element$column,
+					mdgriffith$elm_ui$Element$el,
 					_List_fromArray(
 						[
 							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
@@ -17105,19 +17354,26 @@ var author$project$Router$view = F3(
 							mdgriffith$elm_ui$Element$Background$color(themeConfig.bodyBackground),
 							mdgriffith$elm_ui$Element$Font$color(
 							themeConfig.fontColor(themeConfig.bodyBackground)),
-							A2(mdgriffith$elm_ui$Element$paddingXY, 0, 50)
+							A2(mdgriffith$elm_ui$Element$paddingXY, 0, 50),
+							mdgriffith$elm_ui$Element$Font$family(themeConfig.fontConfig.fontFamily)
 						]),
-					_List_fromArray(
-						[
-							mdgriffith$elm_ui$Element$html(lattyware$elm_fontawesome$FontAwesome$Styles$css),
-							A2(author$project$Router$content, model, sharedState)
-						]))));
+					A2(author$project$Router$content, model, sharedState))));
 	});
+var elm$html$Html$node = elm$virtual_dom$VirtualDom$node;
+var lattyware$elm_fontawesome$FontAwesome$Styles$css = A3(
+	elm$html$Html$node,
+	'style',
+	_List_Nil,
+	_List_fromArray(
+		[
+			elm$html$Html$text('svg:not(:root).svg-inline--fa {  overflow: visible;}.svg-inline--fa {  display: inline-block;  font-size: inherit;  height: 1em;  overflow: visible;  vertical-align: -0.125em;}.svg-inline--fa.fa-lg {  vertical-align: -0.225em;}.svg-inline--fa.fa-w-1 {  width: 0.0625em;}.svg-inline--fa.fa-w-2 {  width: 0.125em;}.svg-inline--fa.fa-w-3 {  width: 0.1875em;}.svg-inline--fa.fa-w-4 {  width: 0.25em;}.svg-inline--fa.fa-w-5 {  width: 0.3125em;}.svg-inline--fa.fa-w-6 {  width: 0.375em;}.svg-inline--fa.fa-w-7 {  width: 0.4375em;}.svg-inline--fa.fa-w-8 {  width: 0.5em;}.svg-inline--fa.fa-w-9 {  width: 0.5625em;}.svg-inline--fa.fa-w-10 {  width: 0.625em;}.svg-inline--fa.fa-w-11 {  width: 0.6875em;}.svg-inline--fa.fa-w-12 {  width: 0.75em;}.svg-inline--fa.fa-w-13 {  width: 0.8125em;}.svg-inline--fa.fa-w-14 {  width: 0.875em;}.svg-inline--fa.fa-w-15 {  width: 0.9375em;}.svg-inline--fa.fa-w-16 {  width: 1em;}.svg-inline--fa.fa-w-17 {  width: 1.0625em;}.svg-inline--fa.fa-w-18 {  width: 1.125em;}.svg-inline--fa.fa-w-19 {  width: 1.1875em;}.svg-inline--fa.fa-w-20 {  width: 1.25em;}.svg-inline--fa.fa-pull-left {  margin-right: 0.3em;  width: auto;}.svg-inline--fa.fa-pull-right {  margin-left: 0.3em;  width: auto;}.svg-inline--fa.fa-border {  height: 1.5em;}.svg-inline--fa.fa-li {  width: 2em;}.svg-inline--fa.fa-fw {  width: 1.25em;}.fa-layers svg.svg-inline--fa {  bottom: 0;  left: 0;  margin: auto;  position: absolute;  right: 0;  top: 0;}.fa-layers {  display: inline-block;  height: 1em;  position: relative;  text-align: center;  vertical-align: -0.125em;  width: 1em;}.fa-layers svg.svg-inline--fa {  -webkit-transform-origin: center center;          transform-origin: center center;}.fa-layers-counter, .fa-layers-text {  display: inline-block;  position: absolute;  text-align: center;}.fa-layers-text {  left: 50%;  top: 50%;  -webkit-transform: translate(-50%, -50%);          transform: translate(-50%, -50%);  -webkit-transform-origin: center center;          transform-origin: center center;}.fa-layers-counter {  background-color: #ff253a;  border-radius: 1em;  -webkit-box-sizing: border-box;          box-sizing: border-box;  color: #fff;  height: 1.5em;  line-height: 1;  max-width: 5em;  min-width: 1.5em;  overflow: hidden;  padding: 0.25em;  right: 0;  text-overflow: ellipsis;  top: 0;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: top right;          transform-origin: top right;}.fa-layers-bottom-right {  bottom: 0;  right: 0;  top: auto;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: bottom right;          transform-origin: bottom right;}.fa-layers-bottom-left {  bottom: 0;  left: 0;  right: auto;  top: auto;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: bottom left;          transform-origin: bottom left;}.fa-layers-top-right {  right: 0;  top: 0;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: top right;          transform-origin: top right;}.fa-layers-top-left {  left: 0;  right: auto;  top: 0;  -webkit-transform: scale(0.25);          transform: scale(0.25);  -webkit-transform-origin: top left;          transform-origin: top left;}.fa-lg {  font-size: 1.3333333333em;  line-height: 0.75em;  vertical-align: -0.0667em;}.fa-xs {  font-size: 0.75em;}.fa-sm {  font-size: 0.875em;}.fa-1x {  font-size: 1em;}.fa-2x {  font-size: 2em;}.fa-3x {  font-size: 3em;}.fa-4x {  font-size: 4em;}.fa-5x {  font-size: 5em;}.fa-6x {  font-size: 6em;}.fa-7x {  font-size: 7em;}.fa-8x {  font-size: 8em;}.fa-9x {  font-size: 9em;}.fa-10x {  font-size: 10em;}.fa-fw {  text-align: center;  width: 1.25em;}.fa-ul {  list-style-type: none;  margin-left: 2.5em;  padding-left: 0;}.fa-ul > li {  position: relative;}.fa-li {  left: -2em;  position: absolute;  text-align: center;  width: 2em;  line-height: inherit;}.fa-border {  border: solid 0.08em #eee;  border-radius: 0.1em;  padding: 0.2em 0.25em 0.15em;}.fa-pull-left {  float: left;}.fa-pull-right {  float: right;}.fa.fa-pull-left,.fas.fa-pull-left,.far.fa-pull-left,.fal.fa-pull-left,.fab.fa-pull-left {  margin-right: 0.3em;}.fa.fa-pull-right,.fas.fa-pull-right,.far.fa-pull-right,.fal.fa-pull-right,.fab.fa-pull-right {  margin-left: 0.3em;}.fa-spin {  -webkit-animation: fa-spin 2s infinite linear;          animation: fa-spin 2s infinite linear;}.fa-pulse {  -webkit-animation: fa-spin 1s infinite steps(8);          animation: fa-spin 1s infinite steps(8);}@-webkit-keyframes fa-spin {  0% {    -webkit-transform: rotate(0deg);            transform: rotate(0deg);  }  100% {    -webkit-transform: rotate(360deg);            transform: rotate(360deg);  }}@keyframes fa-spin {  0% {    -webkit-transform: rotate(0deg);            transform: rotate(0deg);  }  100% {    -webkit-transform: rotate(360deg);            transform: rotate(360deg);  }}.fa-rotate-90 {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=1)\";  -webkit-transform: rotate(90deg);          transform: rotate(90deg);}.fa-rotate-180 {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=2)\";  -webkit-transform: rotate(180deg);          transform: rotate(180deg);}.fa-rotate-270 {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=3)\";  -webkit-transform: rotate(270deg);          transform: rotate(270deg);}.fa-flip-horizontal {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1)\";  -webkit-transform: scale(-1, 1);          transform: scale(-1, 1);}.fa-flip-vertical {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)\";  -webkit-transform: scale(1, -1);          transform: scale(1, -1);}.fa-flip-both, .fa-flip-horizontal.fa-flip-vertical {  -ms-filter: \"progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)\";  -webkit-transform: scale(-1, -1);          transform: scale(-1, -1);}:root .fa-rotate-90,:root .fa-rotate-180,:root .fa-rotate-270,:root .fa-flip-horizontal,:root .fa-flip-vertical,:root .fa-flip-both {  -webkit-filter: none;          filter: none;}.fa-stack {  display: inline-block;  height: 2em;  position: relative;  width: 2.5em;}.fa-stack-1x,.fa-stack-2x {  bottom: 0;  left: 0;  margin: auto;  position: absolute;  right: 0;  top: 0;}.svg-inline--fa.fa-stack-1x {  height: 1em;  width: 1.25em;}.svg-inline--fa.fa-stack-2x {  height: 2em;  width: 2.5em;}.fa-inverse {  color: #fff;}.sr-only {  border: 0;  clip: rect(0, 0, 0, 0);  height: 1px;  margin: -1px;  overflow: hidden;  padding: 0;  position: absolute;  width: 1px;}.sr-only-focusable:active, .sr-only-focusable:focus {  clip: auto;  height: auto;  margin: 0;  overflow: visible;  position: static;  width: auto;}')
+		]));
 var author$project$Router$viewApplication = F3(
 	function (toMsg, model, sharedState) {
 		return {
 			body: _List_fromArray(
 				[
+					lattyware$elm_fontawesome$FontAwesome$Styles$css,
 					A3(author$project$Router$view, toMsg, model, sharedState)
 				]),
 			title: author$project$Router$tabBarTitle(model)
