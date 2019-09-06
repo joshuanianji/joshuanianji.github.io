@@ -1,9 +1,9 @@
 {
-  "main.js": "/static/js/main.5dbd288f.chunk.js",
-  "main.js.map": "/static/js/main.5dbd288f.chunk.js.map",
-  "runtime~main.js": "/static/js/runtime~main.cca692ed.js",
-  "runtime~main.js.map": "/static/js/runtime~main.cca692ed.js.map",
-  "vendors~main.js": "/static/js/vendors~main.3ca81432.chunk.js",
-  "vendors~main.js.map": "/static/js/vendors~main.3ca81432.chunk.js.map",
-  "index.html": "/index.html"
+  "main.js": "/projects/ui-bootstrap-demo/static/js/main.b694e6df.chunk.js",
+  "main.js.map": "/projects/ui-bootstrap-demo/static/js/main.b694e6df.chunk.js.map",
+  "runtime~main.js": "/projects/ui-bootstrap-demo/static/js/runtime~main.3e493a44.js",
+  "runtime~main.js.map": "/projects/ui-bootstrap-demo/static/js/runtime~main.3e493a44.js.map",
+  "vendors~main.js": "/projects/ui-bootstrap-demo/static/js/vendors~main.3ca81432.chunk.js",
+  "vendors~main.js.map": "/projects/ui-bootstrap-demo/static/js/vendors~main.3ca81432.chunk.js.map",
+  "index.html": "/projects/ui-bootstrap-demo/index.html"
 }
