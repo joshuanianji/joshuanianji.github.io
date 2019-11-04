@@ -3,7 +3,7 @@ module Main exposing (main)
 import Browser exposing (UrlRequest(..))
 import Browser.Events
 import Browser.Navigation as Nav
-import Element exposing (Attribute, Device, DeviceClass(..), Element, Orientation(..))
+import Element exposing (Attribute, DeviceClass(..), Element, Orientation(..))
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
@@ -12,7 +12,6 @@ import Helpers.Colour as Colour
 import Helpers.FontFamily as FontFamily
 import Helpers.Util as Util
 import Html exposing (Html)
-import Http
 import Page.Home as Home
 import Page.NotFound as NotFound
 import Page.Post as Post
@@ -375,7 +374,7 @@ updateSharedState model ssupdate =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Browser.Events.onResize
         (\x y ->
             WindowResize (WindowSize x y)

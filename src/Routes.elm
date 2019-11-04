@@ -65,7 +65,6 @@ getFileName link =
         |> Maybe.andThen emuPathParser
         -- strip off the .emu at the end of the file
         |> Maybe.andThen emuFileParser
-        |> Debug.log "routing to:"
 
 
 

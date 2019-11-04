@@ -1,4 +1,4 @@
-module Projects exposing (Language(..), Project, Purpose(..), filter, projects)
+module Projects exposing (Language(..), Project, Purpose(..), filterLanguage, languageList, projects, purposeList)
 
 {-| interface for the Project data structure
 -}
@@ -28,12 +28,20 @@ type Purpose
     | Personal
 
 
+purposeList =
+    [ School, Fancy, Personal ]
+
+
+languageList =
+    [ Elm, Python ]
+
+
 
 -- Helpers
 
 
-filter : Language -> List Project -> List Project
-filter language projs =
+filterLanguage : Language -> List Project -> List Project
+filterLanguage language projs =
     List.filter
         (\project -> project.language == language)
         projs

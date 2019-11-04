@@ -12,3 +12,4 @@ view : Icon -> Element msg
 view icon =
     FontAwesome.Icon.viewIcon icon
         |> html
+        |> Element.el []

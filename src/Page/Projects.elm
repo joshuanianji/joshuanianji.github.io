@@ -7,7 +7,7 @@ import Browser.Navigation as Navigation
 import Element exposing (Device, DeviceClass(..), Element, Orientation(..))
 import Element.Background as Background
 import Element.Border as Border
-import Element.Events
+import Element.Events as Events
 import Element.Font as Font
 import FontAwesome.Brands
 import FontAwesome.Solid
@@ -25,12 +25,37 @@ import SharedState exposing (SharedState, SharedStateUpdate(..))
 
 
 type alias Model =
-    {}
+    { organized : Organized
+    , dropdownShowing : Bool
+    }
+
+
+type Organized
+    = ByLanguage
+    | ByPurpose
+
+
+organizeList =
+    [ ByLanguage, ByPurpose ]
+
+
+organizedString : Organized -> String
+organizedString organized =
+    case organized of
+        ByLanguage ->
+            "Language"
+
+        ByPurpose ->
+            "Purpose"
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( {}, Cmd.none )
+    ( { organized = ByLanguage
+      , dropdownShowing = False
+      }
+    , Cmd.none
+    )
 
 
 
@@ -42,8 +67,9 @@ view model sharedState =
     Element.column
         [ Element.spacing 50 ]
         [ introText
+        , organizer model
         , elmDivider
-        , groupView model sharedState (Projects.filter Elm projects)
+        , groupView model sharedState (Projects.filterLanguage Elm projects)
         ]
         |> Helpers.Padding.responsive sharedState.device
 
@@ -55,12 +81,55 @@ introText =
         [ Element.text "Welcome to my projects page! I am in the process or organizing them so they're just all grouped up as elm projects lol." ]
 
 
+organizer : Model -> Element Msg
+organizer model =
+    Element.row
+        [ Element.spacing 20
+        , Element.width Element.fill
+        , Element.pointer
+        , Events.onMouseDown ToggleDropdown
+        , Element.below <| dropdown model
+        ]
+        [ Icon.view FontAwesome.Solid.bars
+        , Element.paragraph
+            []
+            [ Element.text "Organize by: "
+            , Element.text <| organizedString model.organized
+            ]
+        ]
+
+
+dropdown : Model -> Element Msg
+dropdown model =
+    case model.dropdownShowing of
+        False ->
+            Element.none
+
+        True ->
+            Element.column
+                [ Border.width 1
+                , Border.color Colour.black
+                , Element.padding 15
+                , Element.spacing 15
+                ]
+                (List.map
+                    (\organize ->
+                        Element.el
+                            [ Events.onDoubleClick <| OrganizeBy organize ]
+                        <|
+                            Element.text <|
+                                organizedString organize
+                    )
+                    organizeList
+                )
+
+
 elmDivider : Element Msg
 elmDivider =
     divider
         { logoImage = "src/img/elm_logo.png"
         , logoDescription = "Sexy elm logo. You should click it!"
-        , link = "elm-lang.org"
+        , link = "https://elm-lang.org"
         , text = "Created with Elm"
         }
 
@@ -301,7 +370,7 @@ postLinkWrap parentFontSize link icon =
         [ Element.width Element.fill
         , Element.height Element.fill
         , Element.pointer
-        , Element.Events.onClick (NavigateTo (Post fileName))
+        , Events.onClick <| NavigateTo <| Post fileName
         , Element.mouseOver
             [ Font.size <| parentFontSize * 2
             ]
@@ -324,6 +393,8 @@ description parentFontSize project =
 
 type Msg
     = NavigateTo Route
+    | OrganizeBy Organized
+    | ToggleDropdown
 
 
 update : SharedState -> Msg -> Model -> ( Model, Cmd Msg, SharedStateUpdate )
@@ -331,3 +402,12 @@ update sharedState msg model =
     case msg of
         NavigateTo route ->
             ( model, Navigation.pushUrl sharedState.navKey (Routes.toUrlString route), NoUpdate )
+
+        OrganizeBy organized ->
+            update sharedState ToggleDropdown { model | organized = Debug.log "organized" organized }
+
+        ToggleDropdown ->
+            ( { model | dropdownShowing = not model.dropdownShowing }
+            , Cmd.none
+            , NoUpdate
+            )
