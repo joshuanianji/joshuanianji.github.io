@@ -1,7 +1,7 @@
 {
   "main.css": "/projects/derivative/static/css/main.4ca1289f.chunk.css",
-  "main.js": "/projects/derivative/static/js/main.70e7aaf2.chunk.js",
-  "main.js.map": "/projects/derivative/static/js/main.70e7aaf2.chunk.js.map",
+  "main.js": "/projects/derivative/static/js/main.f87e3f21.chunk.js",
+  "main.js.map": "/projects/derivative/static/js/main.f87e3f21.chunk.js.map",
   "runtime~main.js": "/projects/derivative/static/js/runtime~main.d2c98583.js",
   "runtime~main.js.map": "/projects/derivative/static/js/runtime~main.d2c98583.js.map",
   "vendors~main.js": "/projects/derivative/static/js/vendors~main.3ca81432.chunk.js",
@@ -12,6 +12,6 @@
   "index.html": "/projects/derivative/index.html",
   "logo.svg": "/projects/derivative/logo.svg",
   "manifest.json": "/projects/derivative/manifest.json",
-  "precache-manifest.495a7ebc5b0f8bc466fcd563c1ffa995.js": "/projects/derivative/precache-manifest.495a7ebc5b0f8bc466fcd563c1ffa995.js",
+  "precache-manifest.5b4dc29662d2eb0eceb3c97bca3f286f.js": "/projects/derivative/precache-manifest.5b4dc29662d2eb0eceb3c97bca3f286f.js",
   "static/media/main.css": "/projects/derivative/static/media/cmunrm.27fc669e.ttf"
 }
