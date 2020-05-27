@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Atomic Models</title>
+    <meta name="description" content="The Scientific Ngvestigator's special edition">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Joshua Ji">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="icon" href="src/icon.png">
+</head>
+
+<body>
+    <div id="elm"></div>
+    <script src="src/elm.min.js"></script>
+    <script>
+        var app = Elm.Main.init({
+            node: document.getElementById('elm'),
+            flags: {
+                width: window.innerWidth,
+                height: window.innerHeight
+            }
+        })
+    </script>
+</body>
+
+</html>
