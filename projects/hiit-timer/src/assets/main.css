@@ -1,0 +1,31 @@
+/* hides scrollbar pog */
+html::-webkit-scrollbar{
+    display: none;
+}
+
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
+}
+
+input {
+    pointer-events:none;
+    user-select: none;
+}
+.no-cursor {
+    caret-color: transparent;
+}
+
+.duration-input {
+    direction: rtl;
+    border-style: none;
+    padding: 8px;
+    text-align: right;
+    font-size : 24px;
+    font-family: 'Lato', sans-serif;
+}
