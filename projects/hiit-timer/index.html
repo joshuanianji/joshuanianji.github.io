@@ -8,21 +8,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="Joshua Ji" />
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./assets/simptip.min.css" />
-    <link rel="stylesheet" href="./assets/main.css" />
+    <link rel="stylesheet" href="./src/assets/simptip.min.css" />
+    <link rel="stylesheet" href="./src/assets/main.css" />
 </head>
 
 <body>
     <div id="elm"></div>
-    <script src="./assets/howler.core.js"></script>
+    <script src="./src/assets/howler.core.js"></script>
     <script src="elm.js"></script>
     <script>
         const whistle = new Howl({
-            src: ['assets/sounds/whistle.mp3']
+            src: ['asrc/ssets/sounds/whistle.mp3']
         });
 
         const tada = new Howl({
-            src: ['assets/sounds/tada.mp3', 'assets/sounds/tada.wav']
+            src: ['src/assets/sounds/tada.mp3', 'src/assets/sounds/tada.wav']
         });
 
         var storedConfig = localStorage.getItem('config');
