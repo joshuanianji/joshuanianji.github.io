@@ -15,14 +15,18 @@
 <body>
     <div id="elm"></div>
     <script src="./src/assets/howler.core.js"></script>
-    <script src="src/elm.js"></script>
+    <script src="./src/elm.js"></script>
     <script>
         const whistle = new Howl({
-            src: ['src/assets/sounds/whistle.mp3']
+            src: ['./src/assets/sounds/whistle.mp3']
         });
 
         const tada = new Howl({
-            src: ['src/assets/sounds/tada.mp3', 'src/assets/sounds/tada.wav']
+            src: ['./src/assets/sounds/tada.mp3', './src/assets/sounds/tada.wav']
+        });
+
+        const tick = new Howl({
+            src: ['./src/assets/sounds/tick.mp3']
         });
 
         var storedConfig = localStorage.getItem('config');
@@ -52,6 +56,10 @@
 
         app.ports.playTada.subscribe(() => {
             tada.play()
+        });
+
+        app.ports.playTick.subscribe(() => {
+            tick.play()
         });
     </script>
 </body>
