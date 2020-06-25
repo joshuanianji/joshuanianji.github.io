@@ -4,24 +4,20 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/projects/hiit-timer/favicon.png"
   },
   {
-    "revision": "7afcdf0f4096b7298529f2cbfef3f606",
+    "revision": "3afdabd6a23cc9aedbc7c8a537212650",
     "url": "/projects/hiit-timer/index.html"
   },
   {
-    "revision": "6ead519905b7b907c00965be37dd5cd7",
-    "url": "/projects/hiit-timer/logo.svg"
-  },
-  {
-    "revision": "10ae48b293338814872345111ce33320",
+    "revision": "6d1ae17d9c1efd14fb0d6a62f31a255c",
     "url": "/projects/hiit-timer/manifest.json"
   },
   {
-    "revision": "880f02a05667b5307f85",
-    "url": "/projects/hiit-timer/static/css/main.54652cf0.chunk.css"
+    "revision": "206309ada3bd23df81f3",
+    "url": "/projects/hiit-timer/static/css/main.65a3a65d.chunk.css"
   },
   {
-    "revision": "880f02a05667b5307f85",
-    "url": "/projects/hiit-timer/static/js/main.880f02a0.chunk.js"
+    "revision": "206309ada3bd23df81f3",
+    "url": "/projects/hiit-timer/static/js/main.206309ad.chunk.js"
   },
   {
     "revision": "9d4ae921b2a3f790ce5f",
