@@ -68,7 +68,8 @@ view model sharedState =
     Element.column
         [ Element.spacing 50 ]
         [ introText
-        , organizer model
+
+        -- , organizer model
         , elmDivider
         , groupView model sharedState (Projects.filterLanguage Elm projects)
         ]
