@@ -35,6 +35,7 @@ type Organized
     | ByPurpose
 
 
+organizeList : List Organized
 organizeList =
     [ ByLanguage, ByPurpose ]
 
@@ -78,7 +79,8 @@ introText : Element Msg
 introText =
     Element.paragraph
         [ Element.paddingXY 0 30 ]
-        [ Element.text "Welcome to my projects page! I am in the process or organizing them so they're just all grouped up as elm projects lol." ]
+        [ Element.text "Welcome to my projects page! I am in the process or organizing them, but as of now they are organized by date."
+        ]
 
 
 organizer : Model -> Element Msg
@@ -101,27 +103,26 @@ organizer model =
 
 dropdown : Model -> Element Msg
 dropdown model =
-    case model.dropdownShowing of
-        False ->
-            Element.none
-
-        True ->
-            Element.column
-                [ Border.width 1
-                , Border.color Colour.black
-                , Element.padding 15
-                , Element.spacing 15
-                ]
-                (List.map
-                    (\organize ->
-                        Element.el
-                            [ Events.onDoubleClick <| OrganizeBy organize ]
-                        <|
-                            Element.text <|
-                                organizedString organize
-                    )
-                    organizeList
+    if model.dropdownShowing then
+        Element.column
+            [ Border.width 1
+            , Border.color Colour.black
+            , Element.padding 15
+            , Element.spacing 15
+            ]
+            (List.map
+                (\organize ->
+                    Element.el
+                        [ Events.onDoubleClick <| OrganizeBy organize ]
+                    <|
+                        Element.text <|
+                            organizedString organize
                 )
+                organizeList
+            )
+
+    else
+        Element.none
 
 
 elmDivider : Element Msg
@@ -319,8 +320,9 @@ iconRow parentFontSize project =
         ]
         [ linkWrap parentFontSize project.githubLink <|
             iconWrapper (Icon.view FontAwesome.Brands.github)
-        , postLinkWrap parentFontSize project.aboutLink <|
-            iconWrapper (Icon.view FontAwesome.Solid.info)
+
+        -- , postLinkWrap parentFontSize project.aboutLink <|
+        --     iconWrapper (Icon.view FontAwesome.Solid.info)
         , linkWrap parentFontSize project.link <|
             iconWrapper (Icon.view FontAwesome.Solid.link)
         ]
@@ -404,7 +406,7 @@ update sharedState msg model =
             ( model, Navigation.pushUrl sharedState.navKey (Routes.toUrlString route), NoUpdate )
 
         OrganizeBy organized ->
-            update sharedState ToggleDropdown { model | organized = Debug.log "organized" organized }
+            update sharedState ToggleDropdown { model | organized = organized }
 
         ToggleDropdown ->
             ( { model | dropdownShowing = not model.dropdownShowing }

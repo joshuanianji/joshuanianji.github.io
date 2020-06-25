@@ -28,10 +28,12 @@ type Purpose
     | Personal
 
 
+purposeList : List Purpose
 purposeList =
     [ School, Fancy, Personal ]
 
 
+languageList : List Language
 languageList =
     [ Elm, Python ]
 
@@ -55,7 +57,27 @@ filterLanguage language projs =
 -}
 projects : List Project
 projects =
-    [ { name = "Ui Bootstrap Elm Demo"
+    [ { name = "HIIT-Timer"
+      , imgLink = "src/img/hiit-timer.png"
+      , blurb = "A customizable PWA that times your workouts."
+      , aboutLink = "https://joshuaji.com/src/post/ui-bootstrap-demo.emu"
+      , link = "https://joshuaji.com/projects/hiit-timer"
+      , githubLink = "https://github.com/joshuanianji/HIIT-Timer"
+      , year = 2020
+      , language = Elm
+      , purpose = Personal
+      }
+    , { name = "Derivatives"
+      , imgLink = "src/img/derivatives.png"
+      , blurb = "An application to calculate derivatives, using intuitive LaTeX and output."
+      , aboutLink = "https://joshuaji.com/src/post/ui-bootstrap-demo.emu"
+      , link = "https://joshuaji.com/projects/derivative"
+      , githubLink = "https://github.com/joshuanianji/Derivative"
+      , year = 2020
+      , language = Elm
+      , purpose = Personal
+      }
+    , { name = "Ui Bootstrap Elm Demo"
       , imgLink = "src/img/ui-bootstrap-demo.png"
       , blurb = "A demo application for the Elm Ui Bootstrap project."
       , aboutLink = "https://joshuaji.com/src/post/ui-bootstrap-demo.emu"
