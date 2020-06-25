@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.6552f16d544c15d40bcbf0865974a04d.js"
+  "/projects/hiit-timer/precache-manifest.b0a1b4fda3cf4f777983201d378de15e.js"
 );
 
 workbox.core.skipWaiting();
