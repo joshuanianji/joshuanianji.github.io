@@ -191,7 +191,8 @@ navbar model =
 navbarMapList : List ( String, Route )
 navbarMapList =
     [ ( "Home", Home )
-    , ( "Resume", Resume )
+
+    -- , ( "Resume", Resume )
     , ( "Projects", Projects )
     ]
 
@@ -324,10 +325,10 @@ update msg model =
         UrlRequest urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
-                    update (NavigateTo (url |> Routes.fromUrl) |> Debug.log "internal url") model
+                    update (NavigateTo (url |> Routes.fromUrl)) model
 
                 Browser.External url ->
-                    ( model, Nav.load url |> Debug.log "external url" )
+                    ( model, Nav.load url )
 
         RouterMsg routerMsg ->
             -- to handle messages created by the router
@@ -337,7 +338,7 @@ update msg model =
         WindowResize windowSize ->
             updateSharedState
                 model
-                (SharedState.UpdateDevice (Element.classifyDevice (Debug.log "window size" windowSize) |> Debug.log "Device"))
+                (SharedState.UpdateDevice (Element.classifyDevice windowSize))
 
 
 

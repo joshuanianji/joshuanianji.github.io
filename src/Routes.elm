@@ -26,7 +26,8 @@ urlParser : Url.Parser (Route -> a) a
 urlParser =
     Url.oneOf
         [ Url.map Home Url.top
-        , Url.map Resume (Url.s "resume")
+
+        -- , Url.map Resume (Url.s "resume")
         , Url.map Projects (Url.s "projects")
         , Url.map PostOverview (Url.s "post")
         , Url.map Post (Url.s "post" </> Url.string)
