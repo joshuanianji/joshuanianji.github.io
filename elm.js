@@ -23876,123 +23876,6 @@ var $author$project$Page$Projects$introText = A2(
 		[
 			$mdgriffith$elm_ui$Element$text('Welcome to my projects page! I am in the process or organizing them, but as of now they are organized by date.')
 		]));
-var $lattyware$elm_fontawesome$FontAwesome$Solid$bars = A5($lattyware$elm_fontawesome$FontAwesome$Icon$Icon, 'fas', 'bars', 448, 512, 'M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z');
-var $mdgriffith$elm_ui$Internal$Model$Below = {$: 'Below'};
-var $mdgriffith$elm_ui$Element$below = function (element) {
-	return A2($mdgriffith$elm_ui$Internal$Model$Nearby, $mdgriffith$elm_ui$Internal$Model$Below, element);
-};
-var $author$project$Page$Projects$OrganizeBy = function (a) {
-	return {$: 'OrganizeBy', a: a};
-};
-var $mdgriffith$elm_ui$Element$rgb255 = F3(
-	function (red, green, blue) {
-		return A4($mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, 1);
-	});
-var $author$project$Helpers$Colour$black = A3($mdgriffith$elm_ui$Element$rgb255, 0, 0, 0);
-var $mdgriffith$elm_ui$Internal$Flag$borderColor = $mdgriffith$elm_ui$Internal$Flag$flag(28);
-var $mdgriffith$elm_ui$Element$Border$color = function (clr) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$borderColor,
-		A3(
-			$mdgriffith$elm_ui$Internal$Model$Colored,
-			'bc-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
-			'border-color',
-			clr));
-};
-var $elm$html$Html$Events$onDoubleClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'dblclick',
-		$elm$json$Json$Decode$succeed(msg));
-};
-var $mdgriffith$elm_ui$Element$Events$onDoubleClick = A2($elm$core$Basics$composeL, $mdgriffith$elm_ui$Internal$Model$Attr, $elm$html$Html$Events$onDoubleClick);
-var $author$project$Page$Projects$ByPurpose = {$: 'ByPurpose'};
-var $author$project$Page$Projects$organizeList = _List_fromArray(
-	[$author$project$Page$Projects$ByLanguage, $author$project$Page$Projects$ByPurpose]);
-var $author$project$Page$Projects$organizedString = function (organized) {
-	if (organized.$ === 'ByLanguage') {
-		return 'Language';
-	} else {
-		return 'Purpose';
-	}
-};
-var $mdgriffith$elm_ui$Internal$Model$BorderWidth = F5(
-	function (a, b, c, d, e) {
-		return {$: 'BorderWidth', a: a, b: b, c: c, d: d, e: e};
-	});
-var $mdgriffith$elm_ui$Element$Border$width = function (v) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$borderWidth,
-		A5(
-			$mdgriffith$elm_ui$Internal$Model$BorderWidth,
-			'b-' + $elm$core$String$fromInt(v),
-			v,
-			v,
-			v,
-			v));
-};
-var $author$project$Page$Projects$dropdown = function (model) {
-	return model.dropdownShowing ? A2(
-		$mdgriffith$elm_ui$Element$column,
-		_List_fromArray(
-			[
-				$mdgriffith$elm_ui$Element$Border$width(1),
-				$mdgriffith$elm_ui$Element$Border$color($author$project$Helpers$Colour$black),
-				$mdgriffith$elm_ui$Element$padding(15),
-				$mdgriffith$elm_ui$Element$spacing(15)
-			]),
-		A2(
-			$elm$core$List$map,
-			function (organize) {
-				return A2(
-					$mdgriffith$elm_ui$Element$el,
-					_List_fromArray(
-						[
-							$mdgriffith$elm_ui$Element$Events$onDoubleClick(
-							$author$project$Page$Projects$OrganizeBy(organize))
-						]),
-					$mdgriffith$elm_ui$Element$text(
-						$author$project$Page$Projects$organizedString(organize)));
-			},
-			$author$project$Page$Projects$organizeList)) : $mdgriffith$elm_ui$Element$none;
-};
-var $elm$html$Html$Events$onMouseDown = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'mousedown',
-		$elm$json$Json$Decode$succeed(msg));
-};
-var $mdgriffith$elm_ui$Element$Events$onMouseDown = A2($elm$core$Basics$composeL, $mdgriffith$elm_ui$Internal$Model$Attr, $elm$html$Html$Events$onMouseDown);
-var $mdgriffith$elm_ui$Internal$Flag$cursor = $mdgriffith$elm_ui$Internal$Flag$flag(21);
-var $mdgriffith$elm_ui$Element$pointer = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$cursor, $mdgriffith$elm_ui$Internal$Style$classes.cursorPointer);
-var $author$project$Page$Projects$organizer = function (model) {
-	return A2(
-		$mdgriffith$elm_ui$Element$row,
-		_List_fromArray(
-			[
-				$mdgriffith$elm_ui$Element$spacing(20),
-				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-				$mdgriffith$elm_ui$Element$pointer,
-				$mdgriffith$elm_ui$Element$Events$onMouseDown($author$project$Page$Projects$ToggleDropdown),
-				$mdgriffith$elm_ui$Element$below(
-				$author$project$Page$Projects$dropdown(model))
-			]),
-		_List_fromArray(
-			[
-				$author$project$Helpers$Icon$view($lattyware$elm_fontawesome$FontAwesome$Solid$bars),
-				A2(
-				$mdgriffith$elm_ui$Element$paragraph,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$mdgriffith$elm_ui$Element$text('Organize by: '),
-						$mdgriffith$elm_ui$Element$text(
-						$author$project$Page$Projects$organizedString(model.organized))
-					]))
-			]));
-};
 var $author$project$Projects$Fancy = {$: 'Fancy'};
 var $author$project$Projects$Personal = {$: 'Personal'};
 var $author$project$Projects$School = {$: 'School'};
@@ -24077,7 +23960,6 @@ var $author$project$Page$Projects$view = F2(
 				_List_fromArray(
 					[
 						$author$project$Page$Projects$introText,
-						$author$project$Page$Projects$organizer(model),
 						$author$project$Page$Projects$elmDivider,
 						A3(
 						$author$project$Page$Projects$groupView,
@@ -24481,6 +24363,8 @@ var $mdgriffith$elm_ui$Element$Input$onKey = F2(
 var $mdgriffith$elm_ui$Element$Input$onEnter = function (msg) {
 	return A2($mdgriffith$elm_ui$Element$Input$onKey, $mdgriffith$elm_ui$Element$Input$enter, msg);
 };
+var $mdgriffith$elm_ui$Internal$Flag$cursor = $mdgriffith$elm_ui$Internal$Flag$flag(21);
+var $mdgriffith$elm_ui$Element$pointer = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$cursor, $mdgriffith$elm_ui$Internal$Style$classes.cursorPointer);
 var $elm$html$Html$Attributes$tabindex = function (n) {
 	return A2(
 		_VirtualDom_attribute,
@@ -24539,7 +24423,28 @@ var $mdgriffith$elm_ui$Element$Input$button = F2(
 				_List_fromArray(
 					[label])));
 	});
+var $mdgriffith$elm_ui$Element$rgb255 = F3(
+	function (red, green, blue) {
+		return A4($mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, 1);
+	});
+var $author$project$Helpers$Colour$black = A3($mdgriffith$elm_ui$Element$rgb255, 0, 0, 0);
 var $author$project$Helpers$Colour$gray = A3($mdgriffith$elm_ui$Element$rgb255, 175, 175, 175);
+var $mdgriffith$elm_ui$Internal$Model$BorderWidth = F5(
+	function (a, b, c, d, e) {
+		return {$: 'BorderWidth', a: a, b: b, c: c, d: d, e: e};
+	});
+var $mdgriffith$elm_ui$Element$Border$width = function (v) {
+	return A2(
+		$mdgriffith$elm_ui$Internal$Model$StyleClass,
+		$mdgriffith$elm_ui$Internal$Flag$borderWidth,
+		A5(
+			$mdgriffith$elm_ui$Internal$Model$BorderWidth,
+			'b-' + $elm$core$String$fromInt(v),
+			v,
+			v,
+			v,
+			v));
+};
 var $author$project$Main$navbarElementAttributes = F2(
 	function (model, route) {
 		var fontSize = function () {
