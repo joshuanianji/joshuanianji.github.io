@@ -1,6 +1,7 @@
 {
     "short_name": "HIIT Timer",
-    "name": "A Simple App to time workouts",
+    "name": "HIIT Workout Timer",
+    "description": "An awesome PWA to time your workouts.",
     "icons": [
         {
             "src": "favicon.png",
