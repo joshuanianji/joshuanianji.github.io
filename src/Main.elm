@@ -1,382 +1,315 @@
 module Main exposing (main)
 
-import Browser exposing (UrlRequest(..))
-import Browser.Events
-import Browser.Navigation as Nav
-import Element exposing (Attribute, DeviceClass(..), Element, Orientation(..))
-import Element.Border as Border
+import Color
+import Data.Author as Author
+import Date
+import Element exposing (Element)
 import Element.Font as Font
-import Element.Input as Input
-import FontAwesome.Styles
-import Helpers.Colour as Colour
-import Helpers.FontFamily as FontFamily
-import Helpers.Util as Util
+import Feed
+import Head
+import Head.Seo as Seo
 import Html exposing (Html)
-import Page.Home as Home
-import Page.NotFound as NotFound
-import Page.Post as Post
-import Page.PostOverview as PostOverview
-import Page.Projects as Projects
-import Page.Resume as Resume
-import Router exposing (Page(..))
-import Routes exposing (Route(..))
-import SharedState exposing (SharedState, SharedStateUpdate)
-import Url exposing (Url)
+import Index
+import Json.Decode
+import Layout
+import Markdown.Parser
+import Markdown.Renderer
+import Metadata exposing (Metadata)
+import MySitemap
+import Page.Article
+import Pages exposing (images, pages)
+import Pages.Manifest as Manifest
+import Pages.Manifest.Category
+import Pages.PagePath exposing (PagePath)
+import Pages.Platform
+import Pages.StaticHttp as StaticHttp
+import Palette
+
+
+manifest : Manifest.Config Pages.PathKey
+manifest =
+    { backgroundColor = Just Color.white
+    , categories = [ Pages.Manifest.Category.education ]
+    , displayMode = Manifest.Standalone
+    , orientation = Manifest.Portrait
+    , description = "elm-pages-starter - A statically typed site generator."
+    , iarcRatingId = Nothing
+    , name = "elm-pages-starter"
+    , themeColor = Just Color.white
+    , startUrl = pages.index
+    , shortName = Just "elm-pages-starter"
+    , sourceIcon = images.iconPng
+    }
+
+
+type alias Rendered =
+    Element Msg
 
 
 
--- PROGRAM --
+-- the intellij-elm plugin doesn't support type aliases for Programs so we need to use this line
+-- main : Platform.Program Pages.Platform.Flags (Pages.Platform.Model Model Msg Metadata Rendered) (Pages.Platform.Msg Msg Metadata Rendered)
 
 
-main : Program Flags Model Msg
+main : Pages.Platform.Program Model Msg Metadata Rendered
 main =
-    Browser.application
-        { init = init
-        , view = viewApplication
+    Pages.Platform.init
+        { init = \_ -> init
+        , view = view
         , update = update
         , subscriptions = subscriptions
-        , onUrlRequest = UrlRequest
-        , onUrlChange = UrlChange
+        , documents = [ markdownDocument ]
+        , manifest = manifest
+        , canonicalSiteUrl = canonicalSiteUrl
+        , onPageChange = Nothing
+        , internals = Pages.internals
         }
+        |> Pages.Platform.withFileGenerator generateFiles
+        |> Pages.Platform.toProgram
 
 
+generateFiles :
+    List
+        { path : PagePath Pages.PathKey
+        , frontmatter : Metadata
+        , body : String
+        }
+    ->
+        StaticHttp.Request
+            (List
+                (Result String
+                    { path : List String
+                    , content : String
+                    }
+                )
+            )
+generateFiles siteMetadata =
+    StaticHttp.succeed
+        [ Feed.fileToGenerate { siteTagline = siteTagline, siteUrl = canonicalSiteUrl } siteMetadata |> Ok
+        , MySitemap.build { siteUrl = canonicalSiteUrl } siteMetadata |> Ok
+        ]
 
--- MODEL
+
+markdownDocument : { extension : String, metadata : Json.Decode.Decoder Metadata, body : String -> Result error (Element msg) }
+markdownDocument =
+    { extension = "md"
+    , metadata = Metadata.decoder
+    , body =
+        \markdownBody ->
+            -- Html.div [] [ Markdown.toHtml [] markdownBody ]
+            Markdown.Parser.parse markdownBody
+                |> Result.withDefault []
+                |> Markdown.Renderer.render Markdown.Renderer.defaultHtmlRenderer
+                |> Result.withDefault [ Html.text "" ]
+                |> Html.div []
+                |> Element.html
+                |> List.singleton
+                |> Element.paragraph [ Element.width Element.fill ]
+                |> Ok
+    }
 
 
 type alias Model =
-    { sharedState : SharedState
-    , router : Router.Model
-    }
+    {}
 
 
-type alias Flags =
-    WindowSize
+init : ( Model, Cmd Msg )
+init =
+    ( Model, Cmd.none )
 
 
-
--- window size. As of now it's the only flag that Javascript passes onto us
-
-
-type alias WindowSize =
-    { width : Int
-    , height : Int
-    }
-
-
-{-| the flag that we pass to the init function was created from the javascript elm.js. It is a record
-
-    I'm going to be completely honest with you I have no idea what Browser.Navigation.Key is.
-    I just know we need it to handle URL changes and to change them ourselves and whatnot. (https://package.elm-lang.org/packages/elm/browser/latest/Browser-Navigation#Key)
-
--}
-init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
-init flags url key =
-    let
-        ( initRouterModel, routerCmd ) =
-            Router.init url key
-    in
-    ( { sharedState = SharedState.init (Element.classifyDevice flags) key
-      , router = initRouterModel
-      }
-    , Cmd.map RouterMsg routerCmd
-    )
-
-
-
--- VIEW
-
-
-viewApplication : Model -> Browser.Document Msg
-viewApplication model =
-    { title = tabBarTitle model
-    , body = [ view model ]
-    }
-
-
-
--- title of our app (shows in tab bar)
-
-
-tabBarTitle : Model -> String
-tabBarTitle model =
-    case model.router.currentPage of
-        HomePage _ ->
-            "Joshua's Website"
-
-        ResumePage _ ->
-            "Joshua's Resume"
-
-        ProjectsPage _ ->
-            "Joshua's Projects"
-
-        PostOverviewPage _ ->
-            "Get out of here!"
-
-        PostPage _ ->
-            "Post"
-
-        NotFoundPage _ ->
-            "Joshua Can't Find the Page!"
-
-
-
--- basically everything inside the <body> tag
-
-
-view : Model -> Html Msg
-view model =
-    Element.layoutWith
-        { options =
-            [ Element.focusStyle
-                { borderColor = Nothing
-                , backgroundColor = Nothing
-                , shadow = Nothing
-                }
-            ]
-        }
-        []
-    <|
-        Element.column
-            [ Element.width Element.fill
-            , Element.padding 40
-            , Element.spacing 20
-            , FontFamily.body
-            , Element.height Element.fill
-            ]
-            [ FontAwesome.Styles.css |> Element.html -- injecting fontAwesome stylesheet so the icons will render
-            , title model
-            , navbar model
-            , content model
-            , footer model
-            ]
-
-
-title : Model -> Element Msg
-title model =
-    let
-        fontSize =
-            case model.sharedState.device.class of
-                BigDesktop ->
-                    70
-
-                _ ->
-                    50
-    in
-    Element.el
-        [ Font.size fontSize
-        , Element.centerX
-        , FontFamily.title
-        ]
-        (Element.text "Joshua Ji")
-
-
-navbar : Model -> Element Msg
-navbar model =
-    Element.row
-        [ Element.centerX
-        ]
-        (List.map
-            (\( string, route ) ->
-                Input.button
-                    (navbarElementAttributes model route)
-                    { onPress = Just (NavigateTo route)
-                    , label = Element.el [ Element.centerX ] (Element.text string)
-                    }
-            )
-            navbarMapList
-        )
-
-
-navbarMapList : List ( String, Route )
-navbarMapList =
-    [ ( "Home", Home )
-
-    -- , ( "Resume", Resume )
-    , ( "Projects", Projects )
-    ]
-
-
-navbarElementAttributes : Model -> Route -> List (Attribute Msg)
-navbarElementAttributes model route =
-    let
-        fontSize =
-            case model.sharedState.device.class of
-                BigDesktop ->
-                    25
-
-                Desktop ->
-                    20
-
-                Tablet ->
-                    case model.sharedState.device.orientation of
-                        Portrait ->
-                            30
-
-                        Landscape ->
-                            25
-
-                Phone ->
-                    25
-
-        basicNavBarAttributes =
-            [ Element.padding 15
-            , Border.width 0
-            , Font.size fontSize
-            ]
-    in
-    if model.router.route == route then
-        Font.color Colour.black :: basicNavBarAttributes
-
-    else
-        Font.color Colour.gray :: basicNavBarAttributes
-
-
-
--- the main body that switches b/w the directories
-
-
-content : Model -> Element Msg
-content model =
-    case model.router.currentPage of
-        HomePage homeModel ->
-            Home.view homeModel model.sharedState
-                |> Util.mapMsg Router.HomeMsg
-                |> Element.map RouterMsg
-
-        ResumePage resumeModel ->
-            Resume.view resumeModel model.sharedState
-                |> Util.mapMsg Router.ResumeMsg
-                |> Element.map RouterMsg
-
-        ProjectsPage projectsModel ->
-            Projects.view projectsModel model.sharedState
-                |> Util.mapMsg Router.ProjectsMsg
-                |> Element.map RouterMsg
-
-        PostOverviewPage postOverviewModel ->
-            PostOverview.view postOverviewModel model.sharedState
-                |> Util.mapMsg Router.PostOverviewMsg
-                |> Element.map RouterMsg
-
-        PostPage postModel ->
-            Post.view postModel model.sharedState
-                |> Util.mapMsg Router.PostMsg
-                |> Element.map RouterMsg
-
-        NotFoundPage notFoundModel ->
-            NotFound.view notFoundModel model.sharedState
-                |> Util.mapMsg Router.NotFoundMsg
-                |> Element.map RouterMsg
-
-
-footer : Model -> Element Msg
-footer model =
-    let
-        paddingEach =
-            { top = 40
-            , right = 0
-            , bottom = 0
-            , left = 0
-            }
-    in
-    Element.el
-        [ Element.width Element.fill
-        , Element.alignBottom
-        , Element.paddingEach paddingEach
-        ]
-        (Element.paragraph
-            [ Font.center
-            , Font.size 15
-            ]
-            [ Element.text "Created by Joshua Ji. Find the source code on my "
-            , Element.newTabLink
-                [ Font.underline ]
-                { url = "https://github.com/joshuanianji/website"
-                , label = Element.text "github!"
-                }
-            ]
-        )
-
-
-
--- UPDATE
-
-
-type Msg
-    = NavigateTo Route
-    | UrlChange Url.Url
-    | UrlRequest UrlRequest
-    | RouterMsg Router.Msg
-    | WindowResize WindowSize
+type alias Msg =
+    ()
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NavigateTo route ->
-            -- pass it to the router to navigate for us
-            updateRouter model (Router.NavigateTo route)
-
-        UrlChange url ->
-            -- handling url changes
-            updateRouter model (Router.UrlChanged url)
-
-        UrlRequest urlRequest ->
-            case urlRequest of
-                Browser.Internal url ->
-                    update (NavigateTo (url |> Routes.fromUrl)) model
-
-                Browser.External url ->
-                    ( model, Nav.load url )
-
-        RouterMsg routerMsg ->
-            -- to handle messages created by the router
-            updateRouter model routerMsg
-
-        -- every time the page reloads
-        WindowResize windowSize ->
-            updateSharedState
-                model
-                (SharedState.UpdateDevice (Element.classifyDevice windowSize))
-
-
-
--- how to update the router
-
-
-updateRouter : Model -> Router.Msg -> ( Model, Cmd Msg )
-updateRouter model routerMsg =
-    let
-        ( nextRouterModel, routerCmd, sharedStateUpdate ) =
-            Router.update model.sharedState routerMsg model.router
-
-        nextSharedState =
-            SharedState.update model.sharedState sharedStateUpdate
-    in
-    ( { model | sharedState = nextSharedState, router = nextRouterModel }
-    , Cmd.map RouterMsg routerCmd
-    )
-
-
-
--- update the shared state
-
-
-updateSharedState : Model -> SharedStateUpdate -> ( Model, Cmd Msg )
-updateSharedState model ssupdate =
-    ( { model | sharedState = SharedState.update model.sharedState ssupdate }
-    , Cmd.none
-    )
-
-
-
--- SUBSCRIPTIONS
+        () ->
+            ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Browser.Events.onResize
-        (\x y ->
-            WindowResize (WindowSize x y)
-        )
+    Sub.none
+
+
+view :
+    List ( PagePath Pages.PathKey, Metadata )
+    ->
+        { path : PagePath Pages.PathKey
+        , frontmatter : Metadata
+        }
+    ->
+        StaticHttp.Request
+            { view : Model -> Rendered -> { title : String, body : Html Msg }
+            , head : List (Head.Tag Pages.PathKey)
+            }
+view siteMetadata page =
+    StaticHttp.succeed
+        { view =
+            \model viewForPage ->
+                Layout.view (pageView model siteMetadata page viewForPage) page
+        , head = head page.frontmatter
+        }
+
+
+pageView :
+    Model
+    -> List ( PagePath Pages.PathKey, Metadata )
+    -> { path : PagePath Pages.PathKey, frontmatter : Metadata }
+    -> Rendered
+    -> { title : String, body : List (Element Msg) }
+pageView model siteMetadata page viewForPage =
+    case page.frontmatter of
+        Metadata.Page metadata ->
+            { title = metadata.title
+            , body =
+                [ viewForPage
+                ]
+
+            --        |> Element.textColumn
+            --            [ Element.width Element.fill
+            --            ]
+            }
+
+        Metadata.Article metadata ->
+            Page.Article.view metadata viewForPage
+
+        Metadata.Author author ->
+            { title = author.name
+            , body =
+                [ Palette.blogHeading author.name
+                , Author.view [] author
+                , Element.paragraph [ Element.centerX, Font.center ] [ viewForPage ]
+                ]
+            }
+
+        Metadata.BlogIndex ->
+            { title = "elm-pages blog"
+            , body =
+                [ Element.column [ Element.padding 20, Element.centerX ] [ Index.view siteMetadata ]
+                ]
+            }
+
+
+commonHeadTags : List (Head.Tag Pages.PathKey)
+commonHeadTags =
+    [ Head.rssLink "/blog/feed.xml"
+    , Head.sitemapLink "/sitemap.xml"
+    ]
+
+
+
+{- Read more about the metadata specs:
+
+   <https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/abouts-cards>
+   <https://htmlhead.dev>
+   <https://html.spec.whatwg.org/multipage/semantics.html#standard-metadata-names>
+   <https://ogp.me/>
+-}
+
+
+head : Metadata -> List (Head.Tag Pages.PathKey)
+head metadata =
+    commonHeadTags
+        ++ (case metadata of
+                Metadata.Page meta ->
+                    Seo.summaryLarge
+                        { canonicalUrlOverride = Nothing
+                        , siteName = "elm-pages-starter"
+                        , image =
+                            { url = images.iconPng
+                            , alt = "elm-pages logo"
+                            , dimensions = Nothing
+                            , mimeType = Nothing
+                            }
+                        , description = siteTagline
+                        , locale = Nothing
+                        , title = meta.title
+                        }
+                        |> Seo.website
+
+                Metadata.Article meta ->
+                    Seo.summaryLarge
+                        { canonicalUrlOverride = Nothing
+                        , siteName = "elm-pages starter"
+                        , image =
+                            { url = meta.image
+                            , alt = meta.description
+                            , dimensions = Nothing
+                            , mimeType = Nothing
+                            }
+                        , description = meta.description
+                        , locale = Nothing
+                        , title = meta.title
+                        }
+                        |> Seo.article
+                            { tags = []
+                            , section = Nothing
+                            , publishedTime = Just (Date.toIsoString meta.published)
+                            , modifiedTime = Nothing
+                            , expirationTime = Nothing
+                            }
+
+                Metadata.Author meta ->
+                    let
+                        ( firstName, lastName ) =
+                            case meta.name |> String.split " " of
+                                [ first, last ] ->
+                                    ( first, last )
+
+                                [ first, middle, last ] ->
+                                    ( first ++ " " ++ middle, last )
+
+                                [] ->
+                                    ( "", "" )
+
+                                _ ->
+                                    ( meta.name, "" )
+                    in
+                    Seo.summary
+                        { canonicalUrlOverride = Nothing
+                        , siteName = "elm-pages-starter"
+                        , image =
+                            { url = meta.avatar
+                            , alt = meta.name ++ "'s elm-pages articles."
+                            , dimensions = Nothing
+                            , mimeType = Nothing
+                            }
+                        , description = meta.bio
+                        , locale = Nothing
+                        , title = meta.name ++ "'s elm-pages articles."
+                        }
+                        |> Seo.profile
+                            { firstName = firstName
+                            , lastName = lastName
+                            , username = Nothing
+                            }
+
+                Metadata.BlogIndex ->
+                    Seo.summaryLarge
+                        { canonicalUrlOverride = Nothing
+                        , siteName = "elm-pages"
+                        , image =
+                            { url = images.iconPng
+                            , alt = "elm-pages logo"
+                            , dimensions = Nothing
+                            , mimeType = Nothing
+                            }
+                        , description = siteTagline
+                        , locale = Nothing
+                        , title = "elm-pages blog"
+                        }
+                        |> Seo.website
+           )
+
+
+canonicalSiteUrl : String
+canonicalSiteUrl =
+    "https://elm-pages-starter.netlify.com"
+
+
+siteTagline : String
+siteTagline =
+    "Starter blog for elm-pages"

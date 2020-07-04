@@ -1,0 +1,22 @@
+{
+  "name": "elm-pages-example",
+  "version": "1.0.0",
+  "description": "Example site built with elm-pages.",
+  "scripts": {
+    "start": "elm-pages develop",
+    "serve": "npm run build && http-server ./dist -a localhost -p 3000 -c-1",
+    "build": "elm-pages build"
+  },
+  "author": "Dillon Kearns",
+  "license": "BSD-3",
+  "dependencies": {
+    "elm-pages": "1.4.0",
+    "highlight.js": "^9.15.10",
+    "node-sass": "^4.14.1"
+  },
+  "devDependencies": {
+    "elm": "latest-0.19.1",
+    "elm-format": "^0.8.2",
+    "http-server": "^0.12.3"
+  }
+}
