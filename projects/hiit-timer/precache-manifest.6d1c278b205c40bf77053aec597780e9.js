@@ -4,7 +4,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/projects/hiit-timer/favicon.png"
   },
   {
-    "revision": "1089d3ab349694d3495579f7c8f20a51",
+    "revision": "394a45b2bf054d84cfb3b3190a2e0876",
     "url": "/projects/hiit-timer/index.html"
   },
   {
@@ -12,12 +12,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/projects/hiit-timer/manifest.json"
   },
   {
-    "revision": "c3999696f081e86e7d72",
+    "revision": "2ccd17f422eb4e591626",
     "url": "/projects/hiit-timer/static/css/main.e5f63503.chunk.css"
   },
   {
-    "revision": "c3999696f081e86e7d72",
-    "url": "/projects/hiit-timer/static/js/main.c3999696.chunk.js"
+    "revision": "2ccd17f422eb4e591626",
+    "url": "/projects/hiit-timer/static/js/main.2ccd17f4.chunk.js"
   },
   {
     "revision": "9d4ae921b2a3f790ce5f",
