@@ -1,10 +1,14 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
+    "revision": "83dcfa175b9835f299e0c1e4cb1b95b5",
+    "url": "/projects/hiit-timer/favicon-white-bg.png"
+  },
+  {
     "revision": "1dea9580411f394fcc9b8285fea32a77",
     "url": "/projects/hiit-timer/favicon.png"
   },
   {
-    "revision": "394a45b2bf054d84cfb3b3190a2e0876",
+    "revision": "355126cd23ae4e65026682f32904a36f",
     "url": "/projects/hiit-timer/index.html"
   },
   {
