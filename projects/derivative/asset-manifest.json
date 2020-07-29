@@ -1,7 +1,7 @@
 {
-  "main.css": "/projects/derivative/static/css/main.4ca1289f.chunk.css",
-  "main.js": "/projects/derivative/static/js/main.7ce004c5.chunk.js",
-  "main.js.map": "/projects/derivative/static/js/main.7ce004c5.chunk.js.map",
+  "main.css": "/projects/derivative/static/css/main.9503b8f3.chunk.css",
+  "main.js": "/projects/derivative/static/js/main.bfc19cd1.chunk.js",
+  "main.js.map": "/projects/derivative/static/js/main.bfc19cd1.chunk.js.map",
   "runtime~main.js": "/projects/derivative/static/js/runtime~main.d2c98583.js",
   "runtime~main.js.map": "/projects/derivative/static/js/runtime~main.d2c98583.js.map",
   "vendors~main.js": "/projects/derivative/static/js/vendors~main.604c6712.chunk.js",
@@ -12,6 +12,6 @@
   "index.html": "/projects/derivative/index.html",
   "logo.svg": "/projects/derivative/logo.svg",
   "manifest.json": "/projects/derivative/manifest.json",
-  "precache-manifest.b4a24ce5f11f62249b8ca671846d9076.js": "/projects/derivative/precache-manifest.b4a24ce5f11f62249b8ca671846d9076.js",
+  "precache-manifest.3c0bf0570cc84203ec2a4281c285e925.js": "/projects/derivative/precache-manifest.3c0bf0570cc84203ec2a4281c285e925.js",
   "static/media/main.css": "/projects/derivative/static/media/cmunrm.27fc669e.ttf"
 }

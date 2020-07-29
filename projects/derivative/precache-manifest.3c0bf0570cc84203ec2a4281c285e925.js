@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/projects/derivative/icon.png"
   },
   {
-    "revision": "2c20459f271e031cf0b2104d7b69dcfc",
+    "revision": "6473c5802a2417b48a9274792434c435",
     "url": "/projects/derivative/index.html"
   },
   {
@@ -20,12 +20,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/projects/derivative/manifest.json"
   },
   {
-    "revision": "7ce004c51e00e229c225",
-    "url": "/projects/derivative/static/css/main.4ca1289f.chunk.css"
+    "revision": "bfc19cd19f97091f2581",
+    "url": "/projects/derivative/static/css/main.9503b8f3.chunk.css"
   },
   {
-    "revision": "7ce004c51e00e229c225",
-    "url": "/projects/derivative/static/js/main.7ce004c5.chunk.js"
+    "revision": "bfc19cd19f97091f2581",
+    "url": "/projects/derivative/static/js/main.bfc19cd1.chunk.js"
   },
   {
     "revision": "d2c985839ab650022603",
