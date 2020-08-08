@@ -16,11 +16,10 @@ body {
   color: #293c4b;
 }
 
-h1 {
-  font-size: 30px;
-}
 
-img {
-  margin: 20px 0;
-  max-width: 200px;
+/* achieving the Wired link underlines */
+
+.fat-underline {
+    border-bottom: .0625em solid rgb(50, 145, 201, 0.5);
+    box-shadow: 0 -.25em 0 rgb(50, 145, 201, 0.5) inset;
 }
