@@ -6,7 +6,7 @@ import Element
 
 themeBlue : Color
 themeBlue =
-    Color.rgb 50 145 201
+    Color.rgb255 50 145 201
 
 
 withAlpha : Float -> Color -> Color
@@ -24,4 +24,4 @@ toElement color =
         { red, green, blue, alpha } =
             Color.toRgba color
     in
-    Element.rgba (red / 256) (green / 256) (blue / 256) alpha
+    Element.rgba red green blue alpha
