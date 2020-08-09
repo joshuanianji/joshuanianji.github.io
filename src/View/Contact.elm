@@ -1,4 +1,4 @@
-module View.About exposing
+module View.Contact exposing
     ( Model
     , Msg
     , init
@@ -42,7 +42,7 @@ view model =
         , Element.spacing 32
 
         -- distinct id for us to jump to
-        , Element.htmlAttribute <| Html.Attributes.id "about"
+        , Element.htmlAttribute <| Html.Attributes.id "contact"
         ]
         [ -- title
           Element.paragraph
@@ -69,22 +69,7 @@ view model =
                             }
                     }
             ]
-            [ Element.text "About" ]
-        , Element.textColumn
-            [ Element.spacing 16
-            , Element.spacing 4
-            ]
-            [ -- subtitle
-              Element.paragraph
-                [ Element.spacing 6 ]
-                [ Element.text "I have been coding with HTML, CSS and Javascript since I was 12: making blogs, web apps, or anything that will make my life easier. Currently, my projects are in "
-                , Util.link
-                    { label = "Elm"
-                    , link = "https://elm-lang.org"
-                    }
-                , Element.text ", and I have been learning Haskell, Purescript and Rust."
-                ]
-            ]
+            [ Element.text "Contact" ]
         ]
 
 

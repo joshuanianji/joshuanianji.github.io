@@ -13,11 +13,13 @@ module View.Home exposing
 import Color
 import Data.Flags exposing (Flags, WindowSize)
 import Element exposing (Element)
+import Element.Events as Events
 import Element.Font as Font
 import FeatherIcons
 import Html.Attributes
 import Icon
 import Icosahedron
+import Routes exposing (Route)
 import Util
 
 
@@ -52,6 +54,9 @@ view model =
         [ Element.width Element.fill
         , Element.height <| Element.px model.windowSize.height
         , Element.padding 36
+
+        -- distinct id for us to jump to
+        , Element.htmlAttribute <| Html.Attributes.id "home"
         , Icosahedron.view model.ico
             |> Element.map IcoMsg
             |> Element.el
@@ -80,6 +85,13 @@ view model =
                 [ Element.centerX
                 , Element.spacing 4
                 , Font.size 25
+                , Font.bold
+                ]
+                [ Element.text "Welcome to my website!" ]
+            , Element.paragraph
+                [ Element.centerX
+                , Element.spacing 4
+                , Font.size 25
                 ]
                 [ Element.text "I am a undergraduate student studying computer science at the University of Alberta. I love web development, especially through functional languages like Elm." ]
 
@@ -91,7 +103,7 @@ view model =
                 ]
               <|
                 List.map
-                    (\label ->
+                    (\( label, route ) ->
                         Element.paragraph
                             [ Element.width Element.shrink
                             , Element.paddingXY 1 2
@@ -105,13 +117,16 @@ view model =
                             ]
                             [ Element.text label ]
                     )
-                    [ "About", "Projects", "Contact" ]
+                    [ ( "About", Routes.About )
+                    , ( "Projects", Routes.Projects )
+                    , ( "Contact", Routes.Contact )
+                    ]
             ]
             |> Util.surround
                 { vertical = True
-                , first = 2
-                , middle = 5
-                , last = 2
+                , first = 1
+                , middle = 3
+                , last = 1
                 }
         , Icon.view
             [ Element.centerX
