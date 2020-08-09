@@ -1,5 +1,9 @@
 module Icosahedron exposing (Model, Msg, init, subscriptions, update, view)
 
+{-| ICOSAHEDRON
+Literally hardcoding an icosahedron for Elm-3d-scene to render
+-}
+
 import Angle exposing (Angle)
 import Browser.Events
 import Camera3d
@@ -17,20 +21,30 @@ import Scene3d.Material as Material
 import Viewpoint3d
 
 
+
+-- Honestly idk why this is here
+
+
 type WorldCoordinates
     = WorldCoordinates
 
 
 type alias Model =
-    { azimuth : Angle
+    { size : Int
+    , azimuth : Angle
     , elevation : Angle
     , orbiting : Bool
     }
 
 
-init : Model
-init =
-    { azimuth = Angle.degrees 45
+
+-- flags is how big to make the icosahedron
+
+
+init : Int -> Model
+init size =
+    { size = size
+    , azimuth = Angle.degrees 45
     , elevation = Angle.degrees 30
     , orbiting = False
     }
@@ -75,7 +89,7 @@ view model =
     Element.html <|
         Scene3d.unlit
             { camera = camera
-            , dimensions = ( Pixels.int 400, Pixels.int 400 )
+            , dimensions = ( Pixels.int model.size, Pixels.int model.size )
             , entities = [ initialIcosahedron ]
             , clipDepth = Length.cssPixels 10
             , background = Scene3d.transparentBackground

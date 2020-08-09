@@ -35,14 +35,22 @@ view attrs data =
             (Font.color <| Colours.toElement data.color) :: attrs
 
         onClickAttrs =
-            [ Maybe.map Events.onClick <| Maybe.map .msg data.msg
+            [ Maybe.map .msg data.msg
+                |> Maybe.map
+                    (\onClickMsg ->
+                        [ Events.onClick onClickMsg
+                        , Element.pointer
+                        ]
+                    )
             , Maybe.andThen .hoverColor data.msg
                 |> Maybe.map
                     (\hoverColor ->
-                        Element.mouseOver
+                        [ Element.mouseOver
                             [ Font.color <| Colours.toElement hoverColor ]
+                        ]
                     )
             ]
                 |> List.filterMap identity
+                |> List.concat
     in
     Element.el (attributes ++ onClickAttrs) elementIcon
