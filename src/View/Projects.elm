@@ -7,6 +7,7 @@ module View.Projects exposing
     , view
     )
 
+import Browser.Navigation as Nav
 import Color
 import Colours
 import Element exposing (Element)
@@ -14,6 +15,8 @@ import Element.Font as Font
 import FeatherIcons
 import Html.Attributes
 import Icon
+import Routes exposing (Route)
+import SharedState exposing (SharedState)
 import Util
 
 
@@ -65,7 +68,7 @@ view model =
                     , msg =
                         Just
                             { hoverColor = Just Colours.themeBlue
-                            , msg = NoOp
+                            , msg = NavigateTo Routes.Projects
                             }
                     }
             ]
@@ -78,12 +81,14 @@ view model =
 
 
 type Msg
-    = NoOp
+    = NavigateTo Route
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    ( model, Cmd.none )
+update : SharedState -> Msg -> Model -> ( Model, Cmd Msg )
+update sharedState msg model =
+    case msg of
+        NavigateTo route ->
+            ( model, Nav.pushUrl sharedState.navKey (Routes.toUrlString route) )
 
 
 

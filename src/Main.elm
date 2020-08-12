@@ -1,10 +1,16 @@
 module Main exposing (..)
 
-import Browser
+import Browser exposing (Document, UrlRequest(..))
+import Browser.Dom as Dom
+import Browser.Navigation as Nav
 import Data.Flags exposing (Flags, WindowSize)
 import Element exposing (Element)
 import Element.Font as Font
 import Html exposing (Html)
+import Routes exposing (Route)
+import SharedState exposing (SharedState)
+import Task
+import Url exposing (Url)
 import Util
 import View.About as About
 import View.Contact as Contact
@@ -18,11 +24,13 @@ import View.Projects as Projects
 
 main : Program Flags Model Msg
 main =
-    Browser.element
+    Browser.application
         { view = view
         , init = init
         , update = update
         , subscriptions = subscriptions
+        , onUrlRequest = ClickedLink
+        , onUrlChange = UrlChanged
         }
 
 
@@ -32,6 +40,8 @@ main =
 
 type alias Model =
     { windowSize : WindowSize
+    , sharedState : SharedState
+    , route : Route
     , about : About.Model
     , home : Home.Model
     , projects : Projects.Model
@@ -39,9 +49,15 @@ type alias Model =
     }
 
 
-init : Flags -> ( Model, Cmd Msg )
-init flags =
+init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init flags url key =
+    let
+        route =
+            Routes.fromUrl url
+    in
     ( { windowSize = flags.windowSize
+      , sharedState = SharedState.init key
+      , route = route
       , about = About.init
       , home = Home.init flags
       , projects = Projects.init
@@ -55,29 +71,38 @@ init flags =
 ---- VIEW ----
 
 
-view : Model -> Html Msg
+view : Model -> Document Msg
 view model =
-    Element.column
-        [ Element.width Element.fill
-        , Element.height Element.fill
-        , Element.spacing 48
-        ]
-        [ Home.view model.home
-            |> Element.map HomeMsg
-        , About.view model.about
-            |> Element.map AboutMsg
-        , Projects.view model.projects
-            |> Element.map ProjectsMsg
-        , Contact.view model.contact
-            |> Element.map ContactMsg
-        , footer
-        ]
-        |> Element.layout
-            [ Font.family
-                [ Font.typeface "Lato"
-                , Font.sansSerif
+    let
+        title =
+            "Joshua Ji - " ++ Routes.toStrCapitals model.route
+
+        body =
+            Element.column
+                [ Element.width Element.fill
+                , Element.height Element.fill
+                , Element.spacing 48
                 ]
-            ]
+                [ Home.view model.home
+                    |> Element.map HomeMsg
+                , About.view model.about
+                    |> Element.map AboutMsg
+                , Projects.view model.projects
+                    |> Element.map ProjectsMsg
+                , Contact.view model.contact
+                    |> Element.map ContactMsg
+                , footer
+                ]
+                |> Element.layout
+                    [ Font.family
+                        [ Font.typeface "Lato"
+                        , Font.sansSerif
+                        ]
+                    ]
+    in
+    { title = title
+    , body = [ body ]
+    }
 
 
 footer : Element Msg
@@ -100,42 +125,87 @@ footer =
 
 
 type Msg
-    = HomeMsg Home.Msg
+    = ClickedLink UrlRequest
+    | UrlChanged Url
+    | HomeMsg Home.Msg
     | AboutMsg About.Msg
     | ProjectsMsg Projects.Msg
     | ContactMsg Contact.Msg
+    | FailedRouteJump (Result Dom.Error ())
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        ClickedLink urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model
+                    , Nav.pushUrl model.sharedState.navKey (Url.toString url)
+                    )
+
+                Browser.External href ->
+                    ( model
+                    , Nav.load href
+                    )
+
+        UrlChanged url ->
+            let
+                newRoute =
+                    Routes.fromUrl url
+            in
+            ( model, jumpToId <| Routes.toStrLowercase newRoute )
+
         HomeMsg homeMsg ->
             let
                 ( newHomeModel, homeCmd ) =
-                    Home.update homeMsg model.home
+                    Home.update model.sharedState homeMsg model.home
             in
             ( { model | home = newHomeModel }, Cmd.map HomeMsg homeCmd )
 
         AboutMsg aboutMsg ->
             let
                 ( newAboutModel, aboutCmd ) =
-                    About.update aboutMsg model.about
+                    About.update model.sharedState aboutMsg model.about
             in
             ( { model | about = newAboutModel }, Cmd.map AboutMsg aboutCmd )
 
         ProjectsMsg projectsMsg ->
             let
                 ( newProjectsModel, projectsCmd ) =
-                    Projects.update projectsMsg model.projects
+                    Projects.update model.sharedState projectsMsg model.projects
             in
             ( { model | projects = newProjectsModel }, Cmd.map ProjectsMsg projectsCmd )
 
         ContactMsg contactMsg ->
             let
                 ( newContactModel, contactCmd ) =
-                    Contact.update contactMsg model.contact
+                    Contact.update model.sharedState contactMsg model.contact
             in
             ( { model | contact = newContactModel }, Cmd.map ContactMsg contactCmd )
+
+        FailedRouteJump r ->
+            case r of
+                Err (Dom.NotFound err) ->
+                    let
+                        _ =
+                            Debug.log <| err ++ " could not be found"
+                    in
+                    ( model, Cmd.none )
+
+                _ ->
+                    let
+                        _ =
+                            Debug.log "found it!"
+                    in
+                    ( model, Cmd.none )
+
+
+jumpToId : String -> Cmd Msg
+jumpToId id =
+    Dom.getElement id
+        |> Task.andThen (\elem -> Dom.setViewport 0 elem.element.y)
+        |> Task.attempt FailedRouteJump
 
 
 
@@ -145,9 +215,10 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Home.subscriptions model.home
-            |> Sub.map HomeMsg
-        , About.subscriptions model.about
+        [ --     Home.subscriptions model.home
+          --     |> Sub.map HomeMsg
+          -- ,
+          About.subscriptions model.about
             |> Sub.map AboutMsg
         , Projects.subscriptions model.projects
             |> Sub.map ProjectsMsg

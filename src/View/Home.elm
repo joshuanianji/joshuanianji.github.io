@@ -10,6 +10,7 @@ module View.Home exposing
 {-| The Title screen with icosahedron
 -}
 
+import Browser.Navigation as Nav
 import Color
 import Data.Flags exposing (Flags, WindowSize)
 import Element exposing (Element)
@@ -20,6 +21,7 @@ import Html.Attributes
 import Icon
 import Icosahedron
 import Routes exposing (Route)
+import SharedState exposing (SharedState)
 import Util
 
 
@@ -109,6 +111,7 @@ view model =
                             , Element.paddingXY 1 2
                             , Element.htmlAttribute <| Html.Attributes.class "fat-underline"
                             , Element.pointer
+                            , Events.onClick <| NavigateTo route
                             , Font.size 30
                             , Font.family
                                 [ Font.typeface "Playfair Display SC"
@@ -146,12 +149,16 @@ view model =
 
 
 type Msg
-    = IcoMsg Icosahedron.Msg
+    = NavigateTo Route
+    | IcoMsg Icosahedron.Msg
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : SharedState -> Msg -> Model -> ( Model, Cmd Msg )
+update sharedState msg model =
     case msg of
+        NavigateTo route ->
+            ( model, Nav.pushUrl sharedState.navKey (Routes.toUrlString route) )
+
         IcoMsg icoMsg ->
             ( { model | ico = Icosahedron.update icoMsg model.ico }, Cmd.none )
 
