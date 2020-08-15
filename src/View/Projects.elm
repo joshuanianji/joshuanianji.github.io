@@ -21,6 +21,7 @@ import Json.Decode as Decode
 import Routes exposing (Route)
 import SharedState exposing (SharedState)
 import String
+import Util
 
 
 
@@ -62,31 +63,7 @@ view model =
         , Element.htmlAttribute <| Html.Attributes.id "projects"
         ]
         [ -- title
-          Element.paragraph
-            [ Element.htmlAttribute <| Html.Attributes.class "fat-underline"
-            , Element.width Element.shrink
-            , Element.paddingXY 0 4
-            , Font.size 50
-            , Font.family [ Font.typeface "Playfair Display SC" ]
-
-            -- link thingy
-            , Element.onLeft <|
-                Icon.view
-                    [ Element.centerY
-                    , Element.paddingXY 16 0
-                    ]
-                    { icon = FeatherIcons.link
-                    , strokeWidth = 2
-                    , color = Colours.gray
-                    , size = 25
-                    , msg =
-                        Just
-                            { hoverColor = Just Colours.themeBlue
-                            , msg = NavigateTo Routes.Projects
-                            }
-                    }
-            ]
-            [ Element.text "Projects" ]
+          Util.pageTitle "Projects" NavigateTo Routes.Projects
         , case model of
             Failed err ->
                 viewErr err

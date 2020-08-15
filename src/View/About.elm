@@ -47,31 +47,7 @@ view model =
         , Element.htmlAttribute <| Html.Attributes.id "about"
         ]
         [ -- title
-          Element.paragraph
-            [ Element.htmlAttribute <| Html.Attributes.class "fat-underline"
-            , Element.width Element.shrink
-            , Element.paddingXY 0 4
-            , Font.size 50
-            , Font.family [ Font.typeface "Playfair Display SC" ]
-
-            -- link thingy
-            , Element.onLeft <|
-                Icon.view
-                    [ Element.centerY
-                    , Element.paddingXY 16 0
-                    ]
-                    { icon = FeatherIcons.link
-                    , strokeWidth = 2
-                    , color = Colours.gray
-                    , size = 25
-                    , msg =
-                        Just
-                            { hoverColor = Just Colours.themeBlue
-                            , msg = NavigateTo Routes.About
-                            }
-                    }
-            ]
-            [ Element.text "About" ]
+          Util.pageTitle "About" NavigateTo Routes.About
         , Element.textColumn
             [ Element.spacing 16
             , Element.spacing 4

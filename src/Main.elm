@@ -81,7 +81,7 @@ view model =
             Element.column
                 [ Element.width Element.fill
                 , Element.height Element.fill
-                , Element.spacing 48
+                , Element.spacing 64
                 ]
                 [ Home.view model.home
                     |> Element.map HomeMsg
@@ -215,10 +215,9 @@ jumpToId id =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ --     Home.subscriptions model.home
-          --     |> Sub.map HomeMsg
-          -- ,
-          About.subscriptions model.about
+        [ Home.subscriptions model.home
+            |> Sub.map HomeMsg
+        , About.subscriptions model.about
             |> Sub.map AboutMsg
         , Projects.subscriptions model.projects
             |> Sub.map ProjectsMsg
