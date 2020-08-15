@@ -60,7 +60,7 @@ init flags url key =
       , route = route
       , about = About.init
       , home = Home.init flags
-      , projects = Projects.init
+      , projects = Projects.init flags.projectsJson
       , contact = About.init
       }
     , Cmd.none

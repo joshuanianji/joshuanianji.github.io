@@ -8,29 +8,43 @@ module View.Projects exposing
     )
 
 import Browser.Navigation as Nav
-import Color
 import Colours
+import Data.Project as Data exposing (Project)
 import Element exposing (Element)
+import Element.Background as Background
+import Element.Border as Border
 import Element.Font as Font
 import FeatherIcons
 import Html.Attributes
 import Icon
+import Json.Decode as Decode
 import Routes exposing (Route)
 import SharedState exposing (SharedState)
-import Util
+import String
 
 
 
 ---- MODEL ----
 
 
-type alias Model =
-    {}
+type Model
+    = Failed Decode.Error
+    | Success SuccessData
 
 
-init : Model
-init =
-    {}
+type alias SuccessData =
+    { projects : List Project }
+
+
+init : String -> Model
+init str =
+    case Data.fromJson str of
+        Ok projects ->
+            Success
+                { projects = projects }
+
+        Err err ->
+            Failed err
 
 
 
@@ -63,7 +77,7 @@ view model =
                     ]
                     { icon = FeatherIcons.link
                     , strokeWidth = 2
-                    , color = Color.gray
+                    , color = Colours.gray
                     , size = 25
                     , msg =
                         Just
@@ -73,6 +87,86 @@ view model =
                     }
             ]
             [ Element.text "Projects" ]
+        , case model of
+            Failed err ->
+                viewErr err
+
+            Success data ->
+                viewProjects data
+        ]
+
+
+viewErr : Decode.Error -> Element Msg
+viewErr err =
+    Element.text <| "error! " ++ Decode.errorToString err
+
+
+viewProjects : SuccessData -> Element Msg
+viewProjects data =
+    Element.column
+        [ Element.width Element.fill ]
+        [ Element.column
+            [ Element.spacing 16
+            , Element.width Element.fill
+            ]
+          <|
+            List.map viewProject data.projects
+        ]
+
+
+
+-- view a single project
+
+
+viewProject : Project -> Element Msg
+viewProject proj =
+    let
+        viewConcept concept =
+            Element.el
+                [ Element.paddingXY 6 3
+                , Border.rounded 4
+                , Background.color <| Colours.toElement Colours.themeBlue
+                , Font.size 16
+                , Font.color <| Colours.toElement Colours.white
+                ]
+            <|
+                Element.text (Data.conceptToString concept)
+    in
+    Element.column
+        [ Element.spacing 12
+        , Element.padding 24
+        , Element.width Element.fill
+        , Border.width 1
+        , Border.rounded 8
+        , Border.color <| Colours.toElement Colours.gray
+        , Element.mouseOver
+            [ Border.color <| Colours.toElement Colours.black ]
+        ]
+        [ Element.el
+            [ Font.bold
+            ]
+          <|
+            Element.text proj.name
+
+        -- year
+        , Element.el
+            [ Font.light
+            , Font.size 12
+            , Font.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.black
+            ]
+          <|
+            Element.text (String.fromInt proj.year)
+        , Element.paragraph
+            [ Font.size 18 ]
+            [ Element.text proj.blurb ]
+        , case proj.concepts of
+            Nothing ->
+                Element.none
+
+            Just concepts ->
+                Element.row
+                    [ Element.spacing 5 ]
+                    (List.map viewConcept concepts)
         ]
 
 

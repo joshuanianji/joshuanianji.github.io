@@ -2,7 +2,9 @@ module Data.Flags exposing (Flags, WindowSize)
 
 
 type alias Flags =
-    { windowSize : WindowSize }
+    { windowSize : WindowSize
+    , projectsJson : String
+    }
 
 
 type alias WindowSize =
