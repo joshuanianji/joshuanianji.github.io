@@ -8,7 +8,6 @@ module View.About exposing
     )
 
 import Browser.Navigation as Nav
-import Color
 import Colours
 import Element exposing (Element)
 import Element.Font as Font
@@ -63,7 +62,7 @@ view model =
                     ]
                     { icon = FeatherIcons.link
                     , strokeWidth = 2
-                    , color = Color.gray
+                    , color = Colours.gray
                     , size = 25
                     , msg =
                         Just
@@ -80,12 +79,12 @@ view model =
             [ -- subtitle
               Element.paragraph
                 [ Element.spacing 6 ]
-                [ Element.text "I have been coding with HTML, CSS and Javascript since I was 12: making blogs, web apps, or anything that will make my life easier. Currently, my projects are in "
+                [ Element.text "I have been coding with HTML, CSS and Javascript since I was 12: making blogs, web apps, or anything that will make my life easier. Recently, I've been taking a deep dive into functional programming, and I'm currently using "
                 , Util.link
                     { label = "Elm"
                     , link = "https://elm-lang.org"
                     }
-                , Element.text ", and I have been learning Haskell, Purescript and Rust."
+                , Element.text " as my main language for my web apps. On the side, I'm learning Haskell, Purescript and Rust."
                 ]
             ]
         ]

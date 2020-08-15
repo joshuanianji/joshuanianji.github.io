@@ -9,13 +9,32 @@ themeBlue =
     Color.rgb255 50 145 201
 
 
-withAlpha : Float -> Color -> Color
+
+-- copied colours
+
+
+gray : Color
+gray =
+    Color.gray
+
+
+white : Color
+white =
+    Color.white
+
+
+black : Color
+black =
+    Color.black
+
+
+withAlpha : Float -> Color.Color -> Color.Color
 withAlpha a color =
     let
-        { red, green, blue, alpha } =
+        rgba =
             Color.toRgba color
     in
-    Color.rgba red green blue a
+    Color.rgba rgba.red rgba.green rgba.blue a
 
 
 toElement : Color -> Element.Color

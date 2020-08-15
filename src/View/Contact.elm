@@ -8,11 +8,11 @@ module View.Contact exposing
     )
 
 import Browser.Navigation as Nav
-import Color
 import Colours
 import Element exposing (Element)
 import Element.Font as Font
 import FeatherIcons
+import Html exposing (label)
 import Html.Attributes
 import Icon
 import Routes exposing (Route)
@@ -63,7 +63,7 @@ view model =
                     ]
                     { icon = FeatherIcons.link
                     , strokeWidth = 2
-                    , color = Color.gray
+                    , color = Colours.gray
                     , size = 25
                     , msg =
                         Just
@@ -73,6 +73,30 @@ view model =
                     }
             ]
             [ Element.text "Contact" ]
+        , Element.paragraph
+            []
+            [ Element.text "Feel free to contact me anytime <idk what to put here lmaooo>" ]
+        , Element.column
+            []
+          <|
+            List.map
+                (\( icon, label ) ->
+                    Element.row
+                        []
+                        [ Icon.view
+                            []
+                            { icon = icon
+                            , strokeWidth = 1
+                            , color = Colours.black
+                            , size = 50
+                            , msg = Nothing
+                            }
+                        , Element.text label
+                        ]
+                )
+                [ ( FeatherIcons.github, "Github" )
+                , ( FeatherIcons.mail, "Gmail" )
+                ]
         ]
 
 

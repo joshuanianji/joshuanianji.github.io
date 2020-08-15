@@ -11,7 +11,7 @@ module View.Home exposing
 -}
 
 import Browser.Navigation as Nav
-import Color
+import Colours
 import Data.Flags exposing (Flags, WindowSize)
 import Element exposing (Element)
 import Element.Events as Events
@@ -113,10 +113,7 @@ view model =
                             , Element.pointer
                             , Events.onClick <| NavigateTo route
                             , Font.size 30
-                            , Font.family
-                                [ Font.typeface "Playfair Display SC"
-                                , Font.sansSerif
-                                ]
+                            , Font.family [ Font.typeface "Playfair Display SC" ]
                             ]
                             [ Element.text label ]
                     )
@@ -137,7 +134,7 @@ view model =
             ]
             { icon = FeatherIcons.chevronDown
             , strokeWidth = 2
-            , color = Color.black
+            , color = Colours.black
             , size = 40
             , msg = Nothing
             }

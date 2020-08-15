@@ -7,7 +7,7 @@ Literally hardcoding an icosahedron for Elm-3d-scene to render
 import Angle exposing (Angle)
 import Browser.Events
 import Camera3d
-import Color
+import Colours
 import Duration exposing (Duration)
 import Element exposing (Element)
 import Json.Decode as Decode exposing (Decoder)
@@ -240,10 +240,10 @@ initialIcosahedron =
     in
     -- Combine all faces into a single entity
     Scene3d.group
-        [ points Color.gray
-        , rect1aLines Color.gray
-        , rect1cLines Color.gray
-        , middleLines Color.gray
+        [ points Colours.gray
+        , rect1aLines Colours.gray
+        , rect1cLines Colours.gray
+        , middleLines Colours.gray
         ]
         |> Scene3d.scaleAbout Point3d.origin 5
 
