@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/projects/hiit-timer/favicon.png"
   },
   {
-    "revision": "e1befedd20eaec8c932d00fdd239476e",
+    "revision": "9315bf1e228f32d0ad8e30eca6d040f7",
     "url": "/projects/hiit-timer/index.html"
   },
   {
@@ -16,12 +16,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/projects/hiit-timer/manifest.json"
   },
   {
-    "revision": "a54c14d7cf73f1f23d05",
+    "revision": "7f13177830ad016d178b",
     "url": "/projects/hiit-timer/static/css/main.df87e7f0.chunk.css"
   },
   {
-    "revision": "a54c14d7cf73f1f23d05",
-    "url": "/projects/hiit-timer/static/js/main.a54c14d7.chunk.js"
+    "revision": "7f13177830ad016d178b",
+    "url": "/projects/hiit-timer/static/js/main.7f131778.chunk.js"
   },
   {
     "revision": "9d4ae921b2a3f790ce5f",
@@ -46,5 +46,9 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "63f8231867a8414be6b7425aa3f923b2",
     "url": "/projects/hiit-timer/static/media/whistle.63f82318.mp3"
+  },
+  {
+    "revision": "522c33efdda0b8dc6ce90c991beb9666",
+    "url": "/projects/hiit-timer/version.txt"
   }
 ]);
