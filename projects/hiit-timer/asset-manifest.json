@@ -1,7 +1,7 @@
 {
   "main.css": "/projects/hiit-timer/static/css/main.df87e7f0.chunk.css",
-  "main.js": "/projects/hiit-timer/static/js/main.a54c14d7.chunk.js",
-  "main.js.map": "/projects/hiit-timer/static/js/main.a54c14d7.chunk.js.map",
+  "main.js": "/projects/hiit-timer/static/js/main.295890e1.chunk.js",
+  "main.js.map": "/projects/hiit-timer/static/js/main.295890e1.chunk.js.map",
   "runtime~main.js": "/projects/hiit-timer/static/js/runtime~main.9d4ae921.js",
   "runtime~main.js.map": "/projects/hiit-timer/static/js/runtime~main.9d4ae921.js.map",
   "vendors~main.js": "/projects/hiit-timer/static/js/vendors~main.009c4d16.chunk.js",
@@ -11,9 +11,10 @@
   "favicon.png": "/projects/hiit-timer/favicon.png",
   "index.html": "/projects/hiit-timer/index.html",
   "manifest.json": "/projects/hiit-timer/manifest.json",
-  "precache-manifest.124a61ba74798c0fca0890f2d5dab23b.js": "/projects/hiit-timer/precache-manifest.124a61ba74798c0fca0890f2d5dab23b.js",
+  "precache-manifest.58f97b8471cd82377837ba869023c71d.js": "/projects/hiit-timer/precache-manifest.58f97b8471cd82377837ba869023c71d.js",
   "static/media/smh.png": "/projects/hiit-timer/static/media/smh.b5305f8b.png",
   "static/media/tada.mp3": "/projects/hiit-timer/static/media/tada.1768de81.mp3",
   "static/media/tada.wav": "/projects/hiit-timer/static/media/tada.9aefd125.wav",
-  "static/media/whistle.mp3": "/projects/hiit-timer/static/media/whistle.63f82318.mp3"
+  "static/media/whistle.mp3": "/projects/hiit-timer/static/media/whistle.63f82318.mp3",
+  "version.txt": "/projects/hiit-timer/version.txt"
 }
