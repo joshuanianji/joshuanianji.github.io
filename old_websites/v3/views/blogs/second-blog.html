@@ -1,0 +1,113 @@
+<html ng-app="myApp">
+
+<head>
+    <title>Joshua's website | blog
+        <!-- possible to switch the 'blog' partr to the title of the blog -->
+    </title>
+
+    <!-- Essentials - CSS -->
+    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="../../node_modules/animate.css/animate.css">
+    <link rel="stylesheet" href="../../node_modules/font-awesome/css/font-awesome.css">
+
+    <!-- Other CSS downloads -->
+    <link rel="stylesheet" href="../../node_modules/highlight.js/styles/monokai-sublime.css">
+
+    <!-- Google fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Lato:300italic,300' rel='stylesheet' type='text/css'>
+
+    <!-- My css app -->
+    <link rel="stylesheet" href="blogs.css">
+
+    <!-- Essentials - JS -->
+    <script src="../../node_modules/jquery/dist/jquery.js"></script>
+    <script src="../../node_modules/angular/angular.js"></script>
+    <script src="../../node_modules/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="../../node_modules/bootstrap/dist/js/bootstrap.js"></script>
+
+    <!-- other downloads -->
+    <script src="../../node_modules/smooth-scroll/src/js/smooth-scroll.js"></script>
+    <script src="../../node_modules/highlight.js/lib/highlight.js"></script>
+    <!-- To initiate highlight.js -->
+    <script>
+        hljs.initHighlightingOnLoad();
+    </script>
+    <!-- three.js -->
+
+    <!-- my apps -->
+    <script src="../../functions.js"></script>
+    <script src="../../app.js"></script>
+    <script src="../../angularDirectives.js"></script>
+
+</head>
+
+<body>
+
+    <div class="container-fluid no-padding content-wrapper">
+
+        <!-- navbar -->
+        <nav class="navbar navbar-default nav-transparent nav-remake">
+            <div class="container-fluid">
+
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed no-border" data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand text-white hover-link" href="/app/index.html#/home" id="brand">Joshua Ji</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <!-- also navbar-collapse -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right nav-floats">
+                        <li id="home">
+                            <a href="/app/index.html#/home" class="hover-link">Home
+                                <span class="sr-only">(current)</span>
+                            </a>
+                        </li>
+                        <li id="blog">
+                            <a href="/app/index.html#/blog" class="hover-link">Blog</a>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </nav>
+
+        <div class="container-fluid no-padding blog-title"
+            style="background-image: url('../../pictures/html_code_wallpaper_4925_by_3283.jpg');">
+
+            <div
+                class="container-fluid col-md-6 col-sm-8 col-xs-10 col-md-offset-3 col-sm-offset-2 col-xs-offset-1 blog-title-container">
+                <h1 class="text-white text-center blog-title-text">
+                    <!-- Insert blog title here -->
+                </h1>
+                <hr />
+                <p class="lead text-center text-white blog-title-description-text">
+                    <!-- Insert blog description here -->
+                </p>
+            </div>
+
+        </div>
+
+        <div class="container-fluid blog-content col-md-8 col-sm-10 col-xs-12 col-md-offset-2 col-sm-offset-1">
+            <!-- Blog content -->
+        </div>
+
+        <div class="container-fluid content-footer-container col-md-12">
+            <hr class="half-hr">
+            <p class="text-center">
+                <b>not</b> &copy; Joshua Company Ltd</p>
+        </div>
+
+
+    </div>
+
+</body>
+
+</html>

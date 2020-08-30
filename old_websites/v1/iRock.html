@@ -1,0 +1,108 @@
+<!DOCTYPE.html>
+    <html>
+
+    <head>
+        <title id="title">iRock</title>
+        <script src="https://code.jquery.com/jquery-2.1.0.js"></script>
+        <link rel="stylesheet" type="text/css" href="all.css">
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Tangerine">
+    </head>
+
+    <body onload="resizeRock(); greetUser();" onresize="resizeRock();">
+        <meta charset="UTF-8">
+        <h1 class="title">The Virtual Pet Rock</h1>
+        <div class="navbar">
+            <div class="real-nav">
+                <ul>
+                    <li>
+                        <a href="index.html">Home</a>
+                    </li>
+                    <li id="blogLi">
+                        <a href="blog.html" class="triangle-down">Blog</a>
+                    </li>
+                    <li class="droppy">
+                        <div class="arrow-down" id="snippets"></div>
+                        <a href="#" class="triangle-down">Snippets</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="dropdown-blog">
+                <!--now these won't actually go onto a new page, these will actually change which blog will show.-->
+                <ul>
+                    <li class="notLast website">
+                        <a href="blog.html">Website development</a>
+                    </li>
+                    <li class="notLast learning">
+                        <a href="blog.html">My learning for coding</a>
+                    </li>
+                    <li class="other">
+                        <a href="blog.html">Other things worth mentioning</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="dropdown">
+                <ul id="head-first">
+                    <li class="notLast">
+                        <a href="canvas.html">Canvas</a>
+                    </li>
+                    <li class="head-first">
+                        <a href="#" class="triangle-right">Head first in Javascript stuff</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="dropdown-2">
+                <ul>
+                    <li id="on">
+                        <a href="iRock.html">iRock</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!--Now the real iRock stuff!-->
+        <script type="text/javascript">
+            var username;
+
+            function resizeRock() {
+                document.getElementById("rocking").style.height = ((document.body.clientHeight - 300) * 0.9).toString() + "px";
+            };
+
+            function greetUser() {
+                if (navigator.cookieEnabled) {
+                    username = readCookie("irock_username");
+                };
+                if (username) {
+                    alert("Hello " + username + ", I missed you.")
+                } else {
+                    alert('Hello, I am your pet rock.');
+                };
+
+            };
+
+            function touchRock() {
+                if (username) {
+                    alert("I like the attention, " + username + ". Thank you.");
+                } else {
+                    username = prompt("What's your name?", "write your name here.");
+                    if (username) {
+                        alert("It is good to meet you, " + username + ".");
+                        if (navigator.cookieEnabled) {
+                            writeCookie("irock_username", username, 5 * 365);
+                        } else {
+                            alert("sorry. Cookies aren't supported/enabled in your browser. I won't remember you later");
+                        };
+                    };
+                };
+                document.getElementById("rocking").src = "pictures/rock_happy.png";
+                setTimeout(function () {
+                    document.getElementById("rocking").src = 'pictures/rock.png';
+                }, 1 * 60 * 1000);
+            };
+        </script>
+        <div style="margin-top:100px; text-align:center" class="rock">
+            <img id="rocking" src="pictures/rock.png" alt="iRock" style="cursor:pointer" onclick="touchRock()" />
+        </div>
+        <script src="all.js"></script>
+        <script src="cookie.js"></script>
+    </body>
+
+    </html>
