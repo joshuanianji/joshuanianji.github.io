@@ -75,7 +75,34 @@ view model =
 
 viewErr : Decode.Error -> Element Msg
 viewErr err =
-    Element.text <| "error! " ++ Decode.errorToString err
+    Element.column
+        [ Element.spacing 16 ]
+        [ Icon.view
+            [ Element.centerX
+            ]
+            { icon = FeatherIcons.frown
+            , strokeWidth = 2
+            , color = Colours.errorRed
+            , size = 40
+            , msg = Nothing
+            }
+        , Element.paragraph
+            [ Font.family [ Font.typeface "Playfair Display SC" ]
+            , Font.center
+            ]
+            [ Element.text "Json Decoding error!" ]
+        , Element.el
+            [ Element.padding 16
+            , Element.htmlAttribute (Html.Attributes.style "white-space" "pre-wrap")
+            , Border.color <| Colours.toElement Colours.errorRed
+            , Border.rounded 4
+            , Border.width 2
+            , Background.color <| Colours.toElement <| Colours.withAlpha 0.5 Colours.errorRed
+            , Font.color <| Colours.toElement Colours.white
+            ]
+          <|
+            Element.text (Decode.errorToString err)
+        ]
 
 
 viewProjects : SuccessData -> Element Msg

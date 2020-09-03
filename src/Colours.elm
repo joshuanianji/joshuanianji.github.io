@@ -9,6 +9,11 @@ themeBlue =
     Color.rgb255 50 145 201
 
 
+errorRed : Color
+errorRed =
+    Color.rgb255 224 71 76
+
+
 
 -- copied colours
 
