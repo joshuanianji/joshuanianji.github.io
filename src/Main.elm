@@ -186,18 +186,10 @@ update msg model =
 
         FailedRouteJump r ->
             case r of
-                Err (Dom.NotFound err) ->
-                    let
-                        _ =
-                            Debug.log <| err ++ " could not be found"
-                    in
+                Err (Dom.NotFound _) ->
                     ( model, Cmd.none )
 
                 _ ->
-                    let
-                        _ =
-                            Debug.log "found it!"
-                    in
                     ( model, Cmd.none )
 
 
