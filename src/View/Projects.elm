@@ -9,7 +9,9 @@ module View.Projects exposing
 
 import Browser.Navigation as Nav
 import Colours
+import Data.Flags exposing (Flags, ProjIcons)
 import Data.Project as Data exposing (Project)
+import Dict
 import Element exposing (Element)
 import Element.Background as Background
 import Element.Border as Border
@@ -28,24 +30,17 @@ import Util
 ---- MODEL ----
 
 
-type Model
-    = Failed Decode.Error
-    | Success SuccessData
+type alias Model =
+    { projects : List Project
+    , icons : ProjIcons
+    }
 
 
-type alias SuccessData =
-    { projects : List Project }
-
-
-init : String -> Model
-init str =
-    case Data.fromJson str of
-        Ok projects ->
-            Success
-                { projects = projects }
-
-        Err err ->
-            Failed err
+init : Flags -> Model
+init flags =
+    { projects = flags.projects
+    , icons = flags.projectIcons
+    }
 
 
 
@@ -64,57 +59,154 @@ view model =
         ]
         [ -- title
           Util.pageTitle "Projects" NavigateTo Routes.Projects
-        , case model of
-            Failed err ->
-                viewErr err
-
-            Success data ->
-                viewProjects data
+        , viewProjects model
         ]
 
 
-viewErr : Decode.Error -> Element Msg
-viewErr err =
+viewProjects : Model -> Element Msg
+viewProjects model =
     Element.column
-        [ Element.spacing 16 ]
-        [ Icon.view
-            [ Element.centerX
-            ]
-            { icon = FeatherIcons.frown
-            , strokeWidth = 2
-            , color = Colours.errorRed
-            , size = 40
-            , msg = Nothing
-            }
-        , Element.paragraph
-            [ Font.family [ Font.typeface "Playfair Display SC" ]
-            , Font.center
-            ]
-            [ Element.text "Json Decoding error!" ]
-        , Element.el
-            [ Element.padding 16
-            , Element.htmlAttribute (Html.Attributes.style "white-space" "pre-wrap")
-            , Border.color <| Colours.toElement Colours.errorRed
-            , Border.rounded 4
-            , Border.width 2
-            , Background.color <| Colours.toElement <| Colours.withAlpha 0.5 Colours.errorRed
-            , Font.color <| Colours.toElement Colours.white
+        [ Element.width Element.fill
+        , Element.spacing 16
+        ]
+        [ Element.paragraph
+            [ Font.size 24 ]
+            [ Element.text "Pinned" ]
+        , Element.row
+            [ Element.width Element.fill
+            , Element.paddingXY 0 16
+            , Element.spacing 12
             ]
           <|
-            Element.text (Decode.errorToString err)
-        ]
-
-
-viewProjects : SuccessData -> Element Msg
-viewProjects data =
-    Element.column
-        [ Element.width Element.fill ]
-        [ Element.column
+            List.map (viewPinnedProject model.icons) (List.filter .pinned model.projects)
+        , Element.paragraph
+            [ Font.size 24 ]
+            [ Element.text "Other Projects" ]
+        , Element.column
             [ Element.spacing 16
             , Element.width Element.fill
             ]
           <|
-            List.map viewProject data.projects
+            List.map viewProject (List.filter (.pinned >> not) model.projects)
+        ]
+
+
+viewPinnedProject : ProjIcons -> Project -> Element Msg
+viewPinnedProject iconDict proj =
+    let
+        viewConcept concept =
+            Element.el
+                [ Element.paddingXY 6 3
+                , Border.rounded 4
+                , Background.color <| Colours.toElement Colours.themeBlue
+                , Font.size 12
+                , Font.color <| Colours.toElement Colours.white
+                ]
+            <|
+                Element.text (Data.conceptToString concept)
+
+        projIcon =
+            proj.imgLink
+                |> Maybe.andThen (\src -> Dict.get src iconDict)
+                |> Maybe.map
+                    (\src ->
+                        Element.image
+                            [ Element.width Element.fill
+                            , Element.height Element.shrink
+                            , Element.clip
+                            , Border.rounded 200
+                            ]
+                            { src = src
+                            , description = "Project icon"
+                            }
+                            |> Util.surround
+                                { vertical = False
+                                , first = 1
+                                , middle = 2
+                                , last = 1
+                                }
+                    )
+                |> Maybe.withDefault Element.none
+
+        linkBtn icon url =
+            Element.newTabLink
+                [ Element.width Element.fill
+                , Element.paddingXY 0 6
+                , Border.rounded 5
+                , Element.mouseOver
+                    [ Background.color <| Colours.toElement <| Colours.withAlpha 0.5 Colours.gray ]
+                ]
+                { url = url
+                , label =
+                    Icon.view
+                        [ Element.centerX ]
+                        { icon = icon
+                        , strokeWidth = 2
+                        , color = Colours.black
+                        , size = 18
+                        , msg = Nothing
+                        }
+                }
+    in
+    Element.column
+        [ Element.width Element.fill
+        , Element.height Element.fill
+        , Element.spacing 12
+        , Element.padding 24
+        , Border.width 1
+        , Border.rounded 8
+        , Border.color <| Colours.toElement Colours.gray
+        , Element.mouseOver
+            [ Border.color <| Colours.toElement Colours.black ]
+        ]
+        [ Element.el [ Element.paddingXY 0 12 ] projIcon
+        , Element.newTabLink
+            [ Element.pointer
+            , Element.width Element.fill
+            , Font.bold
+            , Font.center
+            , Element.mouseOver
+                [ Font.color <| Colours.toElement Colours.themeBlue ]
+            ]
+            { url = proj.link
+            , label = Element.text proj.name
+            }
+
+        -- year
+        , Element.paragraph
+            [ Font.light
+            , Font.center
+            , Font.size 12
+            , Font.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.black
+            ]
+            [ Element.text <| String.fromInt proj.year ]
+        , Element.paragraph
+            [ Font.size 16
+            , Font.center
+            ]
+            [ Element.text proj.blurb ]
+
+        -- fill in remaining space
+        , Element.el
+            [ Element.height Element.fill ]
+            Element.none
+
+        -- links
+        , Element.row
+            [ Element.width Element.fill ]
+            [ linkBtn FeatherIcons.link2 proj.link
+            , linkBtn FeatherIcons.github proj.githubLink
+            ]
+        , case proj.concepts of
+            Nothing ->
+                Element.none
+
+            Just concepts ->
+                Element.row
+                    [ Element.spacing 5
+                    , Element.centerX
+                    ]
+                    (List.map viewConcept concepts)
         ]
 
 
@@ -130,7 +222,7 @@ viewProject proj =
                 [ Element.paddingXY 6 3
                 , Border.rounded 4
                 , Background.color <| Colours.toElement Colours.themeBlue
-                , Font.size 16
+                , Font.size 14
                 , Font.color <| Colours.toElement Colours.white
                 ]
             <|

@@ -1,7 +1,7 @@
 [
     {
         "name": "HIIT-Timer",
-        "imgLink": "src/img/hiit-timer.png",
+        "imgLink": "hiit-timer",
         "blurb": "A customizable PWA that times your workouts.",
         "aboutLink": "https://joshuaji.com/src/post/ui-bootstrap-demo.emu",
         "link": "https://joshuaji.com/projects/hiit-timer",
@@ -11,11 +11,12 @@
         "concepts": [
             "PWA"
         ],
-        "purpose": "Personal"
+        "purpose": "Personal",
+        "pinned": true
     },
     {
         "name": "Derivatives",
-        "imgLink": "src/img/derivatives.png",
+        "imgLink": "derivative",
         "blurb": "An application to calculate derivatives, using intuitive LaTeX input and output.",
         "aboutLink": "https://joshuaji.com/src/post/ui-bootstrap-demo.emu",
         "link": "https://joshuaji.com/projects/derivative",
@@ -26,11 +27,12 @@
             "DataStructures",
             "Parsing"
         ],
-        "purpose": "Personal"
+        "purpose": "Personal",
+        "pinned": true
     },
     {
         "name": "Ui Bootstrap Elm Demo",
-        "imgLink": "src/img/ui-bootstrap-demo.png",
+        "imgLink": "ui-bootstrap",
         "blurb": "A demo application for the Elm Ui Bootstrap project.",
         "aboutLink": "https://joshuaji.com/src/post/ui-bootstrap-demo.emu",
         "link": "https://joshuaji.com/projects/ui-bootstrap-demo",
@@ -40,11 +42,12 @@
         "concepts": [
             "SPA"
         ],
-        "purpose": "Fancy"
+        "purpose": "Fancy",
+        "pinned": false
     },
     {
         "name": "Periodic Table",
-        "imgLink": "src/img/ptable_ss.png",
+        "imgLink": "ptable",
         "blurb": "A colour-coded periodic table app with a molar mass calculator.",
         "aboutLink": "https://joshuaji.com/src/post/ptable.emu",
         "link": "https://joshuaji.com/projects/ptable",
@@ -55,11 +58,12 @@
             "Parsing",
             "DataStructures"
         ],
-        "purpose": "School"
+        "purpose": "School",
+        "pinned": true
     },
     {
         "name": "Country Fact Finder",
-        "imgLink": "src/img/country_fact_finder.png",
+        "imgLink": null,
         "blurb": "An application that parses and displays information from 5 text files.",
         "aboutLink": "https://joshuaji.com/src/post/fact-finder.emu",
         "githubLink": "https://github.com/joshuanianji/Country-Fact-Finder",
@@ -67,28 +71,31 @@
         "year": 2019,
         "language": "Elm",
         "concepts": [],
-        "purpose": "School"
+        "purpose": "School",
+        "pinned": false
     },
     {
         "name": "WordRank",
-        "imgLink": "src/img/word_rank_ss.png",
+        "imgLink": null,
         "blurb": "An application that ranks words based on usage from a string input or a text file.",
         "aboutLink": "https://joshuaji.com/src/post/word-rank.emu",
         "githubLink": "https://github.com/joshuanianji/Wordrank",
         "link": "https://joshuaji.com/projects/word-rank",
         "year": 2019,
         "language": "Elm",
-        "purpose": "School"
+        "purpose": "School",
+        "pinned": false
     },
     {
         "name": "Cryptography",
-        "imgLink": "src/img/cryptography.png",
+        "imgLink": null,
         "blurb": "An app that deals with Caesar and Viginere cyphers, and can calculate hashes.",
         "aboutLink": "https://joshuaji.com/src/post/cryptography.emu",
         "githubLink": "https://github.com/joshuanianji/Cryptography",
         "link": "https://joshuaji.com/projects/cryptography",
         "year": 2018,
         "language": "Elm",
-        "purpose": "School"
+        "purpose": "School",
+        "pinned": false
     }
 ]

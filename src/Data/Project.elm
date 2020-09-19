@@ -1,4 +1,4 @@
-module Data.Project exposing (Concept(..), Language(..), Project, conceptToString, fromJson)
+module Data.Project exposing (Concept(..), Language(..), Project, conceptToString, decoder)
 
 -- Project type!
 
@@ -8,14 +8,14 @@ import Json.Decode.Pipeline as Pipeline
 
 type alias Project =
     { name : String
-
-    -- , imgLink : String
+    , imgLink : Maybe String -- might not have an icon
     , blurb : String
     , link : String
     , githubLink : String
     , year : Int
     , language : Language
     , concepts : Maybe (List Concept)
+    , pinned : Bool
     }
 
 
@@ -59,21 +59,18 @@ conceptToString concept =
 -- PARSER
 
 
-fromJson : String -> Result Decode.Error (List Project)
-fromJson =
-    Decode.decodeString (Decode.list decodeSingle)
-
-
-decodeSingle : Decoder Project
-decodeSingle =
+decoder : Decoder Project
+decoder =
     Decode.succeed Project
         |> Pipeline.required "name" Decode.string
+        |> Pipeline.optional "imgLink" (Decode.map Just Decode.string) Nothing
         |> Pipeline.required "blurb" Decode.string
         |> Pipeline.required "link" Decode.string
         |> Pipeline.required "githubLink" Decode.string
         |> Pipeline.required "year" Decode.int
         |> Pipeline.required "language" languageDecoder
         |> Pipeline.optional "concepts" (Decode.map Just conceptsDecoder) Nothing
+        |> Pipeline.required "pinned" Decode.bool
 
 
 languageDecoder : Decoder Language

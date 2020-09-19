@@ -1,14 +1,25 @@
-module Main exposing (..)
+module Main exposing (main)
 
 import Browser exposing (Document, UrlRequest(..))
 import Browser.Dom as Dom
+import Browser.Events
 import Browser.Navigation as Nav
-import Data.Flags exposing (Flags, WindowSize)
+import Colours
+import Data.Flags as Flags exposing (WindowSize)
+import Ease
 import Element exposing (Element)
+import Element.Background as Background
+import Element.Border as Border
 import Element.Font as Font
+import FeatherIcons
 import Html exposing (Html)
+import Html.Attributes
+import Icon
+import Json.Decode as Decode
+import Json.Encode exposing (Value)
 import Routes exposing (Route)
 import SharedState exposing (SharedState)
+import SmoothScroll
 import Task
 import Url exposing (Url)
 import Util
@@ -22,7 +33,7 @@ import View.Projects as Projects
 ---- PROGRAM ----
 
 
-main : Program Flags Model Msg
+main : Program Value Model Msg
 main =
     Browser.application
         { view = view
@@ -39,6 +50,10 @@ main =
 
 
 type alias Model =
+    Result Decode.Error M
+
+
+type alias M =
     { windowSize : WindowSize
     , sharedState : SharedState
     , route : Route
@@ -49,22 +64,44 @@ type alias Model =
     }
 
 
-init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
-init flags url key =
+
+-- config for scrolling
+-- higher speed means FASTER SCROLING
+
+
+scrollConfig : SmoothScroll.Config
+scrollConfig =
+    { offset = 12
+    , speed = 50
+    , easing = Ease.outQuint
+    }
+
+
+init : Value -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init flagsJson url key =
     let
+        flagsResult =
+            Flags.decode flagsJson
+
         route =
             Routes.fromUrl url
     in
-    ( { windowSize = flags.windowSize
-      , sharedState = SharedState.init key
-      , route = route
-      , about = About.init
-      , home = Home.init flags
-      , projects = Projects.init flags.projectsJson
-      , contact = About.init
-      }
-    , Cmd.none
-    )
+    case flagsResult of
+        Err decodeErr ->
+            ( Err decodeErr, Cmd.none )
+
+        Ok flags ->
+            ( Ok
+                { windowSize = flags.windowSize
+                , sharedState = SharedState.init key
+                , route = route
+                , about = About.init
+                , home = Home.init flags
+                , projects = Projects.init flags
+                , contact = About.init
+                }
+            , Cmd.none
+            )
 
 
 
@@ -74,35 +111,85 @@ init flags url key =
 view : Model -> Document Msg
 view model =
     let
-        title =
-            "Joshua Ji - " ++ Routes.toStrCapitals model.route
+        ( title, body ) =
+            case model of
+                Err decodeError ->
+                    ( "Error!", viewErr decodeError )
 
-        body =
-            Element.column
-                [ Element.width Element.fill
-                , Element.height Element.fill
-                , Element.spacing 64
-                ]
-                [ Home.view model.home
-                    |> Element.map HomeMsg
-                , About.view model.about
-                    |> Element.map AboutMsg
-                , Projects.view model.projects
-                    |> Element.map ProjectsMsg
-                , Contact.view model.contact
-                    |> Element.map ContactMsg
-                , footer
-                ]
-                |> Element.layout
-                    [ Font.family
-                        [ Font.typeface "Lato"
-                        , Font.sansSerif
-                        ]
-                    ]
+                Ok m ->
+                    ( "Joshua Ji - " ++ Routes.toStrCapitals m.route
+                    , viewOk m
+                    )
     in
     { title = title
     , body = [ body ]
     }
+
+
+viewErr : Decode.Error -> Html Msg
+viewErr err =
+    Element.column
+        [ Element.spacing 16
+        , Element.centerX
+        , Element.centerY
+        ]
+        [ Icon.view
+            [ Element.centerX
+            ]
+            { icon = FeatherIcons.frown
+            , strokeWidth = 2
+            , color = Colours.errorRed
+            , size = 40
+            , msg = Nothing
+            }
+        , Element.paragraph
+            [ Font.family [ Font.typeface "Playfair Display SC" ]
+            , Font.center
+            ]
+            [ Element.text "Json Decoding error!" ]
+        , Element.el
+            [ Element.padding 16
+            , Element.htmlAttribute (Html.Attributes.style "white-space" "pre-wrap")
+            , Border.color <| Colours.toElement Colours.errorRed
+            , Border.rounded 4
+            , Border.width 2
+            , Background.color <| Colours.toElement <| Colours.withAlpha 0.5 Colours.errorRed
+            , Font.color <| Colours.toElement Colours.white
+            ]
+          <|
+            Element.text (Decode.errorToString err)
+        ]
+        |> Element.layout
+            [ Font.family
+                [ Font.typeface "Lato"
+                , Font.sansSerif
+                ]
+            ]
+
+
+viewOk : M -> Html Msg
+viewOk model =
+    Element.column
+        [ Element.width Element.fill
+        , Element.height Element.fill
+        , Element.spacing 64
+        ]
+        [ Home.view model.home
+            |> Element.map HomeMsg
+        , About.view model.about
+            |> Element.map AboutMsg
+        , Projects.view model.projects
+            |> Element.map ProjectsMsg
+        , Contact.view model.contact
+            |> Element.map ContactMsg
+        , footer
+        ]
+        |> Element.layout
+            [ Font.family
+                [ Font.typeface "Lato"
+                , Font.sansSerif
+                ]
+            ]
 
 
 footer : Element Msg
@@ -127,92 +214,106 @@ footer =
 type Msg
     = ClickedLink UrlRequest
     | UrlChanged Url
+    | WindowResize WindowSize
+    | ScrollTo String
     | HomeMsg Home.Msg
     | AboutMsg About.Msg
     | ProjectsMsg Projects.Msg
     | ContactMsg Contact.Msg
-    | FailedRouteJump (Result Dom.Error ())
+    | FailedRouteJump (Result Dom.Error (List ()))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        ClickedLink urlRequest ->
+update msg m =
+    case ( m, msg ) of
+        ( Ok model, ClickedLink urlRequest ) ->
             case urlRequest of
                 Browser.Internal url ->
-                    ( model
+                    ( m
                     , Nav.pushUrl model.sharedState.navKey (Url.toString url)
                     )
 
                 Browser.External href ->
-                    ( model
+                    ( m
                     , Nav.load href
                     )
 
-        UrlChanged url ->
+        ( Ok _, UrlChanged url ) ->
             let
                 newRoute =
                     Routes.fromUrl url
             in
-            ( model, jumpToId <| Routes.toStrLowercase newRoute )
+            update (ScrollTo <| Routes.toId newRoute) m
 
-        HomeMsg homeMsg ->
+        ( Ok model, WindowResize newWindow ) ->
+            ( Ok { model | windowSize = newWindow }, Cmd.none )
+
+        ( Ok _, ScrollTo id ) ->
+            ( m
+            , SmoothScroll.scrollToWithOptions scrollConfig id
+                |> Task.attempt FailedRouteJump
+            )
+
+        ( Ok model, HomeMsg homeMsg ) ->
             let
                 ( newHomeModel, homeCmd ) =
                     Home.update model.sharedState homeMsg model.home
             in
-            ( { model | home = newHomeModel }, Cmd.map HomeMsg homeCmd )
+            ( Ok { model | home = newHomeModel }, Cmd.map HomeMsg homeCmd )
 
-        AboutMsg aboutMsg ->
+        ( Ok model, AboutMsg aboutMsg ) ->
             let
                 ( newAboutModel, aboutCmd ) =
                     About.update model.sharedState aboutMsg model.about
             in
-            ( { model | about = newAboutModel }, Cmd.map AboutMsg aboutCmd )
+            ( Ok { model | about = newAboutModel }, Cmd.map AboutMsg aboutCmd )
 
-        ProjectsMsg projectsMsg ->
+        ( Ok model, ProjectsMsg projectsMsg ) ->
             let
                 ( newProjectsModel, projectsCmd ) =
                     Projects.update model.sharedState projectsMsg model.projects
             in
-            ( { model | projects = newProjectsModel }, Cmd.map ProjectsMsg projectsCmd )
+            ( Ok { model | projects = newProjectsModel }, Cmd.map ProjectsMsg projectsCmd )
 
-        ContactMsg contactMsg ->
+        ( Ok model, ContactMsg contactMsg ) ->
             let
                 ( newContactModel, contactCmd ) =
                     Contact.update model.sharedState contactMsg model.contact
             in
-            ( { model | contact = newContactModel }, Cmd.map ContactMsg contactCmd )
+            ( Ok { model | contact = newContactModel }, Cmd.map ContactMsg contactCmd )
 
-        FailedRouteJump r ->
+        ( Ok _, FailedRouteJump r ) ->
             case r of
                 Err (Dom.NotFound _) ->
-                    ( model, Cmd.none )
+                    ( m, Cmd.none )
 
                 _ ->
-                    ( model, Cmd.none )
+                    ( m, Cmd.none )
 
-
-jumpToId : String -> Cmd Msg
-jumpToId id =
-    Dom.getElement id
-        |> Task.andThen (\elem -> Dom.setViewport 0 elem.element.y)
-        |> Task.attempt FailedRouteJump
+        _ ->
+            ( m, Cmd.none )
 
 
 
----- SUBSCRIPTIONS ----
+-- SUBSCRIPTIONS ----
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.batch
-        [ Home.subscriptions model.home
-            |> Sub.map HomeMsg
-        , About.subscriptions model.about
-            |> Sub.map AboutMsg
-        , Projects.subscriptions model.projects
-            |> Sub.map ProjectsMsg
-        , Contact.subscriptions model.contact
-            |> Sub.map ContactMsg
-        ]
+subscriptions m =
+    case m of
+        Err _ ->
+            Sub.none
+
+        Ok model ->
+            Sub.batch
+                [ -- Home.subscriptions model.home
+                  -- |> Sub.map HomeMsg
+                  -- ,
+                  About.subscriptions model.about
+                    |> Sub.map AboutMsg
+                , Projects.subscriptions model.projects
+                    |> Sub.map ProjectsMsg
+                , Contact.subscriptions model.contact
+                    |> Sub.map ContactMsg
+                , Browser.Events.onResize (\x y -> WindowResize (WindowSize x y))
+                ]

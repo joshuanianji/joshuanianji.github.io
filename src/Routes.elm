@@ -1,4 +1,4 @@
-module Routes exposing (Route(..), fromUrl, toStrCapitals, toStrLowercase, toUrlString)
+module Routes exposing (Route(..), fromUrl, toId, toStrCapitals, toUrlString)
 
 import Url
 import Url.Parser as Parser exposing (Parser)
@@ -27,8 +27,8 @@ toStrCapitals r =
             "Contact"
 
 
-toStrLowercase : Route -> String
-toStrLowercase =
+toId : Route -> String
+toId =
     toStrCapitals >> String.toLower
 
 

@@ -3,6 +3,30 @@ import { Elm } from './Main.elm';
 import * as serviceWorker from './serviceWorker';
 import projectsJson from './projects.json'
 
+// assets
+import derivativesSrc from './img/proj_icons/derivatives.png';
+import hiitTimerSrc from './img/proj_icons/hiit-timer.png';
+import ptableSrc from './img/proj_icons/ptable.png';
+import uiBootstrapSrc from './img/proj_icons/ui-bootstrap.png';
+
+var projIcons = [{
+    src: derivativesSrc,
+    id: 'derivative'
+},
+{
+    src: hiitTimerSrc,
+    id: 'hiit-timer'
+},
+{
+    src: ptableSrc,
+    id: 'ptable'
+},
+{
+    src: uiBootstrapSrc,
+    id: 'ui-bootstrap'
+}]
+
+
 Elm.Main.init({
     node: document.getElementById('root'),
     flags: {
@@ -10,7 +34,8 @@ Elm.Main.init({
             height: window.innerHeight,
             width: window.innerWidth
         },
-        projectsJson: JSON.stringify(projectsJson),
+        projectsJson: projectsJson,
+        projectIcons: projIcons
     }
 });
 
