@@ -1,7 +1,7 @@
-module Data.Flags exposing (Flags, ProjIcons, WindowSize, decode)
+module Data.Flags exposing (Flags, WindowSize, decode)
 
 import Data.Project as Project exposing (Project)
-import Dict exposing (Dict)
+import Data.ProjectIcon as ProjectIcon exposing (Icons)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import Json.Encode
@@ -10,7 +10,8 @@ import Json.Encode
 type alias Flags =
     { windowSize : WindowSize
     , projects : List Project
-    , projectIcons : ProjIcons
+    , projectIcons : Icons
+    , githubIcon : String
     }
 
 
@@ -18,10 +19,6 @@ type alias WindowSize =
     { width : Int
     , height : Int
     }
-
-
-type alias ProjIcons =
-    Dict String String
 
 
 
@@ -38,7 +35,8 @@ decoder =
     Decode.succeed Flags
         |> Pipeline.required "windowSize" windowSizeDecoder
         |> Pipeline.required "projectsJson" projectsDecoder
-        |> Pipeline.required "projectIcons" iconsDecoder
+        |> Pipeline.required "projectIcons" ProjectIcon.decoder
+        |> Pipeline.required "githubIcon" Decode.string
 
 
 windowSizeDecoder : Decoder WindowSize
@@ -51,13 +49,3 @@ windowSizeDecoder =
 projectsDecoder : Decoder (List Project)
 projectsDecoder =
     Decode.list Project.decoder
-
-
-iconsDecoder : Decoder ProjIcons
-iconsDecoder =
-    let
-        itemDecoder =
-            Decode.map2 Tuple.pair (Decode.at [ "id" ] Decode.string) (Decode.at [ "src" ] Decode.string)
-    in
-    Decode.list itemDecoder
-        |> Decode.map Dict.fromList

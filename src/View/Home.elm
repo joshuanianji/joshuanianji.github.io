@@ -92,7 +92,6 @@ view model =
                 [ Element.text "Welcome to my website!" ]
             , Element.paragraph
                 [ Element.centerX
-                , Element.spacing 4
                 , Font.size 25
                 ]
                 [ Element.text "I am a undergraduate student studying computer science at the University of Alberta. I love web development, especially through functional languages like Elm." ]

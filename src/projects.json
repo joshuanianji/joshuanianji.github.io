@@ -1,9 +1,32 @@
 [
     {
+        "name": "Kitchen",
+        "imgLink": "cli",
+        "blurb": "A simple Rust CLI for simple Rust programs.",
+        "link": "https://crates.io/crates/kitchen",
+        "githubLink": "https://github.com/joshuanianji/kitchen",
+        "year": 2020,
+        "language": "Rust",
+        "concepts": [
+            "Cli"
+        ],
+        "pinned": false
+    },
+    {
+        "name": "Atomic Theory",
+        "imgLink": "atomic-theory",
+        "blurb": "A short timeline on the history of the Atomic Theory. This project was for my physics class.",
+        "link": "https://joshuaji.com/projects/atomic-models/",
+        "githubLink": "https://github.com/joshuanianji/atomic-theory",
+        "year": 2020,
+        "language": "Elm",
+        "concepts": [],
+        "pinned": false
+    },
+    {
         "name": "HIIT-Timer",
         "imgLink": "hiit-timer",
         "blurb": "A customizable PWA that times your workouts.",
-        "aboutLink": "https://joshuaji.com/src/post/ui-bootstrap-demo.emu",
         "link": "https://joshuaji.com/projects/hiit-timer",
         "githubLink": "https://github.com/joshuanianji/HIIT-Timer",
         "year": 2020,
@@ -11,14 +34,12 @@
         "concepts": [
             "PWA"
         ],
-        "purpose": "Personal",
         "pinned": true
     },
     {
         "name": "Derivatives",
         "imgLink": "derivative",
         "blurb": "An application to calculate derivatives, using intuitive LaTeX input and output.",
-        "aboutLink": "https://joshuaji.com/src/post/ui-bootstrap-demo.emu",
         "link": "https://joshuaji.com/projects/derivative",
         "githubLink": "https://github.com/joshuanianji/Derivative",
         "year": 2020,
@@ -27,14 +48,12 @@
             "DataStructures",
             "Parsing"
         ],
-        "purpose": "Personal",
         "pinned": true
     },
     {
-        "name": "Ui Bootstrap Elm Demo",
+        "name": "Ui Bootstrap Demo",
         "imgLink": "ui-bootstrap",
         "blurb": "A demo application for the Elm Ui Bootstrap project.",
-        "aboutLink": "https://joshuaji.com/src/post/ui-bootstrap-demo.emu",
         "link": "https://joshuaji.com/projects/ui-bootstrap-demo",
         "githubLink": "https://github.com/joshuanianji/ui-bootstrap-demo",
         "year": 2019,
@@ -42,60 +61,19 @@
         "concepts": [
             "SPA"
         ],
-        "purpose": "Fancy",
         "pinned": false
     },
     {
         "name": "Periodic Table",
         "imgLink": "ptable",
         "blurb": "A colour-coded periodic table app with a molar mass calculator.",
-        "aboutLink": "https://joshuaji.com/src/post/ptable.emu",
         "link": "https://joshuaji.com/projects/ptable",
         "githubLink": "https://github.com/joshuanianji/Compsci-IA",
         "year": 2019,
         "language": "Elm",
         "concepts": [
-            "Parsing",
             "DataStructures"
         ],
-        "purpose": "School",
         "pinned": true
-    },
-    {
-        "name": "Country Fact Finder",
-        "imgLink": null,
-        "blurb": "An application that parses and displays information from 5 text files.",
-        "aboutLink": "https://joshuaji.com/src/post/fact-finder.emu",
-        "githubLink": "https://github.com/joshuanianji/Country-Fact-Finder",
-        "link": "https://joshuaji.com/projects/fact-finder",
-        "year": 2019,
-        "language": "Elm",
-        "concepts": [],
-        "purpose": "School",
-        "pinned": false
-    },
-    {
-        "name": "WordRank",
-        "imgLink": null,
-        "blurb": "An application that ranks words based on usage from a string input or a text file.",
-        "aboutLink": "https://joshuaji.com/src/post/word-rank.emu",
-        "githubLink": "https://github.com/joshuanianji/Wordrank",
-        "link": "https://joshuaji.com/projects/word-rank",
-        "year": 2019,
-        "language": "Elm",
-        "purpose": "School",
-        "pinned": false
-    },
-    {
-        "name": "Cryptography",
-        "imgLink": null,
-        "blurb": "An app that deals with Caesar and Viginere cyphers, and can calculate hashes.",
-        "aboutLink": "https://joshuaji.com/src/post/cryptography.emu",
-        "githubLink": "https://github.com/joshuanianji/Cryptography",
-        "link": "https://joshuaji.com/projects/cryptography",
-        "year": 2018,
-        "language": "Elm",
-        "purpose": "School",
-        "pinned": false
     }
 ]

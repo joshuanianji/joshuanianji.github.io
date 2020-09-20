@@ -33,6 +33,36 @@ black =
     Color.black
 
 
+
+-- Github Colours for languages
+-- taken from https://github.com/ozh/github-colors/blob/master/colors.json
+
+
+elm : Color
+elm =
+    Color.rgb255 96 181 204
+
+
+python : Color
+python =
+    Color.rgb255 53 114 165
+
+
+rust : Color
+rust =
+    Color.rgb255 222 165 132
+
+
+purescript : Color
+purescript =
+    Color.rgb255 29 34 45
+
+
+haskell : Color
+haskell =
+    Color.rgb255 94 80 134
+
+
 withAlpha : Float -> Color.Color -> Color.Color
 withAlpha a color =
     let

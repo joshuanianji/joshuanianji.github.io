@@ -72,7 +72,7 @@ type alias M =
 scrollConfig : SmoothScroll.Config
 scrollConfig =
     { offset = 12
-    , speed = 50
+    , speed = 75
     , easing = Ease.outQuint
     }
 
@@ -98,7 +98,7 @@ init flagsJson url key =
                 , about = About.init
                 , home = Home.init flags
                 , projects = Projects.init flags
-                , contact = About.init
+                , contact = Contact.init flags.githubIcon
                 }
             , Cmd.none
             )
@@ -194,16 +194,33 @@ viewOk model =
 
 footer : Element Msg
 footer =
-    Element.paragraph
+    Element.column
         [ Element.padding 64
-        , Font.center
-        , Font.size 16
+        , Element.spacing 16
+        , Element.width Element.fill
         ]
-        [ Element.text "All code is open source and available on "
-        , Util.link
-            { label = "Github"
-            , link = "https://github.com/joshuanianji/website"
-            }
+        [ Element.paragraph
+            [ Font.center
+            , Font.size 16
+            ]
+            [ Element.text "All code is open source and available on "
+            , Util.link
+                { label = "Github"
+                , link = "https://github.com/joshuanianji/website"
+                }
+            , Element.text "."
+            ]
+        , Element.paragraph
+            [ Font.center
+            , Font.size 16
+            ]
+            [ Element.text "Fun fact: This is the 5th iteration of my website! Feel free to "
+            , Util.link
+                { label = "take a look"
+                , link = "#"
+                }
+            , Element.text " at my old websites."
+            ]
         ]
 
 
@@ -306,10 +323,9 @@ subscriptions m =
 
         Ok model ->
             Sub.batch
-                [ -- Home.subscriptions model.home
-                  -- |> Sub.map HomeMsg
-                  -- ,
-                  About.subscriptions model.about
+                [ Home.subscriptions model.home
+                    |> Sub.map HomeMsg
+                , About.subscriptions model.about
                     |> Sub.map AboutMsg
                 , Projects.subscriptions model.projects
                     |> Sub.map ProjectsMsg

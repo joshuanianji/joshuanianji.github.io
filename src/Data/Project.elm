@@ -1,7 +1,9 @@
-module Data.Project exposing (Concept(..), Language(..), Project, conceptToString, decoder)
+module Data.Project exposing (Concept(..), Language(..), Project, conceptToString, decoder, langToColor, langToString)
 
 -- Project type!
 
+import Color exposing (Color)
+import Colours
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 
@@ -22,6 +24,33 @@ type alias Project =
 type Language
     = Elm
     | Python
+    | Rust
+
+
+langToString : Language -> String
+langToString l =
+    case l of
+        Elm ->
+            "Elm"
+
+        Python ->
+            "Python"
+
+        Rust ->
+            "Rust"
+
+
+langToColor : Language -> Color
+langToColor l =
+    case l of
+        Elm ->
+            Colours.elm
+
+        Python ->
+            Colours.python
+
+        Rust ->
+            Colours.rust
 
 
 type Concept
@@ -31,6 +60,7 @@ type Concept
     | PWA
     | DataStructures
     | Firebase
+    | Cli
 
 
 conceptToString : Concept -> String
@@ -53,6 +83,9 @@ conceptToString concept =
 
         Firebase ->
             "Firebase"
+
+        Cli ->
+            "Cli "
 
 
 
@@ -85,6 +118,9 @@ languageDecoder =
                     "Python" ->
                         Decode.succeed Python
 
+                    "Rust" ->
+                        Decode.succeed Rust
+
                     other ->
                         Decode.fail <| "Unknown language " ++ other
             )
@@ -115,6 +151,9 @@ conceptsDecoder =
 
                             "Firebase" ->
                                 Decode.succeed Firebase
+
+                            "Cli" ->
+                                Decode.succeed Cli
 
                             other ->
                                 Decode.fail <| "Unknown concept " ++ other
