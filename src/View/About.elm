@@ -45,7 +45,9 @@ view _ =
         [ -- title
           Util.pageTitle "About" NavigateTo Routes.About
         , Element.textColumn
-            [ Element.spacing 16 ]
+            [ Element.spacing 16
+            , Element.width Element.fill
+            ]
             [ -- subtitle
               Element.paragraph
                 [ Element.spacing 6 ]
@@ -53,12 +55,12 @@ view _ =
                 ]
             , Element.paragraph
                 [ Element.spacing 6 ]
-                [ Element.text "Recently, I've been taking a deep dive into functional programming, and I'm currently using "
+                [ Element.text "Recently, I've been taking a deep dive into functional programming. I'm currently using "
                 , Util.link
                     { label = "Elm"
                     , link = "https://elm-lang.org"
                     }
-                , Element.text " as my main language for my web apps. On the side, I'm learning Haskell, Purescript and Rust."
+                , Element.text " as my main language for my web apps, and I'm learning Haskell, Purescript and Rust on my free time."
                 ]
             ]
         ]
