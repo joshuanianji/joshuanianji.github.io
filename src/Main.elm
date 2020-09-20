@@ -210,17 +210,18 @@ footer =
                 }
             , Element.text "."
             ]
-        , Element.paragraph
-            [ Font.center
-            , Font.size 16
-            ]
-            [ Element.text "Fun fact: This is the 5th iteration of my website! Feel free to "
-            , Util.link
-                { label = "take a look"
-                , link = "#"
-                }
-            , Element.text " at my old websites."
-            ]
+
+        -- , Element.paragraph
+        --     [ Font.center
+        --     , Font.size 16
+        --     ]
+        --     [ Element.text "Fun fact: This is the 5th iteration of my website! Feel free to "
+        --     , Util.link
+        --         { label = "take a look"
+        --         , link = "#"
+        --         }
+        --     , Element.text " at my old websites."
+        --     ]
         ]
 
 

@@ -13,7 +13,7 @@ import Element exposing (Element)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
-import FeatherIcons exposing (Icon)
+import FeatherIcons
 import Html.Attributes
 import Icon
 import Routes exposing (Route)
@@ -39,9 +39,9 @@ init icon =
 
 
 view : Model -> Element Msg
-view model =
+view _ =
     Element.column
-        [ Element.width (Element.maximum 800 Element.fill)
+        [ Element.width (Element.maximum 900 Element.fill)
         , Element.centerX
         , Element.spacing 32
 
@@ -104,7 +104,6 @@ contactColumn icon link label =
 
 type Msg
     = NavigateTo Route
-    | NoOp
 
 
 update : SharedState -> Msg -> Model -> ( Model, Cmd Msg )
@@ -113,14 +112,11 @@ update sharedState msg model =
         NavigateTo route ->
             ( model, Nav.pushUrl sharedState.navKey (Routes.toUrlString route) )
 
-        _ ->
-            ( model, Cmd.none )
-
 
 
 ---- SUBSCRIPTIONS ----
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none

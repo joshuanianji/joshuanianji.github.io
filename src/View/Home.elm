@@ -68,7 +68,7 @@ view model =
             |> Element.behindContent
         ]
         [ Element.column
-            [ Element.width (Element.maximum 800 Element.fill)
+            [ Element.width (Element.maximum 900 Element.fill)
             , Element.centerX
             , Element.height Element.fill
             , Element.spaceEvenly

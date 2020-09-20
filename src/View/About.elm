@@ -8,12 +8,8 @@ module View.About exposing
     )
 
 import Browser.Navigation as Nav
-import Colours
 import Element exposing (Element)
-import Element.Font as Font
-import FeatherIcons
 import Html.Attributes
-import Icon
 import Routes exposing (Route)
 import SharedState exposing (SharedState)
 import Util
@@ -37,9 +33,9 @@ init =
 
 
 view : Model -> Element Msg
-view model =
+view _ =
     Element.column
-        [ Element.width (Element.maximum 800 Element.fill)
+        [ Element.width (Element.maximum 900 Element.fill)
         , Element.centerX
         , Element.spacing 32
 
@@ -49,13 +45,15 @@ view model =
         [ -- title
           Util.pageTitle "About" NavigateTo Routes.About
         , Element.textColumn
-            [ Element.spacing 16
-            , Element.spacing 4
-            ]
+            [ Element.spacing 16 ]
             [ -- subtitle
               Element.paragraph
                 [ Element.spacing 6 ]
-                [ Element.text "I have been coding with HTML, CSS and Javascript since I was 12: making blogs, web apps, or anything that will make my life easier. Recently, I've been taking a deep dive into functional programming, and I'm currently using "
+                [ Element.text "I have been coding with HTML, CSS and Javascript since I was 12: making blogs, web apps, or anything that will make my life easier."
+                ]
+            , Element.paragraph
+                [ Element.spacing 6 ]
+                [ Element.text "Recently, I've been taking a deep dive into functional programming, and I'm currently using "
                 , Util.link
                     { label = "Elm"
                     , link = "https://elm-lang.org"
@@ -86,5 +84,5 @@ update sharedState msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none

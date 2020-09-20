@@ -49,7 +49,7 @@ init flags =
 view : Model -> Element Msg
 view model =
     Element.column
-        [ Element.width (Element.maximum 800 Element.fill)
+        [ Element.width (Element.maximum 900 Element.fill)
         , Element.centerX
         , Element.spacing 32
 
