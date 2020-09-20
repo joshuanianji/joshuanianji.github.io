@@ -1,0 +1,79 @@
+[
+    {
+        "name": "Kitchen",
+        "imgLink": "cli",
+        "blurb": "A simple Rust CLI for simple Rust programs.",
+        "link": "https://crates.io/crates/kitchen",
+        "githubLink": "https://github.com/joshuanianji/kitchen",
+        "year": 2020,
+        "language": "Rust",
+        "concepts": [
+            "Cli"
+        ],
+        "pinned": false
+    },
+    {
+        "name": "Atomic Theory",
+        "imgLink": "atomic-theory",
+        "blurb": "A short timeline on the history of the Atomic Theory. This project was for my physics class.",
+        "link": "https://joshuaji.com/projects/atomic-models/",
+        "githubLink": "https://github.com/joshuanianji/atomic-theory",
+        "year": 2020,
+        "language": "Elm",
+        "concepts": [],
+        "pinned": false
+    },
+    {
+        "name": "HIIT-Timer",
+        "imgLink": "hiit-timer",
+        "blurb": "A customizable PWA that times your workouts.",
+        "link": "https://joshuaji.com/projects/hiit-timer",
+        "githubLink": "https://github.com/joshuanianji/HIIT-Timer",
+        "year": 2020,
+        "language": "Elm",
+        "concepts": [
+            "PWA"
+        ],
+        "pinned": true
+    },
+    {
+        "name": "Derivatives",
+        "imgLink": "derivative",
+        "blurb": "An application to calculate derivatives, using intuitive LaTeX input and output.",
+        "link": "https://joshuaji.com/projects/derivative",
+        "githubLink": "https://github.com/joshuanianji/Derivative",
+        "year": 2020,
+        "language": "Elm",
+        "concepts": [
+            "DataStructures",
+            "Parsing"
+        ],
+        "pinned": true
+    },
+    {
+        "name": "Ui Bootstrap Demo",
+        "imgLink": "ui-bootstrap",
+        "blurb": "A demo application for the Elm Ui Bootstrap project.",
+        "link": "https://joshuaji.com/projects/ui-bootstrap-demo",
+        "githubLink": "https://github.com/joshuanianji/ui-bootstrap-demo",
+        "year": 2019,
+        "language": "Elm",
+        "concepts": [
+            "SPA"
+        ],
+        "pinned": false
+    },
+    {
+        "name": "Periodic Table",
+        "imgLink": "ptable",
+        "blurb": "A colour-coded periodic table app with a molar mass calculator.",
+        "link": "https://joshuaji.com/projects/ptable",
+        "githubLink": "https://github.com/joshuanianji/Compsci-IA",
+        "year": 2019,
+        "language": "Elm",
+        "concepts": [
+            "DataStructures"
+        ],
+        "pinned": true
+    }
+]

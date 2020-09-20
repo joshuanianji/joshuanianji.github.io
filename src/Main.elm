@@ -1,382 +1,335 @@
 module Main exposing (main)
 
-import Browser exposing (UrlRequest(..))
+import Browser exposing (Document, UrlRequest(..))
+import Browser.Dom as Dom
 import Browser.Events
 import Browser.Navigation as Nav
-import Element exposing (Attribute, DeviceClass(..), Element, Orientation(..))
+import Colours
+import Data.Flags as Flags exposing (WindowSize)
+import Ease
+import Element exposing (Element)
+import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
-import Element.Input as Input
-import FontAwesome.Styles
-import Helpers.Colour as Colour
-import Helpers.FontFamily as FontFamily
-import Helpers.Util as Util
+import FeatherIcons
 import Html exposing (Html)
-import Page.Home as Home
-import Page.NotFound as NotFound
-import Page.Post as Post
-import Page.PostOverview as PostOverview
-import Page.Projects as Projects
-import Page.Resume as Resume
-import Router exposing (Page(..))
-import Routes exposing (Route(..))
-import SharedState exposing (SharedState, SharedStateUpdate)
+import Html.Attributes
+import Icon
+import Json.Decode as Decode
+import Json.Encode exposing (Value)
+import Routes exposing (Route)
+import SharedState exposing (SharedState)
+import SmoothScroll
+import Task
 import Url exposing (Url)
+import Util
+import View.About as About
+import View.Contact as Contact
+import View.Home as Home
+import View.Projects as Projects
 
 
 
--- PROGRAM --
+---- PROGRAM ----
 
 
-main : Program Flags Model Msg
+main : Program Value Model Msg
 main =
     Browser.application
-        { init = init
-        , view = viewApplication
+        { view = view
+        , init = init
         , update = update
         , subscriptions = subscriptions
-        , onUrlRequest = UrlRequest
-        , onUrlChange = UrlChange
+        , onUrlRequest = ClickedLink
+        , onUrlChange = UrlChanged
         }
 
 
 
--- MODEL
+---- MODEL ----
 
 
 type alias Model =
-    { sharedState : SharedState
-    , router : Router.Model
+    Result Decode.Error M
+
+
+type alias M =
+    { windowSize : WindowSize
+    , sharedState : SharedState
+    , route : Route
+    , about : About.Model
+    , home : Home.Model
+    , projects : Projects.Model
+    , contact : Contact.Model
     }
 
 
-type alias Flags =
-    WindowSize
+
+-- config for scrolling
+-- higher speed means FASTER SCROLING
 
 
-
--- window size. As of now it's the only flag that Javascript passes onto us
-
-
-type alias WindowSize =
-    { width : Int
-    , height : Int
+scrollConfig : SmoothScroll.Config
+scrollConfig =
+    { offset = 12
+    , speed = 75
+    , easing = Ease.outQuint
     }
 
 
-{-| the flag that we pass to the init function was created from the javascript elm.js. It is a record
-
-    I'm going to be completely honest with you I have no idea what Browser.Navigation.Key is.
-    I just know we need it to handle URL changes and to change them ourselves and whatnot. (https://package.elm-lang.org/packages/elm/browser/latest/Browser-Navigation#Key)
-
--}
-init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
-init flags url key =
+init : Value -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init flagsJson url key =
     let
-        ( initRouterModel, routerCmd ) =
-            Router.init url key
+        flagsResult =
+            Flags.decode flagsJson
+
+        route =
+            Routes.fromUrl url
     in
-    ( { sharedState = SharedState.init (Element.classifyDevice flags) key
-      , router = initRouterModel
-      }
-    , Cmd.map RouterMsg routerCmd
-    )
+    case flagsResult of
+        Err decodeErr ->
+            ( Err decodeErr, Cmd.none )
 
-
-
--- VIEW
-
-
-viewApplication : Model -> Browser.Document Msg
-viewApplication model =
-    { title = tabBarTitle model
-    , body = [ view model ]
-    }
-
-
-
--- title of our app (shows in tab bar)
-
-
-tabBarTitle : Model -> String
-tabBarTitle model =
-    case model.router.currentPage of
-        HomePage _ ->
-            "Joshua's Website"
-
-        ResumePage _ ->
-            "Joshua's Resume"
-
-        ProjectsPage _ ->
-            "Joshua's Projects"
-
-        PostOverviewPage _ ->
-            "Get out of here!"
-
-        PostPage _ ->
-            "Post"
-
-        NotFoundPage _ ->
-            "Joshua Can't Find the Page!"
-
-
-
--- basically everything inside the <body> tag
-
-
-view : Model -> Html Msg
-view model =
-    Element.layoutWith
-        { options =
-            [ Element.focusStyle
-                { borderColor = Nothing
-                , backgroundColor = Nothing
-                , shadow = Nothing
+        Ok flags ->
+            ( Ok
+                { windowSize = flags.windowSize
+                , sharedState = SharedState.init key
+                , route = route
+                , about = About.init
+                , home = Home.init flags
+                , projects = Projects.init flags
+                , contact = Contact.init flags.githubIcon
                 }
-            ]
-        }
-        []
-    <|
-        Element.column
-            [ Element.width Element.fill
-            , Element.padding 40
-            , Element.spacing 20
-            , FontFamily.body
-            , Element.height Element.fill
-            ]
-            [ FontAwesome.Styles.css |> Element.html -- injecting fontAwesome stylesheet so the icons will render
-            , title model
-            , navbar model
-            , content model
-            , footer model
-            ]
-
-
-title : Model -> Element Msg
-title model =
-    let
-        fontSize =
-            case model.sharedState.device.class of
-                BigDesktop ->
-                    70
-
-                _ ->
-                    50
-    in
-    Element.el
-        [ Font.size fontSize
-        , Element.centerX
-        , FontFamily.title
-        ]
-        (Element.text "Joshua Ji")
-
-
-navbar : Model -> Element Msg
-navbar model =
-    Element.row
-        [ Element.centerX
-        ]
-        (List.map
-            (\( string, route ) ->
-                Input.button
-                    (navbarElementAttributes model route)
-                    { onPress = Just (NavigateTo route)
-                    , label = Element.el [ Element.centerX ] (Element.text string)
-                    }
+            , Cmd.none
             )
-            navbarMapList
-        )
 
 
-navbarMapList : List ( String, Route )
-navbarMapList =
-    [ ( "Home", Home )
 
-    -- , ( "Resume", Resume )
-    , ( "Projects", Projects )
-    ]
+---- VIEW ----
 
 
-navbarElementAttributes : Model -> Route -> List (Attribute Msg)
-navbarElementAttributes model route =
+view : Model -> Document Msg
+view model =
     let
-        fontSize =
-            case model.sharedState.device.class of
-                BigDesktop ->
-                    25
+        ( title, body ) =
+            case model of
+                Err decodeError ->
+                    ( "Error!", viewErr decodeError )
 
-                Desktop ->
-                    20
-
-                Tablet ->
-                    case model.sharedState.device.orientation of
-                        Portrait ->
-                            30
-
-                        Landscape ->
-                            25
-
-                Phone ->
-                    25
-
-        basicNavBarAttributes =
-            [ Element.padding 15
-            , Border.width 0
-            , Font.size fontSize
-            ]
+                Ok m ->
+                    ( "Joshua Ji - " ++ Routes.toStrCapitals m.route
+                    , viewOk m
+                    )
     in
-    if model.router.route == route then
-        Font.color Colour.black :: basicNavBarAttributes
-
-    else
-        Font.color Colour.gray :: basicNavBarAttributes
+    { title = title
+    , body = [ body ]
+    }
 
 
-
--- the main body that switches b/w the directories
-
-
-content : Model -> Element Msg
-content model =
-    case model.router.currentPage of
-        HomePage homeModel ->
-            Home.view homeModel model.sharedState
-                |> Util.mapMsg Router.HomeMsg
-                |> Element.map RouterMsg
-
-        ResumePage resumeModel ->
-            Resume.view resumeModel model.sharedState
-                |> Util.mapMsg Router.ResumeMsg
-                |> Element.map RouterMsg
-
-        ProjectsPage projectsModel ->
-            Projects.view projectsModel model.sharedState
-                |> Util.mapMsg Router.ProjectsMsg
-                |> Element.map RouterMsg
-
-        PostOverviewPage postOverviewModel ->
-            PostOverview.view postOverviewModel model.sharedState
-                |> Util.mapMsg Router.PostOverviewMsg
-                |> Element.map RouterMsg
-
-        PostPage postModel ->
-            Post.view postModel model.sharedState
-                |> Util.mapMsg Router.PostMsg
-                |> Element.map RouterMsg
-
-        NotFoundPage notFoundModel ->
-            NotFound.view notFoundModel model.sharedState
-                |> Util.mapMsg Router.NotFoundMsg
-                |> Element.map RouterMsg
-
-
-footer : Model -> Element Msg
-footer model =
-    let
-        paddingEach =
-            { top = 40
-            , right = 0
-            , bottom = 0
-            , left = 0
-            }
-    in
-    Element.el
-        [ Element.width Element.fill
-        , Element.alignBottom
-        , Element.paddingEach paddingEach
+viewErr : Decode.Error -> Html Msg
+viewErr err =
+    Element.column
+        [ Element.spacing 16
+        , Element.centerX
+        , Element.centerY
         ]
-        (Element.paragraph
+        [ Icon.view
+            [ Element.centerX
+            ]
+            { icon = FeatherIcons.frown
+            , strokeWidth = 2
+            , color = Colours.errorRed
+            , size = 40
+            , msg = Nothing
+            }
+        , Element.paragraph
+            [ Font.family [ Font.typeface "Playfair Display SC" ]
+            , Font.center
+            ]
+            [ Element.text "Json Decoding error!" ]
+        , Element.el
+            [ Element.padding 16
+            , Element.htmlAttribute (Html.Attributes.style "white-space" "pre-wrap")
+            , Border.color <| Colours.toElement Colours.errorRed
+            , Border.rounded 4
+            , Border.width 2
+            , Background.color <| Colours.toElement <| Colours.withAlpha 0.5 Colours.errorRed
+            , Font.color <| Colours.toElement Colours.white
+            ]
+          <|
+            Element.text (Decode.errorToString err)
+        ]
+        |> Element.layout
+            [ Font.family
+                [ Font.typeface "Lato"
+                , Font.sansSerif
+                ]
+            ]
+
+
+viewOk : M -> Html Msg
+viewOk model =
+    Element.column
+        [ Element.width Element.fill
+        , Element.height Element.fill
+        , Element.spacing 64
+        ]
+        [ Home.view model.home
+            |> Element.map HomeMsg
+        , About.view model.about
+            |> Element.map AboutMsg
+        , Projects.view model.projects
+            |> Element.map ProjectsMsg
+        , Contact.view model.contact
+            |> Element.map ContactMsg
+        , footer
+        ]
+        |> Element.layout
+            [ Font.family
+                [ Font.typeface "Lato"
+                , Font.sansSerif
+                ]
+            ]
+
+
+footer : Element Msg
+footer =
+    Element.column
+        [ Element.padding 64
+        , Element.spacing 16
+        , Element.width Element.fill
+        ]
+        [ Element.paragraph
             [ Font.center
-            , Font.size 15
+            , Font.size 16
             ]
-            [ Element.text "Created by Joshua Ji. Find the source code on my "
-            , Element.newTabLink
-                [ Font.underline ]
-                { url = "https://github.com/joshuanianji/website"
-                , label = Element.text "github!"
+            [ Element.text "All code is open source and available on "
+            , Util.link
+                { label = "Github"
+                , link = "https://github.com/joshuanianji/website"
                 }
+            , Element.text "."
             ]
-        )
+        , Element.paragraph
+            [ Font.center
+            , Font.size 16
+            ]
+            [ Element.text "Fun fact: This is the 5th iteration of my website! Feel free to "
+            , Util.link
+                { label = "take a look"
+                , link = "#"
+                }
+            , Element.text " at my old websites."
+            ]
+        ]
 
 
 
--- UPDATE
+---- UPDATE ----
 
 
 type Msg
-    = NavigateTo Route
-    | UrlChange Url.Url
-    | UrlRequest UrlRequest
-    | RouterMsg Router.Msg
+    = ClickedLink UrlRequest
+    | UrlChanged Url
     | WindowResize WindowSize
+    | ScrollTo String
+    | HomeMsg Home.Msg
+    | AboutMsg About.Msg
+    | ProjectsMsg Projects.Msg
+    | ContactMsg Contact.Msg
+    | FailedRouteJump (Result Dom.Error (List ()))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        NavigateTo route ->
-            -- pass it to the router to navigate for us
-            updateRouter model (Router.NavigateTo route)
-
-        UrlChange url ->
-            -- handling url changes
-            updateRouter model (Router.UrlChanged url)
-
-        UrlRequest urlRequest ->
+update msg m =
+    case ( m, msg ) of
+        ( Ok model, ClickedLink urlRequest ) ->
             case urlRequest of
                 Browser.Internal url ->
-                    update (NavigateTo (url |> Routes.fromUrl)) model
+                    ( m
+                    , Nav.pushUrl model.sharedState.navKey (Url.toString url)
+                    )
 
-                Browser.External url ->
-                    ( model, Nav.load url )
+                Browser.External href ->
+                    ( m
+                    , Nav.load href
+                    )
 
-        RouterMsg routerMsg ->
-            -- to handle messages created by the router
-            updateRouter model routerMsg
+        ( Ok _, UrlChanged url ) ->
+            let
+                newRoute =
+                    Routes.fromUrl url
+            in
+            update (ScrollTo <| Routes.toId newRoute) m
 
-        -- every time the page reloads
-        WindowResize windowSize ->
-            updateSharedState
-                model
-                (SharedState.UpdateDevice (Element.classifyDevice windowSize))
+        ( Ok model, WindowResize newWindow ) ->
+            ( Ok { model | windowSize = newWindow }, Cmd.none )
+
+        ( Ok _, ScrollTo id ) ->
+            ( m
+            , SmoothScroll.scrollToWithOptions scrollConfig id
+                |> Task.attempt FailedRouteJump
+            )
+
+        ( Ok model, HomeMsg homeMsg ) ->
+            let
+                ( newHomeModel, homeCmd ) =
+                    Home.update model.sharedState homeMsg model.home
+            in
+            ( Ok { model | home = newHomeModel }, Cmd.map HomeMsg homeCmd )
+
+        ( Ok model, AboutMsg aboutMsg ) ->
+            let
+                ( newAboutModel, aboutCmd ) =
+                    About.update model.sharedState aboutMsg model.about
+            in
+            ( Ok { model | about = newAboutModel }, Cmd.map AboutMsg aboutCmd )
+
+        ( Ok model, ProjectsMsg projectsMsg ) ->
+            let
+                ( newProjectsModel, projectsCmd ) =
+                    Projects.update model.sharedState projectsMsg model.projects
+            in
+            ( Ok { model | projects = newProjectsModel }, Cmd.map ProjectsMsg projectsCmd )
+
+        ( Ok model, ContactMsg contactMsg ) ->
+            let
+                ( newContactModel, contactCmd ) =
+                    Contact.update model.sharedState contactMsg model.contact
+            in
+            ( Ok { model | contact = newContactModel }, Cmd.map ContactMsg contactCmd )
+
+        ( Ok _, FailedRouteJump r ) ->
+            case r of
+                Err (Dom.NotFound _) ->
+                    ( m, Cmd.none )
+
+                _ ->
+                    ( m, Cmd.none )
+
+        _ ->
+            ( m, Cmd.none )
 
 
 
--- how to update the router
-
-
-updateRouter : Model -> Router.Msg -> ( Model, Cmd Msg )
-updateRouter model routerMsg =
-    let
-        ( nextRouterModel, routerCmd, sharedStateUpdate ) =
-            Router.update model.sharedState routerMsg model.router
-
-        nextSharedState =
-            SharedState.update model.sharedState sharedStateUpdate
-    in
-    ( { model | sharedState = nextSharedState, router = nextRouterModel }
-    , Cmd.map RouterMsg routerCmd
-    )
-
-
-
--- update the shared state
-
-
-updateSharedState : Model -> SharedStateUpdate -> ( Model, Cmd Msg )
-updateSharedState model ssupdate =
-    ( { model | sharedState = SharedState.update model.sharedState ssupdate }
-    , Cmd.none
-    )
-
-
-
--- SUBSCRIPTIONS
+-- SUBSCRIPTIONS ----
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Browser.Events.onResize
-        (\x y ->
-            WindowResize (WindowSize x y)
-        )
+subscriptions m =
+    case m of
+        Err _ ->
+            Sub.none
+
+        Ok model ->
+            Sub.batch
+                [ Home.subscriptions model.home
+                    |> Sub.map HomeMsg
+                , About.subscriptions model.about
+                    |> Sub.map AboutMsg
+                , Projects.subscriptions model.projects
+                    |> Sub.map ProjectsMsg
+                , Contact.subscriptions model.contact
+                    |> Sub.map ContactMsg
+                , Browser.Events.onResize (\x y -> WindowResize (WindowSize x y))
+                ]
