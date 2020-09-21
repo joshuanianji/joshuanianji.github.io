@@ -336,11 +336,11 @@ type Msg
     = NavigateTo Route
 
 
-update : SharedState -> Msg -> Model -> ( Model, Cmd Msg )
+update : SharedState -> Msg -> Model -> ( Model, Cmd Msg, SharedState.Msg )
 update sharedState msg model =
     case msg of
         NavigateTo route ->
-            ( model, Nav.pushUrl sharedState.navKey (Routes.toUrlString route) )
+            ( model, Nav.pushUrl sharedState.navKey (Routes.toUrlString route), SharedState.NoOp )
 
 
 

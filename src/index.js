@@ -34,7 +34,7 @@ var projIcons = [{
 }]
 
 
-Elm.Main.init({
+const app = Elm.Main.init({
     node: document.getElementById('root'),
     flags: {
         windowSize: {
@@ -49,6 +49,11 @@ Elm.Main.init({
         githubIcon: githubIcon
     }
 });
+
+window.onload = function () {
+    app.ports.scroll.send(null)
+}
+
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

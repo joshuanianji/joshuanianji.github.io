@@ -34,6 +34,15 @@ black =
 
 
 
+-- slightly lighter than black - for the easter egg on "I love web development"
+
+
+subtleBlack : Color
+subtleBlack =
+    Color.rgb255 30 30 30
+
+
+
 -- Github Colours for languages
 -- taken from https://github.com/ozh/github-colors/blob/master/colors.json
 

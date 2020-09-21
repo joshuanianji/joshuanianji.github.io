@@ -17,6 +17,7 @@ import Html.Attributes
 import Icon
 import Json.Decode as Decode
 import Json.Encode exposing (Value)
+import Ports
 import Routes exposing (Route)
 import SharedState exposing (SharedState)
 import SmoothScroll
@@ -182,7 +183,7 @@ viewOk model =
             |> Element.map ProjectsMsg
         , Contact.view model.contact
             |> Element.map ContactMsg
-        , footer
+        , footer model.sharedState.timeMachineOpen
         ]
         |> Element.layout
             [ Font.family
@@ -192,8 +193,8 @@ viewOk model =
             ]
 
 
-footer : Element Msg
-footer =
+footer : Bool -> Element Msg
+footer showTimeMachine =
     Element.column
         [ Element.padding 64
         , Element.spacing 16
@@ -210,18 +211,21 @@ footer =
                 }
             , Element.text "."
             ]
+        , if showTimeMachine then
+            Element.paragraph
+                [ Font.center
+                , Font.size 16
+                ]
+                [ Element.text "Fun fact: This is the 5th iteration of my website! Feel free to "
+                , Util.link
+                    { label = "take a look"
+                    , link = "https://joshuaji.com/time-machine/"
+                    }
+                , Element.text " at my old websites."
+                ]
 
-        -- , Element.paragraph
-        --     [ Font.center
-        --     , Font.size 16
-        --     ]
-        --     [ Element.text "Fun fact: This is the 5th iteration of my website! Feel free to "
-        --     , Util.link
-        --         { label = "take a look"
-        --         , link = "#"
-        --         }
-        --     , Element.text " at my old websites."
-        --     ]
+          else
+            Element.none
         ]
 
 
@@ -274,31 +278,55 @@ update msg m =
 
         ( Ok model, HomeMsg homeMsg ) ->
             let
-                ( newHomeModel, homeCmd ) =
+                ( newHomeModel, homeCmd, sharedStateMsg ) =
                     Home.update model.sharedState homeMsg model.home
             in
-            ( Ok { model | home = newHomeModel }, Cmd.map HomeMsg homeCmd )
+            ( Ok
+                { model
+                    | home = newHomeModel
+                    , sharedState = SharedState.update sharedStateMsg model.sharedState
+                }
+            , Cmd.map HomeMsg homeCmd
+            )
 
         ( Ok model, AboutMsg aboutMsg ) ->
             let
-                ( newAboutModel, aboutCmd ) =
+                ( newAboutModel, aboutCmd, sharedStateMsg ) =
                     About.update model.sharedState aboutMsg model.about
             in
-            ( Ok { model | about = newAboutModel }, Cmd.map AboutMsg aboutCmd )
+            ( Ok
+                { model
+                    | about = newAboutModel
+                    , sharedState = SharedState.update sharedStateMsg model.sharedState
+                }
+            , Cmd.map AboutMsg aboutCmd
+            )
 
         ( Ok model, ProjectsMsg projectsMsg ) ->
             let
-                ( newProjectsModel, projectsCmd ) =
+                ( newProjectsModel, projectsCmd, sharedStateMsg ) =
                     Projects.update model.sharedState projectsMsg model.projects
             in
-            ( Ok { model | projects = newProjectsModel }, Cmd.map ProjectsMsg projectsCmd )
+            ( Ok
+                { model
+                    | projects = newProjectsModel
+                    , sharedState = SharedState.update sharedStateMsg model.sharedState
+                }
+            , Cmd.map ProjectsMsg projectsCmd
+            )
 
         ( Ok model, ContactMsg contactMsg ) ->
             let
-                ( newContactModel, contactCmd ) =
+                ( newContactModel, contactCmd, sharedStateMsg ) =
                     Contact.update model.sharedState contactMsg model.contact
             in
-            ( Ok { model | contact = newContactModel }, Cmd.map ContactMsg contactCmd )
+            ( Ok
+                { model
+                    | contact = newContactModel
+                    , sharedState = SharedState.update sharedStateMsg model.sharedState
+                }
+            , Cmd.map ContactMsg contactCmd
+            )
 
         ( Ok _, FailedRouteJump r ) ->
             case r of
@@ -324,13 +352,15 @@ subscriptions m =
 
         Ok model ->
             Sub.batch
-                [ Home.subscriptions model.home
-                    |> Sub.map HomeMsg
-                , About.subscriptions model.about
+                [ --     Home.subscriptions model.home
+                  --     |> Sub.map HomeMsg
+                  -- ,
+                  About.subscriptions model.about
                     |> Sub.map AboutMsg
                 , Projects.subscriptions model.projects
                     |> Sub.map ProjectsMsg
                 , Contact.subscriptions model.contact
                     |> Sub.map ContactMsg
                 , Browser.Events.onResize (\x y -> WindowResize (WindowSize x y))
+                , Ports.scroll (always <| ScrollTo <| Routes.toId model.route)
                 ]

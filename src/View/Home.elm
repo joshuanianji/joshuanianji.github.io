@@ -14,14 +14,17 @@ import Browser.Navigation as Nav
 import Colours
 import Data.Flags exposing (Flags, WindowSize)
 import Element exposing (Element)
+import Element.Background as Background
 import Element.Events as Events
 import Element.Font as Font
 import FeatherIcons
 import Html.Attributes
 import Icon
 import Icosahedron
+import Process
 import Routes exposing (Route)
 import SharedState exposing (SharedState)
+import Task
 import Util
 
 
@@ -32,6 +35,7 @@ import Util
 type alias Model =
     { windowSize : WindowSize
     , ico : Icosahedron.Model
+    , timeMachineInfo : Bool
     }
 
 
@@ -42,6 +46,7 @@ init flags =
             flags.windowSize.height // 2
     in
     { windowSize = flags.windowSize
+    , timeMachineInfo = False
     , ico = Icosahedron.init icoSize
     }
 
@@ -94,7 +99,31 @@ view model =
                 [ Element.centerX
                 , Font.size 25
                 ]
-                [ Element.text "I am a undergraduate student studying computer science at the University of Alberta. I love web development, especially through functional languages like Elm." ]
+                [ Element.text "I am a undergraduate student studying computer science at the University of Alberta. "
+                , Element.paragraph
+                    [ Element.pointer
+                    , Element.mouseOver
+                        [ Font.color <| Colours.toElement Colours.subtleBlack ]
+                    , Events.onDoubleClick OpenTimeMachine
+                    ]
+                    [ Element.text "I love web development" ]
+                , Element.text ", especially through functional languages like Elm."
+                ]
+
+            -- time machine info
+            , if model.timeMachineInfo then
+                Element.paragraph
+                    [ Element.paddingXY 6 3
+                    , Font.size 15
+                    , Font.color <| Colours.toElement Colours.subtleBlack
+                    , Background.color <| Colours.toElement Colours.white
+                    ]
+                    [ Element.text "Time machine available. Scroll to bottom." ]
+
+              else
+                Element.el
+                    [ Element.height <| Element.px 21 ]
+                    Element.none
 
             -- navbar
             , Element.row
@@ -147,16 +176,31 @@ view model =
 type Msg
     = NavigateTo Route
     | IcoMsg Icosahedron.Msg
+    | OpenTimeMachine
+    | CloseTimeMachineInfo
 
 
-update : SharedState -> Msg -> Model -> ( Model, Cmd Msg )
+update : SharedState -> Msg -> Model -> ( Model, Cmd Msg, SharedState.Msg )
 update sharedState msg model =
     case msg of
         NavigateTo route ->
-            ( model, Nav.pushUrl sharedState.navKey (Routes.toUrlString route) )
+            ( model, Nav.pushUrl sharedState.navKey (Routes.toUrlString route), SharedState.NoOp )
 
         IcoMsg icoMsg ->
-            ( { model | ico = Icosahedron.update icoMsg model.ico }, Cmd.none )
+            ( { model | ico = Icosahedron.update icoMsg model.ico }, Cmd.none, SharedState.NoOp )
+
+        OpenTimeMachine ->
+            ( { model | timeMachineInfo = True }
+            , Process.sleep 3000
+                |> Task.perform (always CloseTimeMachineInfo)
+            , SharedState.OpenTimeMachine
+            )
+
+        CloseTimeMachineInfo ->
+            ( { model | timeMachineInfo = False }
+            , Cmd.none
+            , SharedState.NoOp
+            )
 
 
 
