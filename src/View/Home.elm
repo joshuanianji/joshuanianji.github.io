@@ -94,21 +94,21 @@ view model =
                 , Font.size 25
                 , Font.bold
                 ]
-                [ Element.text "Welcome to my website!" ]
-            , Element.paragraph
-                [ Element.centerX
-                , Font.size 25
-                ]
-                [ Element.text "I am an undergraduate student studying computer science at the University of Alberta. "
+                [ Element.text "Welc"
                 , Element.paragraph
                     [ Element.pointer
                     , Element.mouseOver
                         [ Font.color <| Colours.toElement Colours.subtleBlack ]
                     , Events.onDoubleClick OpenTimeMachine
                     ]
-                    [ Element.text "I love web development" ]
-                , Element.text ", especially through functional languages like Elm."
+                    [ Element.text "o" ]
+                , Element.text "me to my website!"
                 ]
+            , Element.paragraph
+                [ Element.centerX
+                , Font.size 25
+                ]
+                [ Element.text "I am an undergraduate student studying computer science at the University of Alberta. I love web development, especially through functional languages like Elm." ]
 
             -- time machine info
             , if model.timeMachineInfo then
