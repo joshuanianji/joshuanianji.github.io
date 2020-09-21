@@ -99,7 +99,7 @@ view model =
                 [ Element.centerX
                 , Font.size 25
                 ]
-                [ Element.text "I am a undergraduate student studying computer science at the University of Alberta. "
+                [ Element.text "I am an undergraduate student studying computer science at the University of Alberta. "
                 , Element.paragraph
                     [ Element.pointer
                     , Element.mouseOver
