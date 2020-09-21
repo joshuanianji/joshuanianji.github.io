@@ -122,7 +122,9 @@ view model =
 
               else
                 Element.el
-                    [ Element.height <| Element.px 21 ]
+                    [ Element.height <| Element.px 22
+                    , Element.width <| Element.px 1
+                    ]
                     Element.none
 
             -- navbar

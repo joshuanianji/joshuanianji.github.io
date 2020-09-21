@@ -352,10 +352,9 @@ subscriptions m =
 
         Ok model ->
             Sub.batch
-                [ --     Home.subscriptions model.home
-                  --     |> Sub.map HomeMsg
-                  -- ,
-                  About.subscriptions model.about
+                [ Home.subscriptions model.home
+                    |> Sub.map HomeMsg
+                , About.subscriptions model.about
                     |> Sub.map AboutMsg
                 , Projects.subscriptions model.projects
                     |> Sub.map ProjectsMsg
