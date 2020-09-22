@@ -16,6 +16,7 @@ import Length
 import LineSegment3d
 import Pixels exposing (Pixels)
 import Point3d
+import Ports
 import Quantity exposing (Quantity)
 import Scene3d
 import Scene3d.Material as Material
@@ -34,6 +35,7 @@ type alias Model =
     { size : Int
     , azimuth : Angle
     , elevation : Angle
+    , mouse : Mouse
     }
 
 
@@ -48,8 +50,9 @@ type alias Mouse =
 init : Int -> Model
 init size =
     { size = size
-    , azimuth = Angle.degrees 45
-    , elevation = Angle.degrees 30
+    , azimuth = Angle.degrees 0
+    , elevation = Angle.degrees 0
+    , mouse = ( Pixels.float 0, Pixels.float 0 )
     }
 
 
@@ -236,7 +239,7 @@ initialIcosahedron =
 
 
 type Msg
-    = MouseMove ( Quantity Float Pixels, Quantity Float Pixels )
+    = MouseMove { x : Float, y : Float }
     | Tick Duration
 
 
@@ -244,8 +247,14 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         -- Orbit camera on mouse move
-        MouseMove ( dx, dy ) ->
+        MouseMove { x, y } ->
+            { model | mouse = ( Pixels.float x, Pixels.float y ) }
+
+        Tick duration ->
             let
+                ( dx, dy ) =
+                    model.mouse
+
                 -- How fast we want to orbit the camera (orbiting the
                 -- camera by 1 degree per pixel of drag is a decent default
                 -- to start with)
@@ -258,7 +267,6 @@ update msg model =
                     model.azimuth
                         |> Quantity.minus
                             (dx
-                                |> Quantity.divideBy 4
                                 |> Quantity.at rotationRate
                             )
 
@@ -267,38 +275,19 @@ update msg model =
                 -- go past vertical in either direction
                 newElevation =
                     model.elevation
-                        |> Quantity.plus
+                        |> Quantity.minus
                             (dy
-                                |> Quantity.divideBy 4
                                 |> Quantity.at rotationRate
                             )
-                        |> Quantity.clamp (Angle.degrees -90) (Angle.degrees 90)
+
+                -- |> Quantity.clamp (Angle.degrees -90) (Angle.degrees 90)
             in
             { model | azimuth = newAzimuth, elevation = newElevation }
-
-        Tick duration ->
-            let
-                rotationRate =
-                    Angle.degrees 45 |> Quantity.per Duration.second
-
-                newAzimuth =
-                    model.azimuth
-                        |> Quantity.plus (rotationRate |> Quantity.for duration)
-            in
-            { model | azimuth = newAzimuth }
 
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ Browser.Events.onAnimationFrameDelta (Duration.milliseconds >> Tick)
-        , Browser.Events.onMouseMove decoder
+        , Ports.updateMousePos MouseMove
         ]
-
-
-decoder : Decoder Msg
-decoder =
-    Decode.map2 Tuple.pair
-        (Decode.field "movementX" Decode.float |> Decode.map Pixels.float)
-        (Decode.field "movementX" Decode.float |> Decode.map Pixels.float)
-        |> Decode.map MouseMove

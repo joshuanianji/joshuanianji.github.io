@@ -80,6 +80,23 @@ window.onload = function () {
         }
     }, false);
 
+    document.querySelector('#home').addEventListener('mousemove', function (e) {
+        let rect = this.getBoundingClientRect();
+
+        // calculating grid where the middle is (0, 0)
+        var height = rect.bottom - rect.top;
+        var width = rect.right - rect.left;
+        var x = e.clientX - rect.left - width / 2;
+        var y = rect.top - e.clientY + height / 2;
+
+        var hypotenuse = Math.sqrt(x * x + y * y)
+
+        app.ports.updateMousePos.send({
+            x: x / hypotenuse,
+            y: y / hypotenuse
+        })
+    })
+
 }
 
 // If you want your app to work offline and load faster, you can change
