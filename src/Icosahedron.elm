@@ -10,6 +10,7 @@ import Camera3d
 import Colours
 import Duration exposing (Duration)
 import Element exposing (Element)
+import Html.Attributes
 import Json.Decode as Decode exposing (Decoder)
 import Length
 import LineSegment3d
@@ -33,8 +34,11 @@ type alias Model =
     { size : Int
     , azimuth : Angle
     , elevation : Angle
-    , orbiting : Bool
     }
+
+
+type alias Mouse =
+    ( Quantity Float Pixels, Quantity Float Pixels )
 
 
 
@@ -46,29 +50,9 @@ init size =
     { size = size
     , azimuth = Angle.degrees 45
     , elevation = Angle.degrees 30
-    , orbiting = False
     }
 
 
-{-| camera =
-Camera3d.orthographic
-{ viewpoint =
-Viewpoint3d.isometric
-{ focalPoint = Point3d.origin
-, distance = Length.cssPixels 100
-}
-, viewportHeight = Length.cssPixels 32
-}
-in
-Element.html <|
-Scene3d.unlit
-{ camera = camera
-, dimensions = ( Pixels.int 200, Pixels.int 200 )
-, entities = [ initialIcosahedron ]
-, clipDepth = Length.cssPixels 10
-, background = Scene3d.transparentBackground
-}
--}
 view : Model -> Element Msg
 view model =
     let
@@ -86,14 +70,17 @@ view model =
                 , verticalFieldOfView = Angle.degrees 30
                 }
     in
-    Element.html <|
-        Scene3d.unlit
-            { camera = camera
-            , dimensions = ( Pixels.int model.size, Pixels.int model.size )
-            , entities = [ initialIcosahedron ]
-            , clipDepth = Length.cssPixels 10
-            , background = Scene3d.transparentBackground
-            }
+    Scene3d.unlit
+        { camera = camera
+        , dimensions = ( Pixels.int model.size, Pixels.int model.size )
+        , entities = [ initialIcosahedron ]
+        , clipDepth = Length.cssPixels 10
+        , background = Scene3d.transparentBackground
+        }
+        |> Element.html
+        |> Element.el
+            -- 'icosahedron' id so that Javscript can track if it's off screen or not to save computing time
+            [ Element.htmlAttribute <| Html.Attributes.id "icosahedron" ]
 
 
 {-| Create a cube entity by constructing six square faces with different colors
@@ -249,88 +236,69 @@ initialIcosahedron =
 
 
 type Msg
-    = MouseDown
-    | MouseUp
-    | MouseMove (Quantity Float Pixels) (Quantity Float Pixels)
+    = MouseMove ( Quantity Float Pixels, Quantity Float Pixels )
     | Tick Duration
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        -- Start orbiting when a mouse button is pressed
-        MouseDown ->
-            { model | orbiting = True }
+        -- Orbit camera on mouse move
+        MouseMove ( dx, dy ) ->
+            let
+                -- How fast we want to orbit the camera (orbiting the
+                -- camera by 1 degree per pixel of drag is a decent default
+                -- to start with)
+                rotationRate =
+                    Angle.degrees 0.5 |> Quantity.per Pixels.pixel
 
-        -- Stop orbiting when a mouse button is released
-        MouseUp ->
-            { model | orbiting = False }
+                -- Adjust azimuth based on horizontal mouse motion (one
+                -- degree per pixel)
+                newAzimuth =
+                    model.azimuth
+                        |> Quantity.minus
+                            (dx
+                                |> Quantity.divideBy 4
+                                |> Quantity.at rotationRate
+                            )
 
-        -- Orbit camera on mouse move (if a mouse button is down)
-        MouseMove dx dy ->
-            if model.orbiting then
-                let
-                    -- How fast we want to orbit the camera (orbiting the
-                    -- camera by 1 degree per pixel of drag is a decent default
-                    -- to start with)
-                    rotationRate =
-                        Angle.degrees 0.5 |> Quantity.per Pixels.pixel
-
-                    -- Adjust azimuth based on horizontal mouse motion (one
-                    -- degree per pixel)
-                    newAzimuth =
-                        model.azimuth
-                            |> Quantity.minus (dx |> Quantity.at rotationRate)
-
-                    -- Adjust elevation based on vertical mouse motion (one
-                    -- degree per pixel), and clamp to make sure camera cannot
-                    -- go past vertical in either direction
-                    newElevation =
-                        model.elevation
-                            |> Quantity.plus (dy |> Quantity.at rotationRate)
-                            |> Quantity.clamp (Angle.degrees -90) (Angle.degrees 90)
-                in
-                { model | azimuth = newAzimuth, elevation = newElevation }
-
-            else
-                model
+                -- Adjust elevation based on vertical mouse motion (one
+                -- degree per pixel), and clamp to make sure camera cannot
+                -- go past vertical in either direction
+                newElevation =
+                    model.elevation
+                        |> Quantity.plus
+                            (dy
+                                |> Quantity.divideBy 4
+                                |> Quantity.at rotationRate
+                            )
+                        |> Quantity.clamp (Angle.degrees -90) (Angle.degrees 90)
+            in
+            { model | azimuth = newAzimuth, elevation = newElevation }
 
         Tick duration ->
             let
-                -- Speed at which the cube rotates; Angle, Quantity and Duration are
-                -- all modules from elm-units
                 rotationRate =
                     Angle.degrees 45 |> Quantity.per Duration.second
 
-                -- Update the current angle by adding a delta equal to the rotation rate
-                -- multiplied by elapsed time since the last animation frame
-                updatedAngle =
-                    model.azimuth |> Quantity.plus (rotationRate |> Quantity.for duration)
+                newAzimuth =
+                    model.azimuth
+                        |> Quantity.plus (rotationRate |> Quantity.for duration)
             in
-            { model | azimuth = updatedAngle }
+            { model | azimuth = newAzimuth }
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    let
-        drag =
-            if model.orbiting then
-                Sub.batch
-                    [ Browser.Events.onMouseMove decodeMouseMove
-                    , Browser.Events.onMouseUp (Decode.succeed MouseUp)
-                    ]
-
-            else
-                Browser.Events.onMouseDown (Decode.succeed MouseDown)
-    in
+subscriptions _ =
     Sub.batch
-        [ drag
-        , Browser.Events.onAnimationFrameDelta (Duration.milliseconds >> Tick)
+        [ Browser.Events.onAnimationFrameDelta (Duration.milliseconds >> Tick)
+        , Browser.Events.onMouseMove decoder
         ]
 
 
-decodeMouseMove : Decoder Msg
-decodeMouseMove =
-    Decode.map2 MouseMove
-        (Decode.field "movementX" (Decode.map Pixels.float Decode.float))
-        (Decode.field "movementY" (Decode.map Pixels.float Decode.float))
+decoder : Decoder Msg
+decoder =
+    Decode.map2 Tuple.pair
+        (Decode.field "movementX" Decode.float |> Decode.map Pixels.float)
+        (Decode.field "movementX" Decode.float |> Decode.map Pixels.float)
+        |> Decode.map MouseMove

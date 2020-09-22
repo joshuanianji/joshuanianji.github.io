@@ -21,6 +21,7 @@ import FeatherIcons
 import Html.Attributes
 import Icon
 import Icosahedron
+import Ports
 import Process
 import Routes exposing (Route)
 import SharedState exposing (SharedState)
@@ -36,6 +37,7 @@ type alias Model =
     { windowSize : WindowSize
     , ico : Icosahedron.Model
     , timeMachineInfo : Bool
+    , inViewport : Bool -- if it is in viewport - we know whether ir not to run the icosahedron thing
     }
 
 
@@ -48,6 +50,7 @@ init flags =
     { windowSize = flags.windowSize
     , timeMachineInfo = False
     , ico = Icosahedron.init icoSize
+    , inViewport = True
     }
 
 
@@ -180,6 +183,7 @@ type Msg
     | IcoMsg Icosahedron.Msg
     | OpenTimeMachine
     | CloseTimeMachineInfo
+    | UpdateViewport Bool
 
 
 update : SharedState -> Msg -> Model -> ( Model, Cmd Msg, SharedState.Msg )
@@ -204,6 +208,12 @@ update sharedState msg model =
             , SharedState.NoOp
             )
 
+        UpdateViewport viewport ->
+            ( { model | inViewport = viewport }
+            , Cmd.none
+            , SharedState.NoOp
+            )
+
 
 
 ---- SUBSCRIPTIONS ----
@@ -211,5 +221,16 @@ update sharedState msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Icosahedron.subscriptions model.ico
-        |> Sub.map IcoMsg
+    let
+        icoSub =
+            if model.inViewport then
+                Icosahedron.subscriptions model.ico
+                    |> Sub.map IcoMsg
+
+            else
+                Sub.none
+    in
+    Sub.batch
+        [ Ports.updateHomeViewport UpdateViewport
+        , icoSub
+        ]

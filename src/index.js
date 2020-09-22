@@ -50,10 +50,37 @@ const app = Elm.Main.init({
     }
 });
 
-window.onload = function () {
-    app.ports.scroll.send(null)
-}
+/*!
+    * Determine if an element is in the viewport
+    * Super simple becuase the icosahedron only needs to be scrolled down, not up.
+    * I will keep the distance variable because i might need more complex things later on.
+    */
+const notInViewport = function (elem) {
+    var distance = elem.getBoundingClientRect();
+    return (distance.bottom <= 0);
+};
 
+window.onload = function () {
+    app.ports.scroll.send(null);
+
+    let ico_elem = document.querySelector('#icosahedron');
+    let tracker = notInViewport(ico_elem);
+
+    window.addEventListener('scroll', function (event) {
+        let outOfBounds = notInViewport(ico_elem)
+        // if statements only run if the previous tracker var and the new out of bounds var is DIFFERENT
+        if (tracker && !outOfBounds) {
+            console.log('In viewport!');
+            app.ports.updateHomeViewport.send(true);
+            tracker = false;
+        } else if (!tracker && outOfBounds) {
+            console.log('Not in viewport!');
+            app.ports.updateHomeViewport.send(false);
+            tracker = true;
+        }
+    }, false);
+
+}
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

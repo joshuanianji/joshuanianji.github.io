@@ -20,7 +20,7 @@
             "ianmackenzie/elm-3d-scene": "1.0.1",
             "ianmackenzie/elm-geometry": "3.6.0",
             "ianmackenzie/elm-triangular-mesh": "1.0.4",
-            "ianmackenzie/elm-units": "2.6.0",
+            "ianmackenzie/elm-units": "2.7.0",
             "linuss/smooth-scroll": "1.1.0",
             "mdgriffith/elm-ui": "1.1.8"
         },
