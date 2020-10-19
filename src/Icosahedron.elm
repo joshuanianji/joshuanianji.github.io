@@ -11,7 +11,6 @@ import Colours
 import Duration exposing (Duration)
 import Element exposing (Element)
 import Html.Attributes
-import Json.Decode as Decode exposing (Decoder)
 import Length
 import LineSegment3d
 import Pixels exposing (Pixels)
@@ -36,6 +35,7 @@ type alias Model =
     , azimuth : Angle
     , elevation : Angle
     , mouse : Mouse
+    , falseMouse : Mouse -- the ico will rotate toward it, but it will lag behind the actual mouse
     }
 
 
@@ -53,6 +53,7 @@ init size =
     , azimuth = Angle.degrees 0
     , elevation = Angle.degrees 0
     , mouse = ( Pixels.float 0, Pixels.float 0 )
+    , falseMouse = ( Pixels.float 0, Pixels.float 0 )
     }
 
 
