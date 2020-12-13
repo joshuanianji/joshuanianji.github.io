@@ -11,10 +11,9 @@
   "favicon.png": "/projects/hiit-timer/favicon.png",
   "index.html": "/projects/hiit-timer/index.html",
   "manifest.json": "/projects/hiit-timer/manifest.json",
-  "precache-manifest.13c74f6ae6c86bd9abbc58c1f3c50a71.js": "/projects/hiit-timer/precache-manifest.13c74f6ae6c86bd9abbc58c1f3c50a71.js",
+  "precache-manifest.2118245f248cb085cca6f075d6eee504.js": "/projects/hiit-timer/precache-manifest.2118245f248cb085cca6f075d6eee504.js",
   "static/media/smh.d184a70a.png": "/projects/hiit-timer/static/media/smh.d184a70a.png",
   "static/media/tada.9cfbe32b.mp3": "/projects/hiit-timer/static/media/tada.9cfbe32b.mp3",
   "static/media/tada.b49a92e1.wav": "/projects/hiit-timer/static/media/tada.b49a92e1.wav",
-  "static/media/whistle.4f149710.mp3": "/projects/hiit-timer/static/media/whistle.4f149710.mp3",
-  "version.txt": "/projects/hiit-timer/version.txt"
+  "static/media/whistle.4f149710.mp3": "/projects/hiit-timer/static/media/whistle.4f149710.mp3"
 }

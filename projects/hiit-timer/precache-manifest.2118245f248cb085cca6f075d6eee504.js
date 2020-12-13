@@ -46,9 +46,5 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "63f8231867a8414be6b7425aa3f923b2",
     "url": "/projects/hiit-timer/static/media/whistle.4f149710.mp3"
-  },
-  {
-    "revision": "ad2f981820c1e26b9c95b61832af190a",
-    "url": "/projects/hiit-timer/version.txt"
   }
 ]);
