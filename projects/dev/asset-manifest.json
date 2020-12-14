@@ -1,0 +1,19 @@
+{
+  "main.css": "/projects/dev/static/css/main.3a591fbe.chunk.css",
+  "main.js": "/projects/dev/static/js/main.5590f78d.chunk.js",
+  "main.js.map": "/projects/dev/static/js/main.5590f78d.chunk.js.map",
+  "runtime~main.js": "/projects/dev/static/js/runtime~main.7fb1436c.js",
+  "runtime~main.js.map": "/projects/dev/static/js/runtime~main.7fb1436c.js.map",
+  "vendors~main.js": "/projects/dev/static/js/vendors~main.e52175ea.chunk.js",
+  "vendors~main.js.map": "/projects/dev/static/js/vendors~main.e52175ea.chunk.js.map",
+  "./service-worker.js": "/projects/dev/./service-worker.js",
+  "favicon-white-bg.png": "/projects/dev/favicon-white-bg.png",
+  "favicon.png": "/projects/dev/favicon.png",
+  "index.html": "/projects/dev/index.html",
+  "manifest.json": "/projects/dev/manifest.json",
+  "precache-manifest.2dd54b99b87a035b204158249a332986.js": "/projects/dev/precache-manifest.2dd54b99b87a035b204158249a332986.js",
+  "static/media/smh.d184a70a.png": "/projects/dev/static/media/smh.d184a70a.png",
+  "static/media/tada.9cfbe32b.mp3": "/projects/dev/static/media/tada.9cfbe32b.mp3",
+  "static/media/tada.b49a92e1.wav": "/projects/dev/static/media/tada.b49a92e1.wav",
+  "static/media/whistle.4f149710.mp3": "/projects/dev/static/media/whistle.4f149710.mp3"
+}

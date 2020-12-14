@@ -1,0 +1,21 @@
+{
+    "short_name": "HIIT Timer",
+    "name": "HIIT Workout Timer",
+    "description": "An awesome PWA to time your workouts.",
+    "icons": [
+        {
+            "src": "favicon.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "favicon.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "./index.html",
+    "display": "standalone",
+    "theme_color": "#fb6542",
+    "background_color": "#ffffff"
+}
