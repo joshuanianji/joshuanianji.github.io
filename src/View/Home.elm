@@ -59,7 +59,7 @@ init flags =
 
 
 view : SharedState -> Model -> Element Msg
-view _ model =
+view sharedState model =
     Element.column
         [ Element.width Element.fill
         , Element.height <| Element.px model.windowSize.height
@@ -82,56 +82,13 @@ view _ model =
             , Element.spaceEvenly
             , Font.center
             ]
-            [ Element.paragraph
-                [ Element.centerX
-                , Font.size 100
-                , Font.bold
-                , Font.letterSpacing 3
-                , Font.family
-                    [ Font.typeface "Playfair Display SC" ]
-                ]
-                [ Element.text "Joshua Ji" ]
-            , Element.paragraph
-                [ Element.centerX
-                , Element.spacing 4
-                , Font.size 25
-                , Font.bold
-                ]
-                [ Element.text "Welc"
-                , Element.paragraph
-                    [ Element.pointer
-                    , Element.mouseOver
-                        [ Font.color <| Colours.toElement Colours.subtleBlack ]
-                    , Events.onDoubleClick OpenTimeMachine
-                    ]
-                    [ Element.text "o" ]
-                , Element.text "me to my website!"
-                ]
-            , Element.paragraph
-                [ Element.centerX
-                , Font.size 25
-                ]
-                [ Element.text "I am an undergraduate student studying computer science at the University of Alberta. I love web development, especially through functional languages like Elm." ]
-
-            -- time machine info
-            , if model.timeMachineInfo then
-                Element.paragraph
-                    [ Element.paddingXY 6 3
-                    , Font.size 15
-                    , Font.color <| Colours.toElement Colours.subtleBlack
-                    , Background.color <| Colours.toElement Colours.white
-                    ]
-                    [ Element.text "Time machine available. Scroll to bottom." ]
-
-              else
-                Element.el
-                    [ Element.height <| Element.px 22
-                    , Element.width <| Element.px 1
-                    ]
-                    Element.none
+            [ title sharedState model
+            , subTitle sharedState model
+            , description sharedState model
+            , mTimeMachine sharedState model
 
             -- navbar
-            , navbar model
+            , navbar sharedState model
             ]
             |> Util.surround
                 { vertical = True
@@ -152,6 +109,70 @@ view _ model =
         ]
 
 
+title : SharedState -> Model -> Element Msg
+title sharedState model =
+    Element.paragraph
+        [ Element.centerX
+        , Font.size 100
+        , Font.bold
+        , Font.letterSpacing 3
+        , Font.family
+            [ Font.typeface "Playfair Display SC" ]
+        ]
+        [ Element.text "Joshua Ji" ]
+
+
+subTitle : SharedState -> Model -> Element Msg
+subTitle sharedState model =
+    Element.paragraph
+        [ Element.centerX
+        , Element.spacing 4
+        , Font.size 25
+        , Font.bold
+        ]
+        [ Element.text "Welc"
+        , Element.paragraph
+            [ Element.pointer
+            , Element.mouseOver
+                [ Font.color <| Colours.toElement Colours.subtleBlack ]
+            , Events.onDoubleClick OpenTimeMachine
+            ]
+            [ Element.text "o" ]
+        , Element.text "me to my website!"
+        ]
+
+
+description : SharedState -> Model -> Element Msg
+description sharedState model =
+    Element.paragraph
+        [ Element.centerX
+        , Font.size 25
+        ]
+        [ Element.text "I am an undergraduate student studying computer science at the University of Alberta. I love web development, especially through functional languages like Elm." ]
+
+
+mTimeMachine : SharedState -> Model -> Element Msg
+mTimeMachine sharedState model =
+    -- time machine info
+    if model.timeMachineInfo then
+        Element.paragraph
+            [ Element.paddingXY 6 3
+            , Element.width Element.shrink
+            , Element.centerX
+            , Font.size 15
+            , Font.color <| Colours.toElement Colours.white
+            , Background.color <| Colours.toElement Colours.themeBlue
+            ]
+            [ Element.text "Time machine available. Scroll to bottom." ]
+
+    else
+        Element.el
+            [ Element.height <| Element.px 22
+            , Element.width <| Element.px 1
+            ]
+            Element.none
+
+
 
 -- helper type for the Navbar
 
@@ -161,8 +182,8 @@ type Link
     | Url String
 
 
-navbar : Model -> Element Msg
-navbar model =
+navbar : SharedState -> Model -> Element Msg
+navbar sharedState model =
     Element.row
         [ Element.width Element.fill
         , Element.centerX
@@ -239,7 +260,7 @@ update sharedState msg model =
 
         OpenTimeMachine ->
             ( { model | timeMachineInfo = True }
-            , Process.sleep 3000
+            , Process.sleep 5000
                 |> Task.perform (always CloseTimeMachineInfo)
             , SharedState.OpenTimeMachine
             )
