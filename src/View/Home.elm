@@ -60,6 +60,63 @@ init flags =
 
 view : SharedState -> Model -> Element Msg
 view sharedState model =
+    let
+        surround =
+            case sharedState.device.class of
+                Element.Phone ->
+                    { vertical = True
+                    , first = 2
+                    , middle = 20
+                    , last = 3
+                    }
+
+                _ ->
+                    { vertical = True
+                    , first = 1
+                    , middle = 3
+                    , last = 1
+                    }
+
+        content =
+            case sharedState.device.class of
+                Element.Phone ->
+                    Element.column
+                        [ Element.height Element.fill
+                        , Element.width Element.fill
+                        ]
+                        [ Element.column
+                            [ Element.height <| Element.fillPortion 4
+                            , Element.centerX
+                            , Element.spaceEvenly
+                            ]
+                            [ title sharedState model
+                            , subTitle sharedState model
+                            , description sharedState model
+                            , mTimeMachine sharedState model
+                            ]
+
+                        -- navbar will ALWAYS take up 2/5 of the available space
+                        , Element.el
+                            [ Element.height <| Element.fillPortion 3
+                            , Element.width Element.fill
+                            ]
+                            (navbar sharedState.device.class model)
+                        ]
+
+                _ ->
+                    Element.column
+                        [ Element.width (Element.maximum 900 Element.fill)
+                        , Element.centerX
+                        , Element.height Element.fill
+                        , Element.spaceEvenly
+                        ]
+                        [ title sharedState model
+                        , subTitle sharedState model
+                        , description sharedState model
+                        , mTimeMachine sharedState model
+                        , navbar sharedState.device.class model
+                        ]
+    in
     Element.column
         [ Element.width Element.fill
         , Element.height <| Element.px model.windowSize.height
@@ -67,35 +124,11 @@ view sharedState model =
 
         -- distinct id for us to jump to
         , Element.htmlAttribute <| Html.Attributes.id "home"
-        , Icosahedron.view model.ico
-            |> Element.map IcoMsg
-            |> Element.el
-                [ Element.centerX
-                , Element.centerY
-                ]
-            |> Element.behindContent
+        , Element.behindContent <| icosahedron sharedState model
         ]
-        [ Element.column
-            [ Element.width (Element.maximum 900 Element.fill)
-            , Element.centerX
-            , Element.height Element.fill
-            , Element.spaceEvenly
-            , Font.center
-            ]
-            [ title sharedState model
-            , subTitle sharedState model
-            , description sharedState model
-            , mTimeMachine sharedState model
+        [ Util.surround surround content
 
-            -- navbar
-            , navbar sharedState model
-            ]
-            |> Util.surround
-                { vertical = True
-                , first = 1
-                , middle = 3
-                , last = 1
-                }
+        -- icon
         , Icon.view
             [ Element.centerX
             , Element.alignBottom
@@ -109,12 +142,37 @@ view sharedState model =
         ]
 
 
+icosahedron : SharedState -> Model -> Element Msg
+icosahedron sharedState model =
+    case sharedState.device.class of
+        Element.Phone ->
+            -- name the ID so javascript can still query it. Wont do anything though xd.
+            Element.el [ Element.htmlAttribute (Html.Attributes.id "icosahedron") ] Element.none
+
+        _ ->
+            Icosahedron.view model.ico
+                |> Element.map IcoMsg
+                |> Element.el
+                    [ Element.centerX
+                    , Element.centerY
+                    ]
+
+
 title : SharedState -> Model -> Element Msg
 title sharedState model =
+    let
+        fontSize =
+            case sharedState.device.class of
+                Element.Phone ->
+                    42
+
+                _ ->
+                    100
+    in
     Element.paragraph
-        [ Element.centerX
-        , Font.size 100
+        [ Font.size fontSize
         , Font.bold
+        , Font.center
         , Font.letterSpacing 3
         , Font.family
             [ Font.typeface "Playfair Display SC" ]
@@ -124,10 +182,19 @@ title sharedState model =
 
 subTitle : SharedState -> Model -> Element Msg
 subTitle sharedState model =
+    let
+        fontSize =
+            case sharedState.device.class of
+                Element.Phone ->
+                    18
+
+                _ ->
+                    25
+    in
     Element.paragraph
-        [ Element.centerX
-        , Element.spacing 4
-        , Font.size 25
+        [ Element.spacing 4
+        , Font.center
+        , Font.size fontSize
         , Font.bold
         ]
         [ Element.text "Welc"
@@ -144,22 +211,39 @@ subTitle sharedState model =
 
 description : SharedState -> Model -> Element Msg
 description sharedState model =
+    let
+        ( fontSize, text ) =
+            case sharedState.device.class of
+                Element.Phone ->
+                    ( 16, "Here are some of my projects, my resume, and ways to contact me!" )
+
+                _ ->
+                    ( 25, "I am an undergraduate student studying computer science at the University of Alberta. I love web development, especially through functional languages like Elm." )
+    in
     Element.paragraph
-        [ Element.centerX
-        , Font.size 25
+        [ Font.center
+        , Font.size fontSize
         ]
-        [ Element.text "I am an undergraduate student studying computer science at the University of Alberta. I love web development, especially through functional languages like Elm." ]
+        [ Element.text text ]
 
 
 mTimeMachine : SharedState -> Model -> Element Msg
 mTimeMachine sharedState model =
-    -- time machine info
+    let
+        fontSize =
+            case sharedState.device.class of
+                Element.Phone ->
+                    12
+
+                _ ->
+                    15
+    in
     if model.timeMachineInfo then
         Element.paragraph
             [ Element.paddingXY 6 3
             , Element.width Element.shrink
             , Element.centerX
-            , Font.size 15
+            , Font.size fontSize
             , Font.color <| Colours.toElement Colours.white
             , Background.color <| Colours.toElement Colours.themeBlue
             ]
@@ -167,7 +251,7 @@ mTimeMachine sharedState model =
 
     else
         Element.el
-            [ Element.height <| Element.px 22
+            [ Element.height <| Element.px <| fontSize + 7
             , Element.width <| Element.px 1
             ]
             Element.none
@@ -182,59 +266,84 @@ type Link
     | Url String
 
 
-navbar : SharedState -> Model -> Element Msg
-navbar sharedState model =
-    Element.row
-        [ Element.width Element.fill
-        , Element.centerX
-        , Element.spaceEvenly
+navbar : Element.DeviceClass -> Model -> Element Msg
+navbar device model =
+    let
+        navbarItems =
+            List.map
+                (navbarItem device)
+                [ ( "About", Route Routes.About )
+                , ( "Projects", Route Routes.Projects )
+                , ( "Contact", Route Routes.Contact )
+                , ( "Resume", Url "https://joshuaji.com/resume.pdf" )
+                ]
+    in
+    case device of
+        Element.Phone ->
+            Element.column
+                [ Element.height Element.fill
+                , Element.spaceEvenly
+                , Element.centerX
+                ]
+                navbarItems
+
+        _ ->
+            Element.row
+                [ Element.width Element.fill
+                , Element.spaceEvenly
+                ]
+                navbarItems
+
+
+navbarItem : Element.DeviceClass -> ( String, Link ) -> Element Msg
+navbarItem device ( label, link ) =
+    let
+        ( fontSize, center ) =
+            case device of
+                Element.Phone ->
+                    ( 24, Element.centerX )
+
+                _ ->
+                    ( 30, Element.centerY )
+    in
+    Element.el
+        [ Element.width Element.shrink
+        , center
+        , Element.paddingXY 1 2
+        , Element.htmlAttribute <| Html.Attributes.class "fat-underline"
+        , Font.size fontSize
+        , Font.family [ Font.typeface "Playfair Display SC" ]
         ]
     <|
-        List.map
-            (\( label, link ) ->
-                Element.el
-                    [ Element.width Element.shrink
-                    , Element.paddingXY 1 2
-                    , Element.htmlAttribute <| Html.Attributes.class "fat-underline"
-                    , Font.size 30
-                    , Font.family [ Font.typeface "Playfair Display SC" ]
+        case link of
+            Route route ->
+                Element.paragraph
+                    [ Font.center
+                    , Element.pointer
+                    , Events.onClick <| NavigateTo route
                     ]
-                <|
-                    case link of
-                        Route route ->
-                            Element.paragraph
-                                [ Font.center
-                                , Element.pointer
-                                , Events.onClick <| NavigateTo route
-                                ]
-                                [ Element.text label ]
+                    [ Element.text label ]
 
-                        Url url ->
-                            Element.row
-                                [ Element.spacing 2
-                                , Element.width Element.fill
-                                ]
-                                [ Element.newTabLink
-                                    [ Element.centerX ]
-                                    { url = url
-                                    , label = Element.text label
-                                    }
-                                , Icon.view
-                                    [ Element.centerY
-                                    ]
-                                    { icon = FeatherIcons.externalLink
-                                    , strokeWidth = 2
-                                    , color = Colours.black
-                                    , size = 24
-                                    , msg = Nothing
-                                    }
-                                ]
-            )
-            [ ( "About", Route Routes.About )
-            , ( "Projects", Route Routes.Projects )
-            , ( "Contact", Route Routes.Contact )
-            , ( "Resume", Url "https://joshuaji.com/resume.pdf" )
-            ]
+            Url url ->
+                Element.row
+                    [ Element.spacing 2
+                    , Element.width Element.fill
+                    ]
+                    [ Element.newTabLink
+                        [ Element.centerX ]
+                        { url = url
+                        , label = Element.text label
+                        }
+                    , Icon.view
+                        [ Element.centerY
+                        ]
+                        { icon = FeatherIcons.externalLink
+                        , strokeWidth = 2
+                        , color = Colours.black
+                        , size = 24
+                        , msg = Nothing
+                        }
+                    ]
 
 
 
@@ -282,16 +391,20 @@ update sharedState msg model =
 ---- SUBSCRIPTIONS ----
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions : SharedState -> Model -> Sub Msg
+subscriptions sharedState model =
     let
         icoSub =
-            if model.inViewport then
-                Icosahedron.subscriptions model.ico
-                    |> Sub.map IcoMsg
+            case ( model.inViewport, sharedState.device.class ) of
+                ( True, Element.Phone ) ->
+                    Sub.none
 
-            else
-                Sub.none
+                ( True, _ ) ->
+                    Icosahedron.subscriptions model.ico
+                        |> Sub.map IcoMsg
+
+                ( _, _ ) ->
+                    Sub.none
     in
     Sub.batch
         [ Ports.updateHomeViewport UpdateViewport
