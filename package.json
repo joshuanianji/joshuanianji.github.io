@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "elm-app start"
+    "start": "elm-app start",
+    "build": "elm-app build"
   },
   "repository": {
     "type": "git",
