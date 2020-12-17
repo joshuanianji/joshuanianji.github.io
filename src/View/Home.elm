@@ -131,14 +131,14 @@ view model =
                     Element.none
 
             -- navbar
-            , Util.surround
+            , navbar model
+            ]
+            |> Util.surround
                 { vertical = True
                 , first = 1
                 , middle = 3
                 , last = 1
                 }
-                (navbar model)
-            ]
         , Icon.view
             [ Element.centerX
             , Element.alignBottom
