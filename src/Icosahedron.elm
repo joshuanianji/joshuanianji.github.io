@@ -63,6 +63,10 @@ init size degs =
     }
 
 
+
+---- VIEW ----
+
+
 view : Model -> Element Msg
 view model =
     let
@@ -245,6 +249,10 @@ initialIcosahedron =
         |> Scene3d.scaleAbout Point3d.origin 5
 
 
+
+---- UPDATE ----
+
+
 type Msg
     = MouseMove { x : Float, y : Float }
     | Tick Duration
@@ -290,6 +298,10 @@ update msg model =
                 -- |> Quantity.clamp (Angle.degrees -90) (Angle.degrees 90)
             in
             { model | azimuth = newAzimuth, elevation = newElevation }
+
+
+
+---- SUBSCRIPTIONS ----
 
 
 subscriptions : Model -> Sub Msg
