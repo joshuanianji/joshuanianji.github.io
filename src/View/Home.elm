@@ -49,7 +49,7 @@ init flags =
     in
     { windowSize = flags.windowSize
     , timeMachineInfo = False
-    , ico = Icosahedron.init icoSize
+    , ico = Icosahedron.init icoSize flags.icoSeed
     , inViewport = True
     }
 

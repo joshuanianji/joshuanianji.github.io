@@ -12,6 +12,7 @@ type alias Flags =
     , projects : List Project
     , projectIcons : Icons
     , githubIcon : String
+    , icoSeed : Float -- for the icosahedron
     }
 
 
@@ -37,6 +38,7 @@ decoder =
         |> Pipeline.required "projectsJson" projectsDecoder
         |> Pipeline.required "projectIcons" ProjectIcon.decoder
         |> Pipeline.required "githubIcon" Decode.string
+        |> Pipeline.required "icoSeed" Decode.float
 
 
 windowSizeDecoder : Decoder WindowSize

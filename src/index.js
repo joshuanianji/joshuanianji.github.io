@@ -46,7 +46,8 @@ const app = Elm.Main.init({
             icons: projIcons,
             default: defaultIcon
         },
-        githubIcon: githubIcon
+        githubIcon: githubIcon,
+        icoSeed: Math.floor(Math.random() * 360), // random degrees
     }
 });
 
@@ -81,7 +82,7 @@ window.onload = function () {
     }, false);
 
     document.querySelector('#home').addEventListener('mousemove', function (e) {
-        let rect = elem.getBoundingClientRect();
+        let rect = ico_elem.getBoundingClientRect();
 
         // calculating grid where the middle is (0, 0)
         let height = rect.bottom - rect.top;

@@ -23,11 +23,15 @@ import Viewpoint3d
 
 
 
--- Honestly idk why this is here
+-- Honestly idk what the world coordinates do
 
 
 type WorldCoordinates
     = WorldCoordinates
+
+
+
+---- MODEL ----
 
 
 type alias Model =
@@ -35,7 +39,6 @@ type alias Model =
     , azimuth : Angle
     , elevation : Angle
     , mouse : Mouse
-    , falseMouse : Mouse -- the ico will rotate toward it, but it will lag behind the actual mouse
     }
 
 
@@ -44,16 +47,19 @@ type alias Mouse =
 
 
 
--- flags is how big to make the icosahedron
+-- Init: size, and initial degrees to rotate in
 
 
-init : Int -> Model
-init size =
+init : Int -> Float -> Model
+init size degs =
+    let
+        ( mouseX, mouseY ) =
+            ( cos (degrees degs), sin (degrees degs) )
+    in
     { size = size
     , azimuth = Angle.degrees 0
     , elevation = Angle.degrees 0
-    , mouse = ( Pixels.float 0, Pixels.float 0 )
-    , falseMouse = ( Pixels.float 0, Pixels.float 0 )
+    , mouse = ( Pixels.float mouseX, Pixels.float mouseY )
     }
 
 
