@@ -26,12 +26,12 @@ import Util
 
 
 type alias Model =
-    { githubIcon : String }
+    {}
 
 
-init : String -> Model
-init icon =
-    { githubIcon = icon }
+init : Model
+init =
+    {}
 
 
 
@@ -59,6 +59,7 @@ view _ =
             ]
             [ contactColumn FeatherIcons.mail "mailto:joshuanji23@gmail.com" "Email"
             , contactColumn FeatherIcons.github "https://github.com/joshuanianji" "Github"
+            , contactColumn FeatherIcons.linkedin "https://linkedin.com/in/joshua-ji-b596851a8" "LinkedIn"
             ]
         ]
 

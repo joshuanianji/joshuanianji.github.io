@@ -11,7 +11,6 @@ import uiBootstrapSrc from './img/proj_icons/ui-bootstrap.png';
 import atomicTheory from './img/proj_icons/atomic-theory.png';
 import cli from './img/proj_icons/cli.png';
 import defaultIcon from './img/proj_icons/default_icon.png'
-import githubIcon from './img/github-icon.png'
 
 var projIcons = [{
     src: derivativesSrc,
@@ -46,7 +45,6 @@ const app = Elm.Main.init({
             icons: projIcons,
             default: defaultIcon
         },
-        githubIcon: githubIcon,
         icoSeed: Math.floor(Math.random() * 360), // random degrees
     }
 });

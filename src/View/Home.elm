@@ -131,36 +131,14 @@ view model =
                     Element.none
 
             -- navbar
-            , Element.row
-                [ Element.width Element.fill
-                , Element.centerX
-                , Element.spaceEvenly
-                ]
-              <|
-                List.map
-                    (\( label, route ) ->
-                        Element.paragraph
-                            [ Element.width Element.shrink
-                            , Element.paddingXY 1 2
-                            , Element.htmlAttribute <| Html.Attributes.class "fat-underline"
-                            , Element.pointer
-                            , Events.onClick <| NavigateTo route
-                            , Font.size 30
-                            , Font.family [ Font.typeface "Playfair Display SC" ]
-                            ]
-                            [ Element.text label ]
-                    )
-                    [ ( "About", Routes.About )
-                    , ( "Projects", Routes.Projects )
-                    , ( "Contact", Routes.Contact )
-                    ]
-            ]
-            |> Util.surround
+            , Util.surround
                 { vertical = True
                 , first = 1
                 , middle = 3
                 , last = 1
                 }
+                (navbar model)
+            ]
         , Icon.view
             [ Element.centerX
             , Element.alignBottom
@@ -172,6 +150,70 @@ view model =
             , msg = Nothing
             }
         ]
+
+
+
+-- helper type for the Navbar
+
+
+type Link
+    = Route Routes.Route
+    | Url String
+
+
+navbar : Model -> Element Msg
+navbar model =
+    Element.row
+        [ Element.width Element.fill
+        , Element.centerX
+        , Element.spaceEvenly
+        ]
+    <|
+        List.map
+            (\( label, link ) ->
+                Element.el
+                    [ Element.width Element.shrink
+                    , Element.paddingXY 1 2
+                    , Element.htmlAttribute <| Html.Attributes.class "fat-underline"
+                    , Font.size 30
+                    , Font.family [ Font.typeface "Playfair Display SC" ]
+                    ]
+                <|
+                    case link of
+                        Route route ->
+                            Element.paragraph
+                                [ Font.center
+                                , Element.pointer
+                                , Events.onClick <| NavigateTo route
+                                ]
+                                [ Element.text label ]
+
+                        Url url ->
+                            Element.row
+                                [ Element.spacing 2
+                                , Element.width Element.fill
+                                ]
+                                [ Element.newTabLink
+                                    [ Element.centerX ]
+                                    { url = url
+                                    , label = Element.text label
+                                    }
+                                , Icon.view
+                                    [ Element.centerY
+                                    ]
+                                    { icon = FeatherIcons.externalLink
+                                    , strokeWidth = 2
+                                    , color = Colours.black
+                                    , size = 24
+                                    , msg = Nothing
+                                    }
+                                ]
+            )
+            [ ( "About", Route Routes.About )
+            , ( "Projects", Route Routes.Projects )
+            , ( "Contact", Route Routes.Contact )
+            , ( "Resume", Url "https://joshuaji.com/resume.pdf" )
+            ]
 
 
 

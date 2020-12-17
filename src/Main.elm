@@ -99,7 +99,7 @@ init flagsJson url key =
                 , about = About.init
                 , home = Home.init flags
                 , projects = Projects.init flags
-                , contact = Contact.init flags.githubIcon
+                , contact = Contact.init
                 }
             , Cmd.none
             )
