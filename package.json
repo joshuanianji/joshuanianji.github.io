@@ -1,5 +1,5 @@
 {
-  "name": "website",
+  "name": "joshuas-personal-website",
   "version": "1.0.0",
   "description": "My personal website, bootstrapped with [Create Elm App](https://github.com/halfzebra/create-elm-app)",
   "main": "index.js",
