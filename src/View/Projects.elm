@@ -47,7 +47,7 @@ init flags =
 
 
 view : SharedState -> Model -> Element Msg
-view _ model =
+view sharedState model =
     Element.column
         [ Element.width (Element.maximum 900 Element.fill)
         , Element.centerX
@@ -61,12 +61,7 @@ view _ model =
         , Element.paragraph
             [ Font.size 24 ]
             [ Element.text "Pinned" ]
-        , Element.row
-            [ Element.width Element.fill
-            , Element.spacing 12
-            ]
-          <|
-            List.map (viewPinnedProject model.icons) (List.filter .pinned model.projects)
+        , pinnedProjects sharedState model
         , Element.paragraph
             [ Font.size 24 ]
             [ Element.text "Other Projects" ]
@@ -75,16 +70,36 @@ view _ model =
             , Element.width Element.fill
             ]
           <|
-            List.map (viewProject model.icons) (List.filter (.pinned >> not) model.projects)
+            List.map (viewProject sharedState.device.class model.icons) (List.filter (.pinned >> not) model.projects)
         ]
 
 
 
--- view a pinned project
+-- pinned
 
 
-viewPinnedProject : Icons -> Project -> Element Msg
-viewPinnedProject icons proj =
+pinnedProjects : SharedState -> Model -> Element Msg
+pinnedProjects sharedState model =
+    case sharedState.device.class of
+        Element.Phone ->
+            Element.column
+                [ Element.width Element.fill
+                , Element.spacing 12
+                ]
+            <|
+                List.map (viewPinnedProject sharedState model.icons) (List.filter .pinned model.projects)
+
+        _ ->
+            Element.row
+                [ Element.width Element.fill
+                , Element.spacing 12
+                ]
+            <|
+                List.map (viewPinnedProject sharedState model.icons) (List.filter .pinned model.projects)
+
+
+viewPinnedProject : SharedState -> Icons -> Project -> Element Msg
+viewPinnedProject sharedState icons proj =
     let
         projIcon =
             Element.image
@@ -193,8 +208,8 @@ viewPinnedProject icons proj =
 -- view a single project
 
 
-viewProject : Icons -> Project -> Element Msg
-viewProject icons proj =
+viewProject : Element.DeviceClass -> Icons -> Project -> Element Msg
+viewProject device icons proj =
     let
         projIcon =
             Element.image
@@ -229,23 +244,9 @@ viewProject icons proj =
                         , msg = Nothing
                         }
                 }
-    in
-    Element.row
-        [ Element.spacing 24
-        , Element.padding 24
-        , Element.width Element.fill
-        , Border.width 1
-        , Border.rounded 8
-        , Border.color <| Colours.toElement Colours.gray
-        , Element.mouseOver
-            [ Border.color <| Colours.toElement Colours.black ]
-        ]
-        [ Element.el [ Element.paddingXY 12 0 ] projIcon
-        , Element.column
-            [ Element.spacing 12
-            , Element.width Element.fill
-            ]
-            [ Element.newTabLink
+
+        title =
+            Element.newTabLink
                 [ Element.pointer
                 , Element.width Element.fill
                 , Font.bold
@@ -256,38 +257,95 @@ viewProject icons proj =
                 , label = Element.text proj.name
                 }
 
-            -- year
-            , Element.el
+        year =
+            Element.el
                 [ Font.light
                 , Font.size 12
                 , Font.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.black
                 ]
-              <|
+            <|
                 Element.text (String.fromInt proj.year)
-            , Element.paragraph
+
+        blurb =
+            Element.paragraph
                 [ Font.size 16 ]
                 [ Element.text proj.blurb ]
-            , Element.row
+
+        concepts =
+            Element.row
                 [ Element.spacing 8 ]
                 [ viewLang proj.language
                 , case proj.concepts of
                     Nothing ->
                         Element.none
 
-                    Just concepts ->
+                    Just cpts ->
                         Element.row
                             [ Element.spacing 5 ]
-                            (List.map viewConcept concepts)
+                            (List.map viewConcept cpts)
                 ]
-            ]
-        , Element.column
-            [ Element.height Element.fill
-            , Element.alignRight
-            ]
-            [ linkBtn FeatherIcons.link2 proj.link
-            , linkBtn FeatherIcons.github proj.githubLink
-            ]
-        ]
+    in
+    -- TODO: make code better
+    case device of
+        Element.Phone ->
+            Element.column
+                [ Element.spacing 24
+                , Element.padding 24
+                , Element.width Element.fill
+                , Border.width 1
+                , Border.rounded 8
+                , Border.color <| Colours.toElement Colours.gray
+                ]
+                [ Element.row
+                    []
+                    [ Element.el [ Element.paddingXY 12 0 ] projIcon
+                    , Element.column
+                        [ Element.spacing 12
+                        , Element.width Element.fill
+                        ]
+                        [ title
+                        , year
+                        , blurb
+                        , concepts
+                        ]
+                    ]
+                , Element.row
+                    [ Element.width Element.fill
+                    ]
+                    [ linkBtn FeatherIcons.link2 proj.link
+                    , linkBtn FeatherIcons.github proj.githubLink
+                    ]
+                ]
+
+        _ ->
+            Element.row
+                [ Element.spacing 24
+                , Element.padding 24
+                , Element.width Element.fill
+                , Border.width 1
+                , Border.rounded 8
+                , Border.color <| Colours.toElement Colours.gray
+                , Element.mouseOver
+                    [ Border.color <| Colours.toElement Colours.black ]
+                ]
+                [ Element.el [ Element.paddingXY 12 0 ] projIcon
+                , Element.column
+                    [ Element.spacing 12
+                    , Element.width Element.fill
+                    ]
+                    [ title
+                    , year
+                    , blurb
+                    , concepts
+                    ]
+                , Element.column
+                    [ Element.height Element.fill
+                    , Element.alignRight
+                    ]
+                    [ linkBtn FeatherIcons.link2 proj.link
+                    , linkBtn FeatherIcons.github proj.githubLink
+                    ]
+                ]
 
 
 viewConcept : Concept -> Element Msg

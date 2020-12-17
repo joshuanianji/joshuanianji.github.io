@@ -39,7 +39,7 @@ init =
 
 
 view : SharedState -> Model -> Element Msg
-view _ _ =
+view sharedState _ =
     Element.column
         [ Element.width (Element.maximum 900 Element.fill)
         , Element.centerX
@@ -53,37 +53,50 @@ view _ _ =
         , Element.paragraph
             []
             [ Element.text "Feel free to contact me anytime!" ]
-        , Element.row
-            [ Element.spacing 48
-            , Element.width Element.fill
+        , Element.wrappedRow
+            [ Element.spacing <|
+                case sharedState.device.class of
+                    Element.Phone ->
+                        24
+
+                    _ ->
+                        48
             ]
-            [ contactColumn FeatherIcons.mail "mailto:joshuanji23@gmail.com" "Email"
-            , contactColumn FeatherIcons.github "https://github.com/joshuanianji" "Github"
-            , contactColumn FeatherIcons.linkedin "https://linkedin.com/in/joshua-ji-b596851a8" "LinkedIn"
+            [ contactColumn sharedState FeatherIcons.mail "mailto:joshuanji23@gmail.com" "Email"
+            , contactColumn sharedState FeatherIcons.github "https://github.com/joshuanianji" "Github"
+            , contactColumn sharedState FeatherIcons.linkedin "https://linkedin.com/in/joshua-ji-b596851a8" "LinkedIn"
             ]
         ]
 
 
-contactColumn : FeatherIcons.Icon -> String -> String -> Element Msg
-contactColumn icon link label =
+contactColumn : SharedState -> FeatherIcons.Icon -> String -> String -> Element Msg
+contactColumn sharedState icon link label =
     let
+        { padding, spacing, size, fontSize } =
+            case sharedState.device.class of
+                Element.Phone ->
+                    { padding = 8, spacing = 8, size = 24, fontSize = 14 }
+
+                _ ->
+                    { padding = 16, spacing = 16, size = 48, fontSize = 20 }
+
         iconView =
             Icon.view
                 []
                 { icon = icon
                 , strokeWidth = 2
                 , color = Colours.black
-                , size = 48
+                , size = size
                 , msg = Nothing
                 }
     in
     Element.column
-        [ Element.spacing 16
-        , Element.padding 16
+        [ Element.spacing spacing
+        , Element.padding padding
         ]
         [ Element.newTabLink
             [ Element.centerX
-            , Element.padding 32
+            , Element.padding <| padding * 2
             , Border.rounded 64
             , Element.mouseOver
                 [ Background.color <| Colours.toElement Colours.gray
@@ -94,7 +107,9 @@ contactColumn icon link label =
             , label = iconView
             }
         , Element.paragraph
-            [ Font.center ]
+            [ Font.center
+            , Font.size fontSize
+            ]
             [ Element.text label ]
         ]
 
