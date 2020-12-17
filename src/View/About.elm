@@ -32,8 +32,8 @@ init =
 ---- VIEW ----
 
 
-view : Model -> Element Msg
-view _ =
+view : SharedState -> Model -> Element Msg
+view _ _ =
     Element.column
         [ Element.width (Element.maximum 900 Element.fill)
         , Element.centerX

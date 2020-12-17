@@ -46,8 +46,8 @@ init flags =
 ---- VIEW ----
 
 
-view : Model -> Element Msg
-view model =
+view : SharedState -> Model -> Element Msg
+view _ model =
     Element.column
         [ Element.width (Element.maximum 900 Element.fill)
         , Element.centerX

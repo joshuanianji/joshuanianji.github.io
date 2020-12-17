@@ -55,8 +55,7 @@ type alias Model =
 
 
 type alias M =
-    { windowSize : WindowSize
-    , sharedState : SharedState
+    { sharedState : SharedState
     , route : Route
     , about : About.Model
     , home : Home.Model
@@ -93,8 +92,7 @@ init flagsJson url key =
 
         Ok flags ->
             ( Ok
-                { windowSize = flags.windowSize
-                , sharedState = SharedState.init key
+                { sharedState = SharedState.init key flags
                 , route = route
                 , about = About.init
                 , home = Home.init flags
@@ -175,13 +173,13 @@ viewOk model =
         , Element.height Element.fill
         , Element.spacing 64
         ]
-        [ Home.view model.home
+        [ Home.view model.sharedState model.home
             |> Element.map HomeMsg
-        , About.view model.about
+        , About.view model.sharedState model.about
             |> Element.map AboutMsg
-        , Projects.view model.projects
+        , Projects.view model.sharedState model.projects
             |> Element.map ProjectsMsg
-        , Contact.view model.contact
+        , Contact.view model.sharedState model.contact
             |> Element.map ContactMsg
         , footer model.sharedState.timeMachineOpen
         ]
@@ -268,7 +266,7 @@ update msg m =
             update (ScrollTo <| Routes.toId newRoute) m
 
         ( Ok model, WindowResize newWindow ) ->
-            ( Ok { model | windowSize = newWindow }, Cmd.none )
+            ( Ok { model | sharedState = SharedState.update (SharedState.UpdateWindow newWindow) model.sharedState }, Cmd.none )
 
         ( Ok _, ScrollTo id ) ->
             ( m

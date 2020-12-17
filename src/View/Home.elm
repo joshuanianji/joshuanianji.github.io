@@ -58,8 +58,8 @@ init flags =
 ---- VIEW ----
 
 
-view : Model -> Element Msg
-view model =
+view : SharedState -> Model -> Element Msg
+view _ model =
     Element.column
         [ Element.width Element.fill
         , Element.height <| Element.px model.windowSize.height
