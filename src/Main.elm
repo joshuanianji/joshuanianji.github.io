@@ -67,7 +67,7 @@ type alias M =
 
 
 -- config for scrolling
--- higher speed means FASTER SCROLING
+-- higher speed means FASTER SCROLLING
 
 
 scrollConfig : SmoothScroll.Config
