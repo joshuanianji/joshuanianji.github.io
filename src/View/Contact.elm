@@ -49,7 +49,7 @@ view sharedState _ =
         , Element.htmlAttribute <| Html.Attributes.id "contact"
         ]
         [ -- title
-          Util.pageTitle "Contact" NavigateTo Routes.Contact
+          Util.pageTitle sharedState.device.class "Contact" NavigateTo Routes.Contact
         , Element.paragraph
             []
             [ Element.text "Feel free to contact me anytime!" ]

@@ -57,7 +57,7 @@ view sharedState model =
         , Element.htmlAttribute <| Html.Attributes.id "projects"
         ]
         [ -- title
-          Util.pageTitle "Projects" NavigateTo Routes.Projects
+          Util.pageTitle sharedState.device.class "Projects" NavigateTo Routes.Projects
         , Element.paragraph
             [ Font.size 24 ]
             [ Element.text "Pinned" ]
