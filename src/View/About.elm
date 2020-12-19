@@ -38,7 +38,7 @@ view sharedState _ =
     let
         ( fontSize, paddingX ) =
             if sharedState.device.class == Element.Phone then
-                ( 16, 4 )
+                ( 16, 8 )
 
             else
                 ( 22, 0 )
