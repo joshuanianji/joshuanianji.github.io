@@ -112,9 +112,9 @@ viewPinnedProjectMobile icons proj =
                 }
                 |> Util.surround
                     { vertical = False
-                    , first = 3
-                    , middle = 5
-                    , last = 3
+                    , first = 1
+                    , middle = 1
+                    , last = 1
                     }
 
         linkBtn icon url =
@@ -366,16 +366,13 @@ viewProjectMobile icons proj =
                 }
 
         title =
-            Element.newTabLink
-                [ Element.pointer
-                , Element.width Element.fill
+            Element.paragraph
+                [ Element.width Element.fill
                 , Font.bold
                 , Element.mouseOver
                     [ Font.color <| Colours.toElement Colours.themeBlue ]
                 ]
-                { url = proj.link
-                , label = Element.text proj.name
-                }
+                [ Element.text proj.name ]
 
         year =
             Element.el
@@ -383,8 +380,7 @@ viewProjectMobile icons proj =
                 , Font.size 12
                 , Font.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.black
                 ]
-            <|
-                Element.text (String.fromInt proj.year)
+                (Element.text <| String.fromInt proj.year)
 
         blurb =
             Element.paragraph
@@ -403,7 +399,8 @@ viewProjectMobile icons proj =
             [ Element.spacing 16 ]
             [ projIcon
             , Element.column
-                [ Element.spacing 8
+                [ Element.spacing 4
+                , Element.paddingXY 0 6
                 , Element.width Element.fill
                 ]
                 [ title
