@@ -48,6 +48,10 @@ init flags =
 
 view : SharedState -> Model -> Element Msg
 view sharedState model =
+    let
+        device =
+            sharedState.device.class
+    in
     Element.column
         [ Element.width (Element.maximum 900 Element.fill)
         , Element.centerX
@@ -57,30 +61,47 @@ view sharedState model =
         , Element.htmlAttribute <| Html.Attributes.id "projects"
         ]
         [ -- title
-          Util.pageTitle sharedState.device.class "Projects" NavigateTo Routes.Projects
-        , pinnedProjects sharedState model
-        , otherProjects sharedState model
+          Util.pageTitle device "Projects" NavigateTo Routes.Projects
+        , projHeader device "Pinned"
+        , pinnedProjects device model
+        , projHeader device "Other Projects"
+        , otherProjects device model
         ]
+
+
+projHeader : Element.DeviceClass -> String -> Element Msg
+projHeader device label =
+    let
+        ( fontSize, fontAlign ) =
+            case device of
+                Element.Phone ->
+                    ( 20, Font.center )
+
+                _ ->
+                    ( 24, Font.alignLeft )
+    in
+    Element.paragraph
+        [ Font.size fontSize
+        , fontAlign
+        ]
+        [ Element.text label ]
 
 
 
 -- pinned
 
 
-pinnedProjects : SharedState -> Model -> Element Msg
-pinnedProjects sharedState model =
-    case sharedState.device.class of
+pinnedProjects : Element.DeviceClass -> Model -> Element Msg
+pinnedProjects device model =
+    case device of
         Element.Phone ->
             Element.column
                 [ Element.width Element.fill
                 , Element.spacing 12
-                , Element.paddingXY 4 0
+                , Element.paddingXY 8 0
                 ]
             <|
-                Element.paragraph
-                    [ Font.size 20, Font.center ]
-                    [ Element.text "Pinned" ]
-                    :: List.map (viewPinnedProjectMobile model.icons) (List.filter .pinned model.projects)
+                List.map (viewPinnedProjectMobile model.icons) (List.filter .pinned model.projects)
 
         _ ->
             Element.row
@@ -88,10 +109,7 @@ pinnedProjects sharedState model =
                 , Element.spacing 12
                 ]
             <|
-                Element.paragraph
-                    [ Font.size 24 ]
-                    [ Element.text "Pinned" ]
-                    :: List.map (viewPinnedProjectDesktop model.icons) (List.filter .pinned model.projects)
+                List.map (viewPinnedProjectDesktop model.icons) (List.filter .pinned model.projects)
 
 
 viewPinnedProjectMobile : Icons -> Project -> Element Msg
@@ -147,30 +165,29 @@ viewPinnedProjectMobile icons proj =
     Element.column
         [ Element.width Element.fill
         , Element.height Element.fill
-        , Element.spacing 16
+        , Element.spacing 20
         , Element.padding 24
         , Border.width 1
         , Border.rounded 8
         , Border.color <| Colours.toElement Colours.gray
         ]
-        [ Element.el [ Element.paddingXY 0 12 ] projIcon
+        [ Element.el [ Element.width Element.fill ] projIcon
         , Element.row
             [ Element.centerX
-            , Element.spacing 6
+            , Element.spacing 8
             ]
             [ Element.el
                 [ Font.bold
                 , Font.center
                 ]
                 (Element.text proj.name)
-            , Element.text "|"
+            , Element.text "·"
 
             -- year
             , Element.el
-                [ Element.centerY
+                [ Element.alignBottom
                 , Font.light
-                , Font.center
-                , Font.size 16
+                , Font.size 18
                 , Font.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.black
                 ]
                 (Element.text <| String.fromInt proj.year)
@@ -302,31 +319,24 @@ viewPinnedProjectDesktop icons proj =
 -- view other projects
 
 
-otherProjects : SharedState -> Model -> Element Msg
-otherProjects sharedState model =
-    case sharedState.device.class of
-        Element.Phone ->
-            Element.column
-                [ Element.width Element.fill
-                , Element.spacing 12
-                , Element.paddingXY 4 0
-                ]
-            <|
-                Element.paragraph
-                    [ Font.size 20, Font.center ]
-                    [ Element.text "Other Projects" ]
-                    :: List.map (viewProjectMobile model.icons) (List.filter (.pinned >> not) model.projects)
+otherProjects : Element.DeviceClass -> Model -> Element Msg
+otherProjects device model =
+    let
+        ( padding, viewProj ) =
+            case device of
+                Element.Phone ->
+                    ( Element.paddingXY 8 0, viewProjectMobile )
 
-        _ ->
-            Element.row
-                [ Element.width Element.fill
-                , Element.spacing 12
-                ]
-            <|
-                Element.paragraph
-                    [ Font.size 24 ]
-                    [ Element.text "Other Projects" ]
-                    :: List.map (viewProjectDesktop model.icons) (List.filter (.pinned >> not) model.projects)
+                _ ->
+                    ( Element.padding 0, viewProjectDesktop )
+    in
+    Element.column
+        [ Element.width Element.fill
+        , Element.spacing 12
+        , padding
+        ]
+    <|
+        List.map (viewProj model.icons) (List.filter (.pinned >> not) model.projects)
 
 
 viewProjectMobile : Icons -> Project -> Element Msg
@@ -349,7 +359,7 @@ viewProjectMobile icons proj =
         linkBtn icon url =
             Element.newTabLink
                 [ Element.paddingXY 12 8
-                , Border.rounded 16
+                , Border.rounded 24
                 , Border.width 1
                 , Border.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.gray
                 ]
@@ -409,7 +419,7 @@ viewProjectMobile icons proj =
             ]
         , blurb
         , Element.row
-            [ Element.spacing 8 ]
+            [ Element.spacing 16 ]
             [ linkBtn FeatherIcons.link2 proj.link
             , linkBtn FeatherIcons.github proj.githubLink
             ]
