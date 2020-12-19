@@ -1,10 +1,10 @@
 {
-    "short_name": "Elm App",
-    "name": "Create Elm App Sample",
+    "short_name": "josh_website",
+    "name": "Joshua's Personal Website",
     "icons": [
         {
-            "src": "favicon.png",
-            "sizes": "192x192",
+            "src": "icon.png",
+            "sizes": "680x680",
             "type": "image/png"
         }
     ],
