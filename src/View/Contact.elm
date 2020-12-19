@@ -40,8 +40,18 @@ init =
 
 view : SharedState -> Model -> Element Msg
 view sharedState _ =
+    let
+        ( spacing, align, fontAlign ) =
+            case sharedState.device.class of
+                Element.Phone ->
+                    ( 24, Element.centerX, Font.center )
+
+                _ ->
+                    ( 48, Element.alignLeft, Font.alignLeft )
+    in
     Element.column
         [ Element.width (Element.maximum 900 Element.fill)
+        , Element.paddingXY 4 0
         , Element.centerX
         , Element.spacing 32
 
@@ -51,16 +61,11 @@ view sharedState _ =
         [ -- title
           Util.pageTitle sharedState.device.class "Contact" NavigateTo Routes.Contact
         , Element.paragraph
-            []
+            [ fontAlign ]
             [ Element.text "Feel free to contact me anytime!" ]
         , Element.wrappedRow
-            [ Element.spacing <|
-                case sharedState.device.class of
-                    Element.Phone ->
-                        24
-
-                    _ ->
-                        48
+            [ Element.spacing spacing
+            , align
             ]
             [ contactColumn sharedState FeatherIcons.mail "mailto:joshuanji23@gmail.com" "Email"
             , contactColumn sharedState FeatherIcons.github "https://github.com/joshuanianji" "Github"
