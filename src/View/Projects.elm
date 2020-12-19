@@ -58,19 +58,8 @@ view sharedState model =
         ]
         [ -- title
           Util.pageTitle sharedState.device.class "Projects" NavigateTo Routes.Projects
-        , Element.paragraph
-            [ Font.size 24 ]
-            [ Element.text "Pinned" ]
         , pinnedProjects sharedState model
-        , Element.paragraph
-            [ Font.size 24 ]
-            [ Element.text "Other Projects" ]
-        , Element.column
-            [ Element.spacing 16
-            , Element.width Element.fill
-            ]
-          <|
-            List.map (viewProject sharedState.device.class model.icons) (List.filter (.pinned >> not) model.projects)
+        , otherProjects sharedState model
         ]
 
 
@@ -85,9 +74,13 @@ pinnedProjects sharedState model =
             Element.column
                 [ Element.width Element.fill
                 , Element.spacing 12
+                , Element.paddingXY 4 0
                 ]
             <|
-                List.map (viewPinnedProject sharedState model.icons) (List.filter .pinned model.projects)
+                Element.paragraph
+                    [ Font.size 20, Font.center ]
+                    [ Element.text "Pinned" ]
+                    :: List.map (viewPinnedProjectMobile model.icons) (List.filter .pinned model.projects)
 
         _ ->
             Element.row
@@ -95,11 +88,112 @@ pinnedProjects sharedState model =
                 , Element.spacing 12
                 ]
             <|
-                List.map (viewPinnedProject sharedState model.icons) (List.filter .pinned model.projects)
+                Element.paragraph
+                    [ Font.size 24 ]
+                    [ Element.text "Pinned" ]
+                    :: List.map (viewPinnedProjectDesktop model.icons) (List.filter .pinned model.projects)
 
 
-viewPinnedProject : SharedState -> Icons -> Project -> Element Msg
-viewPinnedProject sharedState icons proj =
+viewPinnedProjectMobile : Icons -> Project -> Element Msg
+viewPinnedProjectMobile icons proj =
+    let
+        projIcon =
+            Element.image
+                [ Element.width Element.fill
+                , Element.height Element.shrink
+                , Element.clip
+                , Border.rounded 200
+                ]
+                { src =
+                    proj.imgLink
+                        |> Maybe.andThen (\id -> ProjIcon.get id icons)
+                        |> Maybe.withDefault (ProjIcon.default icons)
+                , description = "Project icon"
+                }
+                |> Util.surround
+                    { vertical = False
+                    , first = 3
+                    , middle = 5
+                    , last = 3
+                    }
+
+        linkBtn icon url =
+            Element.newTabLink
+                [ Element.width Element.fill
+                , Element.paddingXY 20 8
+                , Element.centerX
+                , Border.rounded 5
+                , Border.width 1
+                , Border.color <| Colours.toElement Colours.gray
+                ]
+                { url = url
+                , label =
+                    Icon.view
+                        [ Element.centerX ]
+                        { icon = icon
+                        , strokeWidth = 2
+                        , color = Colours.black
+                        , size = 18
+                        , msg = Nothing
+                        }
+                }
+                |> Util.surround
+                    { vertical = False
+                    , first = 1
+                    , middle = 3
+                    , last = 1
+                    }
+    in
+    Element.column
+        [ Element.width Element.fill
+        , Element.height Element.fill
+        , Element.spacing 16
+        , Element.padding 24
+        , Border.width 1
+        , Border.rounded 8
+        , Border.color <| Colours.toElement Colours.gray
+        ]
+        [ Element.el [ Element.paddingXY 0 12 ] projIcon
+        , Element.row
+            [ Element.centerX
+            , Element.spacing 6
+            ]
+            [ Element.el
+                [ Font.bold
+                , Font.center
+                ]
+                (Element.text proj.name)
+            , Element.text "|"
+
+            -- year
+            , Element.el
+                [ Element.centerY
+                , Font.light
+                , Font.center
+                , Font.size 16
+                , Font.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.black
+                ]
+                (Element.text <| String.fromInt proj.year)
+            ]
+        , Element.paragraph
+            [ Font.size 16
+            , Font.center
+            ]
+            [ Element.text proj.blurb ]
+
+        -- links
+        , Element.row
+            [ Element.width Element.fill
+            , Element.spaceEvenly
+            ]
+            [ Element.el [ Element.width Element.fill ] <| linkBtn FeatherIcons.link2 proj.link
+            , Element.el [ Element.width Element.fill ] <| linkBtn FeatherIcons.github proj.githubLink
+            ]
+        ]
+
+
+viewPinnedProjectDesktop : Icons -> Project -> Element Msg
+viewPinnedProjectDesktop icons proj =
     let
         projIcon =
             Element.image
@@ -205,11 +299,128 @@ viewPinnedProject sharedState icons proj =
 
 
 
--- view a single project
+-- view other projects
 
 
-viewProject : Element.DeviceClass -> Icons -> Project -> Element Msg
-viewProject device icons proj =
+otherProjects : SharedState -> Model -> Element Msg
+otherProjects sharedState model =
+    case sharedState.device.class of
+        Element.Phone ->
+            Element.column
+                [ Element.width Element.fill
+                , Element.spacing 12
+                , Element.paddingXY 4 0
+                ]
+            <|
+                Element.paragraph
+                    [ Font.size 20, Font.center ]
+                    [ Element.text "Other Projects" ]
+                    :: List.map (viewProjectMobile model.icons) (List.filter (.pinned >> not) model.projects)
+
+        _ ->
+            Element.row
+                [ Element.width Element.fill
+                , Element.spacing 12
+                ]
+            <|
+                Element.paragraph
+                    [ Font.size 24 ]
+                    [ Element.text "Other Projects" ]
+                    :: List.map (viewProjectDesktop model.icons) (List.filter (.pinned >> not) model.projects)
+
+
+viewProjectMobile : Icons -> Project -> Element Msg
+viewProjectMobile icons proj =
+    let
+        projIcon =
+            Element.image
+                [ Element.width (Element.px 36)
+                , Element.height (Element.px 36)
+                , Element.clip
+                , Border.rounded 200
+                ]
+                { src =
+                    proj.imgLink
+                        |> Maybe.andThen (\id -> ProjIcon.get id icons)
+                        |> Maybe.withDefault (ProjIcon.default icons)
+                , description = "Project icon"
+                }
+
+        linkBtn icon url =
+            Element.newTabLink
+                [ Element.paddingXY 12 8
+                , Border.rounded 16
+                , Border.width 1
+                , Border.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.gray
+                ]
+                { url = url
+                , label =
+                    Icon.view
+                        [ Element.centerX ]
+                        { icon = icon
+                        , strokeWidth = 2
+                        , color = Colours.black
+                        , size = 14
+                        , msg = Nothing
+                        }
+                }
+
+        title =
+            Element.newTabLink
+                [ Element.pointer
+                , Element.width Element.fill
+                , Font.bold
+                , Element.mouseOver
+                    [ Font.color <| Colours.toElement Colours.themeBlue ]
+                ]
+                { url = proj.link
+                , label = Element.text proj.name
+                }
+
+        year =
+            Element.el
+                [ Font.light
+                , Font.size 12
+                , Font.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.black
+                ]
+            <|
+                Element.text (String.fromInt proj.year)
+
+        blurb =
+            Element.paragraph
+                [ Font.size 14 ]
+                [ Element.text proj.blurb ]
+    in
+    Element.column
+        [ Element.spacing 16
+        , Element.padding 16
+        , Element.width Element.fill
+        , Border.width 1
+        , Border.rounded 8
+        , Border.color <| Colours.toElement Colours.gray
+        ]
+        [ Element.row
+            [ Element.spacing 16 ]
+            [ projIcon
+            , Element.column
+                [ Element.spacing 8
+                , Element.width Element.fill
+                ]
+                [ title
+                , year
+                ]
+            ]
+        , blurb
+        , Element.row
+            [ Element.spacing 8 ]
+            [ linkBtn FeatherIcons.link2 proj.link
+            , linkBtn FeatherIcons.github proj.githubLink
+            ]
+        ]
+
+
+viewProjectDesktop : Icons -> Project -> Element Msg
+viewProjectDesktop icons proj =
     let
         projIcon =
             Element.image
@@ -285,67 +496,34 @@ viewProject device icons proj =
                             (List.map viewConcept cpts)
                 ]
     in
-    -- TODO: make code better
-    case device of
-        Element.Phone ->
-            Element.column
-                [ Element.spacing 24
-                , Element.padding 24
-                , Element.width Element.fill
-                , Border.width 1
-                , Border.rounded 8
-                , Border.color <| Colours.toElement Colours.gray
-                ]
-                [ Element.row
-                    []
-                    [ Element.el [ Element.paddingXY 12 0 ] projIcon
-                    , Element.column
-                        [ Element.spacing 12
-                        , Element.width Element.fill
-                        ]
-                        [ title
-                        , year
-                        , blurb
-                        , concepts
-                        ]
-                    ]
-                , Element.row
-                    [ Element.width Element.fill
-                    ]
-                    [ linkBtn FeatherIcons.link2 proj.link
-                    , linkBtn FeatherIcons.github proj.githubLink
-                    ]
-                ]
-
-        _ ->
-            Element.row
-                [ Element.spacing 24
-                , Element.padding 24
-                , Element.width Element.fill
-                , Border.width 1
-                , Border.rounded 8
-                , Border.color <| Colours.toElement Colours.gray
-                , Element.mouseOver
-                    [ Border.color <| Colours.toElement Colours.black ]
-                ]
-                [ Element.el [ Element.paddingXY 12 0 ] projIcon
-                , Element.column
-                    [ Element.spacing 12
-                    , Element.width Element.fill
-                    ]
-                    [ title
-                    , year
-                    , blurb
-                    , concepts
-                    ]
-                , Element.column
-                    [ Element.height Element.fill
-                    , Element.alignRight
-                    ]
-                    [ linkBtn FeatherIcons.link2 proj.link
-                    , linkBtn FeatherIcons.github proj.githubLink
-                    ]
-                ]
+    Element.row
+        [ Element.spacing 24
+        , Element.padding 24
+        , Element.width Element.fill
+        , Border.width 1
+        , Border.rounded 8
+        , Border.color <| Colours.toElement Colours.gray
+        , Element.mouseOver
+            [ Border.color <| Colours.toElement Colours.black ]
+        ]
+        [ Element.el [ Element.paddingXY 12 0 ] projIcon
+        , Element.column
+            [ Element.spacing 12
+            , Element.width Element.fill
+            ]
+            [ title
+            , year
+            , blurb
+            , concepts
+            ]
+        , Element.column
+            [ Element.height Element.fill
+            , Element.alignRight
+            ]
+            [ linkBtn FeatherIcons.link2 proj.link
+            , linkBtn FeatherIcons.github proj.githubLink
+            ]
+        ]
 
 
 viewConcept : Concept -> Element Msg
