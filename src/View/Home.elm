@@ -142,6 +142,8 @@ view _ model =
         , Icon.view
             [ Element.centerX
             , Element.alignBottom
+            , Element.pointer
+            , Events.onClick <| NavigateTo Routes.About
             ]
             { icon = FeatherIcons.chevronDown
             , strokeWidth = 2
