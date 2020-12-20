@@ -14,6 +14,11 @@ errorRed =
     Color.rgb255 224 71 76
 
 
+warningRed : Color
+warningRed =
+    Color.rgb255 253 150 150
+
+
 
 -- copied colours
 

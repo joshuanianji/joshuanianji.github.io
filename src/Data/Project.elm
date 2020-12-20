@@ -18,6 +18,7 @@ type alias Project =
     , language : Language
     , concepts : Maybe (List Concept)
     , pinned : Bool
+    , mobile : Bool
     }
 
 
@@ -104,6 +105,7 @@ decoder =
         |> Pipeline.required "language" languageDecoder
         |> Pipeline.optional "concepts" (Decode.map Just conceptsDecoder) Nothing
         |> Pipeline.required "pinned" Decode.bool
+        |> Pipeline.required "mobile" Decode.bool
 
 
 languageDecoder : Decoder Language
