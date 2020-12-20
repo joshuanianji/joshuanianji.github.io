@@ -9,6 +9,7 @@ module View.About exposing
 
 import Browser.Navigation as Nav
 import Element exposing (Element)
+import Element.Font as Font
 import Html.Attributes
 import Routes exposing (Route)
 import SharedState exposing (SharedState)
@@ -33,7 +34,15 @@ init =
 
 
 view : SharedState -> Model -> Element Msg
-view _ _ =
+view sharedState _ =
+    let
+        ( fontSize, paddingX ) =
+            if sharedState.device.class == Element.Phone then
+                ( 16, 8 )
+
+            else
+                ( 22, 0 )
+    in
     Element.column
         [ Element.width (Element.maximum 900 Element.fill)
         , Element.centerX
@@ -43,10 +52,12 @@ view _ _ =
         , Element.htmlAttribute <| Html.Attributes.id "about"
         ]
         [ -- title
-          Util.pageTitle "About" NavigateTo Routes.About
+          Util.pageTitle sharedState.device.class "About" NavigateTo Routes.About
         , Element.textColumn
             [ Element.spacing 16
             , Element.width Element.fill
+            , Element.paddingXY paddingX 0
+            , Font.size fontSize
             ]
             [ -- subtitle
               Element.paragraph

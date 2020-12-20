@@ -10,7 +10,8 @@
         "concepts": [
             "Cli"
         ],
-        "pinned": false
+        "pinned": false,
+        "mobile": true
     },
     {
         "name": "Atomic Theory",
@@ -21,7 +22,8 @@
         "year": 2020,
         "language": "Elm",
         "concepts": [],
-        "pinned": false
+        "pinned": false,
+        "mobile": false
     },
     {
         "name": "HIIT-Timer",
@@ -34,7 +36,8 @@
         "concepts": [
             "PWA"
         ],
-        "pinned": true
+        "pinned": true,
+        "mobile": true
     },
     {
         "name": "Derivatives",
@@ -48,7 +51,8 @@
             "DataStructures",
             "Parsing"
         ],
-        "pinned": true
+        "pinned": true,
+        "mobile": false
     },
     {
         "name": "Ui Bootstrap Demo",
@@ -61,7 +65,8 @@
         "concepts": [
             "SPA"
         ],
-        "pinned": false
+        "pinned": false,
+        "mobile": true
     },
     {
         "name": "Periodic Table",
@@ -74,6 +79,7 @@
         "concepts": [
             "DataStructures"
         ],
-        "pinned": true
+        "pinned": true,
+        "mobile": false
     }
 ]

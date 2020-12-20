@@ -3,8 +3,8 @@
     "name": "Joshua's Personal Website",
     "icons": [
         {
-            "src": "favicon.png",
-            "sizes": "192x192",
+            "src": "icon.png",
+            "sizes": "680x680",
             "type": "image/png"
         }
     ],

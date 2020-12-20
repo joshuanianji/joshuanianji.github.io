@@ -1,4 +1,4 @@
-module Util exposing (link, pageTitle, surround)
+module Util exposing (fillVertical, link, pageTitle, surround)
 
 import Colours
 import Element exposing (Element)
@@ -42,30 +42,51 @@ link data =
         }
 
 
-pageTitle : String -> (Route -> msg) -> Route -> Element msg
-pageTitle title msg route =
+pageTitle : Element.DeviceClass -> String -> (Route -> msg) -> Route -> Element msg
+pageTitle device title msg route =
+    let
+        ( fontSize, fontAlign ) =
+            case device of
+                Element.Phone ->
+                    ( 32, Element.centerX )
+
+                _ ->
+                    ( 50, Element.alignLeft )
+    in
     Element.paragraph
         [ Element.htmlAttribute <| Html.Attributes.class "fat-underline"
         , Element.width Element.shrink
         , Element.paddingXY 0 4
-        , Font.size 50
+        , Font.size fontSize
+        , fontAlign
         , Font.family [ Font.typeface "Playfair Display SC" ]
 
         -- link thingy
         , Element.onLeft <|
-            Icon.view
-                [ Element.centerY
-                , Element.paddingXY 16 0
-                ]
-                { icon = FeatherIcons.link
-                , strokeWidth = 2
-                , color = Colours.gray
-                , size = 25
-                , msg =
-                    Just
-                        { hoverColor = Just Colours.themeBlue
-                        , msg = msg route
-                        }
-                }
+            if device == Element.Phone then
+                Element.none
+
+            else
+                Icon.view
+                    [ Element.centerY
+                    , Element.paddingXY 16 0
+                    ]
+                    { icon = FeatherIcons.link
+                    , strokeWidth = 2
+                    , color = Colours.gray
+                    , size = 25
+                    , msg =
+                        Just
+                            { hoverColor = Just Colours.themeBlue
+                            , msg = msg route
+                            }
+                    }
         ]
         [ Element.text title ]
+
+
+fillVertical : Element msg
+fillVertical =
+    Element.el
+        [ Element.height Element.fill ]
+        Element.none
