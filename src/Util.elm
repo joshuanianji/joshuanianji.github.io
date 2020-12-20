@@ -1,4 +1,4 @@
-module Util exposing (link, pageTitle, surround)
+module Util exposing (fillVertical, link, pageTitle, surround)
 
 import Colours
 import Element exposing (Element)
@@ -83,3 +83,10 @@ pageTitle device title msg route =
                     }
         ]
         [ Element.text title ]
+
+
+fillVertical : Element msg
+fillVertical =
+    Element.el
+        [ Element.height Element.fill ]
+        Element.none
