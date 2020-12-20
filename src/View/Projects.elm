@@ -93,226 +93,205 @@ projHeader device label =
 
 pinnedProjects : Element.DeviceClass -> Model -> Element Msg
 pinnedProjects device model =
-    case device of
-        Element.Phone ->
-            Element.column
-                [ Element.width Element.fill
-                , Element.spacing 12
-                , Element.paddingXY 8 0
-                ]
-            <|
-                List.map (viewPinnedProjectMobile model.icons) (List.filter .pinned model.projects)
+    let
+        ( parent, attrs ) =
+            case device of
+                Element.Phone ->
+                    ( Element.column, [ Element.paddingXY 8 0 ] )
 
-        _ ->
-            Element.row
-                [ Element.width Element.fill
-                , Element.spacing 12
-                ]
-            <|
-                List.map (viewPinnedProjectDesktop model.icons) (List.filter .pinned model.projects)
+                _ ->
+                    ( Element.row, [] )
+
+        isMobile =
+            device == Element.Phone
+    in
+    parent
+        ([ Element.width Element.fill
+         , Element.spacing 12
+         ]
+            ++ attrs
+        )
+    <|
+        List.map (viewPinnedProject isMobile model.icons) (List.filter .pinned model.projects)
 
 
-viewPinnedProjectMobile : Icons -> Project -> Element Msg
-viewPinnedProjectMobile icons proj =
+viewPinnedProject : Bool -> Icons -> Project -> Element Msg
+viewPinnedProject mobile icons proj =
     let
         projIcon =
-            Element.image
-                [ Element.width Element.fill
-                , Element.height Element.shrink
-                , Element.clip
-                , Border.rounded 200
-                ]
-                { src =
-                    proj.imgLink
-                        |> Maybe.andThen (\id -> ProjIcon.get id icons)
-                        |> Maybe.withDefault (ProjIcon.default icons)
-                , description = "Project icon"
+            viewProjectIcon
+                { iconWidth = Element.fill
+                , iconHeight = Element.shrink
+                , icons = icons
+                , icon = proj.imgLink
                 }
-                |> Util.surround
-                    { vertical = False
-                    , first = 1
-                    , middle = 1
-                    , last = 1
-                    }
+                |> (if mobile then
+                        Util.surround
+                            { vertical = False
+                            , first = 1
+                            , middle = 1
+                            , last = 1
+                            }
+
+                    else
+                        Util.surround
+                            { vertical = False
+                            , first = 1
+                            , middle = 2
+                            , last = 1
+                            }
+                   )
 
         linkBtn icon url =
-            Element.newTabLink
-                [ Element.width Element.fill
-                , Element.paddingXY 20 8
-                , Element.centerX
-                , Border.rounded 5
-                , Border.width 1
-                , Border.color <| Colours.toElement Colours.gray
-                ]
-                { url = url
-                , label =
-                    Icon.view
-                        [ Element.centerX ]
-                        { icon = icon
-                        , strokeWidth = 2
-                        , color = Colours.black
-                        , size = 18
-                        , msg = Nothing
-                        }
+            viewLink
+                { icon = icon
+                , link = url
+                , mobile = mobile
+                , pinned = True
+                , iconSize = 18
                 }
-                |> Util.surround
-                    { vertical = False
-                    , first = 1
-                    , middle = 3
-                    , last = 1
+                |> (if mobile then
+                        Util.surround
+                            { vertical = False
+                            , first = 1
+                            , middle = 3
+                            , last = 1
+                            }
+                            >> Element.el [ Element.width Element.fill ]
+
+                    else
+                        identity
+                   )
+
+        links =
+            let
+                attrs =
+                    if mobile then
+                        [ Element.width Element.fill
+                        , Element.spaceEvenly
+                        ]
+
+                    else
+                        [ Element.width Element.fill ]
+            in
+            Element.row
+                attrs
+                [ linkBtn FeatherIcons.link2 proj.link
+                , linkBtn FeatherIcons.github proj.githubLink
+                ]
+
+        concepts =
+            case proj.concepts of
+                Just c ->
+                    Element.row
+                        [ Element.spacing 5
+                        , Element.centerX
+                        ]
+                        (List.map viewConcept c)
+
+                Nothing ->
+                    Element.none
+
+        -- header
+        title =
+            if mobile then
+                Element.el
+                    [ Font.bold
+                    , Font.center
+                    ]
+                    (Element.text proj.name)
+
+            else
+                Element.newTabLink
+                    [ Element.pointer
+                    , Element.width Element.fill
+                    , Font.bold
+                    , Element.mouseOver
+                        [ Font.color <| Colours.toElement Colours.themeBlue ]
+                    ]
+                    { url = proj.link
+                    , label = Element.text proj.name
                     }
-    in
-    Element.column
-        [ Element.width Element.fill
-        , Element.height Element.fill
-        , Element.spacing 20
-        , Element.padding 24
-        , Border.width 1
-        , Border.rounded 8
-        , Border.color <| Colours.toElement Colours.gray
-        ]
-        [ Element.el [ Element.width Element.fill ] projIcon
-        , Element.row
-            [ Element.centerX
-            , Element.spacing 8
-            ]
-            [ Element.el
-                [ Font.bold
+
+        year fontSize =
+            let
+                attrs =
+                    if mobile then
+                        [ Element.alignBottom ]
+
+                    else
+                        [ Element.width Element.fill, Font.center ]
+            in
+            Element.el
+                ([ Font.light
+                 , Font.size fontSize
+                 , Font.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.black
+                 ]
+                    ++ attrs
+                )
+                (Element.text <| String.fromInt proj.year)
+
+        mobileWarning =
+            viewMobileWarning proj.mobile 16
+                |> Element.el [ Element.centerX ]
+
+        blurb =
+            Element.paragraph
+                [ Font.size 16
                 , Font.center
                 ]
-                (Element.text proj.name)
-            , Element.text "·"
+                [ Element.text proj.blurb ]
 
-            -- year
-            , Element.el
-                [ Element.alignBottom
-                , Font.light
-                , Font.size 18
-                , Font.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.black
+        -- attrs
+        extraAttrs =
+            if mobile then
+                [ Element.spacing 20
+                , Element.padding 24
                 ]
-                (Element.text <| String.fromInt proj.year)
-            ]
-        , Element.paragraph
-            [ Font.size 16
-            , Font.center
-            ]
-            [ Element.text proj.blurb ]
 
-        -- links
-        , Element.row
-            [ Element.width Element.fill
-            , Element.spaceEvenly
-            ]
-            [ Element.el [ Element.width Element.fill ] <| linkBtn FeatherIcons.link2 proj.link
-            , Element.el [ Element.width Element.fill ] <| linkBtn FeatherIcons.github proj.githubLink
-            ]
-        ]
-
-
-viewPinnedProjectDesktop : Icons -> Project -> Element Msg
-viewPinnedProjectDesktop icons proj =
-    let
-        projIcon =
-            Element.image
-                [ Element.width Element.fill
-                , Element.height Element.shrink
-                , Element.clip
-                , Border.rounded 200
-                ]
-                { src =
-                    proj.imgLink
-                        |> Maybe.andThen (\id -> ProjIcon.get id icons)
-                        |> Maybe.withDefault (ProjIcon.default icons)
-                , description = "Project icon"
-                }
-                |> Util.surround
-                    { vertical = False
-                    , first = 1
-                    , middle = 2
-                    , last = 1
-                    }
-
-        linkBtn icon url =
-            Element.newTabLink
-                [ Element.width Element.fill
-                , Element.paddingXY 0 12
-                , Border.rounded 5
+            else
+                [ Element.spacing 12
+                , Element.padding 24
+                , Font.center
                 , Element.mouseOver
-                    [ Background.color <| Colours.toElement <| Colours.withAlpha 0.5 Colours.gray ]
+                    [ Border.color <| Colours.toElement Colours.black ]
                 ]
-                { url = url
-                , label =
-                    Icon.view
-                        [ Element.centerX ]
-                        { icon = icon
-                        , strokeWidth = 2
-                        , color = Colours.black
-                        , size = 18
-                        , msg = Nothing
-                        }
-                }
     in
     Element.column
-        [ Element.width Element.fill
-        , Element.height Element.fill
-        , Element.spacing 12
-        , Element.padding 24
-        , Border.width 1
-        , Border.rounded 8
-        , Border.color <| Colours.toElement Colours.gray
-        , Element.mouseOver
-            [ Border.color <| Colours.toElement Colours.black ]
-        ]
-        [ Element.el [ Element.paddingXY 0 12 ] projIcon
-        , Element.newTabLink
-            [ Element.pointer
-            , Element.width Element.fill
-            , Font.bold
-            , Font.center
-            , Element.mouseOver
-                [ Font.color <| Colours.toElement Colours.themeBlue ]
+        ([ Element.width Element.fill
+         , Element.height Element.fill
+         , Border.width 1
+         , Border.rounded 8
+         , Border.color <| Colours.toElement Colours.gray
+         ]
+            ++ extraAttrs
+        )
+    <|
+        if mobile then
+            [ Element.el [ Element.width Element.fill ] projIcon
+            , Element.row
+                [ Element.centerX
+                , Element.spacing 8
+                ]
+                [ title
+                , Element.text "·"
+                , year 18
+                ]
+            , blurb
+            , mobileWarning
+            , links
             ]
-            { url = proj.link
-            , label = Element.text proj.name
-            }
 
-        -- year
-        , Element.paragraph
-            [ Font.light
-            , Font.center
-            , Font.size 12
-            , Font.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.black
+        else
+            [ Element.el [ Element.paddingXY 0 12 ] projIcon
+            , title
+            , year 12
+            , blurb
+            , Util.fillVertical
+            , links
+            , Element.el [ Element.centerX ] <| viewLang proj.language
+            , concepts
             ]
-            [ Element.text <| String.fromInt proj.year ]
-        , Element.paragraph
-            [ Font.size 16
-            , Font.center
-            ]
-            [ Element.text proj.blurb ]
-
-        -- fill in remaining space
-        , Element.el
-            [ Element.height Element.fill ]
-            Element.none
-
-        -- links
-        , Element.row
-            [ Element.width Element.fill ]
-            [ linkBtn FeatherIcons.link2 proj.link
-            , linkBtn FeatherIcons.github proj.githubLink
-            ]
-        , Element.el [ Element.centerX ] <| viewLang proj.language
-        , case proj.concepts of
-            Nothing ->
-                Element.none
-
-            Just concepts ->
-                Element.row
-                    [ Element.spacing 5
-                    , Element.centerX
-                    ]
-                    (List.map viewConcept concepts)
-        ]
 
 
 
@@ -343,36 +322,20 @@ viewProjectMobile : Icons -> Project -> Element Msg
 viewProjectMobile icons proj =
     let
         projIcon =
-            Element.image
-                [ Element.width (Element.px 36)
-                , Element.height (Element.px 36)
-                , Element.clip
-                , Border.rounded 200
-                ]
-                { src =
-                    proj.imgLink
-                        |> Maybe.andThen (\id -> ProjIcon.get id icons)
-                        |> Maybe.withDefault (ProjIcon.default icons)
-                , description = "Project icon"
+            viewProjectIcon
+                { iconWidth = Element.px 36
+                , iconHeight = Element.px 36
+                , icons = icons
+                , icon = proj.imgLink
                 }
 
         linkBtn icon url =
-            Element.newTabLink
-                [ Element.paddingXY 12 8
-                , Border.rounded 24
-                , Border.width 1
-                , Border.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.gray
-                ]
-                { url = url
-                , label =
-                    Icon.view
-                        [ Element.centerX ]
-                        { icon = icon
-                        , strokeWidth = 2
-                        , color = Colours.black
-                        , size = 14
-                        , msg = Nothing
-                        }
+            viewLink
+                { icon = icon
+                , link = url
+                , mobile = True
+                , pinned = False
+                , iconSize = 14
                 }
 
         title =
@@ -391,6 +354,9 @@ viewProjectMobile icons proj =
                 , Font.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.black
                 ]
                 (Element.text <| String.fromInt proj.year)
+
+        mobileWarning =
+            viewMobileWarning proj.mobile 16
 
         blurb =
             Element.paragraph
@@ -418,6 +384,7 @@ viewProjectMobile icons proj =
                 ]
             ]
         , blurb
+        , mobileWarning
         , Element.row
             [ Element.spacing 16 ]
             [ linkBtn FeatherIcons.link2 proj.link
@@ -430,37 +397,20 @@ viewProjectDesktop : Icons -> Project -> Element Msg
 viewProjectDesktop icons proj =
     let
         projIcon =
-            Element.image
-                [ Element.width (Element.px 50)
-                , Element.height (Element.px 50)
-                , Element.clip
-                , Border.rounded 200
-                ]
-                { src =
-                    proj.imgLink
-                        |> Maybe.andThen (\id -> ProjIcon.get id icons)
-                        |> Maybe.withDefault (ProjIcon.default icons)
-                , description = "Project icon"
+            viewProjectIcon
+                { iconWidth = Element.px 50
+                , iconHeight = Element.px 50
+                , icons = icons
+                , icon = proj.imgLink
                 }
 
         linkBtn icon url =
-            Element.newTabLink
-                [ Element.height Element.fill
-                , Element.paddingXY 16 0
-                , Border.rounded 5
-                , Element.mouseOver
-                    [ Background.color <| Colours.toElement <| Colours.withAlpha 0.5 Colours.gray ]
-                ]
-                { url = url
-                , label =
-                    Icon.view
-                        [ Element.centerX ]
-                        { icon = icon
-                        , strokeWidth = 2
-                        , color = Colours.black
-                        , size = 18
-                        , msg = Nothing
-                        }
+            viewLink
+                { icon = icon
+                , link = url
+                , mobile = False
+                , pinned = False
+                , iconSize = 18
                 }
 
         title =
@@ -531,6 +481,97 @@ viewProjectDesktop icons proj =
             , linkBtn FeatherIcons.github proj.githubLink
             ]
         ]
+
+
+viewProjectIcon :
+    { iconWidth : Element.Length
+    , iconHeight : Element.Length
+    , icons : Icons
+    , icon : Maybe String
+    }
+    -> Element Msg
+viewProjectIcon { iconWidth, iconHeight, icons, icon } =
+    Element.image
+        [ Element.width iconWidth
+        , Element.height iconHeight
+        , Element.clip
+        , Border.rounded 200
+        ]
+        { src =
+            icon
+                |> Maybe.andThen (\id -> ProjIcon.get id icons)
+                |> Maybe.withDefault (ProjIcon.default icons)
+        , description = "Project icon"
+        }
+
+
+viewMobileWarning : Bool -> Int -> Element Msg
+viewMobileWarning compatible fontSize =
+    if not compatible then
+        Element.row
+            [ Element.spacing 8
+            , Font.size (fontSize - 2)
+            , Font.color <| Colours.toElement Colours.warningRed
+            ]
+            [ Icon.view []
+                { icon = FeatherIcons.alertCircle
+                , strokeWidth = 2
+                , color = Colours.warningRed
+                , size = toFloat fontSize
+                , msg = Nothing
+                }
+            , Element.el [ Element.centerY ] <| Element.text "Not compatible on mobile!"
+            ]
+
+    else
+        Element.none
+
+
+viewLink : { icon : FeatherIcons.Icon, link : String, mobile : Bool, pinned : Bool, iconSize : Int } -> Element Msg
+viewLink { icon, link, mobile, pinned, iconSize } =
+    let
+        ( paddingX, paddingY, borderRadius ) =
+            case ( pinned, mobile ) of
+                ( True, True ) ->
+                    ( 20, 8, 5 )
+
+                ( True, False ) ->
+                    ( 0, 12, 5 )
+
+                ( False, True ) ->
+                    ( 12, 8, 24 )
+
+                ( False, False ) ->
+                    ( 16, 0, 5 )
+
+        -- random thing xd
+        extraAttr =
+            if mobile then
+                Border.width 1
+
+            else
+                Element.mouseOver
+                    [ Background.color <| Colours.toElement <| Colours.withAlpha 0.5 Colours.gray ]
+    in
+    Element.newTabLink
+        [ Element.width Element.fill
+        , Element.height Element.fill
+        , Element.paddingXY paddingX paddingY
+        , Border.rounded borderRadius
+        , Border.color <| Colours.toElement <| Colours.withAlpha 0.7 Colours.gray
+        , extraAttr
+        ]
+        { url = link
+        , label =
+            Icon.view
+                [ Element.centerX ]
+                { icon = icon
+                , strokeWidth = 2
+                , color = Colours.black
+                , size = toFloat iconSize
+                , msg = Nothing
+                }
+        }
 
 
 viewConcept : Concept -> Element Msg
