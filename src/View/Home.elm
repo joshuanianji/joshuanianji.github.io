@@ -161,7 +161,7 @@ icosahedron sharedState model =
 
 
 title : SharedState -> Model -> Element Msg
-title sharedState model =
+title sharedState _ =
     let
         fontSize =
             case sharedState.device.class of
@@ -212,7 +212,7 @@ subTitle sharedState model =
 
 
 description : SharedState -> Model -> Element Msg
-description sharedState model =
+description sharedState _ =
     let
         ( fontSize, text ) =
             case sharedState.device.class of
@@ -269,7 +269,7 @@ type Link
 
 
 navbar : Element.DeviceClass -> Model -> Element Msg
-navbar device model =
+navbar device _ =
     let
         navbarItems =
             List.map
@@ -277,7 +277,6 @@ navbar device model =
                 [ ( "About", Route Routes.About )
                 , ( "Projects", Route Routes.Projects )
                 , ( "Contact", Route Routes.Contact )
-                , ( "Resume", Url "https://joshuaji.com/resume.pdf" )
                 ]
     in
     case device of

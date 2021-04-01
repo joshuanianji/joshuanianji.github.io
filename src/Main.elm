@@ -339,7 +339,7 @@ update msg m =
 
 
 
--- SUBSCRIPTIONS ----
+---- SUBSCRIPTIONS ----
 
 
 subscriptions : Model -> Sub Msg
