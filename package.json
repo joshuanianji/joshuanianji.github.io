@@ -21,7 +21,7 @@
     "url": "https://github.com/joshuanianji/website/issues"
   },
   "homepage": "https://github.com/joshuanianji/website#readme",
-  "dependencies": {
-    "fs": "0.0.1-security"
+  "devDependencies": {
+    "create-elm-app": "^5.22.0"
   }
 }
