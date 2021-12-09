@@ -1,0 +1,15 @@
+{
+    "short_name": "josh_website",
+    "name": "Joshua's Personal Website",
+    "icons": [
+        {
+            "src": "icon.png",
+            "sizes": "680x680",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "./index.html",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff"
+}
