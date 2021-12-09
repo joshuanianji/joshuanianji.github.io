@@ -205,7 +205,7 @@ footer showTimeMachine =
             [ Element.text "All code is open source and available on "
             , Util.link
                 { label = "Github"
-                , link = "https://github.com/joshuanianji/website"
+                , link = "https://github.com/joshuanianji/joshuanianji.github.io"
                 }
             , Element.text "."
             ]
