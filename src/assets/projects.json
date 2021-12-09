@@ -72,8 +72,8 @@
         "name": "Periodic Table",
         "imgLink": "ptable",
         "blurb": "A colour-coded periodic table app with a molar mass calculator.",
-        "link": "https://joshuaji.com/projects/ptable",
-        "githubLink": "https://github.com/joshuanianji/Compsci-IA",
+        "link": "https://joshuaji.com/periodic-table/",
+        "githubLink": "https://github.com/joshuanianji/periodic-table/",
         "year": 2019,
         "language": "Elm",
         "concepts": [
