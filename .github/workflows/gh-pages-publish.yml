@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main 
+      - .github/workflows/gh-pages-publish.yml # This file
 
 jobs:
   build-and-deploy:
@@ -30,11 +31,12 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - name: Install and Build 🔧
-        run: |
-          npm ci
-          npm run build
-      
+      - name: Install 📦️
+        run: npm ci
+    
+      - name: Build 🏗️
+        run: npm run build
+
       - name: Move Files 🚚
         # Add files from build (which create-elm-app made) to static (which holds all of our other compiled files)
         run: mv build/* static
