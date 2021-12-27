@@ -1,0 +1,12 @@
+body {
+  font-family: "Lato", sans-serif;
+  margin: 0;
+  color: #293c4b;
+}
+
+/* achieving the Wired link underlines */
+
+.fat-underline {
+  border-bottom: 0.0625em solid rgb(50, 145, 201, 0.5);
+  box-shadow: 0 -0.25em 0 rgb(50, 145, 201, 0.5) inset;
+}

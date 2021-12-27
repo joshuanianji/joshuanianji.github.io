@@ -1,8 +1,7 @@
 import './main.css';
-import { Elm } from './Main.elm';
-import * as serviceWorker from './serviceWorker';
-import projectsJson from './assets/projects.json';
-import { projIcons, defaultIcon } from './assets/projectIcons';
+import { Elm } from './src/Main.elm';
+import projectsJson from './src/assets/projects.json';
+import { projIcons, defaultIcon } from './src/assets/projectIcons';
 
 const app = Elm.Main.init({
     node: document.getElementById('root'),
@@ -69,9 +68,3 @@ window.onload = function () {
 
 }
 
-
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
