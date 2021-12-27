@@ -1,9 +1,9 @@
-name: Build and Publish 
+name: Build and Publish
 
-on: 
+on:
   push:
     branches:
-      - main 
+      - main
     paths:
       - .github/workflows/gh-pages-publish.yml # This file
 
@@ -18,7 +18,7 @@ jobs:
         uses: jorelali/setup-elm@v3
         with:
           elm-version: 0.19.1
-      
+
       - name: Cache node modules 🗃️
         uses: actions/cache@v2
         env:
@@ -34,13 +34,13 @@ jobs:
 
       - name: Install 📦️
         run: npm ci
-    
+
       - name: Build 🏗️
         run: npm run build
 
       - name: Move Files 🚚
-        # Add files from build (which create-elm-app made) to static (which holds all of our other compiled files)
-        run: mv build/* static
+        # Add files from dist (which vite makes) to static (which holds all of our other compiled files)
+        run: mv dist/* static
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.7
