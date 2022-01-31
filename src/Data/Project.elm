@@ -15,7 +15,7 @@ type alias Project =
     , link : String
     , githubLink : String
     , year : Int
-    , language : Language
+    , language : List Language
     , concepts : Maybe (List String)
     , pinned : Bool
     , mobile : Bool
@@ -72,7 +72,7 @@ decoder =
         |> Pipeline.required "link" Decode.string
         |> Pipeline.required "githubLink" Decode.string
         |> Pipeline.required "year" Decode.int
-        |> Pipeline.required "language" languageDecoder
+        |> Pipeline.required "languages" (Decode.list languageDecoder)
         |> Pipeline.optional "concepts" (Decode.map Just <| Decode.list Decode.string) Nothing
         |> Pipeline.required "pinned" Decode.bool
         |> Pipeline.required "mobile" Decode.bool

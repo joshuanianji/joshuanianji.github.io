@@ -289,7 +289,7 @@ viewPinnedProject mobile icons proj =
             , blurb
             , Util.fillVertical
             , links
-            , Element.el [ Element.centerX ] <| viewLang proj.language
+            , Element.el [ Element.centerX ] <| viewLangs proj.language
             , concepts
             ]
 
@@ -442,7 +442,7 @@ viewProjectDesktop icons proj =
         concepts =
             Element.row
                 [ Element.spacing 8 ]
-                [ viewLang proj.language
+                [ viewLangs proj.language
                 , case proj.concepts of
                     Nothing ->
                         Element.none
@@ -586,6 +586,13 @@ viewConcept concept =
     <|
         Element.text concept
 
+viewLangs : List Language -> Element Msg
+viewLangs langs =
+    Element.row
+        [ Element.spacing 8
+        , Element.width Element.fill
+        ]
+        (List.map viewLang langs)
 
 viewLang : Language -> Element Msg
 viewLang lang =
