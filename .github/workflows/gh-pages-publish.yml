@@ -5,6 +5,11 @@ on:
     branches:
       - main
     paths:
+      - src/**/*
+      - package*.json
+      - index.html
+      - index.js
+      - main.css
       - .github/workflows/gh-pages-publish.yml # This file
 
 jobs:
