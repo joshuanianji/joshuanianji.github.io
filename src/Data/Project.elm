@@ -1,4 +1,4 @@
-module Data.Project exposing (Concept(..), Language(..), Project, conceptToString, decoder, langToColor, langToString)
+module Data.Project exposing (Language(..), Project, decoder, langToColor, langToString)
 
 -- Project type!
 
@@ -16,7 +16,7 @@ type alias Project =
     , githubLink : String
     , year : Int
     , language : Language
-    , concepts : Maybe (List Concept)
+    , concepts : Maybe (List String)
     , pinned : Bool
     , mobile : Bool
     }
@@ -26,6 +26,7 @@ type Language
     = Elm
     | Python
     | Rust
+    | Javascript
 
 
 langToString : Language -> String
@@ -39,6 +40,9 @@ langToString l =
 
         Rust ->
             "Rust"
+        
+        Javascript ->   
+            "Javascript"
 
 
 langToColor : Language -> Color
@@ -52,43 +56,9 @@ langToColor l =
 
         Rust ->
             Colours.rust
-
-
-type Concept
-    = Parsing
-    | APIs
-    | SPA
-    | PWA
-    | DataStructures
-    | Firebase
-    | Cli
-
-
-conceptToString : Concept -> String
-conceptToString concept =
-    case concept of
-        Parsing ->
-            "Parsing"
-
-        APIs ->
-            "APIs"
-
-        SPA ->
-            "SPA"
-
-        PWA ->
-            "PWA"
-
-        DataStructures ->
-            "Data Structures"
-
-        Firebase ->
-            "Firebase"
-
-        Cli ->
-            "Cli "
-
-
+        
+        Javascript ->
+            Colours.javascript
 
 -- PARSER
 
@@ -103,7 +73,7 @@ decoder =
         |> Pipeline.required "githubLink" Decode.string
         |> Pipeline.required "year" Decode.int
         |> Pipeline.required "language" languageDecoder
-        |> Pipeline.optional "concepts" (Decode.map Just conceptsDecoder) Nothing
+        |> Pipeline.optional "concepts" (Decode.map Just <| Decode.list Decode.string) Nothing
         |> Pipeline.required "pinned" Decode.bool
         |> Pipeline.required "mobile" Decode.bool
 
@@ -122,43 +92,10 @@ languageDecoder =
 
                     "Rust" ->
                         Decode.succeed Rust
+                    
+                    "Javascript" ->
+                        Decode.succeed Javascript
 
                     other ->
                         Decode.fail <| "Unknown language " ++ other
             )
-
-
-conceptsDecoder : Decoder (List Concept)
-conceptsDecoder =
-    let
-        singleDecoder =
-            Decode.string
-                |> Decode.andThen
-                    (\str ->
-                        case str of
-                            "Parsing" ->
-                                Decode.succeed Parsing
-
-                            "APIs" ->
-                                Decode.succeed APIs
-
-                            "SPA" ->
-                                Decode.succeed SPA
-
-                            "PWA" ->
-                                Decode.succeed PWA
-
-                            "DataStructures" ->
-                                Decode.succeed DataStructures
-
-                            "Firebase" ->
-                                Decode.succeed Firebase
-
-                            "Cli" ->
-                                Decode.succeed Cli
-
-                            other ->
-                                Decode.fail <| "Unknown concept " ++ other
-                    )
-    in
-    Decode.list singleDecoder

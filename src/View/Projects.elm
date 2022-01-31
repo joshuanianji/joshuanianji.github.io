@@ -10,7 +10,7 @@ module View.Projects exposing
 import Browser.Navigation as Nav
 import Colours
 import Data.Flags exposing (Flags)
-import Data.Project as Data exposing (Concept, Language, Project)
+import Data.Project as Data exposing (Language, Project)
 import Data.ProjectIcon as ProjIcon exposing (Icons)
 import Element exposing (Element)
 import Element.Background as Background
@@ -574,7 +574,7 @@ viewLink { icon, link, mobile, pinned, iconSize } =
         }
 
 
-viewConcept : Concept -> Element Msg
+viewConcept : String -> Element Msg
 viewConcept concept =
     Element.el
         [ Element.paddingXY 6 3
@@ -584,7 +584,7 @@ viewConcept concept =
         , Font.color <| Colours.toElement Colours.white
         ]
     <|
-        Element.text (Data.conceptToString concept)
+        Element.text concept
 
 
 viewLang : Language -> Element Msg

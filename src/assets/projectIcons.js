@@ -1,37 +1,45 @@
 // assets
-import cli from './img/proj_icons/cli.png';
-import derivativesSrc from './img/proj_icons/derivatives.png';
-import hiitTimerSrc from './img/proj_icons/hiit-timer.png';
-import ptableSrc from './img/proj_icons/ptable.png';
-import uiBootstrapSrc from './img/proj_icons/ui-bootstrap.png';
-import atomicTheory from './img/proj_icons/atomic-theory.png';
-import defaultIcon from './img/proj_icons/default_icon.png';
+import cli from "./img/proj_icons/cli.png";
+import derivativesSrc from "./img/proj_icons/derivatives.png";
+import hiitTimerSrc from "./img/proj_icons/hiit-timer.png";
+import ptableSrc from "./img/proj_icons/ptable.png";
+import uiBootstrapSrc from "./img/proj_icons/ui-bootstrap.png";
+import atomicTheory from "./img/proj_icons/atomic-theory.png";
+import defaultIcon from "./img/proj_icons/default_icon.png";
+import amongus from "./img/proj_icons/amongus.png";
 
-
-let projIcons = [{
+let projIcons = [
+  {
     src: derivativesSrc,
-    id: 'derivative'
-}, {
+    id: "derivative",
+  },
+  {
     src: hiitTimerSrc,
-    id: 'hiit-timer'
-}, {
+    id: "hiit-timer",
+  },
+  {
     src: ptableSrc,
-    id: 'ptable'
-}, {
+    id: "ptable",
+  },
+  {
     src: uiBootstrapSrc,
-    id: 'ui-bootstrap'
-}, {
+    id: "ui-bootstrap",
+  },
+  {
     src: atomicTheory,
-    id: 'atomic-theory'
-}, {
+    id: "atomic-theory",
+  },
+  {
     src: cli,
-    id: 'cli'
-}];
+    id: "cli",
+  },
+  {
+    src: amongus,
+    id: "amongus",
+  },
+];
 
-export {
-    defaultIcon,
-    projIcons
-}
+export { defaultIcon, projIcons };
 // here is the old school projects I did not include in my thing
 /*{
         "name": "Country Fact Finder",
