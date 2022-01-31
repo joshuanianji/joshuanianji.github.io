@@ -77,6 +77,11 @@ haskell =
     Color.rgb255 94 80 134
 
 
+javascript : Color 
+javascript =
+    Color.rgb255 241 224 90
+
+
 withAlpha : Float -> Color.Color -> Color.Color
 withAlpha a color =
     let

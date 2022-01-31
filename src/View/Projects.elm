@@ -10,7 +10,7 @@ module View.Projects exposing
 import Browser.Navigation as Nav
 import Colours
 import Data.Flags exposing (Flags)
-import Data.Project as Data exposing (Concept, Language, Project)
+import Data.Project as Data exposing (Language, Project)
 import Data.ProjectIcon as ProjIcon exposing (Icons)
 import Element exposing (Element)
 import Element.Background as Background
@@ -289,7 +289,7 @@ viewPinnedProject mobile icons proj =
             , blurb
             , Util.fillVertical
             , links
-            , Element.el [ Element.centerX ] <| viewLang proj.language
+            , Element.el [ Element.centerX ] <| viewLangs proj.language
             , concepts
             ]
 
@@ -442,7 +442,7 @@ viewProjectDesktop icons proj =
         concepts =
             Element.row
                 [ Element.spacing 8 ]
-                [ viewLang proj.language
+                [ viewLangs proj.language
                 , case proj.concepts of
                     Nothing ->
                         Element.none
@@ -574,7 +574,7 @@ viewLink { icon, link, mobile, pinned, iconSize } =
         }
 
 
-viewConcept : Concept -> Element Msg
+viewConcept : String -> Element Msg
 viewConcept concept =
     Element.el
         [ Element.paddingXY 6 3
@@ -584,8 +584,15 @@ viewConcept concept =
         , Font.color <| Colours.toElement Colours.white
         ]
     <|
-        Element.text (Data.conceptToString concept)
+        Element.text concept
 
+viewLangs : List Language -> Element Msg
+viewLangs langs =
+    Element.row
+        [ Element.spacing 8
+        , Element.width Element.fill
+        ]
+        (List.map viewLang langs)
 
 viewLang : Language -> Element Msg
 viewLang lang =
