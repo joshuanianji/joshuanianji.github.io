@@ -11,6 +11,7 @@ on:
       - index.js
       - main.css
       - .github/workflows/gh-pages-publish.yml # This file
+      - static/**/*
 
 jobs:
   build-and-deploy:
