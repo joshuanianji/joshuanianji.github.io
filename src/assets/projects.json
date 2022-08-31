@@ -14,8 +14,8 @@
   {
     "name": "Atomic Theory",
     "imgLink": "atomic-theory",
-    "blurb": "A short timeline on the history of the Atomic Theory, created for my physics class.",
-    "link": "https://joshuaji.com/projects/atomic-models/",
+    "blurb": "A short timeline on the history of the Atomic Theory, created for my grade 12 physics class.",
+    "link": "https://joshuaji.com/atomic-theory/",
     "githubLink": "https://github.com/joshuanianji/atomic-theory",
     "year": 2020,
     "languages": ["Elm"],
