@@ -27,7 +27,7 @@
     "name": "HIIT-Timer",
     "imgLink": "hiit-timer",
     "blurb": "A customizable PWA that times your workouts.",
-    "link": "https://joshuaji.com/projects/hiit-timer",
+    "link": "https://joshuaji.com/HIIT-Timer/",
     "githubLink": "https://github.com/joshuanianji/HIIT-Timer",
     "year": 2020,
     "languages": ["Elm"],
