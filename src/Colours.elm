@@ -77,9 +77,14 @@ haskell =
     Color.rgb255 94 80 134
 
 
-javascript : Color 
+javascript : Color
 javascript =
     Color.rgb255 241 224 90
+
+
+docker : Color
+docker =
+    Color.rgb255 56 77 84
 
 
 withAlpha : Float -> Color.Color -> Color.Color
