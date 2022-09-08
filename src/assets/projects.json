@@ -12,6 +12,17 @@
     "mobile": true
   },
   {
+    "name": "Idris 2 Docker",
+    "imgLink": "idris2",
+    "blurb": "Multi-arch, multi-distro Docker images for Idris 2",
+    "githubLink": "https://github.com/joshuanianji/idris-2-docker",
+    "year": 2022,
+    "languages": ["Docker"],
+    "concepts": ["Docker", "Github Actions"],
+    "pinned": true,
+    "mobile": true
+  },
+  {
     "name": "Atomic Theory",
     "imgLink": "atomic-theory",
     "blurb": "A short timeline on the history of the Atomic Theory, created for my grade 12 physics class.",
@@ -32,7 +43,7 @@
     "year": 2020,
     "languages": ["Elm"],
     "concepts": ["PWA"],
-    "pinned": true,
+    "pinned": false,
     "mobile": true
   },
   {

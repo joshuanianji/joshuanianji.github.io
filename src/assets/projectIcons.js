@@ -7,6 +7,7 @@ import uiBootstrapSrc from "./img/proj_icons/ui-bootstrap.png";
 import atomicTheory from "./img/proj_icons/atomic-theory.png";
 import defaultIcon from "./img/proj_icons/default_icon.png";
 import amongus from "./img/proj_icons/amongus.png";
+import idris2 from "./img/proj_icons/idris2.png";
 
 let projIcons = [
   {
@@ -36,6 +37,10 @@ let projIcons = [
   {
     src: amongus,
     id: "amongus",
+  },
+  {
+    src: idris2,
+    id: "idris2",
   },
 ];
 

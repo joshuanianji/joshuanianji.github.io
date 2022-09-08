@@ -12,7 +12,7 @@ type alias Project =
     { name : String
     , imgLink : Maybe String -- might not have an icon
     , blurb : String
-    , link : String
+    , link : Maybe String
     , githubLink : String
     , year : Int
     , language : List Language
@@ -27,6 +27,7 @@ type Language
     | Python
     | Rust
     | Javascript
+    | Docker
 
 
 langToString : Language -> String
@@ -40,9 +41,12 @@ langToString l =
 
         Rust ->
             "Rust"
-        
-        Javascript ->   
+
+        Javascript ->
             "Javascript"
+
+        Docker ->
+            "Docker"
 
 
 langToColor : Language -> Color
@@ -56,9 +60,14 @@ langToColor l =
 
         Rust ->
             Colours.rust
-        
+
         Javascript ->
             Colours.javascript
+
+        Docker ->
+            Colours.docker
+
+
 
 -- PARSER
 
@@ -69,7 +78,7 @@ decoder =
         |> Pipeline.required "name" Decode.string
         |> Pipeline.optional "imgLink" (Decode.map Just Decode.string) Nothing
         |> Pipeline.required "blurb" Decode.string
-        |> Pipeline.required "link" Decode.string
+        |> Pipeline.optional "link" (Decode.map Just Decode.string) Nothing
         |> Pipeline.required "githubLink" Decode.string
         |> Pipeline.required "year" Decode.int
         |> Pipeline.required "languages" (Decode.list languageDecoder)
@@ -92,9 +101,12 @@ languageDecoder =
 
                     "Rust" ->
                         Decode.succeed Rust
-                    
+
                     "Javascript" ->
                         Decode.succeed Javascript
+
+                    "Docker" ->
+                        Decode.succeed Docker
 
                     other ->
                         Decode.fail <| "Unknown language " ++ other

@@ -1,0 +1,3 @@
+{
+  "elmLS.elmTestPath": "node_modules/.bin/elm-test-rs"
+}

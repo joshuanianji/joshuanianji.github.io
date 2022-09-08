@@ -176,7 +176,7 @@ viewPinnedProject mobile icons proj =
             in
             Element.row
                 attrs
-                [ linkBtn FeatherIcons.link2 proj.link
+                [ Maybe.withDefault Element.none <| Maybe.map (\link -> linkBtn FeatherIcons.link2 link) proj.link
                 , linkBtn FeatherIcons.github proj.githubLink
                 ]
 
@@ -209,7 +209,7 @@ viewPinnedProject mobile icons proj =
                     , Element.mouseOver
                         [ Font.color <| Colours.toElement Colours.themeBlue ]
                     ]
-                    { url = proj.link
+                    { url = Maybe.withDefault proj.githubLink proj.link
                     , label = Element.text proj.name
                     }
 
@@ -283,7 +283,7 @@ viewPinnedProject mobile icons proj =
             ]
 
         else
-            [ Element.el [ Element.paddingXY 0 12 ] projIcon
+            [ Element.el [ Element.width Element.fill, Element.paddingXY 0 12 ] projIcon
             , title
             , year 12
             , blurb
@@ -387,7 +387,7 @@ viewProjectMobile icons proj =
         , mobileWarning
         , Element.row
             [ Element.spacing 16 ]
-            [ linkBtn FeatherIcons.link2 proj.link
+            [ Maybe.withDefault Element.none <| Maybe.map (\link -> linkBtn FeatherIcons.link2 link) proj.link
             , linkBtn FeatherIcons.github proj.githubLink
             ]
         ]
@@ -421,7 +421,7 @@ viewProjectDesktop icons proj =
                 , Element.mouseOver
                     [ Font.color <| Colours.toElement Colours.themeBlue ]
                 ]
-                { url = proj.link
+                { url = Maybe.withDefault proj.githubLink proj.link
                 , label = Element.text proj.name
                 }
 
@@ -477,7 +477,7 @@ viewProjectDesktop icons proj =
             [ Element.height Element.fill
             , Element.alignRight
             ]
-            [ linkBtn FeatherIcons.link2 proj.link
+            [ Maybe.withDefault Element.none <| Maybe.map (\link -> linkBtn FeatherIcons.link2 link) proj.link
             , linkBtn FeatherIcons.github proj.githubLink
             ]
         ]
@@ -586,6 +586,7 @@ viewConcept concept =
     <|
         Element.text concept
 
+
 viewLangs : List Language -> Element Msg
 viewLangs langs =
     Element.row
@@ -593,6 +594,7 @@ viewLangs langs =
         , Element.width Element.fill
         ]
         (List.map viewLang langs)
+
 
 viewLang : Language -> Element Msg
 viewLang lang =
