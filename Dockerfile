@@ -1,3 +1,6 @@
+# This dockerfile sets up the devcontainer for this project
+# It is based on the official elm dockerfile, but modified to work on arm64
+
 FROM debian:11 as elm-install
 # npm install elm fails due to incompatible architecture
 
