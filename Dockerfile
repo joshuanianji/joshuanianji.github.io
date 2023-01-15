@@ -33,6 +33,8 @@ ARG USER_GID=$USER_UID
 
 # move elm from elm-install stage
 COPY --from=elm-install /usr/local/bin/elm /usr/local/bin/elm
+# move elm-format from elm-format-install stage
+COPY --from=elm-format-install /elm-format/_build/elm-format /usr/local/bin/elm-format
 
 # Install elm-test, as elm-test is the only package that also supports arm64 (it's built with elm so it's architecture independent)
 RUN export DEBIAN_FRONTEND=noninteractive \
