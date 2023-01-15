@@ -1,5 +1,5 @@
 {
-	"name": "Elm (Community)",
+	"name": "Blog",
 	"dockerFile": "Dockerfile",
 
 	// Configure tool-specific properties.

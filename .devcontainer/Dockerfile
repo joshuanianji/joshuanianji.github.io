@@ -1,15 +1,19 @@
 FROM debian:11 as elm-install
 # npm install elm fails due to incompatible architecture
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-    curl gzip \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt install curl gzip -y
 
 RUN curl -L -o elm.gz https://github.com/elm/compiler/releases/download/0.19.1/binary-for-linux-64-bit.gz \
     && gunzip elm.gz \
     && chmod +x elm \
     && mv elm /usr/local/bin
+
+FROM haskell:9.0.2-buster as elm-format-install 
+# elm-format also doesn't have arm64 binaries: https://github.com/avh4/elm-format/issues/714
+RUN cable update 
+RUN git clone --depth 1 --branch patch-1 https://github.com/tfausak/elm-format.git \
+    && cd elm-format \
+    && ./build.sh -- build
 
 FROM mcr.microsoft.com/devcontainers/javascript-node:16
 
@@ -27,11 +31,10 @@ ARG USER_GID=$USER_UID
 # move elm from elm-install stage
 COPY --from=elm-install /usr/local/bin/elm /usr/local/bin/elm
 
-# Install elm, elm-test and elm-format
+# Install elm-test, as elm-test is the only package that also supports arm64 (it's built with elm so it's architecture independent)
 RUN export DEBIAN_FRONTEND=noninteractive \
     && sudo -u ${USERNAME} npm install --global \
-    elm-test@${ELM_TEST_VERSION} \
-    elm-format@${ELM_FORMAT_VERSION} \
+    elm-test@${ELM_TEST_VERSION} \ 
     #
     # [Optional] Update UID/GID if needed
     && if [ "$USER_GID" != "1000" ] || [ "$USER_UID" != "1000" ]; then \
