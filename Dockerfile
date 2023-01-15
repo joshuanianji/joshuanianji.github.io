@@ -13,7 +13,7 @@ RUN curl -L -o elm.gz https://github.com/elm/compiler/releases/download/0.19.1/b
 
 FROM haskell:9.0.2-buster as elm-format-install 
 # elm-format also doesn't have arm64 binaries: https://github.com/avh4/elm-format/issues/714
-RUN cable update 
+RUN cabal update 
 RUN git clone --depth 1 --branch patch-1 https://github.com/tfausak/elm-format.git \
     && cd elm-format \
     && ./build.sh -- build
