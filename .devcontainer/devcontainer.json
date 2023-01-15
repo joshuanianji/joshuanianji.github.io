@@ -1,6 +1,6 @@
 {
 	"name": "Blog",
-	"dockerFile": "Dockerfile",
+	"dockerFile": "ghcr.io/joshuanianji/joshuanianji.github.io:latest",
 
 	// Configure tool-specific properties.
 	"customizations": {
