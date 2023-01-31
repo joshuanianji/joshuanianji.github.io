@@ -1,5 +1,6 @@
 # This dockerfile sets up the devcontainer for this project
 # It is based on the official elm dockerfile, but modified to work on arm64
+# Note that some of these steps (e.g. elm-format-install) take a long time, so I prebuild this on Github Actions
 
 FROM debian:11 as elm-install
 # npm install elm fails due to incompatible architecture
@@ -13,6 +14,7 @@ RUN curl -L -o elm.gz https://github.com/elm/compiler/releases/download/0.19.1/b
 
 FROM haskell:9.0.2-buster as elm-format-install 
 # elm-format also doesn't have arm64 binaries: https://github.com/avh4/elm-format/issues/714
+# https://github.com/avh4/elm-format/issues/723
 RUN cabal update 
 RUN git clone --depth 1 --branch patch-1 https://github.com/tfausak/elm-format.git \
     && cd elm-format \
