@@ -24,7 +24,7 @@ FROM mcr.microsoft.com/devcontainers/javascript-node:16
 
 # Configuring Elm version
 ARG ELM_VERSION=latest-0.19.1
-ARG ELM_TEST_VERSION=latest-0.19.1
+ARG ELM_TEST_VERSION=v3.0
 ARG ELM_FORMAT_VERSION=latest-0.19.1
 
 # This Dockerfile adds a non-root user with sudo access. Update the “remoteUser” property in
@@ -38,10 +38,10 @@ COPY --from=elm-install /usr/local/bin/elm /usr/local/bin/elm
 # move elm-format from elm-format-install stage
 COPY --from=elm-format-install /elm-format/_build/elm-format /usr/local/bin/elm-format
 
-# Install elm-test, as elm-test is the only package that also supports arm64 (it's built with elm so it's architecture independent)
+# Install elm-test-rs, as elm-test-rs is the only package that also supports arm64 natively
 RUN export DEBIAN_FRONTEND=noninteractive \
     && sudo -u ${USERNAME} npm install --global \
-    elm-test@${ELM_TEST_VERSION} \ 
+    elm-test-rs@${ELM_TEST_VERSION} \ 
     #
     # [Optional] Update UID/GID if needed
     && if [ "$USER_GID" != "1000" ] || [ "$USER_UID" != "1000" ]; then \
