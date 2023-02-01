@@ -23,8 +23,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: "16"
-          cache: "npm"
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Setup Elm 🌳
+        uses: jorelali/setup-elm@v3
+        with:
+          elm-version: '0.19.1'
 
       - name: Install 📦️
         run: npm ci
