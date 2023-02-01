@@ -495,7 +495,6 @@ viewProjectIcon { iconWidth, iconHeight, icons, icon } =
         [ Element.width iconWidth
         , Element.height iconHeight
         , Element.clip
-        , Border.rounded 200
         ]
         { src =
             icon

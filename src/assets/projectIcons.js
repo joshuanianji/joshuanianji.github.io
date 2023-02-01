@@ -1,47 +1,52 @@
 // assets
-import cli from "./img/proj_icons/cli.png";
-import derivativesSrc from "./img/proj_icons/derivatives.png";
-import hiitTimerSrc from "./img/proj_icons/hiit-timer.png";
-import ptableSrc from "./img/proj_icons/ptable.png";
-import uiBootstrapSrc from "./img/proj_icons/ui-bootstrap.png";
-import atomicTheory from "./img/proj_icons/atomic-theory.png";
-import defaultIcon from "./img/proj_icons/default_icon.png";
-import amongus from "./img/proj_icons/amongus.png";
-import idris2 from "./img/proj_icons/idris2.png";
+import cli from './img/proj_icons/cli.png';
+import derivativesSrc from './img/proj_icons/derivatives.png';
+import hiitTimerSrc from './img/proj_icons/hiit-timer.png';
+import ptableSrc from './img/proj_icons/ptable.png';
+import uiBootstrapSrc from './img/proj_icons/ui-bootstrap.png';
+import atomicTheory from './img/proj_icons/atomic-theory.png';
+import defaultIcon from './img/proj_icons/default_icon.png';
+import amongus from './img/proj_icons/amongus.png';
+import idris2 from './img/proj_icons/idris2.png';
+import mathgpt from './img/proj_icons/mathgpt.png';
 
 let projIcons = [
-  {
-    src: derivativesSrc,
-    id: "derivative",
-  },
-  {
-    src: hiitTimerSrc,
-    id: "hiit-timer",
-  },
-  {
-    src: ptableSrc,
-    id: "ptable",
-  },
-  {
-    src: uiBootstrapSrc,
-    id: "ui-bootstrap",
-  },
-  {
-    src: atomicTheory,
-    id: "atomic-theory",
-  },
-  {
-    src: cli,
-    id: "cli",
-  },
-  {
-    src: amongus,
-    id: "amongus",
-  },
-  {
-    src: idris2,
-    id: "idris2",
-  },
+    {
+        src: derivativesSrc,
+        id: 'derivative',
+    },
+    {
+        src: hiitTimerSrc,
+        id: 'hiit-timer',
+    },
+    {
+        src: ptableSrc,
+        id: 'ptable',
+    },
+    {
+        src: uiBootstrapSrc,
+        id: 'ui-bootstrap',
+    },
+    {
+        src: atomicTheory,
+        id: 'atomic-theory',
+    },
+    {
+        src: cli,
+        id: 'cli',
+    },
+    {
+        src: amongus,
+        id: 'amongus',
+    },
+    {
+        src: idris2,
+        id: 'idris2',
+    },
+    {
+        src: mathgpt,
+        id: 'mathgpt',
+    },
 ];
 
 export { defaultIcon, projIcons };

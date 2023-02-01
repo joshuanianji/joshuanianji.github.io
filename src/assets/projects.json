@@ -1,85 +1,85 @@
 [
-  {
-    "name": "Kitchen",
-    "imgLink": "cli",
-    "blurb": "A simple Rust CLI for simple Rust programs.",
-    "link": "https://crates.io/crates/kitchen",
-    "githubLink": "https://github.com/joshuanianji/kitchen",
-    "year": 2020,
-    "languages": ["Rust"],
-    "concepts": ["Cli"],
-    "pinned": false,
-    "mobile": true
-  },
-  {
-    "name": "Idris 2 Docker",
-    "imgLink": "idris2",
-    "blurb": "Multi-arch, multi-distro Docker images for Idris 2",
-    "githubLink": "https://github.com/joshuanianji/idris-2-docker",
-    "year": 2022,
-    "languages": ["Docker"],
-    "concepts": ["Docker", "Github Actions"],
-    "pinned": true,
-    "mobile": true
-  },
-  {
-    "name": "Atomic Theory",
-    "imgLink": "atomic-theory",
-    "blurb": "A short timeline on the history of the Atomic Theory, created for my grade 12 physics class.",
-    "link": "https://joshuaji.com/atomic-theory/",
-    "githubLink": "https://github.com/joshuanianji/atomic-theory",
-    "year": 2020,
-    "languages": ["Elm"],
-    "concepts": [],
-    "pinned": false,
-    "mobile": false
-  },
-  {
-    "name": "HIIT-Timer",
-    "imgLink": "hiit-timer",
-    "blurb": "A customizable PWA that times your workouts.",
-    "link": "https://joshuaji.com/HIIT-Timer/",
-    "githubLink": "https://github.com/joshuanianji/HIIT-Timer",
-    "year": 2020,
-    "languages": ["Elm"],
-    "concepts": ["PWA"],
-    "pinned": false,
-    "mobile": true
-  },
-  {
-    "name": "Derivatives",
-    "imgLink": "derivative",
-    "blurb": "An application to calculate derivatives, using intuitive LaTeX input and output.",
-    "link": "https://joshuaji.com/derivative",
-    "githubLink": "https://github.com/joshuanianji/derivative",
-    "year": 2020,
-    "languages": ["Elm"],
-    "concepts": ["DataStructures", "Parsing"],
-    "pinned": true,
-    "mobile": false
-  },
-  {
-    "name": "Periodic Table",
-    "imgLink": "ptable",
-    "blurb": "A colour-coded periodic table app with a molar mass calculator.",
-    "link": "https://joshuaji.com/periodic-table/",
-    "githubLink": "https://github.com/joshuanianji/periodic-table/",
-    "year": 2019,
-    "languages": ["Elm"],
-    "concepts": ["DataStructures"],
-    "pinned": false,
-    "mobile": false
-  },
-  {
-    "name": "Imposter Detector",
-    "imgLink": "amongus",
-    "blurb": "A HackED 2022 Submission: converting speech to text to detect sus audio.",
-    "link": "https://imposter-detector.vercel.app/",
-    "githubLink": "https://github.com/joshuanianji/imposter-detector-2022",
-    "year": 2022,
-    "languages": ["Javascript", "Python"],
-    "concepts": ["GCP", "React/Next.JS", "Speech to Text"],
-    "pinned": true,
-    "mobile": false
-  }
+    {
+        "name": "Idris 2 Docker",
+        "imgLink": "idris2",
+        "blurb": "Multi-arch, multi-distro Docker images for Idris 2",
+        "githubLink": "https://github.com/joshuanianji/idris-2-docker",
+        "year": 2022,
+        "languages": ["Docker"],
+        "concepts": ["Docker", "Github Actions"],
+        "pinned": true,
+        "mobile": true
+    },
+    {
+        "name": "Atomic Theory",
+        "imgLink": "atomic-theory",
+        "blurb": "A short timeline on the history of the Atomic Theory, created for my grade 12 physics class.",
+        "link": "https://joshuaji.com/atomic-theory/",
+        "githubLink": "https://github.com/joshuanianji/atomic-theory",
+        "year": 2020,
+        "languages": ["Elm"],
+        "concepts": [],
+        "pinned": false,
+        "mobile": false
+    },
+    {
+        "name": "HIIT-Timer",
+        "imgLink": "hiit-timer",
+        "blurb": "A customizable PWA that times your workouts.",
+        "link": "https://joshuaji.com/HIIT-Timer/",
+        "githubLink": "https://github.com/joshuanianji/HIIT-Timer",
+        "year": 2020,
+        "languages": ["Elm"],
+        "concepts": ["PWA"],
+        "pinned": false,
+        "mobile": true
+    },
+    {
+        "name": "Derivatives",
+        "imgLink": "derivative",
+        "blurb": "An application to calculate derivatives, using intuitive LaTeX input and output.",
+        "link": "https://joshuaji.com/derivative",
+        "githubLink": "https://github.com/joshuanianji/derivative",
+        "year": 2020,
+        "languages": ["Elm"],
+        "concepts": ["DataStructures", "Parsing"],
+        "pinned": true,
+        "mobile": false
+    },
+    {
+        "name": "Periodic Table",
+        "imgLink": "ptable",
+        "blurb": "A colour-coded periodic table app with a molar mass calculator.",
+        "link": "https://joshuaji.com/periodic-table/",
+        "githubLink": "https://github.com/joshuanianji/periodic-table/",
+        "year": 2019,
+        "languages": ["Elm"],
+        "concepts": ["DataStructures"],
+        "pinned": false,
+        "mobile": false
+    },
+    {
+        "name": "Imposter Detector",
+        "imgLink": "amongus",
+        "blurb": "A HackED 2022 Submission: converting speech to text to detect sus audio.",
+        "link": "https://imposter-detector.vercel.app/",
+        "githubLink": "https://github.com/joshuanianji/imposter-detector-2022",
+        "year": 2022,
+        "languages": ["Javascript", "Python"],
+        "concepts": ["GCP", "React/Next.JS", "Speech to Text"],
+        "pinned": false,
+        "mobile": false
+    },
+    {
+        "name": "MathGPT",
+        "imgLink": "mathgpt",
+        "blurb": "GPT-3 Powered Math Solver",
+        "link": "https://github.com/3iq-hacks/mathgpt",
+        "githubLink": "http://www.arithme.tech",
+        "year": 2023,
+        "languages": ["Typescript"],
+        "concepts": ["API", "React/Next.JS"],
+        "pinned": true,
+        "mobile": true
+    }
 ]

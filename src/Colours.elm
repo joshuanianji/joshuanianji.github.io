@@ -82,6 +82,12 @@ javascript =
     Color.rgb255 241 224 90
 
 
+
+typescript : Color
+typescript =
+    Color.rgb255 48 119 198
+
+
 docker : Color
 docker =
     Color.rgb255 56 77 84

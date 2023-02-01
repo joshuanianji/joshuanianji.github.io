@@ -28,6 +28,7 @@ type Language
     | Rust
     | Javascript
     | Docker
+    | Typescript
 
 
 langToString : Language -> String
@@ -44,6 +45,9 @@ langToString l =
 
         Javascript ->
             "Javascript"
+
+        Typescript ->
+            "Typescript"
 
         Docker ->
             "Docker"
@@ -63,6 +67,9 @@ langToColor l =
 
         Javascript ->
             Colours.javascript
+        
+        Typescript ->
+            Colours.typescript
 
         Docker ->
             Colours.docker
@@ -104,6 +111,9 @@ languageDecoder =
 
                     "Javascript" ->
                         Decode.succeed Javascript
+                    
+                    "Typescript" ->
+                        Decode.succeed Typescript
 
                     "Docker" ->
                         Decode.succeed Docker
