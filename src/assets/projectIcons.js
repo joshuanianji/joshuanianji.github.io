@@ -9,6 +9,7 @@ import defaultIcon from './img/proj_icons/default_icon.png';
 import amongus from './img/proj_icons/amongus.png';
 import idris2 from './img/proj_icons/idris2.png';
 import mathgpt from './img/proj_icons/mathgpt.png';
+import mathtts from './img/proj_icons/mathtts.png';
 
 let projIcons = [
     {
@@ -46,6 +47,10 @@ let projIcons = [
     {
         src: mathgpt,
         id: 'mathgpt',
+    },
+    {
+        src: mathtts,
+        id: 'mathtts',
     },
 ];
 

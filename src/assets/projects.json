@@ -1,5 +1,41 @@
 [
     {
+        "name": "MathGPT",
+        "imgLink": "mathgpt",
+        "blurb": "GPT-3 Powered Math Solver",
+        "link": "https://math-tts.vercel.app/",
+        "githubLink": "https://github.com/3iq-hacks/mathgpt",
+        "year": 2023,
+        "languages": ["Typescript", "Python"],
+        "concepts": ["GCP", "React/Next.JS", "Speech to Text"],
+        "pinned": true,
+        "mobile": true
+    },
+    {
+        "name": "MathTTS",
+        "imgLink": "mathtts",
+        "blurb": "Latex Text-to-Speech",
+        "link": "http://www.arithme.tech",
+        "githubLink": "https://github.com/3iq-hacks/math-tts",
+        "year": 2023,
+        "languages": ["Typescript", "Python"],
+        "concepts": ["API", "React/Next.JS"],
+        "pinned": true,
+        "mobile": true
+    },
+    {
+        "name": "Derivatives",
+        "imgLink": "derivative",
+        "blurb": "An application to calculate derivatives, using intuitive LaTeX input and output.",
+        "link": "https://joshuaji.com/derivative",
+        "githubLink": "https://github.com/joshuanianji/derivative",
+        "year": 2020,
+        "languages": ["Elm"],
+        "concepts": ["DataStructures", "Parsing"],
+        "pinned": false,
+        "mobile": false
+    },
+    {
         "name": "Idris 2 Docker",
         "imgLink": "idris2",
         "blurb": "Multi-arch, multi-distro Docker images for Idris 2",
@@ -9,6 +45,18 @@
         "concepts": ["Docker", "Github Actions"],
         "pinned": true,
         "mobile": true
+    },
+    {
+        "name": "Imposter Detector",
+        "imgLink": "amongus",
+        "blurb": "A HackED 2022 Submission: converting speech to text to detect sus audio.",
+        "link": "https://imposter-detector.vercel.app/",
+        "githubLink": "https://github.com/joshuanianji/imposter-detector-2022",
+        "year": 2022,
+        "languages": ["Javascript", "Python"],
+        "concepts": ["GCP", "React/Next.JS", "Speech to Text"],
+        "pinned": false,
+        "mobile": false
     },
     {
         "name": "Atomic Theory",
@@ -35,18 +83,6 @@
         "mobile": true
     },
     {
-        "name": "Derivatives",
-        "imgLink": "derivative",
-        "blurb": "An application to calculate derivatives, using intuitive LaTeX input and output.",
-        "link": "https://joshuaji.com/derivative",
-        "githubLink": "https://github.com/joshuanianji/derivative",
-        "year": 2020,
-        "languages": ["Elm"],
-        "concepts": ["DataStructures", "Parsing"],
-        "pinned": true,
-        "mobile": false
-    },
-    {
         "name": "Periodic Table",
         "imgLink": "ptable",
         "blurb": "A colour-coded periodic table app with a molar mass calculator.",
@@ -57,29 +93,5 @@
         "concepts": ["DataStructures"],
         "pinned": false,
         "mobile": false
-    },
-    {
-        "name": "Imposter Detector",
-        "imgLink": "amongus",
-        "blurb": "A HackED 2022 Submission: converting speech to text to detect sus audio.",
-        "link": "https://imposter-detector.vercel.app/",
-        "githubLink": "https://github.com/joshuanianji/imposter-detector-2022",
-        "year": 2022,
-        "languages": ["Javascript", "Python"],
-        "concepts": ["GCP", "React/Next.JS", "Speech to Text"],
-        "pinned": false,
-        "mobile": false
-    },
-    {
-        "name": "MathGPT",
-        "imgLink": "mathgpt",
-        "blurb": "GPT-3 Powered Math Solver",
-        "link": "https://github.com/3iq-hacks/mathgpt",
-        "githubLink": "http://www.arithme.tech",
-        "year": 2023,
-        "languages": ["Typescript"],
-        "concepts": ["API", "React/Next.JS"],
-        "pinned": true,
-        "mobile": true
     }
 ]
