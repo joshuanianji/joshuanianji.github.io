@@ -27,7 +27,7 @@ jobs:
           cache: 'npm'
 
       - name: Setup Elm 🌳
-        uses: jorelali/setup-elm@v3
+        uses: jorelali/setup-elm@v4
         with:
           elm-version: '0.19.1'
 
