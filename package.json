@@ -10,7 +10,8 @@
         "dev": "vite",
         "build": "vite build",
         "serve": "vite preview",
-        "test": "elm-test-rs"
+        "test": "elm-test-rs",
+        "postinstall": "elm-tooling install"
     },
     "repository": {
         "type": "git",
@@ -23,6 +24,7 @@
     },
     "homepage": "https://github.com/joshuanianji/website#readme",
     "devDependencies": {
+        "elm-tooling": "^1.13.0",
         "vite": "^2.7.7",
         "vite-plugin-elm": "^2.5.1"
     }
