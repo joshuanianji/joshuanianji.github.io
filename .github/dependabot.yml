@@ -5,7 +5,7 @@
 
 version: 2
 updates:
-  - package-ecosystem: "elm-package" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: 'elm' # See documentation for possible values
+    directory: '/' # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
