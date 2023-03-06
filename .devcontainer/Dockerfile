@@ -11,7 +11,6 @@ ARG USERNAME=node
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
-# Install elm, elm-test and elm-format
 RUN export DEBIAN_FRONTEND=noninteractive \
     # [Optional] Update UID/GID if needed
     && if [ "$USER_GID" != "1000" ] || [ "$USER_UID" != "1000" ]; then \
