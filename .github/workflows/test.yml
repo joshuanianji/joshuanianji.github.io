@@ -39,19 +39,19 @@ jobs:
           elm-version: '0.19.1'
           run-as-root: true
 
-      - name: Save build folder 📦️
-        uses: actions/upload-artifact@v3
-        with:
-          name: dist
-          if-no-files-found: error
-          path: dist
-
       - name: Cypress install
         uses: cypress-io/github-action@v5.2.0 # use the explicit version number
         with:
           # Disable running of tests within install job
           runTests: false
           build: npm run build
+
+      - name: Save build folder 📦️
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          if-no-files-found: error
+          path: dist
 
   test:
     runs-on: ubuntu-latest
