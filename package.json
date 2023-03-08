@@ -10,9 +10,9 @@
         "dev": "vite",
         "build": "vite build",
         "serve": "vite preview",
-        "test": "elm-test-rs",
         "postinstall": "elm-tooling install",
-        "cypress:open": "cypress open"
+        "cypress:open": "cypress open",
+        "test": "cypress run"
     },
     "repository": {
         "type": "git",

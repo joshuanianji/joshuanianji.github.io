@@ -1,0 +1,50 @@
+name: Test
+
+on: 
+  push:
+    branches:
+      - main
+    paths:
+      - src/**/*
+      - package*.json
+      - index.html
+      - index.js
+      - main.css
+      - .github/workflows/test.yml # This file
+      - vite.config.js 
+  pull_request:
+    branches:
+      - main
+    paths:
+      - src/**/*
+      - package*.json
+      - index.html
+      - index.js
+      - main.css
+      - .github/workflows/test.yml # This file
+      - vite.config.js
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Setup Elm 🌳
+        uses: jorelali/setup-elm@v4
+        with:
+          elm-version: '0.19.1'
+
+      - name: Install 📦️
+        run: npm i
+
+      - name: Test 🧪
+        run: npm run test
