@@ -46,5 +46,10 @@ jobs:
       - name: Install 📦️
         run: npm i
 
-      - name: Test 🧪
-        run: npm run test
+      # Install NPM dependencies, cache them correctly
+      # and run all Cypress tests
+      - name: Run Tests 🧪
+        uses: cypress-io/github-action@v5.2.0 # use the explicit version number
+        with:
+          build: npm run build
+          start: npm run dev
