@@ -62,15 +62,7 @@
     // and is manually fixed by deleting the elm-stuff directory which forces the compiler to
     // redownload dependencies.
     // Adding this volume will preserve the elm cache between rebuilds though, fixing this issue
-    "mounts": [
-        "source=vscode-devcontainer-elm-dependency-cache,target=/home/node/.elm,type=volume",
-        // also make a volume for cypress cache (although I make the cache directory the entire .cache)
-        {
-            "source": "devcontainer-linux-cache-${devcontainerId}",
-            "target": "/home/node/.cache",
-            "type": "volume"
-        }
-    ],
+    // NOTE: as we are working in a docker-compose environment, we mounted the volumes in ./devcontainer/docker-compose.yml
     "features": {
         "ghcr.io/devcontainers/features/common-utils:2": {},
         "ghcr.io/devcontainers/features/github-cli:1": {}

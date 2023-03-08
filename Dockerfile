@@ -23,8 +23,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && mkdir /home/$USERNAME/.elm \
     && chown $USERNAME:$USERNAME /home/$USERNAME/.elm \
     # also create cypress cache directory, for the same reason
-    && mkdir /home/$USERNAME/.cache \
-    && chown $USERNAME:$USERNAME /home/$USERNAME/.cache
+    && mkdir -p /home/$USERNAME/.cache/Cypress \
+    && chown -R $USERNAME:$USERNAME /home/$USERNAME/.cache
 
 # cypress dependencies
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
