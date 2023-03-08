@@ -1,0 +1,43 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - src/**/*
+      - package*.json
+      - index.html
+      - index.js
+      - main.css
+      - .github/workflows/test.yml # This file
+      - vite.config.js
+  pull_request:
+    branches:
+      - main
+    paths:
+      - src/**/*
+      - package*.json
+      - index.html
+      - index.js
+      - main.css
+      - .github/workflows/test.yml # This file
+      - vite.config.js
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: E2E on Chrome
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Install NPM dependencies, cache them correctly
+      # and run all Cypress tests
+      - name: Cypress run
+        uses: cypress-io/github-action@v5.2.0
+        with:
+          # Specify Browser since container image is compile with Firefox
+          browser: chrome
+          start: npm run dev
