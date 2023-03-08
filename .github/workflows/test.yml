@@ -58,6 +58,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container: cypress/browsers:node16.18.0-chrome90-ff88
+    needs: install
     steps:
       - name: Checkout
         uses: actions/checkout@v3
