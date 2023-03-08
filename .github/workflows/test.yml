@@ -28,7 +28,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: cypress/browsers:node16.18.0-chrome90-ff88
+    name: E2E on Chrome
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -36,8 +36,8 @@ jobs:
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
       - name: Cypress run
-        uses: cypress-io/github-action@v5.2.0 # use the explicit version number
+        uses: cypress-io/github-action@v5.2.0
         with:
           # Specify Browser since container image is compile with Firefox
           browser: chrome
-          build: npm run build
+          start: npm run dev
