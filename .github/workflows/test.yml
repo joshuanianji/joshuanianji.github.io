@@ -26,30 +26,50 @@ on:
   workflow_call:
 
 jobs:
-  test:
+  install:
     runs-on: ubuntu-latest
+    container: node16.18.0-chrome90-ff88
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-          cache: 'npm'
-
+      
       - name: Setup Elm 🌳
         uses: jorelali/setup-elm@v4
         with:
           elm-version: '0.19.1'
 
-      - name: Install 📦️
-        run: npm i
+      - name: Save build folder 📦️
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          if-no-files-found: error
+          path: build
+
+      - name: Cypress install
+        uses: cypress-io/github-action@v5.2.0 # use the explicit version number
+        with:
+          # Disable running of tests within install job
+          runTests: false
+          build: npm run build
+
+  test:
+    runs-on: ubuntu-latest
+    container: node16.18.0-chrome90-ff88
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download the build folders
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: build
 
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
-      - name: Run Tests 🧪
+      - name: Cypress run
         uses: cypress-io/github-action@v5.2.0 # use the explicit version number
         with:
+          # Specify Browser since container image is compile with Firefox
+          browser: chrome
           build: npm run build
-          start: npm run dev
