@@ -42,9 +42,9 @@ jobs:
       - name: Save build folder 📦️
         uses: actions/upload-artifact@v3
         with:
-          name: build
+          name: dist
           if-no-files-found: error
-          path: build
+          path: dist
 
       - name: Cypress install
         uses: cypress-io/github-action@v5.2.0 # use the explicit version number
@@ -64,8 +64,8 @@ jobs:
       - name: Download the build folders
         uses: actions/download-artifact@v3
         with:
-          name: build
-          path: build
+          name: dist
+          path: dist
 
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
