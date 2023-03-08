@@ -28,7 +28,10 @@ on:
 jobs:
   install:
     runs-on: ubuntu-latest
-    container: cypress/browsers:node16.18.0-chrome90-ff88
+    # running the cypress container as non-root lets setup-elm work
+    container: 
+      image: cypress/browsers:node16.18.0-chrome90-ff88
+      options: --user node
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
