@@ -12,6 +12,7 @@ on:
       - main.css
       - .github/workflows/test.yml # This file
       - vite.config.js
+      - elm*.json
   pull_request:
     branches:
       - main
@@ -23,6 +24,7 @@ on:
       - main.css
       - .github/workflows/test.yml # This file
       - vite.config.js
+      - elm*.json
   workflow_call:
 
 jobs:
