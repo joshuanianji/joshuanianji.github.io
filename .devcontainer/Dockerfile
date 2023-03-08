@@ -21,4 +21,11 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     # Create the elm cache directory where we can mount a volume. If we don't create it like this
     # it is auto created by docker on volume creation but with root as owner which makes it unusable.
     && mkdir /home/$USERNAME/.elm \
-    && chown $USERNAME:$USERNAME /home/$USERNAME/.elm
+    && chown $USERNAME:$USERNAME /home/$USERNAME/.elm \
+    # also create cypress cache directory, for the same reason
+    && mkdir /home/$USERNAME/.cache \
+    && chown $USERNAME:$USERNAME /home/$USERNAME/.cache
+
+# cypress dependencies
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
