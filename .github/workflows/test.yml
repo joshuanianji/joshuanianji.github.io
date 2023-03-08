@@ -1,6 +1,6 @@
 name: Test
 
-on: 
+on:
   push:
     branches:
       - main
@@ -11,7 +11,7 @@ on:
       - index.js
       - main.css
       - .github/workflows/test.yml # This file
-      - vite.config.js 
+      - vite.config.js
   pull_request:
     branches:
       - main
@@ -29,17 +29,18 @@ jobs:
   install:
     runs-on: ubuntu-latest
     # running the cypress container as non-root lets setup-elm work
-    container: 
+    container:
       image: cypress/browsers:node16.18.0-chrome90-ff88
       options: --user node
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
-      
+
       - name: Setup Elm 🌳
-        uses: jorelali/setup-elm@v4
+        uses: joshuanianji/setup-elm@run-as-root-option
         with:
           elm-version: '0.19.1'
+          run-as-root: true
 
       - name: Save build folder 📦️
         uses: actions/upload-artifact@v3
