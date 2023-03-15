@@ -1,0 +1,36 @@
+name: Build and Publish - TEST
+
+on:
+  push:
+
+jobs:
+  test:
+    uses: .github/workflows/test.yml
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Setup Elm 🌳
+        uses: jorelali/setup-elm@v5
+        with:
+          elm-version: '0.19.1'
+
+      - name: Install 📦️
+        run: npm ci
+
+      - name: Build 🏗️
+        run: npm run build
+
+      - name: Move Files 🚚
+        # Add files from dist (which vite makes) to static (which holds all of our other compiled files)
+        run: mv dist/* static
