@@ -1,4 +1,4 @@
-name: Deploy to GH Pages
+name: Deploy 🚀
 
 on:
   push:
@@ -15,7 +15,7 @@ on:
 
 jobs:
   test:
-    uses: .github/workflows/test.yml
+    uses: ./.github/workflows/test.yml
 
   build-and-deploy:
     runs-on: ubuntu-latest
