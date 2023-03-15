@@ -12,15 +12,26 @@
         "mobile": true
     },
     {
+        "name": "NerdBot",
+        "imgLink": "nerdbot",
+        "blurb": "A Discord bot to rank nerdiness",
+        "githubLink": "https://github.com/joshuanianji/nerd-bot",
+        "year": 2023,
+        "languages": ["Typescript"],
+        "concepts": ["Discord.js", "Docker", "PostgreSQL"],
+        "pinned": true,
+        "mobile": true
+    },
+    {
         "name": "MathTTS",
         "imgLink": "mathtts",
-        "blurb": "Latex Text-to-Speech",
+        "blurb": "Latex Text-to-Speech engine, deployed and hosted on Google Cloud.",
         "link": "https://math-tts.vercel.app/",
         "githubLink": "https://github.com/3iq-hacks/math-tts",
         "year": 2023,
         "languages": ["Typescript", "Python"],
-        "concepts": ["API", "React/Next.JS"],
-        "pinned": true,
+        "concepts": ["API", "React/Next.JS", "GCP"],
+        "pinned": false,
         "mobile": true
     },
     {
