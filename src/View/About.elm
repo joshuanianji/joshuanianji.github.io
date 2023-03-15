@@ -62,16 +62,33 @@ view sharedState _ =
             [ -- subtitle
               Element.paragraph
                 [ Element.spacing 6 ]
-                [ Element.text "I have been coding with HTML, CSS and Javascript since I was 12: making blogs, web apps, or anything that will make my life easier."
+                [ Element.text "I started off with HTML, CSS and Javascript: making blogs, web apps, or anything that will make my life easier."
                 ]
             , Element.paragraph
                 [ Element.spacing 6 ]
-                [ Element.text "Recently, I've been taking a deep dive into functional programming. I'm currently using "
+                [ Element.text "Currently, I use "
                 , Util.link
                     { label = "Elm"
                     , link = "https://elm-lang.org"
                     }
-                , Element.text " as my main language for my web apps, and I'm learning Haskell, Purescript and Rust on my free time."
+                , Element.text " and "
+                , Util.link
+                    { label = "Typescript"
+                    , link = "https://www.typescriptlang.org"
+                    }
+                , Element.text " for most of my projects, and I'm learning Haskell, Purescript and Rust on my free time."
+                ]
+            , Element.paragraph [ Element.spacing 6 ]
+                [ Element.text "I've recently been taking a deep dive into DevOps. I'm always looking for new ways to improve and automate my workflow. It's exciting to keep learning in this vast and complex field!"
+                ]
+            , Element.paragraph
+                [ Element.spacing 6 ]
+                [ Element.text "In my free time, I like to play volleyball and walk my dog. I also love reading scifi: check me out on "
+                , Util.link
+                    { label = "Hardcover"
+                    , link = "https://hardcover.app/@OshuaJay"
+                    }
+                , Element.text "!"
                 ]
             ]
         ]

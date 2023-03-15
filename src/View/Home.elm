@@ -220,7 +220,7 @@ description sharedState _ =
                     ( 16, "Here are some of my projects, my resume, and ways to contact me!" )
 
                 _ ->
-                    ( 25, "I am an undergraduate student studying computer science at the University of Alberta. I love web development, especially through functional languages like Elm." )
+                    ( 25, "I am an undergraduate student studying computer science at the University of Alberta. I enjoy making webapps, primarily with React and Elm, but I'm also a huge Docker + DevOps fan." )
     in
     Element.paragraph
         [ Font.center
