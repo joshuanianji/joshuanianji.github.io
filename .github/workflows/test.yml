@@ -1,0 +1,24 @@
+name: Test 🧪
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: E2E on Chrome
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Install NPM dependencies, cache them correctly
+      # and run all Cypress tests
+      - name: Cypress run
+        uses: cypress-io/github-action@v5.6.2
+        with:
+          # Specify Browser since container image is compile with Firefox
+          browser: chrome
+          start: npm run dev

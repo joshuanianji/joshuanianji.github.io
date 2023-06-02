@@ -10,6 +10,7 @@ import amongus from './img/proj_icons/amongus.png';
 import idris2 from './img/proj_icons/idris2.png';
 import mathgpt from './img/proj_icons/mathgpt.png';
 import mathtts from './img/proj_icons/mathtts.png';
+import nerdbot from './img/proj_icons/nerd.webp';
 
 let projIcons = [
     {
@@ -51,6 +52,10 @@ let projIcons = [
     {
         src: mathtts,
         id: 'mathtts',
+    },
+    {
+        src: nerdbot,
+        id: 'nerdbot',
     },
 ];
 

@@ -1,4 +1,4 @@
 {
     "elmLS.elmTestPath": "node_modules/.bin/elm-test-rs",
-    "elmLS.elmPath": "node_modules/.bin/elm"
+    "elmLS.elmPath": "node_modules/.bin/elm",
 }
