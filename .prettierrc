@@ -3,7 +3,7 @@
     "singleQuote": true,
     "overrides": [
         {
-            "files": "*.yml",
+            "files": ["*.yml", "renovate.json"],
             "options": {
                 "tabWidth": 2
             }
