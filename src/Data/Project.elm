@@ -29,6 +29,7 @@ type Language
     | Javascript
     | Docker
     | Typescript
+    | Shell
 
 
 langToString : Language -> String
@@ -52,6 +53,9 @@ langToString l =
         Docker ->
             "Docker"
 
+        Shell ->
+            "Shell"
+
 
 langToColor : Language -> Color
 langToColor l =
@@ -67,12 +71,15 @@ langToColor l =
 
         Javascript ->
             Colours.javascript
-        
+
         Typescript ->
             Colours.typescript
 
         Docker ->
             Colours.docker
+
+        Shell ->
+            Colours.shell
 
 
 
@@ -111,12 +118,15 @@ languageDecoder =
 
                     "Javascript" ->
                         Decode.succeed Javascript
-                    
+
                     "Typescript" ->
                         Decode.succeed Typescript
 
                     "Docker" ->
                         Decode.succeed Docker
+
+                    "Shell" ->
+                        Decode.succeed Shell
 
                     other ->
                         Decode.fail <| "Unknown language " ++ other
