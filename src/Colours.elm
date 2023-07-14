@@ -82,7 +82,6 @@ javascript =
     Color.rgb255 241 224 90
 
 
-
 typescript : Color
 typescript =
     Color.rgb255 48 119 198
@@ -91,6 +90,11 @@ typescript =
 docker : Color
 docker =
     Color.rgb255 56 77 84
+
+
+shell : Color
+shell =
+    Color.rgb255 137 224 81
 
 
 withAlpha : Float -> Color.Color -> Color.Color

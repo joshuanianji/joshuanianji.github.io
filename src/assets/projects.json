@@ -23,6 +23,17 @@
         "mobile": true
     },
     {
+        "name": "Idris 2 Docker",
+        "imgLink": "idris2",
+        "blurb": "Multi-arch, multi-distro Docker images for Idris 2",
+        "githubLink": "https://github.com/joshuanianji/idris-2-docker",
+        "year": 2022,
+        "languages": ["Docker"],
+        "concepts": ["Docker", "Github Actions"],
+        "pinned": true,
+        "mobile": true
+    },
+    {
         "name": "MathTTS",
         "imgLink": "mathtts",
         "blurb": "Latex Text-to-Speech engine, deployed and hosted on Google Cloud.",
@@ -31,6 +42,17 @@
         "year": 2023,
         "languages": ["Typescript", "Python"],
         "concepts": ["API", "React/Next.JS", "GCP"],
+        "pinned": false,
+        "mobile": true
+    },
+    {
+        "name": "Devcontainer Features",
+        "imgLink": "devcontainer-features",
+        "blurb": "A collection of my custom devcontainer features",
+        "githubLink": "https://github.com/joshuanianji/devcontainer-features",
+        "year": 2023,
+        "languages": ["Shell"],
+        "concepts": ["Docker", "VSCode", "Bash"],
         "pinned": false,
         "mobile": true
     },
@@ -45,17 +67,6 @@
         "concepts": ["DataStructures", "Parsing"],
         "pinned": false,
         "mobile": false
-    },
-    {
-        "name": "Idris 2 Docker",
-        "imgLink": "idris2",
-        "blurb": "Multi-arch, multi-distro Docker images for Idris 2",
-        "githubLink": "https://github.com/joshuanianji/idris-2-docker",
-        "year": 2022,
-        "languages": ["Docker"],
-        "concepts": ["Docker", "Github Actions"],
-        "pinned": true,
-        "mobile": true
     },
     {
         "name": "Imposter Detector",

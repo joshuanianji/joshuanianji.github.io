@@ -11,6 +11,7 @@ import idris2 from './img/proj_icons/idris2.png';
 import mathgpt from './img/proj_icons/mathgpt.png';
 import mathtts from './img/proj_icons/mathtts.png';
 import nerdbot from './img/proj_icons/nerd.webp';
+import devcontainerFeatures from './img/proj_icons/devcontainer-features.png';
 
 let projIcons = [
     {
@@ -56,6 +57,10 @@ let projIcons = [
     {
         src: nerdbot,
         id: 'nerdbot',
+    },
+    {
+        src: devcontainerFeatures,
+        id: 'devcontainer-features',
     },
 ];
 
