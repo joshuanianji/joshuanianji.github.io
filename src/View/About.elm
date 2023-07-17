@@ -62,7 +62,7 @@ view sharedState _ =
             [ -- subtitle
               Element.paragraph
                 [ Element.spacing 6 ]
-                [ Element.text "I started off with HTML, CSS and Javascript: making blogs, web apps, or anything that will make my life easier."
+                [ Element.text "I started off with HTML, CSS and Javascript: making blogs, web apps, or anything that seemed cool to me."
                 ]
             , Element.paragraph
                 [ Element.spacing 6 ]
@@ -79,11 +79,16 @@ view sharedState _ =
                 , Element.text " for most of my projects, and I'm learning Haskell, Purescript and Rust on my free time."
                 ]
             , Element.paragraph [ Element.spacing 6 ]
-                [ Element.text "I've recently been taking a deep dive into DevOps. I'm always looking for new ways to improve and automate my workflow. It's exciting to keep learning in this vast and complex field!"
+                [ Element.text "I've recently been taking a deep dive into DevOps. I'm currently an intern at "
+                , Util.link
+                    { label = "Nanostics"
+                    , link = "https://www.nanosticsdx.com/"
+                    }
+                , Element.text " where I'm working on deploying and maintaining a ML model on Azure, as well as creating a webapp interface for it. More details will be coming soon!"
                 ]
             , Element.paragraph
                 [ Element.spacing 6 ]
-                [ Element.text "In my free time, I like to play volleyball and walk my dog. I also love reading scifi: check me out on "
+                [ Element.text "In my free time, I like to play volleyball and walk my dog. I always try to find time to read: check me out on "
                 , Util.link
                     { label = "Hardcover"
                     , link = "https://hardcover.app/@OshuaJay"
