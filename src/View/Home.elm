@@ -199,15 +199,14 @@ subTitle sharedState model =
         , Font.size fontSize
         , Font.bold
         ]
-        [ Element.text "Welc"
+        [ Element.text "Welcome to my website"
         , Element.paragraph
             [ Element.pointer
             , Element.mouseOver
                 [ Font.color <| Colours.toElement Colours.subtleBlack ]
             , Events.onDoubleClick OpenTimeMachine
             ]
-            [ Element.text "o" ]
-        , Element.text "me to my website!"
+            [ Element.text "!" ]
         ]
 
 

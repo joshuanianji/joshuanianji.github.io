@@ -214,7 +214,12 @@ footer showTimeMachine =
                 [ Font.center
                 , Font.size 16
                 ]
-                [ Element.text "Fun fact: This is the 5th iteration of my website! Feel free to "
+                [ Element.el
+                    [ Font.color <| Colours.toElement Colours.white
+                    , Background.color <| Colours.toElement Colours.themeBlue
+                    ]
+                    (Element.text "Fun fact:")
+                , Element.text " This is the 5th iteration of my website! Feel free to "
                 , Util.link
                     { label = "take a look"
                     , link = "https://joshuaji.com/time-machine/"
