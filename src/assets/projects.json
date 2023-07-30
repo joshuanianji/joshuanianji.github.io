@@ -57,6 +57,17 @@
         "mobile": true
     },
     {
+        "name": "Github Language Colors",
+        "blurb": "All of Github's language colours as an Elm package",
+        "githubLink": "https://github.com/joshuanianji/github-language-colors",
+        "link": "https://package.elm-lang.org/packages/joshuanianji/github-language-colors/latest/",
+        "year": 2023,
+        "languages": ["Elm"],
+        "concepts": ["Elm", "Github Actions"],
+        "pinned": false,
+        "mobile": false
+    },
+    {
         "name": "Derivatives",
         "imgLink": "derivative",
         "blurb": "An application to calculate derivatives, using intuitive LaTeX input and output.",
