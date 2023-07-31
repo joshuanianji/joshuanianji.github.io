@@ -63,7 +63,7 @@
         "link": "https://package.elm-lang.org/packages/joshuanianji/github-language-colors/latest/",
         "year": 2023,
         "languages": ["Elm"],
-        "concepts": ["Elm", "Github Actions"],
+        "concepts": ["Github Actions"],
         "pinned": false,
         "mobile": false
     },
