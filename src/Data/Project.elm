@@ -4,6 +4,7 @@ module Data.Project exposing (Language(..), Project, decoder, langToColor, langT
 
 import Color exposing (Color)
 import Colours
+import GithubColors
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 
@@ -61,25 +62,25 @@ langToColor : Language -> Color
 langToColor l =
     case l of
         Elm ->
-            Colours.elm
+            GithubColors.elm.color
 
         Python ->
-            Colours.python
+            GithubColors.python.color
 
         Rust ->
-            Colours.rust
+            GithubColors.rust.color
 
         Javascript ->
-            Colours.javascript
+            GithubColors.javascript.color
 
         Typescript ->
-            Colours.typescript
+            GithubColors.typescript.color
 
         Docker ->
-            Colours.docker
+            GithubColors.dockerfile.color
 
         Shell ->
-            Colours.shell
+            GithubColors.shell.color
 
 
 
