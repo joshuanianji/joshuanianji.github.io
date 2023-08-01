@@ -10,9 +10,7 @@
         "dev": "vite",
         "build": "vite build",
         "serve": "vite preview",
-        "postinstall": "elm-tooling install",
-        "cypress:open": "cypress open",
-        "test": "cypress run"
+        "postinstall": "elm-tooling install"
     },
     "repository": {
         "type": "git",
@@ -25,7 +23,6 @@
     },
     "homepage": "https://github.com/joshuanianji/website#readme",
     "devDependencies": {
-        "cypress": "12.17.2",
         "elm-tooling": "1.14.0",
         "vite": "4.4.7",
         "vite-plugin-elm": "2.8.0"
