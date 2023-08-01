@@ -30,11 +30,6 @@ jobs:
           node-version: '16'
           cache: 'npm'
 
-      - name: Setup Elm 🌳
-        uses: jorelali/setup-elm@v5
-        with:
-          elm-version: '0.19.1'
-
       - name: Install 📦️
         run: npm ci
 
