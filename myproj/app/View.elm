@@ -6,13 +6,13 @@ module View exposing (View, map)
 
 -}
 
-import Html exposing (Html)
+import Element exposing (Element)
 
 
 {-| -}
 type alias View msg =
     { title : String
-    , body : List (Html msg)
+    , body : List (Element msg)
     }
 
 
@@ -20,5 +20,5 @@ type alias View msg =
 map : (msg1 -> msg2) -> View msg1 -> View msg2
 map fn doc =
     { title = doc.title
-    , body = List.map (Html.map fn) doc.body
+    , body = List.map (Element.map fn) doc.body
     }

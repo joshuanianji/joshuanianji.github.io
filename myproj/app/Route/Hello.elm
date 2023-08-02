@@ -15,6 +15,7 @@ import Server.Response
 import Shared
 import UrlPath exposing (UrlPath)
 import View exposing (View)
+import Element
 
 
 type alias Model =
@@ -108,7 +109,7 @@ view :
     -> Model
     -> View (PagesMsg Msg)
 view app shared model =
-    { title = "Hello", body = [ Html.text (String.fromInt app.data.stars) ] }
+    { title = "Hello", body = [ Element.text (String.fromInt app.data.stars) ] }
 
 
 action :
