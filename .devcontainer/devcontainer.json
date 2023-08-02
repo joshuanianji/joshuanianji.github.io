@@ -9,7 +9,14 @@
         "ghcr.io/joshuanianji/devcontainer-features/github-cli-persistence:0": {},
         "ghcr.io/devcontainers/features/common-utils:2": {},
         "ghcr.io/joshuanianji/devcontainer-features/lamdera": {}
-    }
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"elmTooling.elm-ls-vscode"
+			]
+		}
+	}
     // Features to add to the dev container. More info: https://containers.dev/features.
     // "features": {},
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
