@@ -1,7 +1,6 @@
 module Route.Blog.Slug_ exposing (ActionData, Data, Model, Msg, route)
 
 import BackendTask exposing (BackendTask)
-import Element
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
@@ -83,5 +82,5 @@ view :
     -> View (PagesMsg Msg)
 view app sharedModel =
     { title = "Placeholder - Blog.Slug_"
-    , body = [ Element.text "You're on the page Blog.Slug_" ]
+    , body = [ Html.text "You're on the page Blog.Slug_" ]
     }

@@ -2,15 +2,14 @@ module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template)
 
 import BackendTask exposing (BackendTask)
 import Effect exposing (Effect)
-import Element
 import FatalError exposing (FatalError)
 import Html exposing (Html)
 import Html.Events
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
+import UrlPath exposing (UrlPath)
 import Route exposing (Route)
 import SharedTemplate exposing (SharedTemplate)
-import UrlPath exposing (UrlPath)
 import View exposing (View)
 
 
@@ -115,11 +114,7 @@ view sharedData page model toMsg pageView =
                 Html.text ""
             ]
             |> Html.map toMsg
-        , pageView.body
-            |> Element.column []
-            |> Element.layout []
-            |> List.singleton
-            |> Html.main_ []
+        , Html.main_ [] pageView.body
         ]
     , title = pageView.title
     }

@@ -1,8 +1,6 @@
 module ErrorPage exposing (ErrorPage(..), Model, Msg, head, init, internalError, notFound, statusCode, update, view)
 
 import Effect exposing (Effect)
-import Element
-import Element.Input as Input
 import Head
 import Html exposing (Html)
 import Html.Events exposing (onClick)
@@ -55,14 +53,17 @@ internalError =
 view : ErrorPage -> Model -> View Msg
 view error model =
     { body =
-        [ Element.column []
-            [ Element.el [] (Element.text "Page not found. Maybe try another URL?")
-            , Element.column []
-                [ Input.button
-                    []
-                    { onPress = Just Increment
-                    , label = Element.text (String.fromInt model.count)
-                    }
+        [ Html.div []
+            [ Html.p [] [ Html.text "Page not found. Maybe try another URL?" ]
+            , Html.div []
+                [ Html.button
+                    [ onClick Increment
+                    ]
+                    [ Html.text
+                        (model.count
+                            |> String.fromInt
+                        )
+                    ]
                 ]
             ]
         ]

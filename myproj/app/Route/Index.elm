@@ -1,18 +1,16 @@
 module Route.Index exposing (ActionData, Data, Model, Msg, route)
 
 import BackendTask exposing (BackendTask)
-import Browser.Dom exposing (Element)
-import Element
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
+import UrlPath
 import Route
 import RouteBuilder exposing (App, StatelessRoute)
 import Shared
-import UrlPath
 import View exposing (View)
 
 
@@ -80,11 +78,11 @@ view :
 view app shared =
     { title = "elm-pages is running"
     , body =
-        [ Element.el [] <| Element.text "elm-pages is up and running!"
-        , Element.paragraph []
-            [ Element.text <| "The message is: " ++ app.data.message ]
+        [ Html.h1 [] [ Html.text "elm-pages is up and running!" ]
+        , Html.p []
+            [ Html.text <| "The message is: " ++ app.data.message
+            ]
         , Route.Blog__Slug_ { slug = "hello" }
             |> Route.link [] [ Html.text "My blog post" ]
-            |> Element.html
         ]
     }
