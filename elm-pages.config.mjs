@@ -8,6 +8,9 @@ export default {
     return `
 <link rel="stylesheet" href="/style.css" />
 <meta name="generator" content="elm-pages v${context.cliVersion}" />
+<link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@300;700&family=Playfair+Display+SC:wght@700&display=swap"
+    rel="stylesheet" />
 `;
   },
   preloadTagForFile(file) {

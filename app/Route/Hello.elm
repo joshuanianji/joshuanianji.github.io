@@ -6,7 +6,7 @@ import Effect exposing (Effect)
 import ErrorPage exposing (ErrorPage)
 import FatalError exposing (FatalError)
 import Head
-import Html
+import Html.Styled as Html
 import Json.Decode as Decode
 import PagesMsg exposing (PagesMsg)
 import RouteBuilder exposing (App)

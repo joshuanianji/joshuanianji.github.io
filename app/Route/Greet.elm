@@ -6,7 +6,7 @@ import ErrorPage exposing (ErrorPage)
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
-import Html
+import Html.Styled as Html
 import Json.Decode as Decode
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
