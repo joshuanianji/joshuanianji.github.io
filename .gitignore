@@ -1,18 +1,7 @@
-# Distribution
-dist/
-
-# elm-package generated files
+node_modules/
 elm-stuff/
+dist/
+.elm-pages/
+functions/render/elm-pages-cli.js
 
-# elm-repl generated files
-repl-temp-*
-
-# Dependency directories
-/node_modules/
-
-# Desktop Services Store on macOS
 .DS_Store
-
-# other stuff
-bin/
-*.code-workspace
