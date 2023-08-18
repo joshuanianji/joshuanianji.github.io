@@ -3,27 +3,29 @@ module Route.Index exposing (ActionData, Data, Model, Msg, route)
 import BackendTask exposing (BackendTask)
 import Colours exposing (blueTheme)
 import Css exposing (..)
+import Effect exposing (Effect)
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html.Styled as Html exposing (Attribute, Html, styled)
 import Html.Styled.Attributes exposing (css, href, src)
 import Html.Styled.Events exposing (onClick)
+import Icosahedron
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
 import Route
-import RouteBuilder exposing (App, StatelessRoute)
+import RouteBuilder exposing (App, StatefulRoute)
 import Shared
-import UrlPath
+import UrlPath exposing (UrlPath)
 import View exposing (View)
 
 
 type alias Model =
-    {}
+    { ico : Icosahedron.Model }
 
 
-type alias Msg =
-    ()
+type Msg
+    = NoOp
 
 
 type alias RouteParams =
@@ -39,13 +41,48 @@ type alias ActionData =
     {}
 
 
-route : StatelessRoute RouteParams Data ActionData
+route : StatefulRoute RouteParams Data ActionData Model Msg
 route =
     RouteBuilder.single
         { head = head
         , data = data
         }
-        |> RouteBuilder.buildNoState { view = view }
+        |> RouteBuilder.buildWithLocalState
+            { init = init
+            , view = view
+            , update = update
+            , subscriptions = subscriptions
+            }
+
+
+init :
+    App Data ActionData RouteParams
+    -> Shared.Model
+    -> ( Model, Effect Msg )
+init app shared =
+    ( { ico = Icosahedron.init 100 90 }, Effect.none )
+
+
+update :
+    App Data ActionData RouteParams
+    -> Shared.Model
+    -> Msg
+    -> Model
+    -> ( Model, Effect Msg )
+update app shared msg model =
+    case msg of
+        NoOp ->
+            ( model, Effect.none )
+
+
+subscriptions :
+    RouteParams
+    -> UrlPath
+    -> Shared.Model
+    -> Model
+    -> Sub Msg
+subscriptions routeParams path shared model =
+    Sub.none
 
 
 data : BackendTask FatalError Data
@@ -78,20 +115,29 @@ head app =
 view :
     App Data ActionData RouteParams
     -> Shared.Model
+    -> Model
     -> View (PagesMsg Msg)
-view app shared =
+view app shared model =
     { title = "(Dev) Joshua Ji - Home"
     , body =
         [ Html.div
             [ css
                 [ width (vw 100)
                 , height (vh 100)
-                , displayFlex
-                , alignItems center
-                , justifyContent center
+                , position relative
                 ]
             ]
-            [ jumbotron ]
+            [ Html.div
+                [ css
+                    [ width (vw 100)
+                    , height (vh 100)
+                    , displayFlex
+                    , alignItems center
+                    , justifyContent center
+                    ]
+                ]
+                [ jumbotron ]
+            ]
         ]
     }
 
