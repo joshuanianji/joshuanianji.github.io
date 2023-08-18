@@ -1,6 +1,7 @@
 module Route.Index exposing (ActionData, Data, Model, Msg, route)
 
 import BackendTask exposing (BackendTask)
+import Colours exposing (blueTheme)
 import Css exposing (..)
 import FatalError exposing (FatalError)
 import Head
@@ -157,4 +158,7 @@ jumbotronNavbar =
 navItem : List (Attribute msg) -> List (Html msg) -> Html msg
 navItem =
     styled Html.a
-        []
+        [ fontSize (px 30)
+        , fontFamilies [ qt "Playfair Display SC" ]
+        , boxShadow4 inset zero (px -10) blueTheme
+        ]
