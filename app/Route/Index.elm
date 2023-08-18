@@ -5,7 +5,7 @@ import Css exposing (..)
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
-import Html.Styled as Html exposing (Html)
+import Html.Styled as Html exposing (Attribute, Html, styled)
 import Html.Styled.Attributes exposing (css, href, src)
 import Html.Styled.Events exposing (onClick)
 import Pages.Url
@@ -81,7 +81,16 @@ view :
 view app shared =
     { title = "(Dev) Joshua Ji - Home"
     , body =
-        [ jumbotron
+        [ Html.div
+            [ css
+                [ width (vw 100)
+                , height (vh 100)
+                , displayFlex
+                , alignItems center
+                , justifyContent center
+                ]
+            ]
+            [ jumbotron ]
         ]
     }
 
@@ -89,12 +98,63 @@ view app shared =
 jumbotron : Html msg
 jumbotron =
     Html.div
-        []
+        [ css
+            [ width (vw 60)
+            , height (vh 60)
+            , displayFlex
+            , flexDirection column
+            , justifyContent spaceAround
+            ]
+        ]
         [ Html.h1
             [ css
-                [ fontFamilies [ qt "Playfair Display SC" ] ]
+                [ textAlign center
+                , fontSize (px 100)
+                , fontFamilies [ qt "Playfair Display SC" ]
+                ]
             ]
             [ Html.text "Joshua Ji" ]
-        , Html.p [] [ Html.text "Welcome to my website!" ]
-        , Html.p [] [ Html.text "I am an undergraduate student studying computer science at the University of Alberta. I enjoy making webapps, primarily with React and Elm, but I'm also a huge Docker + DevOps fan." ]
+        , Html.p
+            [ css
+                [ textAlign center
+                , fontSize (px 25)
+                , fontWeight bold
+                ]
+            ]
+            [ Html.text "Welcome to my website!" ]
+        , Html.p
+            [ css
+                [ textAlign center
+                , fontSize (px 25)
+                ]
+            ]
+            [ Html.text "I am an undergraduate student studying computer science at the University of Alberta. I enjoy making webapps, primarily with React and Elm, but I'm also a huge Docker + DevOps fan." ]
+        , jumbotronNavbar
         ]
+
+
+jumbotronNavbar : Html msg
+jumbotronNavbar =
+    let
+        navItems =
+            [ ( "About", "#about" )
+            , ( "Projects", "#projects" )
+            , ( "Contact", "#contact" )
+            ]
+    in
+    Html.div
+        [ css
+            [ displayFlex
+            , flexDirection row
+            , width (pct 100)
+            , justifyContent spaceBetween
+            ]
+        ]
+    <|
+        List.map (\( text, url ) -> navItem [] [ Html.text text ]) navItems
+
+
+navItem : List (Attribute msg) -> List (Html msg) -> Html msg
+navItem =
+    styled Html.a
+        []
