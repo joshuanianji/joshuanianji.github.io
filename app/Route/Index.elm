@@ -8,7 +8,7 @@ import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html.Styled as Html exposing (Attribute, Html, styled)
-import Html.Styled.Attributes exposing (css, href, src)
+import Html.Styled.Attributes exposing (css, href, rel, src)
 import Html.Styled.Events exposing (onClick)
 import Icosahedron
 import Pages.Url
@@ -21,11 +21,13 @@ import View exposing (View)
 
 
 type alias Model =
-    { ico : Icosahedron.Model }
+    { ico : Icosahedron.Model
+    , icoSize : Float
+    }
 
 
 type Msg
-    = NoOp
+    = IcoMsg Icosahedron.Msg
 
 
 type alias RouteParams =
@@ -60,7 +62,7 @@ init :
     -> Shared.Model
     -> ( Model, Effect Msg )
 init app shared =
-    ( { ico = Icosahedron.init 100 90 }, Effect.none )
+    ( { ico = Icosahedron.init 500 90, icoSize = 500 }, Effect.none )
 
 
 update :
@@ -71,8 +73,8 @@ update :
     -> ( Model, Effect Msg )
 update app shared msg model =
     case msg of
-        NoOp ->
-            ( model, Effect.none )
+        IcoMsg icoMsg ->
+            ( { model | ico = Icosahedron.update icoMsg model.ico }, Effect.none )
 
 
 subscriptions :
@@ -82,7 +84,10 @@ subscriptions :
     -> Model
     -> Sub Msg
 subscriptions routeParams path shared model =
-    Sub.none
+    Sub.batch
+        [ Icosahedron.subscriptions model.ico
+            |> Sub.map IcoMsg
+        ]
 
 
 data : BackendTask FatalError Data
@@ -134,9 +139,19 @@ view app shared model =
                     , displayFlex
                     , alignItems center
                     , justifyContent center
+                    , zIndex (int 2)
+                    , position relative
                     ]
                 ]
                 [ jumbotron ]
+            , Html.div
+                [ css
+                    [ position absolute
+                    , top (calc (pct 50) minus (px <| model.icoSize / 2))
+                    , left (calc (pct 50) minus (px <| model.icoSize / 2))
+                    ]
+                ]
+                [ icosahedron model ]
             ]
         ]
     }
@@ -208,3 +223,9 @@ navItem =
         , fontFamilies [ qt "Playfair Display SC" ]
         , boxShadow4 inset zero (px -10) blueTheme
         ]
+
+
+icosahedron : Model -> Html (PagesMsg Msg)
+icosahedron model =
+    Icosahedron.view model.ico
+        |> Html.map (IcoMsg >> PagesMsg.fromMsg)
