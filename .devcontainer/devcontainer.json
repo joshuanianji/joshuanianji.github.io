@@ -13,7 +13,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"elmTooling.elm-ls-vscode"
+				"elmTooling.elm-ls-vscode",
+				"GitHub.copilot"
 			]
 		}
 	}

@@ -1,12 +1,14 @@
 module Colours exposing (..)
 
 import Color exposing (Color)
+import Color.Manipulate
 import Css
 
 
-blueTheme : Css.Color
+blueTheme : Color
 blueTheme =
-    Css.rgba 60 145 201 0.5
+    Color.rgb255 60 145 201
+        |> Color.Manipulate.fadeOut 0.5
 
 
 
@@ -26,3 +28,19 @@ white =
 black : Color
 black =
     Color.black
+
+
+
+-- helpers
+
+
+toCss : Color -> Css.Color
+toCss c =
+    let
+        { red, green, blue, alpha } =
+            Color.toRgba c
+
+        scale x =
+            round <| x * 255
+    in
+    Css.rgba (scale red) (scale green) (scale blue) alpha

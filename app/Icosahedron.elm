@@ -14,6 +14,7 @@ import Length
 import LineSegment3d
 import Pixels exposing (Pixels)
 import Point3d
+import Ports
 import Quantity exposing (Quantity)
 import Scene3d
 import Scene3d.Material as Material
@@ -303,6 +304,5 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ Browser.Events.onAnimationFrameDelta (Duration.milliseconds >> Tick)
-
-        --  , Ports.updateMousePos MouseMove
+        , Ports.updateMousePos MouseMove
         ]

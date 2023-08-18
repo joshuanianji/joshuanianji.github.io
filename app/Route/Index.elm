@@ -1,7 +1,7 @@
 module Route.Index exposing (ActionData, Data, Model, Msg, route)
 
 import BackendTask exposing (BackendTask)
-import Colours exposing (blueTheme)
+import Colours
 import Css exposing (..)
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
@@ -131,11 +131,12 @@ view app shared model =
                 , height (vh 100)
                 , position relative
                 ]
+            , Html.Styled.Attributes.id "home"
             ]
             [ Html.div
                 [ css
-                    [ width (vw 100)
-                    , height (vh 100)
+                    [ width (pct 100)
+                    , height (pct 100)
                     , displayFlex
                     , alignItems center
                     , justifyContent center
@@ -150,6 +151,7 @@ view app shared model =
                     , top (calc (pct 50) minus (px <| model.icoSize / 2))
                     , left (calc (pct 50) minus (px <| model.icoSize / 2))
                     ]
+                , Html.Styled.Attributes.id "icosahedron"
                 ]
                 [ icosahedron model ]
             ]
@@ -162,7 +164,7 @@ jumbotron =
     Html.div
         [ css
             [ width (vw 60)
-            , height (vh 60)
+            , height (vh 70)
             , displayFlex
             , flexDirection column
             , justifyContent spaceAround
@@ -213,7 +215,7 @@ jumbotronNavbar =
             ]
         ]
     <|
-        List.map (\( text, url ) -> navItem [] [ Html.text text ]) navItems
+        List.map (\( text, url ) -> navItem [ Html.Styled.Attributes.href url ] [ Html.text text ]) navItems
 
 
 navItem : List (Attribute msg) -> List (Html msg) -> Html msg
@@ -221,7 +223,9 @@ navItem =
     styled Html.a
         [ fontSize (px 30)
         , fontFamilies [ qt "Playfair Display SC" ]
-        , boxShadow4 inset zero (px -10) blueTheme
+        , boxShadow4 inset zero (px -10) (Colours.toCss Colours.blueTheme)
+        , color (Colours.toCss Colours.black)
+        , textDecoration none
         ]
 
 
