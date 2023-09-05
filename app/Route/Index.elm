@@ -5,11 +5,13 @@ import Colours
 import Css exposing (..)
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
+import FeatherIcons
 import Head
 import Head.Seo as Seo
 import Html.Styled as Html exposing (Attribute, Html, styled)
 import Html.Styled.Attributes exposing (css, href, rel, src)
 import Html.Styled.Events exposing (onClick)
+import Icon
 import Icosahedron
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
@@ -194,6 +196,14 @@ jumbotron =
             ]
             [ Html.text "I am an undergraduate student studying computer science at the University of Alberta. I enjoy making webapps, primarily with React and Elm, but I'm also a huge Docker + DevOps fan." ]
         , jumbotronNavbar
+        , Icon.view
+            [ css [] ]
+            { icon = FeatherIcons.chevronDown
+            , strokeWidth = 2
+            , color = Colours.black
+            , size = 40
+            , msg = Nothing
+            }
         ]
 
 
