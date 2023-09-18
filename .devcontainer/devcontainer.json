@@ -19,6 +19,7 @@
             ]
         }
     },
+    // mount ~/.elm folder so elm-tooling can be persisted
     "mounts": [
         {
             "source": "devcontainer-elm-tooling",
