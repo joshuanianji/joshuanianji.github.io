@@ -5,3 +5,4 @@ dist/
 functions/render/elm-pages-cli.js
 
 .DS_Store
+.pnpm-store
