@@ -79,12 +79,12 @@ view sharedState _ =
                 , Element.text " for most of my projects, and I'm learning Haskell, Purescript and Rust on my free time."
                 ]
             , Element.paragraph [ Element.spacing 6 ]
-                [ Element.text "I've recently been taking a deep dive into DevOps. I'm currently an intern at "
+                [ Element.text "I've recently been taking a deep dive into DevOps. I've recently interned at "
                 , Util.link
                     { label = "Nanostics"
                     , link = "https://www.nanosticsdx.com/"
                     }
-                , Element.text " where I'm working on deploying and maintaining a ML model on Azure, as well as creating a webapp interface for it. More details will be coming soon!"
+                , Element.text " where I worked on deploying and maintaining a ML model on Azure, as well as creating a webapp interface for it."
                 ]
             , Element.paragraph
                 [ Element.spacing 6 ]
