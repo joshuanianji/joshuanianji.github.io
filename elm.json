@@ -21,7 +21,7 @@
             "ianmackenzie/elm-geometry": "3.6.0",
             "ianmackenzie/elm-triangular-mesh": "1.1.0",
             "ianmackenzie/elm-units": "2.10.0",
-            "joshuanianji/github-language-colors": "1.0.5",
+            "joshuanianji/github-language-colors": "2.0.0",
             "linuss/smooth-scroll": "1.1.0",
             "mdgriffith/elm-ui": "1.1.8"
         },
