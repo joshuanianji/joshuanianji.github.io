@@ -5,12 +5,20 @@
     // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
     "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
     "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "configureZshAsDefaultShell": true
+        },
         "ghcr.io/devcontainers/features/github-cli:1": {},
-        "ghcr.io/joshuanianji/devcontainer-features/github-cli-persistence:0": {},
-        "ghcr.io/devcontainers/features/common-utils:2": {},
-        "ghcr.io/joshuanianji/devcontainer-features/lamdera:0": {},
-        "ghcr.io/joshuanianji/devcontainer-features/mount-pnpm-store:0": {}
+        "ghcr.io/joshuanianji/devcontainer-features/github-cli-persistence:1": {},
+        "ghcr.io/joshuanianji/devcontainer-features/lamdera:1": {},
+        "ghcr.io/joshuanianji/devcontainer-features/mount-pnpm-store:1": {}
     },
+    // somehow pnpm fails if it's installed after common-utils (pnpm not found)
+    // i have no idea why pnpm is not found, but this fixes it
+    // "overrideFeatureInstallOrder": [
+    //     "ghcr.io/joshuanianji/devcontainer-features/mount-pnpm-store",
+    //     "ghcr.io/devcontainers/features/common-utils"
+    // ],
     "customizations": {
         "vscode": {
             "extensions": [
@@ -33,7 +41,7 @@
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
     // "forwardPorts": [],
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "sudo chown -R node:node /home/node/.elm"
+    // "postCreateCommand": "sudo chown -R node:node /home/node/.elm"
     // Configure tool-specific properties.
     // "customizations": {},
     // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
