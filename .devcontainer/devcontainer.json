@@ -13,12 +13,6 @@
         "ghcr.io/joshuanianji/devcontainer-features/lamdera:1": {},
         "ghcr.io/joshuanianji/devcontainer-features/mount-pnpm-store:1": {}
     },
-    // somehow pnpm fails if it's installed after common-utils (pnpm not found)
-    // i have no idea why pnpm is not found, but this fixes it
-    // "overrideFeatureInstallOrder": [
-    //     "ghcr.io/joshuanianji/devcontainer-features/mount-pnpm-store",
-    //     "ghcr.io/devcontainers/features/common-utils"
-    // ],
     "customizations": {
         "vscode": {
             "extensions": [
