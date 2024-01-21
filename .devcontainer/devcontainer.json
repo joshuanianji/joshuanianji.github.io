@@ -5,9 +5,7 @@
     // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
     "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
     "features": {
-        "ghcr.io/devcontainers/features/common-utils:2": {
-            "configureZshAsDefaultShell": true
-        },
+        "ghcr.io/devcontainers/features/common-utils:2": {},
         "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/joshuanianji/devcontainer-features/github-cli-persistence:1": {},
         "ghcr.io/joshuanianji/devcontainer-features/lamdera:1": {},
