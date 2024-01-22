@@ -166,7 +166,7 @@ jumbotron =
     Html.div
         [ css
             [ width (vw 60)
-            , height (vh 70)
+            , height (vh 75)
             , displayFlex
             , flexDirection column
             , justifyContent spaceAround
@@ -197,7 +197,7 @@ jumbotron =
             [ Html.text "I am an undergraduate student studying computer science at the University of Alberta. I enjoy making webapps, primarily with React and Elm, but I'm also a huge Docker + DevOps fan." ]
         , jumbotronNavbar
         , Icon.view
-            [ css [] ]
+            [ css [ displayFlex, flexDirection column, alignItems center ] ]
             { icon = FeatherIcons.chevronDown
             , strokeWidth = 2
             , color = Colours.black
