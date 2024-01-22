@@ -194,7 +194,7 @@ jumbotron =
                 , fontSize (px 25)
                 ]
             ]
-            [ Html.text "I am an undergraduate student studying computer science at the University of Alberta. I enjoy making webapps, primarily with React and Elm, but I'm also a huge Docker + DevOps fan." ]
+            [ Html.text "I am an undergraduate student studying computer science at the University of Alberta. I enjoy making webapps, primarily with React and Elm, but I'm also a big Docker + DevOps fan." ]
         , jumbotronNavbar
         , Icon.view
             [ css [ displayFlex, flexDirection column, alignItems center ] ]
