@@ -310,55 +310,119 @@ homeProjects projects =
 
 viewHomeProject : Project -> Html msg
 viewHomeProject proj =
+    let
+        -- try link, otherwise link to github, else Nothing
+        mainLink =
+            case proj.link of
+                Just _ ->
+                    proj.link
+
+                Nothing ->
+                    proj.githubLink
+
+        mainLinkCSS =
+            case mainLink of
+                Just _ ->
+                    hover
+                        [ color (Colours.toCss Colours.themeBlue) ]
+
+                Nothing ->
+                    cursor notAllowed
+
+        renderLink icon url =
+            Html.a
+                [ Html.Styled.Attributes.href url
+                , css
+                    [ padding (em 1)
+                    , borderRadius (em 0.5)
+                    , flex (int 1)
+                    , displayFlex
+                    , alignItems center
+                    , hover
+                        [ backgroundColor (Colours.toCss <| Colours.withAlpha 0.5 Colours.gray) ]
+                    ]
+                ]
+                [ Icon.view []
+                    { icon = icon
+                    , strokeWidth = 2
+                    , color = Colours.black
+                    , size = 20
+                    , msg = Nothing
+                    }
+                ]
+    in
     Html.div
         [ css
             [ width (pct 100)
             , displayFlex
-            , flexDirection column
+            , flexDirection row
             , padding (em 1.5)
-            , property "gap" "0.5em"
             , border3 (px 1) solid (Colours.toCss Colours.gray)
             , borderRadius (em 0.5)
             , hover
                 [ borderColor (Colours.toCss Colours.black) ]
             ]
         ]
-        [ Html.a
+        [ Html.div
             [ css
-                [ fontSize (em 1.25)
-                , fontWeight bold
-                , textDecoration none
-                , color (Colours.toCss Colours.black)
-                , hover
-                    [ color (Colours.toCss Colours.themeBlue) ]
-                , active
-                    [ textDecoration underline ]
+                [ displayFlex
+                , flexDirection column
+                , property "gap" "0.5em"
+                , flex (int 1)
                 ]
-            , Html.Styled.Attributes.href <| Maybe.withDefault proj.githubLink proj.link
             ]
-            [ Html.text proj.name ]
-        , Html.p
-            [ css
-                [ fontSize (em 0.75) ]
-            ]
-            [ Html.text <| String.fromInt proj.year ]
-        , Html.p [] [ Html.text proj.blurb ]
+            [ Html.a
+                [ css
+                    [ fontSize (em 1.25)
+                    , fontWeight bold
+                    , textDecoration none
+                    , color (Colours.toCss Colours.black)
+                    , mainLinkCSS
+                    ]
+                , case mainLink of
+                    Just url ->
+                        Html.Styled.Attributes.href url
 
-        -- languages and concepts
+                    Nothing ->
+                        Html.Styled.Attributes.title "No link available, sorry!"
+                ]
+                [ Html.text proj.name ]
+            , Html.p
+                [ css
+                    [ fontSize (em 0.75) ]
+                ]
+                [ Html.text <| String.fromInt proj.year ]
+            , Html.p [] [ Html.text proj.blurb ]
+
+            -- languages and concepts
+            , Html.div
+                [ css
+                    [ displayFlex
+                    , flexDirection row
+                    , property "gap" "0.5em"
+                    ]
+                ]
+                [ viewLanguages proj.languages
+                , case proj.concepts of
+                    Just (x :: xs) ->
+                        viewConcepts (x :: xs)
+
+                    _ ->
+                        Html.text ""
+                ]
+            ]
+
+        -- Github link and demo link (if applicable)
         , Html.div
             [ css
                 [ displayFlex
-                , flexDirection row
-                , property "gap" "0.5em"
+                , flexDirection column
+
+                -- , property "gap" "0.em"
                 ]
             ]
-            [ viewLanguages proj.languages
-            , case proj.concepts of
-                Just (x :: xs) ->
-                    viewConcepts (x :: xs)
-
-                _ ->
-                    Html.text ""
+            [ Maybe.withDefault (Html.text "") <| Maybe.map (renderLink FeatherIcons.link2) proj.link
+            , Maybe.withDefault (Html.text "") <| Maybe.map (renderLink FeatherIcons.github) proj.githubLink
             ]
         ]
 

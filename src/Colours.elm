@@ -53,3 +53,12 @@ toCss c =
             round <| x * 255
     in
     Css.rgba (scale red) (scale green) (scale blue) alpha
+
+
+withAlpha : Float -> Color.Color -> Color.Color
+withAlpha a color =
+    let
+        rgba =
+            Color.toRgba color
+    in
+    Color.rgba rgba.red rgba.green rgba.blue a

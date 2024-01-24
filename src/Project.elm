@@ -15,7 +15,7 @@ type alias Project =
     , name : String
     , blurb : String
     , link : Maybe String
-    , githubLink : String
+    , githubLink : Maybe String
     , year : Int
     , languages : List Language
     , concepts : Maybe (List String)
@@ -65,7 +65,7 @@ decoder =
         |> Yaml.andMap (Yaml.field "name" Yaml.string)
         |> Yaml.andMap (Yaml.field "blurb" Yaml.string)
         |> Yaml.andMap (Yaml.maybe (Yaml.field "link" Yaml.string))
-        |> Yaml.andMap (Yaml.field "githubLink" Yaml.string)
+        |> Yaml.andMap (Yaml.maybe (Yaml.field "githubLink" Yaml.string))
         |> Yaml.andMap (Yaml.field "year" Yaml.int)
         |> Yaml.andMap (Yaml.field "languages" (Yaml.list languageDecoder))
         |> Yaml.andMap (Yaml.maybe (Yaml.field "concepts" (Yaml.list Yaml.string)))

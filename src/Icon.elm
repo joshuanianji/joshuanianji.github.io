@@ -33,7 +33,9 @@ view attrs data =
                 |> Html.fromUnstyled
 
         cssProps =
-            [ color <| Colours.toCss data.color ]
+            [ color <| Colours.toCss data.color
+            , displayFlex
+            ]
 
         onclickAttrs =
             [ Maybe.map (\d -> Html.Styled.Events.onClick d.msg) data.msg ]
