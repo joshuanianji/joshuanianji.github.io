@@ -22,6 +22,7 @@ import Route
 import RouteBuilder exposing (App, StatefulRoute)
 import Shared
 import UrlPath exposing (UrlPath)
+import Util
 import View exposing (View)
 
 
@@ -188,7 +189,7 @@ view app shared model =
                     [ displayFlex
                     , alignItems center
                     , justifyContent center
-                    , padding (px 15)
+                    , padding (em 1)
                     ]
                 ]
                 [ Html.div
@@ -199,7 +200,9 @@ view app shared model =
                         , flexDirection column
                         ]
                     ]
-                    [ homeProjects app.data.homeProjects ]
+                    [ featuredProjects app.data.pinnedProjects
+                    , homeProjects app.data.homeProjects
+                    ]
                 ]
             ]
         ]
@@ -294,22 +297,85 @@ icosahedron model =
 ---- PROJECTS
 
 
+featuredProjects : List Project -> Html msg
+featuredProjects projects =
+    Html.div
+        [ css
+            [ Util.flexDirection Util.Row
+            , property "gap" "0.75em"
+            ]
+        ]
+        (List.map featuredProject projects)
+
+
 homeProjects : List Project -> Html msg
 homeProjects projects =
     Html.div
         [ css
-            [ displayFlex
-            , flexDirection column
+            [ Util.flexDirection Util.Column
             , alignItems center
             , justifyContent center
             , property "gap" "0.75em"
             ]
         ]
-        (List.map viewHomeProject projects)
+        (List.map homeProject projects)
 
 
-viewHomeProject : Project -> Html msg
-viewHomeProject proj =
+featuredProject : Project -> Html msg
+featuredProject proj =
+    projectContainer Util.Column
+        [ css
+            [ property "gap" "0.5em"
+            , alignItems center
+            , textAlign center
+            ]
+        ]
+        [ projectTitle proj
+        , Html.p
+            [ css
+                [ fontSize (em 0.75) ]
+            ]
+            [ Html.text <| String.fromInt proj.year ]
+        , Html.p [] [ Html.text proj.blurb ]
+
+        -- height-filling empty div to align the languages/concepts and links to the bottom
+        , Html.div [ css [ flex (int 1) ] ] []
+        , projectLinks Util.Row { githubLink = proj.githubLink, link = proj.link }
+        , languagesAndConcepts Util.Column { languages = proj.languages, concepts = proj.concepts }
+        ]
+
+
+homeProject : Project -> Html msg
+homeProject proj =
+    projectContainer Util.Row
+        []
+        [ Html.div
+            [ css
+                [ displayFlex
+                , flexDirection column
+                , property "gap" "0.5em"
+                , flex (int 1)
+                ]
+            ]
+            [ projectTitle proj
+            , Html.p
+                [ css
+                    [ fontSize (em 0.75) ]
+                ]
+                [ Html.text <| String.fromInt proj.year ]
+            , Html.p [] [ Html.text proj.blurb ]
+            , languagesAndConcepts Util.Row { languages = proj.languages, concepts = proj.concepts }
+            ]
+        , projectLinks Util.Column { githubLink = proj.githubLink, link = proj.link }
+        ]
+
+
+
+-- HELPERS
+
+
+projectTitle : Project -> Html msg
+projectTitle proj =
     let
         -- try link, otherwise link to github, else Nothing
         mainLink =
@@ -328,16 +394,71 @@ viewHomeProject proj =
 
                 Nothing ->
                     cursor notAllowed
+    in
+    Html.a
+        [ css
+            [ fontSize (em 1.25)
+            , fontWeight bold
+            , textDecoration none
+            , color (Colours.toCss Colours.black)
+            , mainLinkCSS
+            ]
+        , case mainLink of
+            Just url ->
+                Html.Styled.Attributes.href url
 
+            Nothing ->
+                Html.Styled.Attributes.title "No link available, sorry!"
+        ]
+        [ Html.text proj.name ]
+
+
+languagesAndConcepts :
+    Util.FlexDirection
+    ->
+        { languages : List Language
+        , concepts : Maybe (List String)
+        }
+    -> Html msg
+languagesAndConcepts dir data_ =
+    Html.div
+        [ css
+            [ Util.flexDirection dir
+            , property "gap" "0.5em"
+            , alignItems center
+            ]
+        ]
+        [ viewLanguages data_.languages
+        , case data_.concepts of
+            Just (x :: xs) ->
+                viewConcepts (x :: xs)
+
+            _ ->
+                Html.text ""
+        ]
+
+
+projectLinks :
+    Util.FlexDirection
+    ->
+        { githubLink : Maybe String
+        , link : Maybe String
+        }
+    -> Html msg
+projectLinks dir links =
+    let
+        renderLink : FeatherIcons.Icon -> String -> Html msg
         renderLink icon url =
             Html.a
                 [ Html.Styled.Attributes.href url
                 , css
-                    [ padding (em 1)
+                    [ padding (em 0.8)
                     , borderRadius (em 0.5)
                     , flex (int 1)
                     , displayFlex
+                    , flexDirection column
                     , alignItems center
+                    , justifyContent center
                     , hover
                         [ backgroundColor (Colours.toCss <| Colours.withAlpha 0.5 Colours.gray) ]
                     ]
@@ -346,89 +467,21 @@ viewHomeProject proj =
                     { icon = icon
                     , strokeWidth = 2
                     , color = Colours.black
-                    , size = 20
+                    , size = 18
                     , msg = Nothing
                     }
                 ]
     in
     Html.div
         [ css
-            [ width (pct 100)
-            , displayFlex
-            , flexDirection row
-            , padding (em 1.5)
-            , border3 (px 1) solid (Colours.toCss Colours.gray)
-            , borderRadius (em 0.5)
-            , hover
-                [ borderColor (Colours.toCss Colours.black) ]
+            [ Util.flexDirection dir
+            , property "gap" "0.5em"
+            , alignSelf stretch
             ]
         ]
-        [ Html.div
-            [ css
-                [ displayFlex
-                , flexDirection column
-                , property "gap" "0.5em"
-                , flex (int 1)
-                ]
-            ]
-            [ Html.a
-                [ css
-                    [ fontSize (em 1.25)
-                    , fontWeight bold
-                    , textDecoration none
-                    , color (Colours.toCss Colours.black)
-                    , mainLinkCSS
-                    ]
-                , case mainLink of
-                    Just url ->
-                        Html.Styled.Attributes.href url
-
-                    Nothing ->
-                        Html.Styled.Attributes.title "No link available, sorry!"
-                ]
-                [ Html.text proj.name ]
-            , Html.p
-                [ css
-                    [ fontSize (em 0.75) ]
-                ]
-                [ Html.text <| String.fromInt proj.year ]
-            , Html.p [] [ Html.text proj.blurb ]
-
-            -- languages and concepts
-            , Html.div
-                [ css
-                    [ displayFlex
-                    , flexDirection row
-                    , property "gap" "0.5em"
-                    ]
-                ]
-                [ viewLanguages proj.languages
-                , case proj.concepts of
-                    Just (x :: xs) ->
-                        viewConcepts (x :: xs)
-
-                    _ ->
-                        Html.text ""
-                ]
-            ]
-
-        -- Github link and demo link (if applicable)
-        , Html.div
-            [ css
-                [ displayFlex
-                , flexDirection column
-
-                -- , property "gap" "0.em"
-                ]
-            ]
-            [ Maybe.withDefault (Html.text "") <| Maybe.map (renderLink FeatherIcons.link2) proj.link
-            , Maybe.withDefault (Html.text "") <| Maybe.map (renderLink FeatherIcons.github) proj.githubLink
-            ]
+        [ Maybe.withDefault (Html.text "") <| Maybe.map (renderLink FeatherIcons.link2) links.link
+        , Maybe.withDefault (Html.text "") <| Maybe.map (renderLink FeatherIcons.github) links.githubLink
         ]
-
-
-
--- HELPERS
 
 
 viewLanguages : List Language -> Html msg
@@ -497,3 +550,16 @@ viewConcept concept =
             ]
         ]
         [ Html.text concept ]
+
+
+projectContainer : Util.FlexDirection -> List (Attribute msg) -> List (Html msg) -> Html msg
+projectContainer dir =
+    styled Html.div
+        [ Util.flexDirection dir
+        , width (pct 100)
+        , padding (em 1.5)
+        , border3 (px 1) solid (Colours.toCss Colours.gray)
+        , borderRadius (em 0.5)
+        , hover
+            [ borderColor (Colours.toCss Colours.black) ]
+        ]
