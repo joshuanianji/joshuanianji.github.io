@@ -1,0 +1,160 @@
+---
+
+# === FEATURED
+- id: mathgpt
+  name: MathGPT
+  blurb: GPT-3 Powered Math Solver
+  link: http://www.arithme.tech
+  githubLink: https://github.com/3iq-hacks/mathgpt
+  year: 2023
+  languages:
+  - Typescript
+  - Python
+  concepts:
+  - React/Next.JS
+  - OpenAPI
+  displayType: featured
+  mobile: true
+
+- id: nerdbot
+  name: NerdBot
+  blurb: A Discord bot to rank nerdiness
+  githubLink: https://github.com/joshuanianji/nerd-bot
+  year: 2023
+  languages:
+  - Typescript
+  concepts:
+  - Discord.js
+  - Docker
+  - PostgreSQL
+  displayType: featured
+  mobile: true
+
+- name: Idris 2 Docker
+  id: idris2
+  blurb: Multi-arch, multi-distro Docker images for Idris 2
+  githubLink: https://github.com/joshuanianji/idris-2-docker
+  year: 2022
+  languages:
+  - Docker
+  concepts:
+  - Docker
+  - Github Actions
+  displayType: featured
+  mobile: true
+
+# === HOME 
+- id: mathtts
+  name: MathTTS
+  blurb: Latex Text-to-Speech engine, deployed and hosted on Google Cloud.
+  link: https://math-tts.vercel.app/
+  githubLink: https://github.com/3iq-hacks/math-tts
+  year: 2023
+  languages:
+  - Typescript
+  - Python
+  concepts:
+  - API
+  - React/Next.JS
+  - GCP
+  displayType: home
+  mobile: true
+
+- id: devcontainer-features
+  name: Devcontainer Features
+  blurb: A collection of my custom devcontainer features
+  githubLink: https://github.com/joshuanianji/devcontainer-features
+  year: 2023
+  languages:
+  - Shell
+  concepts:
+  - Docker
+  - VSCode
+  - Bash
+  displayType: home
+  mobile: true
+
+- id: github-language-colors
+  name: Github Language Colors
+  blurb: All of Github's language colours as an Elm package
+  githubLink: https://github.com/joshuanianji/github-language-colors
+  link: https://package.elm-lang.org/packages/joshuanianji/github-language-colors/latest/
+  year: 2023
+  languages:
+  - Elm
+  concepts:
+  - Github Actions
+  displayType: home
+  mobile: false
+
+- id: derivative
+  name: Derivatives
+  blurb: An application to calculate derivatives, using intuitive LaTeX input and
+    output.
+  link: https://joshuaji.com/derivative
+  githubLink: https://github.com/joshuanianji/derivative
+  year: 2020
+  languages:
+  - Elm
+  concepts:
+  - DataStructures
+  - Parsing
+  displayType: home
+  mobile: false
+
+- id: amongus
+  name: Imposter Detector
+  blurb: 'A HackED 2022 Submission: converting speech to text to detect sus audio.'
+  link: https://imposter-detector.vercel.app/
+  githubLink: https://github.com/joshuanianji/imposter-detector-2022
+  year: 2022
+  languages:
+  - Javascript
+  - Python
+  concepts:
+  - GCP
+  - React/Next.JS
+  - Speech to Text
+  displayType: other
+  mobile: false
+
+- id: atomic-theory
+  name: Atomic Theory
+  blurb: A short timeline on the history of the Atomic Theory, created for my grade
+    12 physics class.
+  link: https://joshuaji.com/atomic-theory/
+  githubLink: https://github.com/joshuanianji/atomic-theory
+  year: 2020
+  languages:
+  - Elm
+  concepts: []
+  displayType: other
+  mobile: false
+
+- id: ptable
+  name: Periodic Table
+  blurb: A colour-coded periodic table app with a molar mass calculator.
+  link: https://joshuaji.com/periodic-table/
+  githubLink: https://github.com/joshuanianji/periodic-table/
+  year: 2019
+  languages:
+  - Elm
+  concepts:
+  - DataStructures
+  displayType: home
+  mobile: false
+
+# === OTHER
+- id: hiit-timer
+  name: HIIT-Timer
+  blurb: A customizable PWA that times your workouts.
+  link: https://joshuaji.com/HIIT-Timer/
+  githubLink: https://github.com/joshuanianji/HIIT-Timer
+  year: 2020
+  languages:
+  - Elm
+  concepts:
+  - PWA
+  displayType: other
+  mobile: true
+

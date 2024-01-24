@@ -1,6 +1,7 @@
 module Route.Index exposing (ActionData, Data, Model, Msg, route)
 
 import BackendTask exposing (BackendTask)
+import BackendTask.File
 import Colours
 import Css exposing (..)
 import Effect exposing (Effect)
@@ -15,6 +16,7 @@ import Icon
 import Icosahedron
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
+import Project exposing (Project)
 import Route
 import RouteBuilder exposing (App, StatefulRoute)
 import Shared
@@ -37,7 +39,11 @@ type alias RouteParams =
 
 
 type alias Data =
-    { message : String
+    { -- top 3 "pinned" projects
+      pinnedProjects : List Project
+
+    -- projects on the home page (should be no more than 5)
+    , homeProjects : List Project
     }
 
 
@@ -94,9 +100,27 @@ subscriptions routeParams path shared model =
 
 data : BackendTask FatalError Data
 data =
-    BackendTask.succeed Data
-        |> BackendTask.andMap
-            (BackendTask.succeed "Hello!")
+    BackendTask.File.rawFile "projects.yml"
+        |> BackendTask.allowFatal
+        |> BackendTask.andThen Project.backendTaskParse
+        |> BackendTask.map
+            (\projects ->
+                { pinnedProjects = List.filter (\p -> p.displayType == Project.Featured) projects
+                , homeProjects = List.filter (\p -> p.displayType == Project.Home) projects
+                }
+            )
+        -- ensure project sizes are reasonable
+        |> BackendTask.andThen
+            (\data_ ->
+                if List.length data_.homeProjects > 5 then
+                    BackendTask.fail (FatalError.fromString "Too many projects on the home page! Keep it less than 5 :)")
+
+                else if List.length data_.pinnedProjects > 3 then
+                    BackendTask.fail (FatalError.fromString "Too many pinned projects! Keep it less than 3 :)")
+
+                else
+                    BackendTask.succeed data_
+            )
 
 
 head :
@@ -135,27 +159,47 @@ view app shared model =
                 ]
             , Html.Styled.Attributes.id "home"
             ]
-            [ Html.div
+            [ -- Html.div
+              --     [ css
+              --         [ width (pct 100)
+              --         , height (pct 100)
+              --         , displayFlex
+              --         , alignItems center
+              --         , justifyContent center
+              --         , zIndex (int 2)
+              --         , position relative
+              --         ]
+              --     ]
+              --     [ jumbotron ]
+              -- , Html.div
+              --     [ css
+              --         [ position absolute
+              --         , top (calc (pct 50) minus (px <| model.icoSize / 2))
+              --         , left (calc (pct 50) minus (px <| model.icoSize / 2))
+              --         ]
+              --     , Html.Styled.Attributes.id "icosahedron"
+              --     ]
+              --     [ icosahedron model ]
+              -- ,
+              -- main content
+              Html.div
                 [ css
-                    [ width (pct 100)
-                    , height (pct 100)
-                    , displayFlex
+                    [ displayFlex
                     , alignItems center
                     , justifyContent center
-                    , zIndex (int 2)
-                    , position relative
+                    , padding (px 15)
                     ]
                 ]
-                [ jumbotron ]
-            , Html.div
-                [ css
-                    [ position absolute
-                    , top (calc (pct 50) minus (px <| model.icoSize / 2))
-                    , left (calc (pct 50) minus (px <| model.icoSize / 2))
+                [ Html.div
+                    [ css
+                        [ maxWidth (px 900)
+                        , flex (int 1)
+                        , displayFlex
+                        , flexDirection column
+                        ]
                     ]
-                , Html.Styled.Attributes.id "icosahedron"
+                    [ homeProjects app.data.homeProjects ]
                 ]
-                [ icosahedron model ]
             ]
         ]
     }
@@ -243,3 +287,35 @@ icosahedron : Model -> Html (PagesMsg Msg)
 icosahedron model =
     Icosahedron.view model.ico
         |> Html.map (IcoMsg >> PagesMsg.fromMsg)
+
+
+
+---- PROJECTS
+
+
+homeProjects : List Project -> Html msg
+homeProjects projects =
+    Html.div
+        [ css
+            [ displayFlex
+            , flexDirection column
+            , alignItems center
+            , justifyContent center
+            ]
+        ]
+        (List.map viewHomeProject projects)
+
+
+viewHomeProject : Project -> Html msg
+viewHomeProject proj =
+    Html.div
+        [ css
+            [ width (pct 100)
+            , displayFlex
+            , flexDirection column
+            ]
+        ]
+        [ Html.a [] [ Html.text proj.name ]
+        , Html.p [] [ Html.text <| String.fromInt proj.year ]
+        , Html.p [] [ Html.text proj.blurb ]
+        ]
