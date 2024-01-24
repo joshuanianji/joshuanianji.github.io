@@ -17,7 +17,7 @@ import Icon
 import Icosahedron
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
-import Project exposing (Project)
+import Project exposing (Language, Project)
 import Route
 import RouteBuilder exposing (App, StatefulRoute)
 import Shared
@@ -343,4 +343,93 @@ viewHomeProject proj =
             ]
             [ Html.text <| String.fromInt proj.year ]
         , Html.p [] [ Html.text proj.blurb ]
+
+        -- languages and concepts
+        , Html.div
+            [ css
+                [ displayFlex
+                , flexDirection row
+                , property "gap" "0.5em"
+                ]
+            ]
+            [ viewLanguages proj.languages
+            , case proj.concepts of
+                Just (x :: xs) ->
+                    viewConcepts (x :: xs)
+
+                _ ->
+                    Html.text ""
+            ]
         ]
+
+
+
+-- HELPERS
+
+
+viewLanguages : List Language -> Html msg
+viewLanguages langs =
+    Html.div
+        [ css
+            [ displayFlex
+            , flexDirection row
+            , property "gap" "0.5em"
+            ]
+        ]
+        (List.map viewLanguage langs)
+
+
+viewLanguage : Language -> Html msg
+viewLanguage lang =
+    Html.div
+        [ css
+            [ displayFlex
+            , flexDirection row
+            , padding2 (px 3) (px 6)
+            , fontSize (em 0.75)
+            , alignItems center
+            , property "gap" "0.2em"
+            , border3 (px 1) solid (Colours.toCss <| Project.langToColor lang)
+            , borderRadius (em 1)
+            ]
+        ]
+        [ Html.div
+            [ css
+                [ height (em 0.8)
+                , width (em 0.8)
+                , borderRadius (em 1)
+                , backgroundColor (Colours.toCss <| Project.langToColor lang)
+                ]
+            ]
+            []
+        , Html.text <| Project.langToString lang
+        ]
+
+
+viewConcepts : List String -> Html msg
+viewConcepts concepts =
+    Html.div
+        [ css
+            [ displayFlex
+            , flexDirection row
+            , property "gap" "0.5em"
+            ]
+        ]
+        (List.map viewConcept concepts)
+
+
+viewConcept : String -> Html msg
+viewConcept concept =
+    Html.div
+        [ css
+            [ displayFlex
+            , flexDirection row
+            , padding2 (px 3) (px 6)
+            , fontSize (em 0.75)
+            , alignItems center
+            , borderRadius (em 0.5)
+            , backgroundColor (Colours.toCss Colours.themeBlue)
+            , color (Colours.toCss Colours.white)
+            ]
+        ]
+        [ Html.text concept ]
