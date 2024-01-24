@@ -5,10 +5,19 @@ import Color.Manipulate
 import Css
 
 
-blueTheme : Color
-blueTheme =
-    Color.rgb255 60 145 201
-        |> Color.Manipulate.fadeOut 0.5
+themeBlue : Color
+themeBlue =
+    Color.rgb255 50 145 201
+
+
+errorRed : Color
+errorRed =
+    Color.rgb255 224 71 76
+
+
+warningRed : Color
+warningRed =
+    Color.rgb255 253 150 150
 
 
 

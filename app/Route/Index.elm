@@ -2,6 +2,7 @@ module Route.Index exposing (ActionData, Data, Model, Msg, route)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.File
+import Color.Manipulate
 import Colours
 import Css exposing (..)
 import Effect exposing (Effect)
@@ -10,7 +11,7 @@ import FeatherIcons
 import Head
 import Head.Seo as Seo
 import Html.Styled as Html exposing (Attribute, Html, styled)
-import Html.Styled.Attributes exposing (css, href, rel, src)
+import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (onClick)
 import Icon
 import Icosahedron
@@ -277,7 +278,7 @@ navItem =
     styled Html.a
         [ fontSize (px 30)
         , fontFamilies [ qt "Playfair Display SC" ]
-        , boxShadow4 inset zero (px -10) (Colours.toCss Colours.blueTheme)
+        , boxShadow4 inset zero (px -10) (Colours.toCss <| Color.Manipulate.fadeOut 0.5 Colours.themeBlue)
         , color (Colours.toCss Colours.black)
         , textDecoration none
         ]
@@ -301,6 +302,7 @@ homeProjects projects =
             , flexDirection column
             , alignItems center
             , justifyContent center
+            , property "gap" "0.75em"
             ]
         ]
         (List.map viewHomeProject projects)
@@ -313,9 +315,32 @@ viewHomeProject proj =
             [ width (pct 100)
             , displayFlex
             , flexDirection column
+            , padding (em 1.5)
+            , property "gap" "0.5em"
+            , border3 (px 1) solid (Colours.toCss Colours.gray)
+            , borderRadius (em 0.5)
+            , hover
+                [ borderColor (Colours.toCss Colours.black) ]
             ]
         ]
-        [ Html.a [] [ Html.text proj.name ]
-        , Html.p [] [ Html.text <| String.fromInt proj.year ]
+        [ Html.a
+            [ css
+                [ fontSize (em 1.25)
+                , fontWeight bold
+                , textDecoration none
+                , color (Colours.toCss Colours.black)
+                , hover
+                    [ color (Colours.toCss Colours.themeBlue) ]
+                , active
+                    [ textDecoration underline ]
+                ]
+            , Html.Styled.Attributes.href <| Maybe.withDefault proj.githubLink proj.link
+            ]
+            [ Html.text proj.name ]
+        , Html.p
+            [ css
+                [ fontSize (em 0.75) ]
+            ]
+            [ Html.text <| String.fromInt proj.year ]
         , Html.p [] [ Html.text proj.blurb ]
         ]
