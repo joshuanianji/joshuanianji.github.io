@@ -199,14 +199,20 @@ view app shared model =
                         , flex (int 1)
                         , displayFlex
                         , flexDirection column
+                        , property "gap" "2em"
                         ]
                     ]
-                    [ projects app.data
+                    [ about
+                    , projects app.data
                     ]
                 ]
             ]
         ]
     }
+
+
+
+---- MAIN PAGE
 
 
 jumbotron : Html msg
@@ -261,6 +267,7 @@ jumbotronNavbar =
         navItems =
             [ ( "About", "#about", False )
             , ( "Projects", "#projects", False )
+            , ( "Blog", "#blog", False )
             , ( "Resume", "https://joshuaji.com/resume/Joshua%20Ji%20Resume.pdf", True )
             ]
     in
@@ -277,6 +284,7 @@ jumbotronNavbar =
         List.map
             (\( text, url, externalLink ) ->
                 underlinedLink Html.div
+                    True
                     [ css
                         [ displayFlex
                         , flexDirection row
@@ -308,6 +316,57 @@ icosahedron model =
 
 
 
+---- ABOUT
+
+
+about : Html msg
+about =
+    let
+        textBlock =
+            styled Html.p
+                [ fontSize (em 1.3) ]
+
+        textLink text url =
+            underlinedLink Html.a
+                False
+                [ Html.Styled.Attributes.href url ]
+                [ Html.text text ]
+    in
+    Html.div
+        [ css
+            [ Util.flexDirection Util.Column
+            , property "gap" "2em"
+            ]
+        ]
+        [ Html.div
+            [ css
+                [ fontSize (em 1.5) ]
+            ]
+            [ underlinedLink Html.h1
+                True
+                [ Html.Styled.Attributes.href "#about" ]
+                [ Html.text "About" ]
+            ]
+        , textBlock [] [ Html.text "I started off with HTML, CSS and Javascript: making blogs, web apps, or anything that seemed cool to me." ]
+        , textBlock []
+            [ Html.text "Currently, I use "
+            , textLink "Elm" "https://elm-lang.org/"
+            , Html.text " and Typescript for most of my projects, and I'm learning Haskell, Purescript and Rust on my free time."
+            ]
+        , textBlock []
+            [ Html.text "I've recently been taking a deep dive into DevOps. I've recently interned at "
+            , textLink "Nanostics" "https://www.nanosticsdx.com/"
+            , Html.text " where I worked on deploying and maintaining a ML model on Azure, as well as creating a webapp interface for it."
+            ]
+        , textBlock []
+            [ Html.text "In my free time, I like to play volleyball and walk my dog. I always try to find time to read, check me out on "
+            , textLink "Hardcover" "https://hardcover.app/@OshuaJay"
+            , Html.text "!"
+            ]
+        ]
+
+
+
 ---- PROJECTS
 
 
@@ -324,6 +383,7 @@ projects data_ =
                 [ fontSize (em 1.5) ]
             ]
             [ underlinedLink Html.h1
+                True
                 [ Html.Styled.Attributes.href "#projects" ]
                 [ Html.text "Projects" ]
             ]
@@ -655,21 +715,32 @@ projectContainer dir =
 ---- GLOBAL HELPERS
 
 
-underlinedLink : (List (Attribute msg) -> List (Html msg) -> Html msg) -> List (Attribute msg) -> List (Html msg) -> Html msg
-underlinedLink parentElem attrs content =
+underlinedLink : (List (Attribute msg) -> List (Html msg) -> Html msg) -> Bool -> List (Attribute msg) -> List (Html msg) -> Html msg
+underlinedLink parentElem serif attrs content =
     let
         lightBlue =
             Color.Manipulate.fadeOut 0.5 Colours.themeBlue
+
+        fontFamilies_ =
+            if serif then
+                [ qt "Playfair Display SC" ]
+
+            else
+                [ qt "Lato" ]
     in
     parentElem
         [ css
             [ maxWidth fitContent
             , boxShadow4 inset zero (em -0.2) (Colours.toCss lightBlue)
             , borderBottom3 (em 0.0625) solid (Colours.toCss lightBlue)
+            , position relative
+
+            -- weird -0.15 top to bring up the underline more
+            , top (em -0.15)
             ]
         ]
         [ styled Html.a
-            [ fontFamilies [ qt "Playfair Display SC" ]
+            [ fontFamilies fontFamilies_
             , color (Colours.toCss Colours.black)
             , textDecoration none
             , position relative
