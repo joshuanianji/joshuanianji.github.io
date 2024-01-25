@@ -5,13 +5,14 @@ import BackendTask.File
 import Color.Manipulate
 import Colours
 import Css exposing (..)
+import Css.Media
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
 import FeatherIcons
 import Head
 import Head.Seo as Seo
 import Html.Styled as Html exposing (Attribute, Html, styled)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes exposing (css, media)
 import Html.Styled.Events exposing (onClick)
 import Icon
 import Icosahedron
@@ -104,7 +105,7 @@ data : BackendTask FatalError Data
 data =
     BackendTask.File.rawFile "projects.yml"
         |> BackendTask.allowFatal
-        |> BackendTask.andThen Project.backendTaskParse
+        |> BackendTask.andThen Project.getProjects
         |> BackendTask.map
             (\projects ->
                 { pinnedProjects = List.filter (\p -> p.displayType == Project.Featured) projects
@@ -325,12 +326,18 @@ featuredProject : Project -> Html msg
 featuredProject proj =
     projectContainer Util.Column
         [ css
-            [ property "gap" "0.5em"
+            [ property "gap" "0.75em"
             , alignItems center
             , textAlign center
             ]
         ]
-        [ projectTitle proj
+        [ projectImage
+            { imgWidth = px 120
+            , dir = Util.Column
+            , link = proj.imgPath
+            }
+            [ padding2 (px 0) (em 1) ]
+        , projectTitle proj
         , Html.p
             [ css
                 [ fontSize (em 0.75) ]
@@ -348,8 +355,14 @@ featuredProject proj =
 homeProject : Project -> Html msg
 homeProject proj =
     projectContainer Util.Row
-        []
-        [ Html.div
+        [ css [ property "gap" "1em" ] ]
+        [ projectImage
+            { imgWidth = px 50
+            , dir = Util.Column
+            , link = proj.imgPath
+            }
+            [ padding2 (px 0) (em 1) ]
+        , Html.div
             [ css
                 [ displayFlex
                 , flexDirection column
@@ -411,6 +424,43 @@ projectTitle proj =
                 Html.Styled.Attributes.title "No link available, sorry!"
         ]
         [ Html.text proj.name ]
+
+
+
+-- direction is which way the image is centered
+-- if direction is row, the image will be centered horizontally
+
+
+projectImage :
+    { imgWidth : LengthOrAuto compatible
+    , dir : Util.FlexDirection
+    , link : String
+    }
+    -> List Style
+    -> Html msg
+projectImage image extraCss =
+    let
+        imgContainer attrs children =
+            Html.div
+                [ css
+                    ([ Util.flexDirection image.dir
+                     , justifyContent center
+                     ]
+                        ++ extraCss
+                    )
+                ]
+                [ styled Html.img
+                    [ width image.imgWidth
+                    , property "aspect-ratio" "1/1"
+                    ]
+                    attrs
+                    children
+                ]
+    in
+    imgContainer
+        [ Html.Styled.Attributes.src image.link
+        ]
+        []
 
 
 languagesAndConcepts :

@@ -1,10 +1,10 @@
-module Project exposing (DisplayType(..), Language(..), Project, backendTaskParse, langToColor, langToString)
+module Project exposing (DisplayType(..), Language(..), Project, getProjects, langToColor, langToString)
 
 -- Represents a single "project"
 
 import BackendTask exposing (BackendTask)
+import BackendTask.Glob as Glob
 import Color exposing (Color)
-import Colours
 import FatalError exposing (FatalError)
 import GithubColors
 import Yaml.Decode as Yaml
@@ -21,6 +21,9 @@ type alias Project =
     , concepts : Maybe (List String)
     , displayType : DisplayType
     , mobile : Bool
+
+    -- transparent icon if no image found
+    , imgPath : String
     }
 
 
@@ -44,8 +47,39 @@ type DisplayType
 -- BackendTask parse from string
 
 
-backendTaskParse : String -> BackendTask FatalError (List Project)
-backendTaskParse str =
+getProjects : String -> BackendTask FatalError (List Project)
+getProjects str =
+    parseProjects str
+        |> BackendTask.andThen
+            (\projects -> BackendTask.combine (List.map addImagePath projects))
+
+
+addImagePath : Project -> BackendTask FatalError Project
+addImagePath proj =
+    Glob.succeed identity
+        |> Glob.captureFilePath
+        |> Glob.match (Glob.literal "public/")
+        |> Glob.match (Glob.literal "proj_icons/")
+        |> Glob.match (Glob.literal proj.id)
+        |> Glob.match (Glob.literal ".")
+        |> Glob.match (Glob.oneOf ( ( "png", () ), [ ( "jpg", () ), ( "jpeg", () ), ( "webp", () ) ] ))
+        |> Glob.toBackendTask
+        |> BackendTask.andThen
+            (\imgPaths ->
+                case imgPaths of
+                    [] ->
+                        BackendTask.succeed { proj | imgPath = "public/proj_icons/transparent.png" }
+
+                    [ imgPath ] ->
+                        BackendTask.succeed { proj | imgPath = imgPath }
+
+                    path :: paths ->
+                        BackendTask.fail (FatalError.fromString <| "Multiple images found for project " ++ proj.id)
+            )
+
+
+parseProjects : String -> BackendTask FatalError (List Project)
+parseProjects str =
     case Yaml.fromString (Yaml.list decoder) str of
         Ok projects ->
             BackendTask.succeed projects
@@ -56,6 +90,7 @@ backendTaskParse str =
 
 
 -- PARSER
+-- imgPath is not parsed, it is filled in later
 
 
 decoder : Yaml.Decoder Project
@@ -71,6 +106,7 @@ decoder =
         |> Yaml.andMap (Yaml.maybe (Yaml.field "concepts" (Yaml.list Yaml.string)))
         |> Yaml.andMap (Yaml.field "displayType" displayTypeDecoder)
         |> Yaml.andMap (Yaml.field "mobile" Yaml.bool)
+        |> Yaml.andMap (Yaml.succeed "")
 
 
 languageDecoder : Yaml.Decoder Language
