@@ -254,7 +254,6 @@ jumbotron =
             [ css [ displayFlex, flexDirection column, alignItems center ] ]
             { icon = FeatherIcons.chevronDown
             , strokeWidth = 2
-            , color = Colours.black
             , size = 40
             , msg = Nothing
             }
@@ -297,7 +296,6 @@ jumbotronNavbar =
                             [ css [ alignItems center ] ]
                             { icon = FeatherIcons.externalLink
                             , strokeWidth = 2
-                            , color = Colours.black
                             , size = 20
                             , msg = Nothing
                             }
@@ -338,15 +336,7 @@ about =
             , property "gap" "2em"
             ]
         ]
-        [ Html.div
-            [ css
-                [ fontSize (em 1.5) ]
-            ]
-            [ underlinedLink Html.h1
-                True
-                [ Html.Styled.Attributes.href "#about" ]
-                [ Html.text "About" ]
-            ]
+        [ linkedHeader "About" "about"
         , textBlock [] [ Html.text "I started off with HTML, CSS and Javascript: making blogs, web apps, or anything that seemed cool to me." ]
         , textBlock []
             [ Html.text "Currently, I use "
@@ -378,15 +368,7 @@ projects data_ =
             , property "gap" "2em"
             ]
         ]
-        [ Html.div
-            [ css
-                [ fontSize (em 1.5) ]
-            ]
-            [ underlinedLink Html.h1
-                True
-                [ Html.Styled.Attributes.href "#projects" ]
-                [ Html.text "Projects" ]
-            ]
+        [ linkedHeader "Projects" "projects"
         , Html.h2 [] [ Html.text "⭐ Featured" ]
         , featuredProjects data_.pinnedProjects
         , Html.h2 [] [ Html.text "🎖️ Honourable Mentions" ]
@@ -612,7 +594,6 @@ projectLinks dir links =
                 [ Icon.view []
                     { icon = icon
                     , strokeWidth = 2
-                    , color = Colours.black
                     , size = 18
                     , msg = Nothing
                     }
@@ -713,6 +694,39 @@ projectContainer dir =
 
 
 ---- GLOBAL HELPERS
+
+
+linkedHeader : String -> String -> Html msg
+linkedHeader text fragment =
+    Html.div
+        [ css
+            [ fontSize (em 1.5)
+            , position relative
+            , color (Colours.toCss Colours.gray)
+            , maxWidth fitContent
+            , hover
+                [ color (Colours.toCss Colours.themeBlue) ]
+            ]
+        , Html.Styled.Attributes.id fragment
+        ]
+        [ Icon.view
+            [ css
+                [ position absolute
+                , left (em -3)
+                , padding (em 1)
+                , cursor pointer
+                ]
+            ]
+            { icon = FeatherIcons.link
+            , strokeWidth = 2
+            , size = 30
+            , msg = Nothing
+            }
+        , underlinedLink Html.h1
+            True
+            [ Html.Styled.Attributes.href <| "#" ++ fragment ]
+            [ Html.text text ]
+        ]
 
 
 underlinedLink : (List (Attribute msg) -> List (Html msg) -> Html msg) -> Bool -> List (Attribute msg) -> List (Html msg) -> Html msg

@@ -12,7 +12,6 @@ import Html.Styled.Events
 type alias Config msg =
     { icon : Icons.Icon
     , strokeWidth : Float
-    , color : Color.Color
     , size : Float
     , msg :
         Maybe
@@ -33,8 +32,7 @@ view attrs data =
                 |> Html.fromUnstyled
 
         cssProps =
-            [ color <| Colours.toCss data.color
-            , displayFlex
+            [ displayFlex
             ]
 
         onclickAttrs =
