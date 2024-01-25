@@ -107,9 +107,9 @@ data =
         |> BackendTask.allowFatal
         |> BackendTask.andThen Project.getProjects
         |> BackendTask.map
-            (\projects ->
-                { pinnedProjects = List.filter (\p -> p.displayType == Project.Featured) projects
-                , homeProjects = List.filter (\p -> p.displayType == Project.Home) projects
+            (\projs ->
+                { pinnedProjects = List.filter (\p -> p.displayType == Project.Featured) projs
+                , homeProjects = List.filter (\p -> p.displayType == Project.Home) projs
                 }
             )
         -- ensure project sizes are reasonable
@@ -162,30 +162,30 @@ view app shared model =
                 ]
             , Html.Styled.Attributes.id "home"
             ]
-            [ -- Html.div
-              --     [ css
-              --         [ width (pct 100)
-              --         , height (pct 100)
-              --         , displayFlex
-              --         , alignItems center
-              --         , justifyContent center
-              --         , zIndex (int 2)
-              --         , position relative
-              --         ]
-              --     ]
-              --     [ jumbotron ]
-              -- , Html.div
-              --     [ css
-              --         [ position absolute
-              --         , top (calc (pct 50) minus (px <| model.icoSize / 2))
-              --         , left (calc (pct 50) minus (px <| model.icoSize / 2))
-              --         ]
-              --     , Html.Styled.Attributes.id "icosahedron"
-              --     ]
-              --     [ icosahedron model ]
-              -- ,
-              -- main content
-              Html.div
+            [ Html.div
+                [ css
+                    [ width (pct 100)
+                    , height (pct 100)
+                    , displayFlex
+                    , alignItems center
+                    , justifyContent center
+                    , zIndex (int 2)
+                    , position relative
+                    ]
+                ]
+                [ jumbotron ]
+            , Html.div
+                [ css
+                    [ position absolute
+                    , top (calc (pct 50) minus (px <| model.icoSize / 2))
+                    , left (calc (pct 50) minus (px <| model.icoSize / 2))
+                    ]
+                , Html.Styled.Attributes.id "icosahedron"
+                ]
+                [ icosahedron model ]
+
+            --  main content
+            , Html.div
                 [ css
                     [ displayFlex
                     , alignItems center
@@ -201,8 +201,7 @@ view app shared model =
                         , flexDirection column
                         ]
                     ]
-                    [ featuredProjects app.data.pinnedProjects
-                    , homeProjects app.data.homeProjects
+                    [ projects app.data
                     ]
                 ]
             ]
@@ -214,7 +213,7 @@ jumbotron : Html msg
 jumbotron =
     Html.div
         [ css
-            [ width (vw 60)
+            [ width (vw 75)
             , height (vh 75)
             , displayFlex
             , flexDirection column
@@ -271,21 +270,17 @@ jumbotronNavbar =
             , flexDirection row
             , width (pct 100)
             , justifyContent spaceBetween
+            , fontSize (em 2)
             ]
         ]
     <|
-        List.map (\( text, url ) -> navItem [ Html.Styled.Attributes.href url ] [ Html.text text ]) navItems
-
-
-navItem : List (Attribute msg) -> List (Html msg) -> Html msg
-navItem =
-    styled Html.a
-        [ fontSize (px 30)
-        , fontFamilies [ qt "Playfair Display SC" ]
-        , boxShadow4 inset zero (px -10) (Colours.toCss <| Color.Manipulate.fadeOut 0.5 Colours.themeBlue)
-        , color (Colours.toCss Colours.black)
-        , textDecoration none
-        ]
+        List.map
+            (\( text, url ) ->
+                underlinedLink Html.div
+                    [ Html.Styled.Attributes.href url ]
+                    [ Html.text text ]
+            )
+            navItems
 
 
 icosahedron : Model -> Html (PagesMsg Msg)
@@ -298,19 +293,42 @@ icosahedron model =
 ---- PROJECTS
 
 
+projects : Data -> Html msg
+projects data_ =
+    Html.div
+        [ css
+            [ Util.flexDirection Util.Column
+            , property "gap" "2em"
+            ]
+        ]
+        [ Html.div
+            [ css
+                [ fontSize (em 1.5) ]
+            ]
+            [ underlinedLink Html.h1
+                [ Html.Styled.Attributes.href "#projects" ]
+                [ Html.text "Projects" ]
+            ]
+        , Html.h2 [] [ Html.text "⭐ Featured" ]
+        , featuredProjects data_.pinnedProjects
+        , Html.h2 [] [ Html.text "🎖️ Honourable Mentions" ]
+        , homeProjects data_.homeProjects
+        ]
+
+
 featuredProjects : List Project -> Html msg
-featuredProjects projects =
+featuredProjects projs =
     Html.div
         [ css
             [ Util.flexDirection Util.Row
             , property "gap" "0.75em"
             ]
         ]
-        (List.map featuredProject projects)
+        (List.map featuredProject projs)
 
 
 homeProjects : List Project -> Html msg
-homeProjects projects =
+homeProjects projs =
     Html.div
         [ css
             [ Util.flexDirection Util.Column
@@ -319,7 +337,7 @@ homeProjects projects =
             , property "gap" "0.75em"
             ]
         ]
-        (List.map homeProject projects)
+        (List.map homeProject projs)
 
 
 featuredProject : Project -> Html msg
@@ -384,7 +402,7 @@ homeProject proj =
 
 
 
--- HELPERS
+-- Project Helpers
 
 
 projectTitle : Project -> Html msg
@@ -612,4 +630,33 @@ projectContainer dir =
         , borderRadius (em 0.5)
         , hover
             [ borderColor (Colours.toCss Colours.black) ]
+        ]
+
+
+
+---- GLOBAL HELPERS
+
+
+underlinedLink : (List (Attribute msg) -> List (Html msg) -> Html msg) -> List (Attribute msg) -> List (Html msg) -> Html msg
+underlinedLink parentElem attrs content =
+    let
+        lightBlue =
+            Color.Manipulate.fadeOut 0.5 Colours.themeBlue
+    in
+    parentElem
+        [ css
+            [ maxWidth fitContent
+            , boxShadow4 inset zero (em -0.2) (Colours.toCss lightBlue)
+            , borderBottom3 (em 0.0625) solid (Colours.toCss lightBlue)
+            ]
+        ]
+        [ styled Html.a
+            [ fontFamilies [ qt "Playfair Display SC" ]
+            , color (Colours.toCss Colours.black)
+            , textDecoration none
+            , position relative
+            , top (em 0.15)
+            ]
+            attrs
+            content
         ]
