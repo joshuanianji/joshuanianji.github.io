@@ -54,24 +54,31 @@ getProjects str =
             (\projects -> BackendTask.combine (List.map addImagePath projects))
 
 
+type alias Path =
+    { public : String
+    , projIcons : String
+    , projId : String
+    , extension : String
+    }
+
+
 addImagePath : Project -> BackendTask FatalError Project
 addImagePath proj =
-    Glob.succeed identity
-        |> Glob.captureFilePath
-        |> Glob.match (Glob.literal "public/")
-        |> Glob.match (Glob.literal "proj_icons/")
-        |> Glob.match (Glob.literal proj.id)
+    Glob.succeed Path
+        |> Glob.capture (Glob.literal "public/")
+        |> Glob.capture (Glob.literal "proj_icons/")
+        |> Glob.capture (Glob.literal proj.id)
         |> Glob.match (Glob.literal ".")
-        |> Glob.match (Glob.oneOf ( ( "png", () ), [ ( "jpg", () ), ( "jpeg", () ), ( "webp", () ) ] ))
+        |> Glob.capture (Glob.oneOf ( ( "png", "png" ), [ ( "jpg", "jpg" ), ( "jpeg", "jpeg" ), ( "webp", "webp" ) ] ))
         |> Glob.toBackendTask
         |> BackendTask.andThen
             (\imgPaths ->
                 case imgPaths of
                     [] ->
-                        BackendTask.succeed { proj | imgPath = "public/proj_icons/transparent.png" }
+                        BackendTask.succeed { proj | imgPath = "/proj_icons/transparent.png" }
 
-                    [ imgPath ] ->
-                        BackendTask.succeed { proj | imgPath = imgPath }
+                    [ path ] ->
+                        BackendTask.succeed { proj | imgPath = path.projIcons ++ path.projId ++ "." ++ path.extension }
 
                     path :: paths ->
                         BackendTask.fail (FatalError.fromString <| "Multiple images found for project " ++ proj.id)
