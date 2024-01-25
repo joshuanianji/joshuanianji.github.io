@@ -46,14 +46,14 @@
 
 - id: nerdbot
   name: NerdBot
-  blurb: A Discord bot to rank nerdiness
+  blurb: A Discord bot to rank nerdiness. Currently hosted on an Oracle Cloud VM.
   githubLink: https://github.com/joshuanianji/nerd-bot
   year: 2023
   languages:
   - Typescript
+  - Docker
   concepts:
   - Discord.js
-  - Docker
   - PostgreSQL
   displayType: home
   mobile: true
@@ -82,7 +82,6 @@
   languages:
   - Shell
   concepts:
-  - Docker
   - VSCode
   - Bash
   displayType: home
