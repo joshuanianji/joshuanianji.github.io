@@ -371,8 +371,21 @@ projects data_ =
         [ linkedHeader "Projects" "projects"
         , Html.h2 [] [ Html.text "⭐ Featured" ]
         , featuredProjects data_.pinnedProjects
-        , Html.h2 [] [ Html.text "🎖️ Honourable Mentions" ]
-        , homeProjects data_.homeProjects
+        , underlinedLink Html.a
+            False
+            [ Html.Styled.Attributes.href "/projects"
+            , css
+                [ displayFlex
+                , flexDirection row
+                , fontSize (em 1.25)
+                ]
+            ]
+            [ Html.text "See more projects"
+            , Icon.view [] { icon = FeatherIcons.chevronRight, strokeWidth = 2, size = 24, msg = Nothing }
+            ]
+
+        -- , Html.h2 [] [ Html.text "🎖️ Honourable Mentions" ]
+        -- , homeProjects data_.homeProjects
         ]
 
 
