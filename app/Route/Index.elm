@@ -261,7 +261,6 @@ jumbotronNavbar =
         navItems =
             [ ( "About", "#about", False )
             , ( "Projects", "#projects", False )
-            , ( "Contact", "#contact", False )
             , ( "Resume", "https://joshuaji.com/resume/Joshua%20Ji%20Resume.pdf", True )
             ]
     in
@@ -270,7 +269,7 @@ jumbotronNavbar =
             [ displayFlex
             , flexDirection row
             , width (pct 100)
-            , justifyContent spaceBetween
+            , justifyContent spaceAround
             , fontSize (em 2)
             ]
         ]
