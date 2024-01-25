@@ -259,9 +259,10 @@ jumbotronNavbar : Html msg
 jumbotronNavbar =
     let
         navItems =
-            [ ( "About", "#about" )
-            , ( "Projects", "#projects" )
-            , ( "Contact", "#contact" )
+            [ ( "About", "#about", False )
+            , ( "Projects", "#projects", False )
+            , ( "Contact", "#contact", False )
+            , ( "Resume", "https://joshuaji.com/resume/Joshua%20Ji%20Resume.pdf", True )
             ]
     in
     Html.div
@@ -275,10 +276,28 @@ jumbotronNavbar =
         ]
     <|
         List.map
-            (\( text, url ) ->
+            (\( text, url, externalLink ) ->
                 underlinedLink Html.div
-                    [ Html.Styled.Attributes.href url ]
-                    [ Html.text text ]
+                    [ css
+                        [ displayFlex
+                        , flexDirection row
+                        ]
+                    , Html.Styled.Attributes.href url
+                    ]
+                    [ Html.text text
+                    , if externalLink then
+                        Icon.view
+                            [ css [ alignItems center ] ]
+                            { icon = FeatherIcons.externalLink
+                            , strokeWidth = 2
+                            , color = Colours.black
+                            , size = 20
+                            , msg = Nothing
+                            }
+
+                      else
+                        Html.text ""
+                    ]
             )
             navItems
 
