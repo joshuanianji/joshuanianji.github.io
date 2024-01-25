@@ -35,6 +35,8 @@ type Language
     | Docker
     | Typescript
     | Shell
+    | CPP
+    | ANTLR4
 
 
 type DisplayType
@@ -143,6 +145,12 @@ languageDecoder =
                     "Shell" ->
                         Yaml.succeed Shell
 
+                    "C++" ->
+                        Yaml.succeed CPP
+
+                    "ANTLR4" ->
+                        Yaml.succeed ANTLR4
+
                     other ->
                         Yaml.fail <| "Unknown language " ++ other
             )
@@ -196,6 +204,12 @@ langToString l =
         Shell ->
             "Shell"
 
+        CPP ->
+            "C++"
+
+        ANTLR4 ->
+            "ANTLR4"
+
 
 langToColor : Language -> Color
 langToColor l =
@@ -220,3 +234,9 @@ langToColor l =
 
         Shell ->
             GithubColors.shell.color
+
+        CPP ->
+            GithubColors.cpp.color
+
+        ANTLR4 ->
+            GithubColors.antlr.color

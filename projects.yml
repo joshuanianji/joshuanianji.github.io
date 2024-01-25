@@ -12,9 +12,37 @@
   - Python
   concepts:
   - React/Next.JS
-  - OpenAPI
+  - OpenAI API
   displayType: featured
   mobile: true
+
+- id: gazprea
+  name: Gazprea Compiler
+  blurb: A semester-long compiler project for the Gazprea language, written in C++ and outputting MLIR.
+  link: https://cmput415.github.io/415-docs/gazprea/
+  year: 2023
+  languages:
+  - C++
+  - ANTLR4
+  concepts:
+  - MLIR & LLVM
+  - Compiler Theory
+  displayType: featured
+  mobile: true
+
+- name: Idris 2 Docker
+  id: idris2
+  blurb: Multi-arch, multi-distro Docker images for Idris 2
+  githubLink: https://github.com/joshuanianji/idris-2-docker
+  year: 2022
+  languages:
+  - Docker
+  concepts:
+  - Github Actions
+  displayType: featured
+  mobile: true
+
+# === HOME 
 
 - id: nerdbot
   name: NerdBot
@@ -27,23 +55,9 @@
   - Discord.js
   - Docker
   - PostgreSQL
-  displayType: featured
+  displayType: home
   mobile: true
 
-- name: Idris 2 Docker
-  id: idris2
-  blurb: Multi-arch, multi-distro Docker images for Idris 2
-  githubLink: https://github.com/joshuanianji/idris-2-docker
-  year: 2022
-  languages:
-  - Docker
-  concepts:
-  - Docker
-  - Github Actions
-  displayType: featured
-  mobile: true
-
-# === HOME 
 - id: mathtts
   name: MathTTS
   blurb: Latex Text-to-Speech engine, deployed and hosted on Google Cloud.
@@ -73,19 +87,6 @@
   - Bash
   displayType: home
   mobile: true
-
-- id: github-language-colors
-  name: Github Language Colors
-  blurb: All of Github's language colours as an Elm package
-  githubLink: https://github.com/joshuanianji/github-language-colors
-  link: https://package.elm-lang.org/packages/joshuanianji/github-language-colors/latest/
-  year: 2023
-  languages:
-  - Elm
-  concepts:
-  - Github Actions
-  displayType: home
-  mobile: false
 
 - id: derivative
   name: Derivatives
@@ -145,6 +146,21 @@
   mobile: false
 
 # === OTHER
+
+- id: github-language-colors
+  name: Github Language Colors
+  blurb: All of Github's language colours as an Elm package
+  githubLink: https://github.com/joshuanianji/github-language-colors
+  link: https://package.elm-lang.org/packages/joshuanianji/github-language-colors/latest/
+  year: 2023
+  languages:
+  - Elm
+  concepts:
+  - Github Actions
+  - Code Generation
+  displayType: other
+  mobile: false
+
 - id: hiit-timer
   name: HIIT-Timer
   blurb: A customizable PWA that times your workouts.
