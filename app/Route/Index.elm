@@ -203,7 +203,8 @@ view app shared model =
                     ]
                     [ about
                     , projects app.data
-                    , blog
+
+                    -- , blog
                     , footer
                     ]
                 ]
@@ -298,7 +299,8 @@ jumbotronNavbar =
         navItems =
             [ ( "About", "#about", False )
             , ( "Projects", "#projects", False )
-            , ( "Blog", "#blog", False )
+
+            -- , ( "Blog", "#blog", False )
             , ( "Resume", "https://joshuaji.com/resume/Joshua%20Ji%20Resume.pdf", True )
             ]
     in
