@@ -1,7 +1,6 @@
 module Colours exposing (..)
 
 import Color exposing (Color)
-import Color.Manipulate
 import Css
 
 
