@@ -199,11 +199,12 @@ view app shared model =
                         , flex (int 1)
                         , displayFlex
                         , flexDirection column
-                        , property "gap" "2em"
+                        , property "gap" "2.5em"
                         ]
                     ]
                     [ about
                     , projects app.data
+                    , blog
                     ]
                 ]
             ]
@@ -248,7 +249,7 @@ jumbotron =
                 , fontSize (px 25)
                 ]
             ]
-            [ Html.text "I am an undergraduate student studying computer science at the University of Alberta. I enjoy making webapps, primarily with React and Elm, but I'm also a big Docker + DevOps fan." ]
+            [ Html.text "I study computer science at the University of Alberta. I enjoy making webapps, primarily with React and Elm, and I'm also a big Docker + DevOps fan." ]
         , jumbotronNavbar
         , Icon.view
             [ css [ displayFlex, flexDirection column, alignItems center ] ]
@@ -323,12 +324,6 @@ about =
         textBlock =
             styled Html.p
                 [ fontSize (em 1.3) ]
-
-        textLink text url =
-            underlinedLink Html.a
-                False
-                [ Html.Styled.Attributes.href url ]
-                [ Html.text text ]
     in
     Html.div
         [ css
@@ -706,7 +701,62 @@ projectContainer dir =
 
 
 
+---- BLOG
+
+
+blog : Html msg
+blog =
+    Html.div
+        [ css
+            [ Util.flexDirection Util.Column
+            , property "gap" "2em"
+            ]
+        ]
+        [ linkedHeader "Blog" "blog"
+        , Html.h2 [] [ Html.text "📅 Recent Posts" ]
+        ]
+
+
+
+---- FOOTER
+
+
+footer : Bool -> Html msg
+footer showTimeMachine =
+    Html.div
+        []
+        [ Html.p
+            []
+            [ Html.text "Made with "
+            , textLink "Elm" "https://elm-lang.org/"
+            , Html.text " and "
+            , textLink "elm-pages" "https://elm-pages.com/"
+            , Html.text "."
+            ]
+        , Html.p
+            []
+            [ textLink "Source code" "https://github.com/joshuanianji/joshuanianji.github.io"
+            , Html.text "."
+            ]
+        , Html.p
+            []
+            [ Html.text "Fun fact: This is the 5th iteration of my website! Feel free to "
+            , textLink "take a look" "https://joshuaji.com/time-machine/"
+            , Html.text " at my old websites."
+            ]
+        ]
+
+
+
 ---- GLOBAL HELPERS
+
+
+textLink : String -> String -> Html msg
+textLink text url =
+    underlinedLink Html.a
+        False
+        [ Html.Styled.Attributes.href url ]
+        [ Html.text text ]
 
 
 linkedHeader : String -> String -> Html msg
