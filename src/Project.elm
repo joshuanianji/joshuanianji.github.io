@@ -36,6 +36,7 @@ type Language
     | Typescript
     | Shell
     | CPP
+    | C
     | ANTLR4
 
 
@@ -148,6 +149,9 @@ languageDecoder =
                     "C++" ->
                         Yaml.succeed CPP
 
+                    "C" ->
+                        Yaml.succeed C
+
                     "ANTLR4" ->
                         Yaml.succeed ANTLR4
 
@@ -207,6 +211,9 @@ langToString l =
         CPP ->
             "C++"
 
+        C ->
+            "C"
+
         ANTLR4 ->
             "ANTLR4"
 
@@ -237,6 +244,9 @@ langToColor l =
 
         CPP ->
             GithubColors.cpp.color
+
+        C ->
+            GithubColors.c.color
 
         ANTLR4 ->
             GithubColors.antlr.color
