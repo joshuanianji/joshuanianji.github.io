@@ -20,6 +20,11 @@ warningRed =
     Color.rgb255 253 150 150
 
 
+green : Color
+green =
+    Color.rgb255 63 104 28
+
+
 
 -- copied colours
 
@@ -46,13 +51,13 @@ black =
 toCss : Color -> Css.Color
 toCss c =
     let
-        { red, green, blue, alpha } =
+        colorRecord =
             Color.toRgba c
 
         scale x =
             round <| x * 255
     in
-    Css.rgba (scale red) (scale green) (scale blue) alpha
+    Css.rgba (scale colorRecord.red) (scale colorRecord.green) (scale colorRecord.blue) colorRecord.alpha
 
 
 withAlpha : Float -> Color.Color -> Color.Color

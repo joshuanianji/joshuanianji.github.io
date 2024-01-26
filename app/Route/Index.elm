@@ -5,7 +5,6 @@ import BackendTask.File
 import Color.Manipulate
 import Colours
 import Css exposing (..)
-import Css.Media
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
 import FeatherIcons
@@ -742,7 +741,7 @@ footer =
         , Html.p
             []
             [ Html.text "Fun fact: This is the 5th iteration of my website! "
-            , textLink "See other iterations" "https://joshuaji.com/time-machine/"
+            , textLink "See other iterations" "/old-websites"
             , Html.text "."
             ]
         ]

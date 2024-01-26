@@ -1,0 +1,56 @@
+---
+- version: 5
+  tech-stack:
+  - Elm
+  - Webpack
+  url: https://www.joshuaji.com/
+  state: 
+    status: online
+    started: '2020-09-20'
+  comments: A long overdue redesign of my website. I'm proud of the way it looks!
+- version: 4
+  tech-stack:
+  - Elm
+  url: https://www.joshuaji.com/old-websites/v4/
+  state: 
+    status: deprecated
+    started: '2019-07-01'
+    ended: '2020-09-20'
+  comments: After a long hiatus, I made this website during the summer between grades
+    11 and 12 to host my projects. Quite soon I realized I should change it if I wanted
+    to seem professional.
+- version: 3
+  tech-stack:
+  - HCJ
+  - AngularJS
+  - Bootstrap
+  url: https://www.joshuaji.com/old-websites/v3/
+  state: 
+    status: unreleased
+    started: '2015-12-21'
+    ended: '2016-03-01'
+  comments: One of my most complex and aesthetic web pages. However, it has virtually
+    no content since I spent so long making it look nice.
+- version: 2
+  tech-stack:
+  - HCJ
+  - AngularJS
+  - Bootstrap
+  url: https://www.joshuaji.com/old-websites/v2/
+  state: 
+    status: unreleased
+    started: '2015-07-17'
+    ended: '2015-08-05'
+  comments: Originally supposed to be a clone of my first website with improved UI,
+    I ended up making a lot more changes.
+- version: 1
+  tech-stack:
+  - HCJ
+  - JQuery
+  url: https://www.joshuaji.com/old-websites/v1/
+  state: 
+    status: unreleased
+    started: '2015-05-19'
+    ended: '2015-07-08'
+  comments: My first personal website built from the ground up, complete with a blog
+    and a javascript canvas page I learned from "Head First Javascript Programming"
