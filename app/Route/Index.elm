@@ -198,7 +198,7 @@ view app shared model =
                         , flex (int 1)
                         , displayFlex
                         , flexDirection column
-                        , property "gap" "2.5em"
+                        , property "gap" "4em"
                         ]
                     ]
                     [ about
@@ -235,14 +235,7 @@ jumbotron =
                 ]
             ]
             [ Html.text "Joshua Ji" ]
-        , Html.p
-            [ css
-                [ textAlign center
-                , fontSize (px 25)
-                , fontWeight bold
-                ]
-            ]
-            [ Html.text "Welcome to my website!" ]
+        , contactLinks
         , Html.p
             [ css
                 [ textAlign center
@@ -259,6 +252,44 @@ jumbotron =
             , msg = Nothing
             }
         ]
+
+
+contactLinks : Html msg
+contactLinks =
+    let
+        contactItems =
+            [ ( "github.svg", "https://github.com/joshuanianji" )
+            , ( "linkedin.png", "https://www.linkedin.com/in/joshua-niani-ji/" )
+            , ( "email.webp", "mailto:joshuanji23@gmail.com" )
+            , ( "hardcover.png", "https://hardcover.app/@OshuaJay" )
+            ]
+
+        viewContact path url =
+            Html.a
+                [ Html.Styled.Attributes.href url ]
+                [ Html.img
+                    [ css
+                        [ height (px 30)
+                        ]
+                    , Html.Styled.Attributes.src path
+                    ]
+                    []
+                ]
+    in
+    Html.div
+        [ css
+            [ displayFlex
+            , flexDirection row
+            , width (pct 100)
+            , justifyContent center
+            , fontSize (em 2)
+            , property "gap" "1em"
+            ]
+        ]
+    <|
+        List.map
+            (\( path, url ) -> viewContact ("contact_logos/" ++ path) url)
+            contactItems
 
 
 jumbotronNavbar : Html msg
