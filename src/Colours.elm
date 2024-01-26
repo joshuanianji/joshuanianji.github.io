@@ -33,6 +33,11 @@ gray =
     Color.gray
 
 
+darkGray : Color
+darkGray =
+    Color.darkGray
+
+
 white : Color
 white =
     Color.white

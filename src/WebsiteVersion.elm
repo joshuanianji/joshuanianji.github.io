@@ -223,7 +223,7 @@ statusColour s =
             Colours.errorRed
 
         Unreleased _ ->
-            Colours.gray
+            Colours.darkGray
 
         Online _ ->
             Colours.green

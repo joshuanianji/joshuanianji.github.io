@@ -184,9 +184,19 @@ viewWebsite w =
                 [ css
                     [ Util.flexDirection Util.Row
                     , border3 (px 1) solid statusColour
-                    , borderRadius (em 0.75)
+                    , borderRadius (em 1)
                     , color statusColour
+                    , maxWidth fitContent
+                    , fontSize (em 0.75)
+                    , alignItems center
+                    , padding2 (px 3) (px 6)
+                    , property "gap" "0.3em"
+                    , hover
+                        [ color (Colours.toCss Colours.white)
+                        , backgroundColor statusColour
+                        ]
                     ]
+                , Html.Styled.Attributes.class "unselectable"
                 ]
                 [ Html.div
                     [ css
@@ -240,17 +250,24 @@ viewWebsite w =
             Html.div
                 [ css
                     [ Util.flexDirection Util.Row
-                    , border3 (px 1) solid (Colours.toCss Colours.gray)
-                    , borderRadius (em 0.75)
-                    , color (Colours.toCss Colours.gray)
+                    , border3 (px 1) solid (Colours.toCss Colours.darkGray)
+                    , borderRadius (em 1)
+                    , color (Colours.toCss Colours.darkGray)
+                    , fontSize (em 0.75)
+                    , alignItems center
+                    , padding2 (px 3) (px 6)
+                    , property "gap" "0.3em"
+                    , hover
+                        [ color (Colours.toCss Colours.white)
+                        , backgroundColor (Colours.toCss Colours.darkGray)
+                        ]
                     ]
                 ]
                 [ Html.div
                     [ css
                         [ height (px 10)
                         , width (px 10)
-                        , borderRadius (em 0.75)
-                        , backgroundImage <| url ("/assets/" ++ WebsiteVersion.techStackToID tech ++ ".png")
+                        , backgroundImage <| url ("/techstack_icons/" ++ WebsiteVersion.techStackToID tech ++ ".png")
                         , backgroundSize cover
                         , backgroundPosition center
                         ]
@@ -268,11 +285,13 @@ viewWebsite w =
                     Html.div
                         [ css
                             [ Util.flexDirection Util.Row
-                            , justifyContent center
                             , alignItems center
+                            , property "gap" "0.25em"
                             ]
                         ]
-                        (List.map techStackElement l)
+                    <|
+                        Html.text "Tech Stack: "
+                            :: List.map techStackElement l
     in
     Html.div
         [ css
@@ -289,8 +308,10 @@ viewWebsite w =
         [ Html.h2
             [ css
                 [ fontSize (em 4)
-                , textAlign center
-                , flex (int 2)
+                , displayFlex
+                , justifyContent center
+                , alignItems center
+                , flex (int 3)
                 , margin zero
                 , fontWeight lighter
                 ]
@@ -306,7 +327,7 @@ viewWebsite w =
         , Html.a
             [ css
                 [ displayFlex
-                , flex (int 1)
+                , flex (int 2)
                 , hover
                     [ backgroundColor <| Colours.toCss <| Colours.withAlpha 0.5 Colours.gray ]
                 , borderRadius (em 0.5)
@@ -327,7 +348,8 @@ viewWebsite w =
         , Html.div
             [ css
                 [ Util.flexDirection Util.Column
-                , flex (int 12)
+                , flex (int 18)
+                , property "gap" "0.66em"
                 ]
             ]
             [ statusIcon
@@ -336,55 +358,3 @@ viewWebsite w =
             , comments
             ]
         ]
-
-
-
--- Element.row
---     [ Element.spacing 16
---     , Element.padding 16
---     , Element.width Element.fill
---     , Border.width 1
---     , Border.color Colours.black
---     , Border.rounded 12
---     ]
---     [ Element.paragraph
---         [ Element.width <| Element.fillPortion 2
---         , Font.size 64
---         ]
---         [ Element.text (String.fromInt w.version) ]
---     , Element.el
---         [ Element.height Element.fill
---         , Element.width <| Element.px 1
---         , Background.color Colours.lightGray
---         ]
---         Element.none
---     , Element.newTabLink
---         [ Element.width <| Element.fillPortion 1
---         , Element.height Element.fill
---         , Element.mouseOver
---             [ Background.color <| Colours.withAlpha 0.5 Colours.lightGray ]
---         , Border.rounded 8
---         ]
---         { url = w.url
---         , label =
---             Icon.view
---                 [ Element.centerY
---                 , Element.centerX
---                 , Element.pointer
---                 ]
---                 { icon = FeatherIcons.link2
---                 , strokeWidth = 1
---                 , color = Colours.black
---                 , size = 30
---                 }
---         }
---     , Element.column
---         [ Element.width <| Element.fillPortion 12
---         , Element.spacing 10
---         ]
---         [ statusIcon
---         , datesActive
---         , techStack
---         , comments
---         ]
---     ]
