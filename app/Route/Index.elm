@@ -775,8 +775,11 @@ linkedHeader text fragment =
             [ css
                 [ position absolute
                 , left (em -3)
-                , padding (em 1)
                 , cursor pointer
+                , padding2 zero (em 1)
+
+                --  center vertically
+                , property "top" "calc(50% - 15px)"
                 ]
             ]
             { icon = FeatherIcons.link
@@ -809,6 +812,9 @@ underlinedLink parentElem serif attrs content =
             [ maxWidth fitContent
             , boxShadow4 inset zero (em -0.2) (Colours.toCss lightBlue)
             , borderBottom3 (em 0.0625) solid (Colours.toCss lightBlue)
+            , property "line-height" "1"
+            , hover
+                [ boxShadow4 inset zero (em -0.3) (Colours.toCss lightBlue) ]
             ]
         ]
         [ styled Html.a
