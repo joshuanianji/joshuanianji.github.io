@@ -205,6 +205,7 @@ view app shared model =
                     [ about
                     , projects app.data
                     , blog
+                    , footer
                     ]
                 ]
             ]
@@ -721,28 +722,26 @@ blog =
 ---- FOOTER
 
 
-footer : Bool -> Html msg
-footer showTimeMachine =
+footer : Html msg
+footer =
     Html.div
-        []
+        [ css
+            [ Util.flexDirection Util.Column
+            , textAlign center
+            , property "gap" "0.5em"
+            , margin2 (em 2) zero
+            ]
+        ]
         [ Html.p
             []
-            [ Html.text "Made with "
-            , textLink "Elm" "https://elm-lang.org/"
-            , Html.text " and "
-            , textLink "elm-pages" "https://elm-pages.com/"
-            , Html.text "."
+            [ Html.text "Made with Elm and Elm-Pages | Source code on "
+            , textLink "Github" "https://github.com/joshuanianji/joshuanianji.github.io"
             ]
         , Html.p
             []
-            [ textLink "Source code" "https://github.com/joshuanianji/joshuanianji.github.io"
+            [ Html.text "Fun fact: This is the 5th iteration of my website! "
+            , textLink "See other iterations" "https://joshuaji.com/time-machine/"
             , Html.text "."
-            ]
-        , Html.p
-            []
-            [ Html.text "Fun fact: This is the 5th iteration of my website! Feel free to "
-            , textLink "take a look" "https://joshuaji.com/time-machine/"
-            , Html.text " at my old websites."
             ]
         ]
 
