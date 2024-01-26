@@ -593,6 +593,7 @@ projectLinks dir links =
                     , flexDirection column
                     , alignItems center
                     , justifyContent center
+                    , color (Colours.toCss Colours.black)
                     , hover
                         [ backgroundColor (Colours.toCss <| Colours.withAlpha 0.5 Colours.gray) ]
                     ]
