@@ -45,6 +45,22 @@
 
 # === HOME 
 
+- id: the-conversationalist
+  name: The Conversationalist
+  blurb: Meet your favourite celebrity. Talk to anime girls. We don't discriminate.
+  link: https://reformed-22an6t4ebq-uc.a.run.app/
+  githubLink: https://github.com/3iq-hacks/the-conversationalist
+  year: 2024
+  languages:
+  - Typescript
+  - Docker
+  concepts:
+  - GCP
+  - React/Next.JS
+  - OpenAI API
+  displayType: home
+  mobile: true
+
 - id: nerdbot
   name: NerdBot
   blurb: A Discord bot to rank nerdiness. Currently hosted on an Oracle Cloud VM.
@@ -56,22 +72,6 @@
   concepts:
   - Discord.js
   - PostgreSQL
-  displayType: home
-  mobile: true
-
-- id: mathtts
-  name: MathTTS
-  blurb: Latex Text-to-Speech engine, deployed and hosted on Google Cloud.
-  link: https://math-tts.vercel.app/
-  githubLink: https://github.com/3iq-hacks/math-tts
-  year: 2023
-  languages:
-  - Typescript
-  - Python
-  concepts:
-  - API
-  - React/Next.JS
-  - GCP
   displayType: home
   mobile: true
 
@@ -146,6 +146,22 @@
   mobile: false
 
 # === OTHER
+
+- id: mathtts
+  name: MathTTS
+  blurb: Latex Text-to-Speech engine, deployed and hosted on Google Cloud.
+  link: https://math-tts.vercel.app/
+  githubLink: https://github.com/3iq-hacks/math-tts
+  year: 2023
+  languages:
+  - Typescript
+  - Python
+  concepts:
+  - API
+  - React/Next.JS
+  - GCP
+  displayType: other
+  mobile: true
 
 - id: github-language-colors
   name: Github Language Colors

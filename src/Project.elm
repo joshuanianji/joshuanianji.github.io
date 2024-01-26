@@ -1,12 +1,19 @@
-module Project exposing (DisplayType(..), Language(..), Project, getProjects, langToColor, langToString)
+module Project exposing (DisplayType(..), Language(..), Project, getProjects, langToColor, langToString, splitProjects, view, viewFeatured)
 
 -- Represents a single "project"
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Glob as Glob
-import Color exposing (Color)
+import Color
+import Colours
+import Css exposing (..)
 import FatalError exposing (FatalError)
+import FeatherIcons
 import GithubColors
+import Html.Styled as Html exposing (Attribute, Html)
+import Html.Styled.Attributes exposing (css)
+import Icon
+import Util
 import Yaml.Decode as Yaml
 
 
@@ -48,6 +55,25 @@ type DisplayType
 
 
 -- BackendTask parse from string
+
+
+splitProjects : List Project -> BackendTask FatalError { featured : List Project, home : List Project, other : List Project }
+splitProjects projs =
+    let
+        splitted =
+            { featured = List.filter (\p -> p.displayType == Featured) projs
+            , home = List.filter (\p -> p.displayType == Home) projs
+            , other = List.filter (\p -> p.displayType == Other) projs
+            }
+    in
+    if List.length splitted.home > 5 then
+        BackendTask.fail (FatalError.fromString "Too many projects on the home page! Keep it less than 5 :)")
+
+    else if List.length splitted.featured > 3 then
+        BackendTask.fail (FatalError.fromString "Too many pinned projects! Keep it less than 3 :)")
+
+    else
+        BackendTask.succeed splitted
 
 
 getProjects : String -> BackendTask FatalError (List Project)
@@ -218,7 +244,7 @@ langToString l =
             "ANTLR4"
 
 
-langToColor : Language -> Color
+langToColor : Language -> Color.Color
 langToColor l =
     case l of
         Elm ->
@@ -250,3 +276,300 @@ langToColor l =
 
         ANTLR4 ->
             GithubColors.antlr.color
+
+
+
+---- VIEWS
+
+
+view : Project -> Html msg
+view proj =
+    projectContainer Util.Row
+        [ css [ property "gap" "1em" ] ]
+        [ projectImage
+            { imgWidth = px 50
+            , dir = Util.Column
+            , link = proj.imgPath
+            }
+            [ padding2 (px 0) (em 1) ]
+        , Html.div
+            [ css
+                [ displayFlex
+                , flexDirection column
+                , property "gap" "0.5em"
+                , flex (int 1)
+                ]
+            ]
+            [ projectTitle proj
+            , Html.p
+                [ css
+                    [ fontSize (em 0.75) ]
+                ]
+                [ Html.text <| String.fromInt proj.year ]
+            , Html.p [] [ Html.text proj.blurb ]
+            , languagesAndConcepts Util.Row { languages = proj.languages, concepts = proj.concepts }
+            ]
+        , projectLinks Util.Column { githubLink = proj.githubLink, link = proj.link }
+        ]
+
+
+viewFeatured : Project -> Html msg
+viewFeatured proj =
+    projectContainer Util.Column
+        [ css
+            [ property "gap" "0.75em"
+            , alignItems center
+            , textAlign center
+            ]
+        ]
+        [ projectImage
+            { imgWidth = px 120
+            , dir = Util.Column
+            , link = proj.imgPath
+            }
+            [ padding2 (px 0) (em 1) ]
+        , projectTitle proj
+        , Html.p
+            [ css
+                [ fontSize (em 0.75) ]
+            ]
+            [ Html.text <| String.fromInt proj.year ]
+        , Html.p [] [ Html.text proj.blurb ]
+
+        -- height-filling empty div to align the languages/concepts and links to the bottom
+        , Html.div [ css [ flex (int 1) ] ] []
+        , projectLinks Util.Row { githubLink = proj.githubLink, link = proj.link }
+        , languagesAndConcepts Util.Column { languages = proj.languages, concepts = proj.concepts }
+        ]
+
+
+
+-- view Helpers
+
+
+projectTitle : Project -> Html msg
+projectTitle proj =
+    let
+        -- try link, otherwise link to github, else Nothing
+        mainLink =
+            case proj.link of
+                Just _ ->
+                    proj.link
+
+                Nothing ->
+                    proj.githubLink
+
+        mainLinkCSS =
+            case mainLink of
+                Just _ ->
+                    hover
+                        [ color (Colours.toCss Colours.themeBlue) ]
+
+                Nothing ->
+                    cursor notAllowed
+    in
+    Html.a
+        [ css
+            [ fontSize (em 1.25)
+            , fontWeight bold
+            , textDecoration none
+            , color (Colours.toCss Colours.black)
+            , mainLinkCSS
+            ]
+        , case mainLink of
+            Just url ->
+                Html.Styled.Attributes.href url
+
+            Nothing ->
+                Html.Styled.Attributes.title "No link available, sorry!"
+        ]
+        [ Html.text proj.name ]
+
+
+
+-- direction is which way the image is centered
+-- if direction is row, the image will be centered horizontally
+
+
+projectImage :
+    { imgWidth : LengthOrAuto compatible
+    , dir : Util.FlexDirection
+    , link : String
+    }
+    -> List Style
+    -> Html msg
+projectImage image extraCss =
+    let
+        imgContainer attrs children =
+            Html.div
+                [ css
+                    ([ Util.flexDirection image.dir
+                     , justifyContent center
+                     ]
+                        ++ extraCss
+                    )
+                ]
+                [ Html.styled Html.img
+                    [ width image.imgWidth
+                    , property "aspect-ratio" "1/1"
+                    ]
+                    attrs
+                    children
+                ]
+    in
+    imgContainer
+        [ Html.Styled.Attributes.src image.link
+        ]
+        []
+
+
+languagesAndConcepts :
+    Util.FlexDirection
+    ->
+        { languages : List Language
+        , concepts : Maybe (List String)
+        }
+    -> Html msg
+languagesAndConcepts dir data_ =
+    Html.div
+        [ css
+            [ Util.flexDirection dir
+            , property "gap" "0.5em"
+            , alignItems center
+            ]
+        ]
+        [ viewLanguages data_.languages
+        , case data_.concepts of
+            Just (x :: xs) ->
+                viewConcepts (x :: xs)
+
+            _ ->
+                Html.text ""
+        ]
+
+
+projectLinks :
+    Util.FlexDirection
+    ->
+        { githubLink : Maybe String
+        , link : Maybe String
+        }
+    -> Html msg
+projectLinks dir links =
+    let
+        renderLink : FeatherIcons.Icon -> String -> Html msg
+        renderLink icon url =
+            Html.a
+                [ Html.Styled.Attributes.href url
+                , css
+                    [ padding (em 0.8)
+                    , borderRadius (em 0.5)
+                    , flex (int 1)
+                    , displayFlex
+                    , flexDirection column
+                    , alignItems center
+                    , justifyContent center
+                    , color (Colours.toCss Colours.black)
+                    , hover
+                        [ backgroundColor (Colours.toCss <| Colours.withAlpha 0.5 Colours.gray) ]
+                    ]
+                ]
+                [ Icon.view []
+                    { icon = icon
+                    , strokeWidth = 2
+                    , size = 18
+                    , msg = Nothing
+                    }
+                ]
+    in
+    Html.div
+        [ css
+            [ Util.flexDirection dir
+            , property "gap" "0.5em"
+            , alignSelf stretch
+            ]
+        ]
+        [ Maybe.withDefault (Html.text "") <| Maybe.map (renderLink FeatherIcons.link2) links.link
+        , Maybe.withDefault (Html.text "") <| Maybe.map (renderLink FeatherIcons.github) links.githubLink
+        ]
+
+
+viewLanguages : List Language -> Html msg
+viewLanguages langs =
+    Html.div
+        [ css
+            [ displayFlex
+            , flexDirection row
+            , property "gap" "0.5em"
+            ]
+        ]
+        (List.map viewLanguage langs)
+
+
+viewLanguage : Language -> Html msg
+viewLanguage lang =
+    Html.div
+        [ css
+            [ displayFlex
+            , flexDirection row
+            , padding2 (px 3) (px 6)
+            , fontSize (em 0.75)
+            , alignItems center
+            , property "gap" "0.2em"
+            , border3 (px 1) solid (Colours.toCss <| langToColor lang)
+            , borderRadius (em 1)
+            ]
+        ]
+        [ Html.div
+            [ css
+                [ height (em 0.8)
+                , width (em 0.8)
+                , borderRadius (em 1)
+                , backgroundColor (Colours.toCss <| langToColor lang)
+                ]
+            ]
+            []
+        , Html.text <| langToString lang
+        ]
+
+
+viewConcepts : List String -> Html msg
+viewConcepts concepts =
+    Html.div
+        [ css
+            [ displayFlex
+            , flexDirection row
+            , property "gap" "0.5em"
+            ]
+        ]
+        (List.map viewConcept concepts)
+
+
+viewConcept : String -> Html msg
+viewConcept concept =
+    Html.div
+        [ css
+            [ displayFlex
+            , flexDirection row
+            , padding2 (px 3) (px 6)
+            , fontSize (em 0.75)
+            , alignItems center
+            , borderRadius (em 0.5)
+            , backgroundColor (Colours.toCss Colours.themeBlue)
+            , color (Colours.toCss Colours.white)
+            ]
+        ]
+        [ Html.text concept ]
+
+
+projectContainer : Util.FlexDirection -> List (Attribute msg) -> List (Html msg) -> Html msg
+projectContainer dir =
+    Html.styled Html.div
+        [ Util.flexDirection dir
+        , width (pct 100)
+        , padding (em 1.5)
+        , border3 (px 1) solid (Colours.toCss Colours.gray)
+        , borderRadius (em 0.5)
+        , hover
+            [ borderColor (Colours.toCss Colours.black) ]
+        ]
