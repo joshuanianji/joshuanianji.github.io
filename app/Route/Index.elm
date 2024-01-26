@@ -714,7 +714,9 @@ blog =
             ]
         ]
         [ linkedHeader "Blog" "blog"
-        , Html.h2 [] [ Html.text "📅 Recent Posts" ]
+        , Html.h2 [] [ Html.text "Work in progress..." ]
+
+        -- , Html.h2 [] [ Html.text "📅 Recent Posts" ]
         ]
 
 
