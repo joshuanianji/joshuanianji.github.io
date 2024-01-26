@@ -249,7 +249,7 @@ jumbotron =
                 , fontSize (px 25)
                 ]
             ]
-            [ Html.text "I study computer science at the University of Alberta. I enjoy making webapps, primarily with React and Elm, and I'm also a big Docker + DevOps fan." ]
+            [ Html.text "Welcome to my website! I am a CS Student at the University of Alberta. I enjoy making webapps, primarily with React and Elm, and I'm also a big Docker + DevOps fan." ]
         , jumbotronNavbar
         , Icon.view
             [ css [ displayFlex, flexDirection column, alignItems center ] ]
@@ -366,17 +366,15 @@ projects data_ =
         [ linkedHeader "Projects" "projects"
         , Html.h2 [] [ Html.text "⭐ Featured" ]
         , featuredProjects data_.pinnedProjects
-        , underlinedLink Html.a
-            False
-            [ Html.Styled.Attributes.href "/projects"
-            , css
-                [ displayFlex
-                , flexDirection row
+        , Html.div
+            [ css
+                [ Util.flexDirection Util.Row
+                , alignItems center
                 , fontSize (em 1.25)
                 ]
             ]
-            [ Html.text "See more projects"
-            , Icon.view [] { icon = FeatherIcons.chevronRight, strokeWidth = 2, size = 24, msg = Nothing }
+            [ textLink "See more projects" "/all-projects"
+            , Icon.view [] { icon = FeatherIcons.chevronRight, strokeWidth = 2, size = 20, msg = Nothing }
             ]
 
         -- , Html.h2 [] [ Html.text "🎖️ Honourable Mentions" ]
@@ -810,18 +808,12 @@ underlinedLink parentElem serif attrs content =
             [ maxWidth fitContent
             , boxShadow4 inset zero (em -0.2) (Colours.toCss lightBlue)
             , borderBottom3 (em 0.0625) solid (Colours.toCss lightBlue)
-            , position relative
-
-            -- weird -0.15 top to bring up the underline more
-            , top (em -0.15)
             ]
         ]
         [ styled Html.a
             [ fontFamilies fontFamilies_
             , color (Colours.toCss Colours.black)
             , textDecoration none
-            , position relative
-            , top (em 0.15)
             ]
             attrs
             content

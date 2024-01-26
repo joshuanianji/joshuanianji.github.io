@@ -4,7 +4,7 @@ import BackendTask exposing (BackendTask)
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
 import Html
-import Html.Styled as HtmlStyled
+import Html.Styled
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
 import Route exposing (Route)
@@ -92,9 +92,29 @@ view :
     -> View msg
     -> { body : List (Html.Html msg), title : String }
 view sharedData page model toMsg pageView =
+    let
+        pageTemplate =
+            if page.route == Just Route.Index then
+                homeTemplate
+
+            else
+                withNavbarTemplate
+    in
     { body =
-        [ HtmlStyled.main_ [] pageView.body
-        ]
-            |> List.map HtmlStyled.toUnstyled
+        pageTemplate pageView.body
+            |> List.map Html.Styled.toUnstyled
     , title = pageView.title
     }
+
+
+homeTemplate : List (Html.Styled.Html msg) -> List (Html.Styled.Html msg)
+homeTemplate content =
+    [ Html.Styled.main_ [] content
+    ]
+
+
+withNavbarTemplate : List (Html.Styled.Html msg) -> List (Html.Styled.Html msg)
+withNavbarTemplate content =
+    [ Html.Styled.text "this is a navbar "
+    , Html.Styled.main_ [] content
+    ]

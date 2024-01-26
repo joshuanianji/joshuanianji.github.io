@@ -265,7 +265,10 @@ annotation_ =
 
 
 make_ :
-    { blog__Slug_ : Elm.Expression -> Elm.Expression, index : Elm.Expression }
+    { blog__Slug_ : Elm.Expression -> Elm.Expression
+    , oldWebsites : Elm.Expression
+    , index : Elm.Expression
+    }
 make_ =
     { blog__Slug_ =
         \ar0 ->
@@ -277,6 +280,12 @@ make_ =
                     }
                 )
                 [ ar0 ]
+    , oldWebsites =
+        Elm.value
+            { importFrom = [ "Route" ]
+            , name = "OldWebsites"
+            , annotation = Just (Type.namedWith [] "Route" [])
+            }
     , index =
         Elm.value
             { importFrom = [ "Route" ]
@@ -291,6 +300,7 @@ caseOf_ :
         Elm.Expression
         -> { routeTags_0_0
             | blog__Slug_ : Elm.Expression -> Elm.Expression
+            , oldWebsites : Elm.Expression
             , index : Elm.Expression
         }
         -> Elm.Expression
@@ -305,6 +315,7 @@ caseOf_ =
                     "Blog__Slug_"
                     ( "one", Type.record [ ( "slug", Type.string ) ] )
                     routeTags.blog__Slug_
+                , Elm.Case.branch0 "OldWebsites" routeTags.oldWebsites
                 , Elm.Case.branch0 "Index" routeTags.index
                 ]
     }

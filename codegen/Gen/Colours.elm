@@ -1,7 +1,7 @@
-module Gen.Colours exposing (black, call_, errorRed, gray, green, moduleName_, themeBlue, toCss, values_, warningRed, white, withAlpha)
+module Gen.Colours exposing (black, call_, darkGray, errorRed, gray, green, moduleName_, themeBlue, toCss, values_, warningRed, white, withAlpha)
 
 {-| 
-@docs values_, call_, themeBlue, errorRed, warningRed, green, gray, white, black, toCss, withAlpha, moduleName_
+@docs values_, call_, themeBlue, errorRed, warningRed, green, gray, darkGray, white, black, toCss, withAlpha, moduleName_
 -}
 
 
@@ -67,6 +67,16 @@ white =
     Elm.value
         { importFrom = [ "Colours" ]
         , name = "white"
+        , annotation = Just (Type.namedWith [] "Color" [])
+        }
+
+
+{-| darkGray: Color -}
+darkGray : Elm.Expression
+darkGray =
+    Elm.value
+        { importFrom = [ "Colours" ]
+        , name = "darkGray"
         , annotation = Just (Type.namedWith [] "Color" [])
         }
 
@@ -166,6 +176,7 @@ values_ :
     , toCss : Elm.Expression
     , black : Elm.Expression
     , white : Elm.Expression
+    , darkGray : Elm.Expression
     , gray : Elm.Expression
     , green : Elm.Expression
     , warningRed : Elm.Expression
@@ -205,6 +216,12 @@ values_ =
         Elm.value
             { importFrom = [ "Colours" ]
             , name = "white"
+            , annotation = Just (Type.namedWith [] "Color" [])
+            }
+    , darkGray =
+        Elm.value
+            { importFrom = [ "Colours" ]
+            , name = "darkGray"
             , annotation = Just (Type.namedWith [] "Color" [])
             }
     , gray =
