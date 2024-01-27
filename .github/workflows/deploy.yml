@@ -1,4 +1,4 @@
-name: Deploy 🚀
+name: CI
 
 on:
   push:
@@ -20,43 +20,50 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  build:
+    name: Build 📦️
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout 
+      uses: actions/checkout@v4
+
+    - name: Install Lamdera
+      run: curl https://static.lamdera.com/bin/linux/lamdera-next-alpine-musl -o /usr/local/bin/lamdera && chmod a+x /usr/local/bin/lamdera
+
+
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 8
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: pnpm install
+    
+    - name: Build
+      run: pnpm build
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: 'dist'
+
   deploy:
+    name: Deploy 🚀
+    needs: build
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 
-        uses: actions/checkout@v4
-    
-      - name: Install Lamdera
-        run: curl https://static.lamdera.com/bin/linux/lamdera-next-alpine-musl -o /usr/local/bin/lamdera && chmod a+x /usr/local/bin/lamdera
-
-    
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-    
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
-      
-      - name: Build
-        run: pnpm build
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: 'dist'
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
