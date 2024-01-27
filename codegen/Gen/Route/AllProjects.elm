@@ -15,7 +15,7 @@ moduleName_ =
     [ "Route", "AllProjects" ]
 
 
-{-| route: RouteBuilder.StatefulRoute RouteParams Data ActionData Model Msg -}
+{-| route: StatelessRoute RouteParams Data ActionData -}
 route : Elm.Expression
 route =
     Elm.value
@@ -24,13 +24,11 @@ route =
         , annotation =
             Just
                 (Type.namedWith
-                    [ "RouteBuilder" ]
-                    "StatefulRoute"
+                    []
+                    "StatelessRoute"
                     [ Type.namedWith [] "RouteParams" []
                     , Type.namedWith [] "Data" []
                     , Type.namedWith [] "ActionData" []
-                    , Type.namedWith [] "Model" []
-                    , Type.namedWith [] "Msg" []
                     ]
                 )
         }
@@ -40,8 +38,8 @@ annotation_ :
     { actionData : Type.Annotation
     , data : Type.Annotation
     , routeParams : Type.Annotation
-    , model : Type.Annotation
     , msg : Type.Annotation
+    , model : Type.Annotation
     }
 annotation_ =
     { actionData =
@@ -56,15 +54,30 @@ annotation_ =
                 , Type.list (Type.namedWith [] "RouteParams" [])
                 ]
             )
-    , data = Type.alias moduleName_ "Data" [] (Type.record [])
+    , data =
+        Type.alias
+            moduleName_
+            "Data"
+            []
+            (Type.record
+                [ ( "featured", Type.list (Type.namedWith [] "Project" []) )
+                , ( "home", Type.list (Type.namedWith [] "Project" []) )
+                , ( "other", Type.list (Type.namedWith [] "Project" []) )
+                ]
+            )
     , routeParams = Type.alias moduleName_ "RouteParams" [] (Type.record [])
+    , msg = Type.alias moduleName_ "Msg" [] Type.unit
     , model = Type.alias moduleName_ "Model" [] (Type.record [])
-    , msg = Type.namedWith [ "Route", "AllProjects" ] "Msg" []
     }
 
 
 make_ :
-    { data : data -> Elm.Expression
+    { data :
+        { featured : Elm.Expression
+        , home : Elm.Expression
+        , other : Elm.Expression
+        }
+        -> Elm.Expression
     , routeParams : routeParams -> Elm.Expression
     , model : model -> Elm.Expression
     }
@@ -76,9 +89,23 @@ make_ =
                     [ "Route", "AllProjects" ]
                     "Data"
                     []
-                    (Type.record [])
+                    (Type.record
+                        [ ( "featured"
+                          , Type.list (Type.namedWith [] "Project" [])
+                          )
+                        , ( "home", Type.list (Type.namedWith [] "Project" []) )
+                        , ( "other"
+                          , Type.list (Type.namedWith [] "Project" [])
+                          )
+                        ]
+                    )
                 )
-                (Elm.record [])
+                (Elm.record
+                    [ Tuple.pair "featured" data_args.featured
+                    , Tuple.pair "home" data_args.home
+                    , Tuple.pair "other" data_args.other
+                    ]
+                )
     , routeParams =
         \routeParams_args ->
             Elm.withType
@@ -111,13 +138,11 @@ values_ =
             , annotation =
                 Just
                     (Type.namedWith
-                        [ "RouteBuilder" ]
-                        "StatefulRoute"
+                        []
+                        "StatelessRoute"
                         [ Type.namedWith [] "RouteParams" []
                         , Type.namedWith [] "Data" []
                         , Type.namedWith [] "ActionData" []
-                        , Type.namedWith [] "Model" []
-                        , Type.namedWith [] "Msg" []
                         ]
                     )
             }

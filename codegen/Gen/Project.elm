@@ -1,7 +1,7 @@
-module Gen.Project exposing (annotation_, call_, caseOf_, getProjects, langToColor, langToString, make_, moduleName_, values_)
+module Gen.Project exposing (annotation_, call_, caseOf_, getProjects, langToColor, langToString, make_, moduleName_, splitProjects, values_, view, viewFeatured)
 
 {-| 
-@docs values_, call_, caseOf_, make_, annotation_, getProjects, langToString, langToColor, moduleName_
+@docs values_, call_, caseOf_, make_, annotation_, splitProjects, getProjects, langToString, langToColor, view, viewFeatured, moduleName_
 -}
 
 
@@ -16,7 +16,43 @@ moduleName_ =
     [ "Project" ]
 
 
-{-| langToColor: Language -> Color -}
+{-| viewFeatured: Project -> Html msg -}
+viewFeatured : Elm.Expression -> Elm.Expression
+viewFeatured viewFeaturedArg =
+    Elm.apply
+        (Elm.value
+            { importFrom = [ "Project" ]
+            , name = "viewFeatured"
+            , annotation =
+                Just
+                    (Type.function
+                        [ Type.namedWith [] "Project" [] ]
+                        (Type.namedWith [] "Html" [ Type.var "msg" ])
+                    )
+            }
+        )
+        [ viewFeaturedArg ]
+
+
+{-| view: Project -> Html msg -}
+view : Elm.Expression -> Elm.Expression
+view viewArg =
+    Elm.apply
+        (Elm.value
+            { importFrom = [ "Project" ]
+            , name = "view"
+            , annotation =
+                Just
+                    (Type.function
+                        [ Type.namedWith [] "Project" [] ]
+                        (Type.namedWith [] "Html" [ Type.var "msg" ])
+                    )
+            }
+        )
+        [ viewArg ]
+
+
+{-| langToColor: Language -> Color.Color -}
 langToColor : Elm.Expression -> Elm.Expression
 langToColor langToColorArg =
     Elm.apply
@@ -27,7 +63,7 @@ langToColor langToColorArg =
                 Just
                     (Type.function
                         [ Type.namedWith [] "Language" [] ]
-                        (Type.namedWith [] "Color" [])
+                        (Type.namedWith [ "Color" ] "Color" [])
                     )
             }
         )
@@ -74,6 +110,46 @@ getProjects getProjectsArg =
             }
         )
         [ Elm.string getProjectsArg ]
+
+
+{-| splitProjects: 
+    List Project
+    -> BackendTask FatalError { featured : List Project
+    , home : List Project
+    , other : List Project
+    }
+-}
+splitProjects : List Elm.Expression -> Elm.Expression
+splitProjects splitProjectsArg =
+    Elm.apply
+        (Elm.value
+            { importFrom = [ "Project" ]
+            , name = "splitProjects"
+            , annotation =
+                Just
+                    (Type.function
+                        [ Type.list (Type.namedWith [] "Project" []) ]
+                        (Type.namedWith
+                            []
+                            "BackendTask"
+                            [ Type.namedWith [] "FatalError" []
+                            , Type.record
+                                [ ( "featured"
+                                  , Type.list (Type.namedWith [] "Project" [])
+                                  )
+                                , ( "home"
+                                  , Type.list (Type.namedWith [] "Project" [])
+                                  )
+                                , ( "other"
+                                  , Type.list (Type.namedWith [] "Project" [])
+                                  )
+                                ]
+                            ]
+                        )
+                    )
+            }
+        )
+        [ Elm.list splitProjectsArg ]
 
 
 annotation_ :
@@ -316,12 +392,45 @@ caseOf_ =
 
 
 call_ :
-    { langToColor : Elm.Expression -> Elm.Expression
+    { viewFeatured : Elm.Expression -> Elm.Expression
+    , view : Elm.Expression -> Elm.Expression
+    , langToColor : Elm.Expression -> Elm.Expression
     , langToString : Elm.Expression -> Elm.Expression
     , getProjects : Elm.Expression -> Elm.Expression
+    , splitProjects : Elm.Expression -> Elm.Expression
     }
 call_ =
-    { langToColor =
+    { viewFeatured =
+        \viewFeaturedArg ->
+            Elm.apply
+                (Elm.value
+                    { importFrom = [ "Project" ]
+                    , name = "viewFeatured"
+                    , annotation =
+                        Just
+                            (Type.function
+                                [ Type.namedWith [] "Project" [] ]
+                                (Type.namedWith [] "Html" [ Type.var "msg" ])
+                            )
+                    }
+                )
+                [ viewFeaturedArg ]
+    , view =
+        \viewArg ->
+            Elm.apply
+                (Elm.value
+                    { importFrom = [ "Project" ]
+                    , name = "view"
+                    , annotation =
+                        Just
+                            (Type.function
+                                [ Type.namedWith [] "Project" [] ]
+                                (Type.namedWith [] "Html" [ Type.var "msg" ])
+                            )
+                    }
+                )
+                [ viewArg ]
+    , langToColor =
         \langToColorArg ->
             Elm.apply
                 (Elm.value
@@ -331,7 +440,7 @@ call_ =
                         Just
                             (Type.function
                                 [ Type.namedWith [] "Language" [] ]
-                                (Type.namedWith [] "Color" [])
+                                (Type.namedWith [ "Color" ] "Color" [])
                             )
                     }
                 )
@@ -372,16 +481,75 @@ call_ =
                     }
                 )
                 [ getProjectsArg ]
+    , splitProjects =
+        \splitProjectsArg ->
+            Elm.apply
+                (Elm.value
+                    { importFrom = [ "Project" ]
+                    , name = "splitProjects"
+                    , annotation =
+                        Just
+                            (Type.function
+                                [ Type.list (Type.namedWith [] "Project" []) ]
+                                (Type.namedWith
+                                    []
+                                    "BackendTask"
+                                    [ Type.namedWith [] "FatalError" []
+                                    , Type.record
+                                        [ ( "featured"
+                                          , Type.list
+                                                (Type.namedWith [] "Project" [])
+                                          )
+                                        , ( "home"
+                                          , Type.list
+                                                (Type.namedWith [] "Project" [])
+                                          )
+                                        , ( "other"
+                                          , Type.list
+                                                (Type.namedWith [] "Project" [])
+                                          )
+                                        ]
+                                    ]
+                                )
+                            )
+                    }
+                )
+                [ splitProjectsArg ]
     }
 
 
 values_ :
-    { langToColor : Elm.Expression
+    { viewFeatured : Elm.Expression
+    , view : Elm.Expression
+    , langToColor : Elm.Expression
     , langToString : Elm.Expression
     , getProjects : Elm.Expression
+    , splitProjects : Elm.Expression
     }
 values_ =
-    { langToColor =
+    { viewFeatured =
+        Elm.value
+            { importFrom = [ "Project" ]
+            , name = "viewFeatured"
+            , annotation =
+                Just
+                    (Type.function
+                        [ Type.namedWith [] "Project" [] ]
+                        (Type.namedWith [] "Html" [ Type.var "msg" ])
+                    )
+            }
+    , view =
+        Elm.value
+            { importFrom = [ "Project" ]
+            , name = "view"
+            , annotation =
+                Just
+                    (Type.function
+                        [ Type.namedWith [] "Project" [] ]
+                        (Type.namedWith [] "Html" [ Type.var "msg" ])
+                    )
+            }
+    , langToColor =
         Elm.value
             { importFrom = [ "Project" ]
             , name = "langToColor"
@@ -389,7 +557,7 @@ values_ =
                 Just
                     (Type.function
                         [ Type.namedWith [] "Language" [] ]
-                        (Type.namedWith [] "Color" [])
+                        (Type.namedWith [ "Color" ] "Color" [])
                     )
             }
     , langToString =
@@ -416,6 +584,33 @@ values_ =
                             "BackendTask"
                             [ Type.namedWith [] "FatalError" []
                             , Type.list (Type.namedWith [] "Project" [])
+                            ]
+                        )
+                    )
+            }
+    , splitProjects =
+        Elm.value
+            { importFrom = [ "Project" ]
+            , name = "splitProjects"
+            , annotation =
+                Just
+                    (Type.function
+                        [ Type.list (Type.namedWith [] "Project" []) ]
+                        (Type.namedWith
+                            []
+                            "BackendTask"
+                            [ Type.namedWith [] "FatalError" []
+                            , Type.record
+                                [ ( "featured"
+                                  , Type.list (Type.namedWith [] "Project" [])
+                                  )
+                                , ( "home"
+                                  , Type.list (Type.namedWith [] "Project" [])
+                                  )
+                                , ( "other"
+                                  , Type.list (Type.namedWith [] "Project" [])
+                                  )
+                                ]
                             ]
                         )
                     )

@@ -48,7 +48,9 @@ annotation_ =
             moduleName_
             "Model"
             []
-            (Type.record [ ( "showMenu", Type.bool ) ])
+            (Type.record
+                [ ( "ico", Type.namedWith [ "Icosahedron" ] "Model" [] ) ]
+            )
     , data = Type.alias moduleName_ "Data" [] Type.unit
     , sharedMsg = Type.namedWith [ "Shared" ] "SharedMsg" []
     , msg = Type.namedWith [ "Shared" ] "Msg" []
@@ -56,10 +58,10 @@ annotation_ =
 
 
 make_ :
-    { model : { showMenu : Elm.Expression } -> Elm.Expression
+    { model : { ico : Elm.Expression } -> Elm.Expression
     , noOp : Elm.Expression
     , sharedMsg : Elm.Expression -> Elm.Expression
-    , menuClicked : Elm.Expression
+    , icoMsg : Elm.Expression -> Elm.Expression
     }
 make_ =
     { model =
@@ -69,9 +71,12 @@ make_ =
                     [ "Shared" ]
                     "Model"
                     []
-                    (Type.record [ ( "showMenu", Type.bool ) ])
+                    (Type.record
+                        [ ( "ico", Type.namedWith [ "Icosahedron" ] "Model" [] )
+                        ]
+                    )
                 )
-                (Elm.record [ Tuple.pair "showMenu" model_args.showMenu ])
+                (Elm.record [ Tuple.pair "ico" model_args.ico ])
     , noOp =
         Elm.value
             { importFrom = [ "Shared" ]
@@ -88,12 +93,16 @@ make_ =
                     }
                 )
                 [ ar0 ]
-    , menuClicked =
-        Elm.value
-            { importFrom = [ "Shared" ]
-            , name = "MenuClicked"
-            , annotation = Just (Type.namedWith [] "Msg" [])
-            }
+    , icoMsg =
+        \ar0 ->
+            Elm.apply
+                (Elm.value
+                    { importFrom = [ "Shared" ]
+                    , name = "IcoMsg"
+                    , annotation = Just (Type.namedWith [] "Msg" [])
+                    }
+                )
+                [ ar0 ]
     }
 
 
@@ -106,7 +115,7 @@ caseOf_ :
         Elm.Expression
         -> { msgTags_1_0
             | sharedMsg : Elm.Expression -> Elm.Expression
-            , menuClicked : Elm.Expression
+            , icoMsg : Elm.Expression -> Elm.Expression
         }
         -> Elm.Expression
     }
@@ -126,7 +135,12 @@ caseOf_ =
                     "SharedMsg"
                     ( "sharedMsg", Type.namedWith [] "SharedMsg" [] )
                     msgTags.sharedMsg
-                , Elm.Case.branch0 "MenuClicked" msgTags.menuClicked
+                , Elm.Case.branch1
+                    "IcoMsg"
+                    ( "icosahedron.Msg"
+                    , Type.namedWith [ "Icosahedron" ] "Msg" []
+                    )
+                    msgTags.icoMsg
                 ]
     }
 

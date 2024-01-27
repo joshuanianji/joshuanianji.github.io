@@ -72,9 +72,9 @@ view viewArg =
         [ viewArg ]
 
 
-{-| init: Int -> Float -> Model -}
-init : Int -> Float -> Elm.Expression
-init initArg initArg0 =
+{-| init: Config -> Model -}
+init : Elm.Expression -> Elm.Expression
+init initArg =
     Elm.apply
         (Elm.value
             { importFrom = [ "Icosahedron" ]
@@ -82,12 +82,12 @@ init initArg initArg0 =
             , annotation =
                 Just
                     (Type.function
-                        [ Type.int, Type.float ]
+                        [ Type.namedWith [] "Config" [] ]
                         (Type.namedWith [] "Model" [])
                     )
             }
         )
-        [ Elm.int initArg, Elm.float initArg0 ]
+        [ initArg ]
 
 
 annotation_ : { model : Type.Annotation, msg : Type.Annotation }
@@ -98,10 +98,10 @@ annotation_ =
             "Model"
             []
             (Type.record
-                [ ( "size", Type.int )
-                , ( "azimuth", Type.namedWith [] "Angle" [] )
+                [ ( "azimuth", Type.namedWith [] "Angle" [] )
                 , ( "elevation", Type.namedWith [] "Angle" [] )
                 , ( "mouse", Type.namedWith [] "Mouse" [] )
+                , ( "config", Type.namedWith [] "Config" [] )
                 ]
             )
     , msg = Type.namedWith [ "Icosahedron" ] "Msg" []
@@ -110,10 +110,10 @@ annotation_ =
 
 make_ :
     { model :
-        { size : Elm.Expression
-        , azimuth : Elm.Expression
+        { azimuth : Elm.Expression
         , elevation : Elm.Expression
         , mouse : Elm.Expression
+        , config : Elm.Expression
         }
         -> Elm.Expression
     }
@@ -126,18 +126,18 @@ make_ =
                     "Model"
                     []
                     (Type.record
-                        [ ( "size", Type.int )
-                        , ( "azimuth", Type.namedWith [] "Angle" [] )
+                        [ ( "azimuth", Type.namedWith [] "Angle" [] )
                         , ( "elevation", Type.namedWith [] "Angle" [] )
                         , ( "mouse", Type.namedWith [] "Mouse" [] )
+                        , ( "config", Type.namedWith [] "Config" [] )
                         ]
                     )
                 )
                 (Elm.record
-                    [ Tuple.pair "size" model_args.size
-                    , Tuple.pair "azimuth" model_args.azimuth
+                    [ Tuple.pair "azimuth" model_args.azimuth
                     , Tuple.pair "elevation" model_args.elevation
                     , Tuple.pair "mouse" model_args.mouse
+                    , Tuple.pair "config" model_args.config
                     ]
                 )
     }
@@ -147,7 +147,7 @@ call_ :
     { subscriptions : Elm.Expression -> Elm.Expression
     , update : Elm.Expression -> Elm.Expression -> Elm.Expression
     , view : Elm.Expression -> Elm.Expression
-    , init : Elm.Expression -> Elm.Expression -> Elm.Expression
+    , init : Elm.Expression -> Elm.Expression
     }
 call_ =
     { subscriptions =
@@ -206,7 +206,7 @@ call_ =
                 )
                 [ viewArg ]
     , init =
-        \initArg initArg0 ->
+        \initArg ->
             Elm.apply
                 (Elm.value
                     { importFrom = [ "Icosahedron" ]
@@ -214,12 +214,12 @@ call_ =
                     , annotation =
                         Just
                             (Type.function
-                                [ Type.int, Type.float ]
+                                [ Type.namedWith [] "Config" [] ]
                                 (Type.namedWith [] "Model" [])
                             )
                     }
                 )
-                [ initArg, initArg0 ]
+                [ initArg ]
     }
 
 
@@ -273,7 +273,7 @@ values_ =
             , annotation =
                 Just
                     (Type.function
-                        [ Type.int, Type.float ]
+                        [ Type.namedWith [] "Config" [] ]
                         (Type.namedWith [] "Model" [])
                     )
             }

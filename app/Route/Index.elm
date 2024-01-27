@@ -471,8 +471,8 @@ footer =
             ]
         , Html.p
             []
-            [ Html.text "Fun fact: This is the 5th iteration of my website! "
-            , Util.textLink "See other iterations" "/old-websites"
+            [ Html.text "Fun fact: This is the 6th iteration of my website! "
+            , Util.textLink "See other iterations" "/time-machine"
             , Html.text "."
             ]
         ]
