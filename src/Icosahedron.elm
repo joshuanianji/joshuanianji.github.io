@@ -8,6 +8,7 @@ import Angle exposing (Angle)
 import Browser.Events
 import Camera3d
 import Colours
+import Color exposing (Color)
 import Duration exposing (Duration)
 import Html.Styled exposing (Html, fromUnstyled)
 import Length
@@ -34,10 +35,10 @@ type WorldCoordinates
 
 
 type alias Model =
-    { size : Int
-    , azimuth : Angle
+    { azimuth : Angle
     , elevation : Angle
     , mouse : Mouse
+    , config : Config
     }
 
 
@@ -45,20 +46,27 @@ type alias Mouse =
     ( Quantity Float Pixels, Quantity Float Pixels )
 
 
+type alias Config =
+    { size : Int
+    , degs : Float
+    , color : Color
+    }
+
+
 
 -- Init: size, and initial degrees to rotate in
 
 
-init : Int -> Float -> Model
-init size degs =
+init : Config -> Model
+init config =
     let
         ( mouseX, mouseY ) =
-            ( cos (degrees degs), sin (degrees degs) )
+            ( cos (degrees config.degs), sin (degrees config.degs) )
     in
-    { size = size
-    , azimuth = Angle.degrees 0
+    { azimuth = Angle.degrees 0
     , elevation = Angle.degrees 0
     , mouse = ( Pixels.float mouseX, Pixels.float mouseY )
+    , config = config
     }
 
 
@@ -85,8 +93,8 @@ view model =
     in
     Scene3d.unlit
         { camera = camera
-        , dimensions = ( Pixels.int model.size, Pixels.int model.size )
-        , entities = [ initialIcosahedron ]
+        , dimensions = ( Pixels.int model.config.size, Pixels.int model.config.size )
+        , entities = [ initialIcosahedron model.config ]
         , clipDepth = Length.cssPixels 10
         , background = Scene3d.transparentBackground
         }
@@ -95,8 +103,8 @@ view model =
 
 {-| Create a cube entity by constructing six square faces with different colors
 -}
-initialIcosahedron : Scene3d.Entity WorldCoordinates
-initialIcosahedron =
+initialIcosahedron : Config -> Scene3d.Entity WorldCoordinates
+initialIcosahedron config =
     let
         phi =
             Length.cssPixels <| (1 + sqrt 5) / 2
@@ -172,7 +180,7 @@ initialIcosahedron =
         points color =
             Scene3d.group <|
                 List.map
-                    (\rect -> Scene3d.point { radius = Pixels.float 5 } (Material.color color) rect)
+                    (\rect -> Scene3d.point { radius = Pixels.float (toFloat config.size / 100) } (Material.color color) rect)
                     rects
 
         -- The pentagon with center rect1a
@@ -237,10 +245,10 @@ initialIcosahedron =
     in
     -- Combine all faces into a single entity
     Scene3d.group
-        [ points Colours.gray
-        , rect1aLines Colours.gray
-        , rect1cLines Colours.gray
-        , middleLines Colours.gray
+        [ points config.color
+        , rect1aLines config.color
+        , rect1cLines config.color
+        , middleLines config.color
         ]
         |> Scene3d.scaleAbout Point3d.origin 5
 

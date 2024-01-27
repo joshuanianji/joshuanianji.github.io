@@ -72,7 +72,14 @@ init :
     -> Shared.Model
     -> ( Model, Effect Msg )
 init app shared =
-    ( { ico = Icosahedron.init 500 90, icoSize = 500 }, Effect.none )
+    let
+        icoConfig =
+            { size = 500
+            , degs = 90
+            , color = Colours.gray
+            }
+    in
+    ( { ico = Icosahedron.init icoConfig, icoSize = 500 }, Effect.none )
 
 
 update :
@@ -301,11 +308,11 @@ jumbotronNavbar =
     <|
         List.map
             (\( text, url, externalLink ) ->
-                underlinedLink Html.div
-                    True
+                Util.underlinedLink Html.div
                     [ css
                         [ displayFlex
                         , flexDirection row
+                        , fontFamilies [ qt "Playfair Display SC" ]
                         ]
                     , Html.Styled.Attributes.href url
                     ]
@@ -349,21 +356,21 @@ about =
             , property "gap" "2em"
             ]
         ]
-        [ linkedHeader "About" "about"
+        [ Util.linkedHeader "About" "about"
         , textBlock [] [ Html.text "I started off with HTML, CSS and Javascript: making blogs, web apps, or anything that seemed cool to me." ]
         , textBlock []
             [ Html.text "Currently, I use "
-            , textLink "Elm" "https://elm-lang.org/"
+            , Util.textLink "Elm" "https://elm-lang.org/"
             , Html.text " and Typescript for most of my projects, and I'm learning Haskell, Purescript and Rust on my free time."
             ]
         , textBlock []
             [ Html.text "I've recently been taking a deep dive into DevOps. I've recently interned at "
-            , textLink "Nanostics" "https://www.nanosticsdx.com/"
+            , Util.textLink "Nanostics" "https://www.nanosticsdx.com/"
             , Html.text " where I worked on deploying and maintaining a ML model on Azure, as well as creating a webapp interface for it."
             ]
         , textBlock []
             [ Html.text "In my free time, I like to play volleyball and walk my dog. I always try to find time to read, check me out on "
-            , textLink "Hardcover" "https://hardcover.app/@OshuaJay"
+            , Util.textLink "Hardcover" "https://hardcover.app/@OshuaJay"
             , Html.text "!"
             ]
         ]
@@ -381,7 +388,7 @@ projects data_ =
             , property "gap" "2em"
             ]
         ]
-        [ linkedHeader "Projects" "projects"
+        [ Util.linkedHeader "Projects" "projects"
         , Html.h2 [] [ Html.text "⭐ Featured" ]
         , featuredProjects data_.pinnedProjects
         , Html.div
@@ -391,7 +398,7 @@ projects data_ =
                 , fontSize (em 1.25)
                 ]
             ]
-            [ textLink "See more projects" "/all-projects"
+            [ Util.textLink "See more projects" "/all-projects"
             , Icon.view [] { icon = FeatherIcons.chevronRight, strokeWidth = 2, size = 20, msg = Nothing }
             ]
 
@@ -436,7 +443,7 @@ blog =
             , property "gap" "2em"
             ]
         ]
-        [ linkedHeader "Blog" "blog"
+        [ Util.linkedHeader "Blog" "blog"
         , Html.h2 [] [ Html.text "Work in progress..." ]
 
         -- , Html.h2 [] [ Html.text "📅 Recent Posts" ]
@@ -460,93 +467,12 @@ footer =
         [ Html.p
             []
             [ Html.text "Made with Elm and Elm-Pages | Source code on "
-            , textLink "Github" "https://github.com/joshuanianji/joshuanianji.github.io"
+            , Util.textLink "Github" "https://github.com/joshuanianji/joshuanianji.github.io"
             ]
         , Html.p
             []
             [ Html.text "Fun fact: This is the 5th iteration of my website! "
-            , textLink "See other iterations" "/old-websites"
+            , Util.textLink "See other iterations" "/old-websites"
             , Html.text "."
             ]
-        ]
-
-
-
----- GLOBAL HELPERS
-
-
-textLink : String -> String -> Html msg
-textLink text url =
-    underlinedLink Html.a
-        False
-        [ Html.Styled.Attributes.href url ]
-        [ Html.text text ]
-
-
-linkedHeader : String -> String -> Html msg
-linkedHeader text fragment =
-    Html.div
-        [ css
-            [ fontSize (em 1.5)
-            , position relative
-            , color (Colours.toCss Colours.gray)
-            , maxWidth fitContent
-            , hover
-                [ color (Colours.toCss Colours.themeBlue) ]
-            ]
-        , Html.Styled.Attributes.id fragment
-        ]
-        [ Icon.view
-            [ css
-                [ position absolute
-                , left (em -3)
-                , cursor pointer
-                , padding2 zero (em 1)
-
-                --  center vertically
-                , property "top" "calc(50% - 15px)"
-                ]
-            ]
-            { icon = FeatherIcons.link
-            , strokeWidth = 2
-            , size = 30
-            , msg = Nothing
-            }
-        , underlinedLink Html.h1
-            True
-            [ Html.Styled.Attributes.href <| "#" ++ fragment ]
-            [ Html.text text ]
-        ]
-
-
-underlinedLink : (List (Attribute msg) -> List (Html msg) -> Html msg) -> Bool -> List (Attribute msg) -> List (Html msg) -> Html msg
-underlinedLink parentElem serif attrs content =
-    let
-        lightBlue =
-            Color.Manipulate.fadeOut 0.5 Colours.themeBlue
-
-        fontFamilies_ =
-            if serif then
-                [ qt "Playfair Display SC" ]
-
-            else
-                [ qt "Lato" ]
-    in
-    parentElem
-        [ css
-            [ maxWidth fitContent
-            , boxShadow4 inset zero (em -0.2) (Colours.toCss lightBlue)
-            , borderBottom3 (em 0.0625) solid (Colours.toCss lightBlue)
-            , property "line-height" "1"
-            , hover
-                [ boxShadow4 inset zero (em -0.3) (Colours.toCss lightBlue) ]
-            ]
-        ]
-        [ styled Html.a
-            [ fontFamilies fontFamilies_
-            , color (Colours.toCss Colours.black)
-            , textDecoration none
-            ]
-            attrs
-            content
         ]

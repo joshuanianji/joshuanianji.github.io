@@ -5,12 +5,18 @@ import Effect exposing (Effect)
 import FatalError exposing (FatalError)
 import Html
 import Html.Styled
+import Html.Styled.Attributes exposing (css)
+import Icosahedron
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
 import Route exposing (Route)
 import SharedTemplate exposing (SharedTemplate)
+import Url
 import UrlPath exposing (UrlPath)
+import Util
 import View exposing (View)
+import Css exposing (..)
+import Colours
 
 
 template : SharedTemplate Msg Model Data msg
@@ -26,7 +32,7 @@ template =
 
 type Msg
     = SharedMsg SharedMsg
-    | MenuClicked
+    | IcoMsg Icosahedron.Msg
 
 
 type alias Data =
@@ -38,7 +44,7 @@ type SharedMsg
 
 
 type alias Model =
-    { showMenu : Bool
+    { ico : Icosahedron.Model
     }
 
 
@@ -56,7 +62,14 @@ init :
             }
     -> ( Model, Effect Msg )
 init flags maybePagePath =
-    ( { showMenu = False }
+    let
+        icoConfig =
+            { size = 100
+            , degs = 33
+            , color = Colours.darkGray
+            }
+    in
+    ( { ico = Icosahedron.init icoConfig }
     , Effect.none
     )
 
@@ -67,13 +80,14 @@ update msg model =
         SharedMsg globalMsg ->
             ( model, Effect.none )
 
-        MenuClicked ->
-            ( { model | showMenu = not model.showMenu }, Effect.none )
+        IcoMsg icoMsg ->
+            ( { model | ico = Icosahedron.update icoMsg model.ico }, Effect.none )
 
 
 subscriptions : UrlPath -> Model -> Sub Msg
-subscriptions _ _ =
-    Sub.none
+subscriptions _ model =
+    Icosahedron.subscriptions model.ico
+        |> Sub.map IcoMsg
 
 
 data : BackendTask FatalError Data
@@ -98,7 +112,7 @@ view sharedData page model toMsg pageView =
                 homeTemplate
 
             else
-                withNavbarTemplate
+                withNavbarTemplate model toMsg
     in
     { body =
         pageTemplate pageView.body
@@ -113,8 +127,36 @@ homeTemplate content =
     ]
 
 
-withNavbarTemplate : List (Html.Styled.Html msg) -> List (Html.Styled.Html msg)
-withNavbarTemplate content =
-    [ Html.Styled.text "this is a navbar "
+withNavbarTemplate : Model -> (Msg -> msg) -> List (Html.Styled.Html msg) -> List (Html.Styled.Html msg)
+withNavbarTemplate model toMsg content =
+    [ Html.Styled.map toMsg (navbar model)
     , Html.Styled.main_ [] content
     ]
+
+
+navbar : Model -> Html.Styled.Html Msg
+navbar model =
+    Html.Styled.ul
+        [ css
+            [ Util.flexDirection Util.Row
+            , alignItems center
+            , property "gap" "0.5em"
+            , listStyleType none
+            , margin4 zero (em 1) zero zero
+            , padding zero
+            ]
+        ]
+        [ Html.Styled.li
+            []
+            [ Html.Styled.a
+                [ Html.Styled.Attributes.href "/"]
+                [ Icosahedron.view model.ico
+            |> Html.Styled.map IcoMsg]
+            ]
+        , Html.Styled.li
+            [ css [ marginLeft auto]]
+            [ Util.textLink "Home" "/" ]
+        , Html.Styled.li
+            [ ]
+            [ Util.textLink "Projects" "/all-projects" ]
+        ]
