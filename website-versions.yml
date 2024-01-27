@@ -1,12 +1,21 @@
 ---
+- version: 6
+  tech-stack:
+  - Elm
+  url: https://www.joshuaji.com/
+  state: 
+    status: online
+    started: '2024-01-27'
+  comments: Not a big visual change from v5, but the migration to Elm Pages warrants a new version number.
 - version: 5
   tech-stack:
   - Elm
   - Webpack
-  url: https://www.joshuaji.com/
+  url: https://www.joshuaji.com/old-websites/v5/
   state: 
-    status: online
+    status: deprecated
     started: '2020-09-20'
+    ended: '2024-01-27'
   comments: A long overdue redesign of my website. I'm proud of the way it looks!
 - version: 4
   tech-stack:
