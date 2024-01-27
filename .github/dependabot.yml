@@ -9,3 +9,13 @@ updates:
     directory: '/' # Location of package manifests
     schedule:
       interval: 'weekly'
+
+  - package-ecosystem: 'elm'
+    directory: '/script'
+    schedule:
+      interval: 'weekly'
+  
+  - package-ecosystem: 'elm'
+    directory: '/codegen'
+    schedule:
+      interval: 'weekly'

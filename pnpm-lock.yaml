@@ -12,8 +12,8 @@ devDependencies:
     specifier: 0.3.5
     version: 0.3.5
   elm-pages:
-    specifier: 3.0.12
-    version: 3.0.12(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2)
+    specifier: 3.0.11
+    version: 3.0.11(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2)
   elm-review:
     specifier: 2.10.3
     version: 2.10.3
@@ -1205,8 +1205,8 @@ packages:
       typescript: 4.9.5
     dev: true
 
-  /elm-pages@3.0.12(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2):
-    resolution: {integrity: sha512-MqQHXrjl9BNPaFv+46yCxjuU7cyzzN0eQESGURXXd8O7Uv9HRgQTy+c5YCTUDSutJoN3xmVBfdeLgb9NLT8NMg==}
+  /elm-pages@3.0.11(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2):
+    resolution: {integrity: sha512-wQmwM1jC/8FqMeU51dIAgju9xqLGSz22GCa1K0uJDz6JHkbXrBew64GramK9BTx/DaAohnAMAVHb+IWaqc1rlA==}
     hasBin: true
     dependencies:
       busboy: 1.6.0
