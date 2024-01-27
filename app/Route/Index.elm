@@ -469,7 +469,7 @@ footer =
         [ Html.p
             []
             [ Html.text "Made with Elm and Elm-Pages | Source code on "
-            , Util.textLink "Github" "https://github.com/joshuanianji/joshuanianji.github.io"
+            , Util.textLink "https://github.com/joshuanianji/joshuanianji.github.io" "Github"
             ]
         , Html.p
             []

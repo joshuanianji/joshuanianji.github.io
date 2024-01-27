@@ -44,7 +44,7 @@ htmlRouteLink : Route -> Html msg -> Html msg
 htmlRouteLink route html =
     Route.toLink
         (\attrs ->
-            underlinedLink Html.a
+            underlinedLink Html.span
                 (List.map Html.Styled.Attributes.fromUnstyled attrs)
                 [ html ]
         )
@@ -53,7 +53,7 @@ htmlRouteLink route html =
 
 textLink : String -> String -> Html msg
 textLink url text =
-    underlinedLink Html.a
+    underlinedLink Html.span
         [ Html.Styled.Attributes.href url ]
         [ Html.text text ]
 
