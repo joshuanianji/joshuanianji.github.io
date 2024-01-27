@@ -1,4 +1,4 @@
-module Route.TimeMachine exposing (Model, Msg, RouteParams, route, Data, ActionData)
+module Route.Archive exposing (Model, Msg, RouteParams, route, Data, ActionData)
 
 {-|
 
