@@ -152,12 +152,13 @@ navbar model =
                 [ Html.Styled.Attributes.href "/" ]
                 [ Icosahedron.view model.ico
                     |> Html.Styled.map IcoMsg
+                    |> Util.htmlRouteLink Route.Index
                 ]
             ]
         , Html.Styled.li
             [ css [ marginLeft auto ] ]
-            [ Util.textLink "Home" "/" ]
+            [ Util.textRouteLink Route.Index "Home" ]
         , Html.Styled.li
             []
-            [ Util.textLink "Projects" "/all-projects" ]
+            [ Util.textRouteLink Route.AllProjects "Projects" ]
         ]
