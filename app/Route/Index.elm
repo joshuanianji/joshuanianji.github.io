@@ -474,7 +474,7 @@ footer =
         , Html.p
             []
             [ Html.text "Fun fact: This is the 6th iteration of my website! "
-            , Util.textRouteLink Route.TimeMachine "See other iterations"
+            , Util.textRouteLink Route.Archive "See other iterations"
             , Html.text "."
             ]
         ]
