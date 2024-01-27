@@ -1,4 +1,4 @@
-name: Deploy 🚀
+name: CI
 
 on:
   push:
@@ -21,6 +21,7 @@ concurrency:
 
 jobs:
   build:
+    name: Build 📦️
     runs-on: ubuntu-latest
     steps:
     - name: Checkout 
@@ -55,6 +56,7 @@ jobs:
         path: 'dist'
 
   deploy:
+    name: Deploy 🚀
     needs: build
     if: github.ref == 'refs/heads/main'
     environment:
