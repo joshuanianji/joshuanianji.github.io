@@ -1,20 +1,20 @@
 ---
 
 # === FEATURED
-- id: mathgpt
-  name: MathGPT
-  blurb: GPT-3 Powered Math Solver
-  link: http://www.arithme.tech
-  githubLink: https://github.com/3iq-hacks/mathgpt
+
+- id: secd-machine
+  name: SECD Machine
+  blurb: An Online Interactive Compiler and Interpreter for the SECD Machine 
+  link: https://secd-machine.netlify.app/
+  githubLink: https://github.com/joshuanianji/secd-machine
   year: 2023
   languages:
-  - Typescript
-  - Python
+  - Elm
   concepts:
-  - React/Next.JS
-  - OpenAI API
+  - Parsing
+  - Virtual Machine
   displayType: featured
-  mobile: true
+  mobile: false
 
 - id: gazprea
   name: Gazprea Compiler
@@ -61,17 +61,18 @@
   displayType: home
   mobile: true
 
-- id: nerdbot
-  name: NerdBot
-  blurb: A Discord bot to rank nerdiness. Currently hosted on an Oracle Cloud VM.
-  githubLink: https://github.com/joshuanianji/nerd-bot
+- id: mathgpt
+  name: MathGPT
+  blurb: GPT-3 Powered Math Solver
+  link: http://www.arithme.tech
+  githubLink: https://github.com/3iq-hacks/mathgpt
   year: 2023
   languages:
   - Typescript
-  - Docker
+  - Python
   concepts:
-  - Discord.js
-  - PostgreSQL
+  - React/Next.JS
+  - OpenAI API
   displayType: home
   mobile: true
 
@@ -103,6 +104,22 @@
   displayType: home
   mobile: false
 
+# === OTHER
+
+- id: nerdbot
+  name: NerdBot
+  blurb: A Discord bot to rank nerdiness. Currently hosted on an Oracle Cloud VM.
+  githubLink: https://github.com/joshuanianji/nerd-bot
+  year: 2023
+  languages:
+  - Typescript
+  - Docker
+  concepts:
+  - Discord.js
+  - PostgreSQL
+  displayType: other
+  mobile: true
+
 - id: amongus
   name: Imposter Detector
   blurb: 'A HackED 2022 Submission: converting speech to text to detect sus audio.'
@@ -132,21 +149,6 @@
   displayType: other
   mobile: false
 
-- id: ptable
-  name: Periodic Table
-  blurb: A colour-coded periodic table app with a molar mass calculator.
-  link: https://joshuaji.com/periodic-table/
-  githubLink: https://github.com/joshuanianji/periodic-table/
-  year: 2019
-  languages:
-  - Elm
-  concepts:
-  - DataStructures
-  displayType: home
-  mobile: false
-
-# === OTHER
-
 - id: mathtts
   name: MathTTS
   blurb: Latex Text-to-Speech engine, deployed and hosted on Google Cloud.
@@ -175,6 +177,19 @@
   - Github Actions
   - Code Generation
   displayType: other
+  mobile: false
+
+- id: ptable
+  name: Periodic Table
+  blurb: A colour-coded periodic table app with a molar mass calculator.
+  link: https://joshuaji.com/periodic-table/
+  githubLink: https://github.com/joshuanianji/periodic-table/
+  year: 2019
+  languages:
+  - Elm
+  concepts:
+  - DataStructures
+  displayType: home
   mobile: false
 
 - id: hiit-timer
