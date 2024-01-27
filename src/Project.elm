@@ -107,7 +107,7 @@ addImagePath proj =
                         BackendTask.succeed { proj | imgPath = "/proj_icons/transparent.png" }
 
                     [ path ] ->
-                        BackendTask.succeed { proj | imgPath = path.projIcons ++ path.projId ++ "." ++ path.extension }
+                        BackendTask.succeed { proj | imgPath = "/" ++ path.projIcons ++ path.projId ++ "." ++ path.extension }
 
                     path :: paths ->
                         BackendTask.fail (FatalError.fromString <| "Multiple images found for project " ++ proj.id)

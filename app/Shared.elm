@@ -1,6 +1,8 @@
 module Shared exposing (Data, Model, Msg(..), SharedMsg(..), template)
 
 import BackendTask exposing (BackendTask)
+import Colours
+import Css exposing (..)
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
 import Html
@@ -15,8 +17,6 @@ import Url
 import UrlPath exposing (UrlPath)
 import Util
 import View exposing (View)
-import Css exposing (..)
-import Colours
 
 
 template : SharedTemplate Msg Model Data msg
@@ -142,21 +142,22 @@ navbar model =
             , alignItems center
             , property "gap" "0.5em"
             , listStyleType none
-            , margin4 zero (em 1) zero zero
+            , margin4 zero (em 2) zero zero
             , padding zero
             ]
         ]
         [ Html.Styled.li
             []
             [ Html.Styled.a
-                [ Html.Styled.Attributes.href "/"]
+                [ Html.Styled.Attributes.href "/" ]
                 [ Icosahedron.view model.ico
-            |> Html.Styled.map IcoMsg]
+                    |> Html.Styled.map IcoMsg
+                ]
             ]
         , Html.Styled.li
-            [ css [ marginLeft auto]]
+            [ css [ marginLeft auto ] ]
             [ Util.textLink "Home" "/" ]
         , Html.Styled.li
-            [ ]
+            []
             [ Util.textLink "Projects" "/all-projects" ]
         ]

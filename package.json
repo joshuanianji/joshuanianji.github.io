@@ -4,7 +4,8 @@
   "scripts": {
     "postinstall": "elm-tooling install",
     "dev": "elm-pages dev",
-    "build": "elm-pages build"
+    "build": "elm-pages build",
+    "serve": "pnpm build && http-server ./dist -a localhost -p 3000 -c-1"
   },
   "devDependencies": {
     "elm-codegen": "^0.3.0",
@@ -12,9 +13,7 @@
     "elm-pages": "^3.0.3",
     "elm-review": "^2.10.2",
     "elm-tooling": "^1.14.0",
+    "http-server": "^14.1.1",
     "vite": "^4.3.5"
-  },
-  "dependencies": {
-    "@netlify/functions": "^1.4.0"
   }
 }

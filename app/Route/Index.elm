@@ -143,7 +143,7 @@ view :
     -> Model
     -> View (PagesMsg Msg)
 view app shared model =
-    { title = "(Dev) Joshua Ji - Home"
+    { title = "Joshua Ji - Home"
     , body =
         [ Html.div
             [ css
