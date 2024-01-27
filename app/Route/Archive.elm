@@ -97,7 +97,7 @@ head : RouteBuilder.App Data ActionData RouteParams -> List Head.Tag
 head app =
     Head.Seo.summary
         { canonicalUrlOverride = Nothing
-        , siteName = "Time Machine"
+        , siteName = "Website Archive | Joshua Ji"
         , image =
             { url = [ "old-websites-logo.png" ] |> UrlPath.join |> Pages.Url.fromPath
             , alt = "Time Machine Logo"
@@ -106,7 +106,7 @@ head app =
             }
         , description = "Welcome to my old websites!"
         , locale = Nothing
-        , title = "Time Machine"
+        , title = "Website Archive | Joshua Ji"
         }
         |> Head.Seo.website
 
@@ -116,7 +116,7 @@ view :
     -> Shared.Model
     -> View (PagesMsg Msg)
 view app shared =
-    { title = "Time Machine"
+    { title = "Website Archive | Joshua Ji"
     , body =
         [ Html.div
             [ css
@@ -152,7 +152,7 @@ viewWebsites websites =
                     , fontWeight lighter
                     ]
                 ]
-                [ Html.text "Time Machine" ]
+                [ Html.text "Website Archive" ]
             , Html.h2
                 [ css
                     [ fontSize (em 2)

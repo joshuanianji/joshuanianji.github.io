@@ -14,3 +14,8 @@ updates:
     directory: '/script'
     schedule:
       interval: 'weekly'
+  
+  - package-ecosystem: 'elm'
+    directory: '/codegen'
+    schedule:
+      interval: 'weekly'
