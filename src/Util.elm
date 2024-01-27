@@ -1,12 +1,13 @@
 module Util exposing (..)
 
+import Color.Manipulate
+import Colours
 import Css exposing (..)
-import Html.Styled as Html exposing (Html, Attribute)
-import Color.Manipulate 
-import Colours 
-import FeatherIcons 
-import Icon 
+import FeatherIcons
+import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes exposing (css)
+import Icon
+import Route exposing (Route)
 
 
 type FlexDirection
@@ -29,19 +30,36 @@ flexDirection direction =
                 , Css.flexDirection Css.column
                 ]
 
+
+
 -- Links
 
 
+textRouteLink : Route -> String -> Html msg
+textRouteLink route text =
+    htmlRouteLink route (Html.text text)
+
+
+htmlRouteLink : Route -> Html msg -> Html msg
+htmlRouteLink route html =
+    Route.toLink
+        (\attrs ->
+            underlinedLink Html.a
+                (List.map Html.Styled.Attributes.fromUnstyled attrs)
+                [ html ]
+        )
+        route
+
 
 textLink : String -> String -> Html msg
-textLink text url =
+textLink url text =
     underlinedLink Html.a
         [ Html.Styled.Attributes.href url ]
         [ Html.text text ]
 
 
 linkedHeader : String -> String -> Html msg
-linkedHeader text fragment =
+linkedHeader fragment text =
     Html.div
         [ css
             [ fontSize (em 1.5)

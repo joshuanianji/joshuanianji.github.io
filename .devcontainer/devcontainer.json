@@ -8,7 +8,6 @@
         "ghcr.io/devcontainers/features/common-utils:2": {},
         "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/joshuanianji/devcontainer-features/github-cli-persistence:1": {},
-        "ghcr.io/joshuanianji/devcontainer-features/lamdera:1": {},
         "ghcr.io/joshuanianji/devcontainer-features/mount-pnpm-store:1": {}
     },
     "customizations": {
