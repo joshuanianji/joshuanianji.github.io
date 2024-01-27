@@ -75,7 +75,9 @@ init app shared =
     let
         icoConfig =
             { size = 500
-            , degs = 90
+
+            -- a nice prime number
+            , degs = 23
             , color = Colours.gray
             }
     in
@@ -143,7 +145,7 @@ view :
     -> Model
     -> View (PagesMsg Msg)
 view app shared model =
-    { title = "(Dev) Joshua Ji - Home"
+    { title = "Joshua Ji - Home"
     , body =
         [ Html.div
             [ css
@@ -356,21 +358,21 @@ about =
             , property "gap" "2em"
             ]
         ]
-        [ Util.linkedHeader "About" "about"
+        [ Util.linkedHeader "about" "About"
         , textBlock [] [ Html.text "I started off with HTML, CSS and Javascript: making blogs, web apps, or anything that seemed cool to me." ]
         , textBlock []
             [ Html.text "Currently, I use "
-            , Util.textLink "Elm" "https://elm-lang.org/"
+            , Util.textLink "https://elm-lang.org/" "Elm"
             , Html.text " and Typescript for most of my projects, and I'm learning Haskell, Purescript and Rust on my free time."
             ]
         , textBlock []
             [ Html.text "I've recently been taking a deep dive into DevOps. I've recently interned at "
-            , Util.textLink "Nanostics" "https://www.nanosticsdx.com/"
+            , Util.textLink "https://www.nanosticsdx.com/" "Nanostics"
             , Html.text " where I worked on deploying and maintaining a ML model on Azure, as well as creating a webapp interface for it."
             ]
         , textBlock []
             [ Html.text "In my free time, I like to play volleyball and walk my dog. I always try to find time to read, check me out on "
-            , Util.textLink "Hardcover" "https://hardcover.app/@OshuaJay"
+            , Util.textLink "https://hardcover.app/@OshuaJay" "Hardcover"
             , Html.text "!"
             ]
         ]
@@ -388,7 +390,7 @@ projects data_ =
             , property "gap" "2em"
             ]
         ]
-        [ Util.linkedHeader "Projects" "projects"
+        [ Util.linkedHeader "projects" "Projects"
         , Html.h2 [] [ Html.text "⭐ Featured" ]
         , featuredProjects data_.pinnedProjects
         , Html.div
@@ -398,7 +400,7 @@ projects data_ =
                 , fontSize (em 1.25)
                 ]
             ]
-            [ Util.textLink "See more projects" "/all-projects"
+            [ Util.textRouteLink Route.AllProjects "See more projects"
             , Icon.view [] { icon = FeatherIcons.chevronRight, strokeWidth = 2, size = 20, msg = Nothing }
             ]
 
@@ -443,7 +445,7 @@ blog =
             , property "gap" "2em"
             ]
         ]
-        [ Util.linkedHeader "Blog" "blog"
+        [ Util.linkedHeader "blog" "Blog"
         , Html.h2 [] [ Html.text "Work in progress..." ]
 
         -- , Html.h2 [] [ Html.text "📅 Recent Posts" ]
@@ -471,8 +473,8 @@ footer =
             ]
         , Html.p
             []
-            [ Html.text "Fun fact: This is the 5th iteration of my website! "
-            , Util.textLink "See other iterations" "/old-websites"
+            [ Html.text "Fun fact: This is the 6th iteration of my website! "
+            , Util.textRouteLink Route.TimeMachine "See other iterations"
             , Html.text "."
             ]
         ]

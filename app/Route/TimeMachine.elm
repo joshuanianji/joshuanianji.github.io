@@ -1,4 +1,4 @@
-module Route.OldWebsites exposing (Model, Msg, RouteParams, route, Data, ActionData)
+module Route.TimeMachine exposing (Model, Msg, RouteParams, route, Data, ActionData)
 
 {-|
 
