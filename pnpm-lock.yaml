@@ -6,28 +6,28 @@ settings:
 
 devDependencies:
   elm-codegen:
-    specifier: ^0.5.2
+    specifier: 0.5.2
     version: 0.5.2
   elm-optimize-level-2:
-    specifier: ^0.3.5
+    specifier: 0.3.5
     version: 0.3.5
   elm-pages:
-    specifier: ^3.0.12
+    specifier: 3.0.12
     version: 3.0.12(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2)
   elm-review:
-    specifier: ^2.10.3
+    specifier: 2.10.3
     version: 2.10.3
   elm-tooling:
-    specifier: ^1.15.0
+    specifier: 1.15.0
     version: 1.15.0
   http-server:
-    specifier: ^14.1.1
+    specifier: 14.1.1
     version: 14.1.1
   lamdera:
-    specifier: ^0.19.1-1.2.1-1
+    specifier: 0.19.1-1.2.1-1
     version: 0.19.1-1.2.1-1
   vite:
-    specifier: ^5.0.11
+    specifier: 5.0.12
     version: 5.0.12(terser@5.27.0)
 
 packages:
