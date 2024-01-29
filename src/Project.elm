@@ -285,11 +285,16 @@ langToColor l =
 view : Project -> Html msg
 view proj =
     projectContainer Util.Row
-        [ css [ property "gap" "1em" ] ]
+        [ css
+            [ property "gap" "1em"
+            , alignItems center
+            ]
+        ]
         [ projectImage
-            { imgWidth = px 50
-            , dir = Util.Column
+            { imgSize = px 50
+            , dir = Util.Row
             , link = proj.imgPath
+            , name = proj.name
             }
             [ padding2 (px 0) (em 1) ]
         , Html.div
@@ -323,9 +328,10 @@ viewFeatured proj =
             ]
         ]
         [ projectImage
-            { imgWidth = px 120
+            { imgSize = px 120
             , dir = Util.Column
             , link = proj.imgPath
+            , name = proj.name
             }
             [ padding2 (px 0) (em 1) ]
         , projectTitle proj
@@ -392,9 +398,10 @@ projectTitle proj =
 
 
 projectImage :
-    { imgWidth : LengthOrAuto compatible
+    { imgSize : LengthOrAuto compatible
     , dir : Util.FlexDirection
     , link : String
+    , name : String
     }
     -> List Style
     -> Html msg
@@ -410,8 +417,13 @@ projectImage image extraCss =
                     )
                 ]
                 [ Html.styled Html.img
-                    [ width image.imgWidth
-                    , property "aspect-ratio" "1/1"
+                    [ if image.dir == Util.Row then
+                        -- constrain width
+                        width image.imgSize
+
+                      else
+                        -- constrain height
+                        height image.imgSize
                     ]
                     attrs
                     children
@@ -419,6 +431,7 @@ projectImage image extraCss =
     in
     imgContainer
         [ Html.Styled.Attributes.src image.link
+        , Html.Styled.Attributes.alt ("Project image for " ++ image.name)
         ]
         []
 

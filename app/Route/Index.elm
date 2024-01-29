@@ -1,4 +1,4 @@
-module Route.Index exposing (ActionData, Data, Model, Msg, route)
+module Route.Index exposing (ActionData, Data, Model, Msg, footer, route)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.File
@@ -253,20 +253,22 @@ contactLinks : Html msg
 contactLinks =
     let
         contactItems =
-            [ ( "github.svg", "https://github.com/joshuanianji" )
-            , ( "linkedin.png", "https://www.linkedin.com/in/joshua-niani-ji/" )
-            , ( "email.webp", "mailto:joshuanji23@gmail.com" )
-            , ( "hardcover.png", "https://hardcover.app/@OshuaJay" )
+            [ ( "Github", "github.svg", "https://github.com/joshuanianji" )
+            , ( "Linkedin", "linkedin.png", "https://www.linkedin.com/in/joshua-niani-ji/" )
+            , ( "Email", "email.webp", "mailto:joshuanji23@gmail.com" )
+            , ( "Hardcover", "hardcover.png", "https://hardcover.app/@OshuaJay" )
             ]
 
-        viewContact path url =
+        viewContact ( iconName, path, url ) =
             Html.a
-                [ Html.Styled.Attributes.href url ]
+                [ Html.Styled.Attributes.href url
+                , Html.Styled.Attributes.attribute "aria-label" ("My " ++ iconName ++ " profile")
+                ]
                 [ Html.img
                     [ css
-                        [ height (px 30)
-                        ]
-                    , Html.Styled.Attributes.src path
+                        [ height (px 30) ]
+                    , Html.Styled.Attributes.src ("contact_logos/" ++ path)
+                    , Html.Styled.Attributes.alt (iconName ++ " logo")
                     ]
                     []
                 ]
@@ -282,9 +284,7 @@ contactLinks =
             ]
         ]
     <|
-        List.map
-            (\( path, url ) -> viewContact ("contact_logos/" ++ path) url)
-            contactItems
+        List.map viewContact contactItems
 
 
 jumbotronNavbar : Html msg
