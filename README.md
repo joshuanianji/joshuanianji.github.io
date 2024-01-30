@@ -1,12 +1,10 @@
 # joshuanianji.github.io
 
-The code for my personal website!
-
-It also contains the compiled code for some legacy projects I've worked on.
+Code for my personal website.
 
 ## Run Locally
 
-Open up the project ina devcontainer, then run the following
+Open up the project in a devcontainer, then run the following
 
 ```
 pnpm i
