@@ -1,10 +1,14 @@
 module Route.Blog.Slug_ exposing (ActionData, Data, Model, Msg, route)
 
+import Article exposing (ArticleMetadata)
 import BackendTask exposing (BackendTask)
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
 import Html.Styled as Html
+import Markdown.Block
+import MarkdownCodec
+import MarkdownRenderer
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
 import RouteBuilder exposing (App, StatelessRoute)
@@ -36,13 +40,18 @@ route =
 
 pages : BackendTask FatalError (List RouteParams)
 pages =
-    BackendTask.succeed
-        [ { slug = "hello" }
-        ]
+    Article.blogPostsGlob
+        |> BackendTask.map
+            (List.map
+                (\globData ->
+                    { slug = globData.slug }
+                )
+            )
 
 
 type alias Data =
-    { something : String
+    { metadata : ArticleMetadata
+    , body : List Markdown.Block.Block
     }
 
 
@@ -52,8 +61,10 @@ type alias ActionData =
 
 data : RouteParams -> BackendTask FatalError Data
 data routeParams =
-    BackendTask.map Data
-        (BackendTask.succeed "Hi")
+    MarkdownCodec.withFrontmatter Data
+        Article.frontmatterDecoder
+        MarkdownRenderer.renderer
+        ("blog/" ++ routeParams.slug ++ ".md")
 
 
 head :
@@ -62,16 +73,16 @@ head :
 head app =
     Seo.summary
         { canonicalUrlOverride = Nothing
-        , siteName = "elm-pages"
+        , siteName = "joshuas-blog"
         , image =
             { url = Pages.Url.external "TODO"
             , alt = "elm-pages logo"
             , dimensions = Nothing
             , mimeType = Nothing
             }
-        , description = "TODO"
+        , description = app.data.metadata.description
         , locale = Nothing
-        , title = "TODO title" -- metadata.title -- TODO
+        , title = app.data.metadata.title
         }
         |> Seo.website
 
@@ -81,6 +92,9 @@ view :
     -> Shared.Model
     -> View (PagesMsg Msg)
 view app sharedModel =
-    { title = "Placeholder - Blog.Slug_"
-    , body = [ Html.text "You're on the page Blog.Slug_" ]
+    { title = app.data.metadata.title
+    , body =
+        [ Html.h1 [] [ Html.text app.data.metadata.title ]
+        , Html.text "You're on the page Blog.Slug_"
+        ]
     }
