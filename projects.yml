@@ -64,7 +64,7 @@
 - id: mathgpt
   name: MathGPT
   blurb: GPT-3 Powered Math Solver
-  link: http://www.arithme.tech
+  link: https://mathgpt-3iq-hacks.vercel.app/
   githubLink: https://github.com/3iq-hacks/mathgpt
   year: 2023
   languages:
