@@ -15,11 +15,11 @@ devDependencies:
     specifier: 3.0.12
     version: 3.0.12(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2)
   elm-review:
-    specifier: 2.10.3
-    version: 2.10.3
+    specifier: 2.11.1
+    version: 2.11.1
   elm-tooling:
-    specifier: 1.15.0
-    version: 1.15.0
+    specifier: 1.15.1
+    version: 1.15.1
   http-server:
     specifier: 14.1.1
     version: 14.1.1
@@ -1246,15 +1246,15 @@ packages:
       - utf-8-validate
     dev: true
 
-  /elm-review@2.10.3:
-    resolution: {integrity: sha512-9gBqLc5Xm3v9Ncpf8y2haEaBZZyMX25vmwQkrNqSIaNYQ2vdGOIx1eyqRtt1xwX5O8pZdqU8IWC/ENyTrOTKbw==}
+  /elm-review@2.11.1:
+    resolution: {integrity: sha512-mJJN7QmqlV7HcaLigsiap6X3/7o9idA3bg3h7228iokUmBccpBquakPaShM8BZ/wDYtWg53sevSaFpGniEujFA==}
     engines: {node: '>=10.0.0'}
     hasBin: true
     dependencies:
       chalk: 4.1.2
       chokidar: 3.5.3
       cross-spawn: 7.0.3
-      elm-tooling: 1.15.0
+      elm-solve-deps-wasm: 1.0.2
       fastest-levenshtein: 1.0.16
       find-up: 4.1.0
       folder-hash: 3.3.3
@@ -1270,13 +1270,17 @@ packages:
       strip-ansi: 6.0.1
       terminal-link: 2.1.1
       which: 2.0.2
-      wrap-ansi: 6.2.0
+      wrap-ansi: 7.0.0
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /elm-tooling@1.15.0:
-    resolution: {integrity: sha512-quRE5LGJyrkPBoJ3MvFQ5RGgf80J0L0d3NkduStvXh4TmZuMXNC3Z/l2ZRoq2UTUaNWeYfO1Zx5wns1AvsTrnw==}
+  /elm-solve-deps-wasm@1.0.2:
+    resolution: {integrity: sha512-qnwo7RO9IO7jd9SLHvIy0rSOEIlc/tNMTE9Cras0kl+b161PVidW4FvXo0MtXU8GAKi/2s/HYvhcnpR/NNQ1zw==}
+    dev: true
+
+  /elm-tooling@1.15.1:
+    resolution: {integrity: sha512-+rRYa7gzz6l2/Ip2i197MqkW5abOwPOP/+WlyyatLDeDhh+JR0HUMlZJYenCYodBeG/xW5xW3pRYQ2onf5bIAw==}
     hasBin: true
     dev: true
 
@@ -3342,15 +3346,6 @@ packages:
     hasBin: true
     dependencies:
       isexe: 3.1.1
-    dev: true
-
-  /wrap-ansi@6.2.0:
-    resolution: {integrity: sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==}
-    engines: {node: '>=8'}
-    dependencies:
-      ansi-styles: 4.3.0
-      string-width: 4.2.3
-      strip-ansi: 6.0.1
     dev: true
 
   /wrap-ansi@7.0.0:
