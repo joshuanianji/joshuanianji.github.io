@@ -239,7 +239,17 @@ heading { level, rawText, children } =
 
 codeBlock : { body : String, language : Maybe String } -> Html.Html msg
 codeBlock details =
-    SyntaxHighlight.elm details.body
-        |> Result.map (SyntaxHighlight.toBlockHtml (Just 1))
-        |> Result.map Html.fromUnstyled
-        |> Result.withDefault (Html.pre [] [ Html.code [] [ Html.text details.body ] ])
+    let
+        lang =
+            details.language
+                |> Maybe.map (\l -> "lang-" ++ String.toLower l)
+                |> Maybe.withDefault "nohighlight"
+    in
+    Html.pre []
+        [ Html.code
+            [ Attr.class lang
+            , css
+                [ borderRadius (em 0.5) ]
+            ]
+            [ Html.text details.body ]
+        ]

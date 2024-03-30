@@ -8,12 +8,14 @@ module Route.Blog exposing (Model, Msg, route, Data, ActionData)
 
 import Article
 import BackendTask exposing (BackendTask)
+import Css exposing (..)
 import Effect
 import ErrorPage
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
-import Html.Styled as Html
+import Html.Styled as Html exposing (Attribute, Html, styled)
+import Html.Styled.Attributes exposing (css)
 import Pages.Url
 import PagesMsg
 import Route exposing (Route)
@@ -85,4 +87,28 @@ view :
     -> Shared.Model
     -> View msg
 view app shared =
-    { title = "Blog", body = [ Html.h2 [] [ Html.text "Blog" ] ] }
+    { title = "Blog | Joshua Ji"
+    , body = [ content ]
+    }
+
+
+content : Html msg
+content =
+    Html.div
+        [ css
+            [ maxWidth (px 900)
+            , margin2 zero auto
+            , displayFlex
+            , flexDirection column
+            , property "gap" "4em"
+            ]
+        ]
+        [ Html.h1
+            [ css
+                [ fontSize (px 48)
+                , fontFamilies [ qt "Playfair Display SC" ]
+                , margin2 (em 1) zero
+                ]
+            ]
+            [ Html.text "Blog" ]
+        ]

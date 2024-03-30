@@ -8,4 +8,12 @@ published: "2024-01-31"
 
 Hello world!
 
-## Heading 1
+# This is a big heading 
+
+## This is a smaller heading
+
+I want to write code.
+
+```python
+print("Hello World!")
+```

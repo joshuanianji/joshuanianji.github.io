@@ -2,11 +2,14 @@ module Route.Blog.Slug_ exposing (ActionData, Data, Model, Msg, route)
 
 import Article exposing (ArticleMetadata)
 import BackendTask exposing (BackendTask)
+import Css exposing (..)
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
-import Html.Styled as Html
+import Html.Styled as Html exposing (Attribute, Html, styled)
+import Html.Styled.Attributes exposing (css)
 import Markdown.Block
+import Markdown.Renderer
 import MarkdownCodec
 import MarkdownRenderer
 import Pages.Url
@@ -93,8 +96,32 @@ view :
     -> View (PagesMsg Msg)
 view app sharedModel =
     { title = app.data.metadata.title
-    , body =
-        [ Html.h1 [] [ Html.text app.data.metadata.title ]
-        , Html.text "You're on the page Blog.Slug_"
-        ]
+    , body = [ content app ]
     }
+
+
+content : App Data ActionData RouteParams -> Html msg
+content app =
+    Html.div
+        [ css
+            [ maxWidth (px 900)
+            , margin2 zero auto
+            , displayFlex
+            , flexDirection column
+            , padding (em 1)
+            , property "gap" "2em"
+            ]
+        ]
+        [ Html.h1
+            [ css
+                [ fontSize (px 48)
+                , fontFamilies [ qt "Playfair Display SC" ]
+                , margin2 (em 1) zero
+                ]
+            ]
+            [ Html.text app.data.metadata.title ]
+        , app.data.body
+            |> Markdown.Renderer.render MarkdownRenderer.renderer
+            |> Result.withDefault []
+            |> Html.div []
+        ]

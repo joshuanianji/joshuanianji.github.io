@@ -1,3 +1,10 @@
+import hljs from 'highlight.js/lib/core';
+import javascript from 'highlight.js/lib/languages/javascript';
+import python from 'highlight.js/lib/languages/python';
+hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('python', python);
+import 'highlight.js/styles/atom-one-dark.css';
+
 type ElmPagesInit = {
     load: (elmLoaded: Promise<unknown>) => Promise<void>;
     flags: unknown;
@@ -31,6 +38,9 @@ const config: ElmPagesInit = {
             })
             console.log('Added event listener for mousemove homepage')
         }
+
+        console.log('Highlighting code blocks')
+        hljs.highlightAll();
     },
     flags: function () {
         return "You can decode this in Shared.elm using Json.Decode.string!";
