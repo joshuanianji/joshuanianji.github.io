@@ -249,7 +249,9 @@ codeBlock details =
         [ Html.code
             [ Attr.class lang
             , css
-                [ borderRadius (em 0.5) ]
+                [ borderRadius (em 0.5)
+                , fontSize (em 0.75)
+                ]
             ]
             [ Html.text details.body ]
         ]

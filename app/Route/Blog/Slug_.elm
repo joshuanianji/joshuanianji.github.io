@@ -109,7 +109,7 @@ content app =
             , displayFlex
             , flexDirection column
             , padding (em 1)
-            , property "gap" "2em"
+            , property "gap" "1em"
             ]
         ]
         [ Html.h1
@@ -123,5 +123,8 @@ content app =
         , app.data.body
             |> Markdown.Renderer.render MarkdownRenderer.renderer
             |> Result.withDefault []
-            |> Html.div []
+            |> Html.div
+                [ css
+                    [ fontSize (px 18) ]
+                ]
         ]
