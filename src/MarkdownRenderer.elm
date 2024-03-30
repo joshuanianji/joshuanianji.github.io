@@ -1,6 +1,7 @@
 module MarkdownRenderer exposing (renderer)
 
 import Css exposing (..)
+import Html.Attributes
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Markdown.Block as Block
@@ -242,16 +243,48 @@ codeBlock details =
     let
         lang =
             details.language
-                |> Maybe.map (\l -> "lang-" ++ String.toLower l)
                 |> Maybe.withDefault "nohighlight"
     in
-    Html.pre []
-        [ Html.code
-            [ Attr.class lang
-            , css
-                [ borderRadius (em 0.5)
-                , fontSize (em 0.75)
-                ]
-            ]
-            [ Html.text details.body ]
+    Html.node
+        "highlightjs-code"
+        [ Attr.attribute "lang" lang
+        , Attr.attribute "code" details.body
         ]
+        []
+
+
+
+-- Html.pre
+--     []
+--     [ Html.code
+--         [ Attr.class lang
+--         , css
+--             [ borderRadius (em 0.5)
+--             , fontSize (em 0.75)
+--             ]
+--         ]
+--         [ Html.node
+--             "highlightjs-code"
+--             [ Attr.attribute "lang" lang
+--             , Attr.attribute "code" details.body
+--             ]
+--             []
+--         ]
+--     ]
+-- Html.node
+--     "highlightjs-code"
+--     [ Attr.attribute "lang" lang
+--     , Attr.attribute "code" details.body
+--     ]
+--     []
+-- Html.pre
+--     []
+--     [ Html.code
+--         [ Attr.class lang
+--         , css
+--             [ borderRadius (em 0.5)
+--             , fontSize (em 0.75)
+--             ]
+--         ]
+--         [ Html.text details.body ]
+--     ]

@@ -39,14 +39,46 @@ const config: ElmPagesInit = {
             console.log('Added event listener for mousemove homepage')
         }
 
-        app.ports.highlightJS.subscribe(function (message) {
-            console.log('Highlighting code blocks')
-            hljs.highlightAll();
-        });
+        hljs.highlightAll()
     },
     flags: function () {
         return "You can decode this in Shared.elm using Json.Decode.string!";
     },
 };
+
+// Highlight.js editing the DOM doesn't work well with Elm
+// custom elements work better since it is not managed by Elm
+// I tried using web components (custom elements with Shadow DOM)
+// but it was too tricky getting the shadow DOM to import the highlight.js CSS from the main DOM
+customElements.define('highlightjs-code',
+    class extends HTMLElement {
+        codeElem: HTMLElement;
+
+        constructor() {
+            super();
+            console.log('highlightjs-code created', this.codeElem)
+        }
+        connectedCallback() { this.setTextContent(); }
+        attributeChangedCallback() { this.setTextContent(); }
+        static get observedAttributes() { return ['lang', 'code']; }
+
+        // Our function to set the textContent based on attributes.
+        setTextContent() {
+            const lang = this.getAttribute('lang') || 'plaintext';
+            const code = this.getAttribute('code') || '';
+            const hljsVal = hljs.highlight(code, { language: lang });
+            this.innerHTML = `
+            <style>
+                code {
+                    border-radius: 0.5em;
+                    font-size: 0.75em;
+                }
+            </style>
+            <pre><code class="hljs language-${lang}">${hljsVal.value}</code></pre>
+            `
+        }
+    }
+);
+
 
 export default config;
