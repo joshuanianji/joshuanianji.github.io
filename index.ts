@@ -39,8 +39,10 @@ const config: ElmPagesInit = {
             console.log('Added event listener for mousemove homepage')
         }
 
-        console.log('Highlighting code blocks')
-        hljs.highlightAll();
+        app.ports.highlightJS.subscribe(function (message) {
+            console.log('Highlighting code blocks')
+            hljs.highlightAll();
+        });
     },
     flags: function () {
         return "You can decode this in Shared.elm using Json.Decode.string!";

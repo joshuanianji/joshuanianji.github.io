@@ -1,8 +1,9 @@
-module Route.Blog.Slug_ exposing (ActionData, Data, Model, Msg, route)
+port module Route.Blog.Slug_ exposing (ActionData, Data, Model, Msg, route)
 
 import Article exposing (ArticleMetadata)
 import BackendTask exposing (BackendTask)
 import Css exposing (..)
+import Effect exposing (Effect)
 import FatalError exposing (FatalError)
 import Head
 import Head.Seo as Seo
@@ -38,7 +39,12 @@ route =
         , pages = pages
         , data = data
         }
-        |> RouteBuilder.buildNoState { view = view }
+        |> RouteBuilder.buildWithLocalState
+            { view = view
+            , init = \_ _ -> ( Model, Effect.fromCmd (highlightJS ()) )
+            , update = \_ _ _ _ -> ( Model, Effect.none )
+            , subscriptions = \_ _ _ _ -> Sub.none
+            }
 
 
 pages : BackendTask FatalError (List RouteParams)
@@ -93,6 +99,7 @@ head app =
 view :
     App Data ActionData RouteParams
     -> Shared.Model
+    -> Model
     -> View (PagesMsg Msg)
 view app sharedModel =
     { title = app.data.metadata.title
@@ -128,3 +135,6 @@ content app =
                     [ fontSize (px 18) ]
                 ]
         ]
+
+
+port highlightJS : () -> Cmd msg
