@@ -3,6 +3,7 @@ port module Route.Blog.Slug_ exposing (ActionData, Data, Model, Msg, route)
 import Article exposing (ArticleMetadata)
 import BackendTask exposing (BackendTask)
 import Css exposing (..)
+import Date exposing (Date)
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
 import Head
@@ -101,7 +102,7 @@ view :
     -> Shared.Model
     -> Model
     -> View (PagesMsg Msg)
-view app sharedModel =
+view app sharedModel model =
     { title = app.data.metadata.title
     , body = [ content app ]
     }
@@ -123,10 +124,15 @@ content app =
             [ css
                 [ fontSize (px 48)
                 , fontFamilies [ qt "Playfair Display SC" ]
-                , margin2 (em 1) zero
+                , margin2 (em 0.5) zero
                 ]
             ]
             [ Html.text app.data.metadata.title ]
+        , Html.p
+            [ css
+                [ fontSize (em 0.75) ]
+            ]
+            [ Html.text <| Date.format "MMMM d, yyyy" app.data.metadata.published ]
         , app.data.body
             |> Markdown.Renderer.render MarkdownRenderer.renderer
             |> Result.withDefault []

@@ -170,7 +170,7 @@ blogDate date =
         [ css
             [ fontSize (em 0.75) ]
         ]
-        [ Html.text <| Date.format "MMM d y" date ]
+        [ Html.text <| Date.format "MMMM d, yyyy" date ]
 
 
 blogDescription : String -> Html msg
