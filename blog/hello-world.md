@@ -1,7 +1,7 @@
 ---
 author: Joshua Ji
 title: Hello World!
-description: Testing my blog
+description: My first blog post 
 draft: false
 published: "2024-03-29"
 ---
