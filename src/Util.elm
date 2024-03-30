@@ -53,9 +53,14 @@ htmlRouteLink route html =
 
 textLink : String -> String -> Html msg
 textLink url text =
+    htmlLink url [ Html.text text ]
+
+
+htmlLink : String -> List (Html msg) -> Html msg
+htmlLink url html =
     underlinedLink Html.span
         [ Html.Styled.Attributes.href url ]
-        [ Html.text text ]
+        html
 
 
 linkedHeader : String -> String -> Html msg

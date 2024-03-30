@@ -13,8 +13,11 @@
     "elm-pages": "3.0.12",
     "elm-review": "2.11.1",
     "elm-tooling": "1.15.1",
-    "lamdera": "0.19.1-1.2.1-1",
     "http-server": "14.1.1",
+    "lamdera": "0.19.1-1.2.1-1",
     "vite": "5.2.6"
+  },
+  "dependencies": {
+    "highlight.js": "11.9.0"
   }
 }
