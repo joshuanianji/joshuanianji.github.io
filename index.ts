@@ -38,8 +38,6 @@ const config: ElmPagesInit = {
             })
             console.log('Added event listener for mousemove homepage')
         }
-
-        hljs.highlightAll()
     },
     flags: function () {
         return "You can decode this in Shared.elm using Json.Decode.string!";
@@ -67,6 +65,7 @@ customElements.define('highlightjs-code',
             const lang = this.getAttribute('lang') || 'plaintext';
             const code = this.getAttribute('code') || '';
             const hljsVal = hljs.highlight(code, { language: lang });
+            console.log(hljsVal)
             this.innerHTML = `
             <style>
                 code {
