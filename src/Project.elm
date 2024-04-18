@@ -23,7 +23,7 @@ type alias Project =
     , name : String
     , blurb : String
     , link : Maybe String
-    , githubLink : Maybe String
+`    , githubRepo : Maybe String
     , year : Year
     , languages : List Language
     , concepts : Maybe (List String)
@@ -146,7 +146,7 @@ decoder =
                     |> Yaml.andMap (Yaml.field "name" Yaml.string)
                     |> Yaml.andMap (Yaml.field "blurb" Yaml.string)
                     |> Yaml.andMap (Yaml.maybe (Yaml.field "link" Yaml.string))
-                    |> Yaml.andMap (Yaml.succeed (Maybe.map githubLink maybeGithubRepo))
+                    |> Yaml.andMap (Yaml.succeed maybeGithubRepo)
                     |> Yaml.andMap (Yaml.field "year" Yaml.int |> Yaml.map Manual)
                     |> Yaml.andMap (Yaml.field "languages" (Yaml.list languageDecoder))
                     |> Yaml.andMap (Yaml.maybe (Yaml.field "concepts" (Yaml.list Yaml.string)))
@@ -156,8 +156,8 @@ decoder =
             )
 
 
-githubLink : String -> String
-githubLink repo =
+githubRepoToLink : String -> String
+githubRepoToLink repo =
     "https://github.com/" ++ repo
 
 
@@ -326,7 +326,7 @@ view proj =
             , Html.p [] [ Html.text proj.blurb ]
             , languagesAndConcepts Util.Row { languages = proj.languages, concepts = proj.concepts }
             ]
-        , projectLinks Util.Column { githubLink = proj.githubLink, link = proj.link }
+        , projectLinks Util.Column { githubRepo = proj.githubRepo, link = proj.link }
         ]
 
 
@@ -352,7 +352,7 @@ viewFeatured proj =
 
         -- height-filling empty div to align the languages/concepts and links to the bottom
         , Html.div [ css [ flex (int 1) ] ] []
-        , projectLinks Util.Row { githubLink = proj.githubLink, link = proj.link }
+        , projectLinks Util.Row { githubRepo = proj.githubRepo, link = proj.link }
         , languagesAndConcepts Util.Column { languages = proj.languages, concepts = proj.concepts }
         ]
 
@@ -371,7 +371,7 @@ projectTitle proj =
                     proj.link
 
                 Nothing ->
-                    proj.githubLink
+                    Maybe.map githubRepoToLink proj.githubRepo
 
         mainLinkCSS =
             case mainLink of
@@ -490,7 +490,7 @@ languagesAndConcepts dir data_ =
 projectLinks :
     Util.FlexDirection
     ->
-        { githubLink : Maybe String
+        { githubRepo : Maybe String
         , link : Maybe String
         }
     -> Html msg
@@ -529,7 +529,7 @@ projectLinks dir links =
             ]
         ]
         [ Maybe.withDefault (Html.text "") <| Maybe.map (renderLink FeatherIcons.link2) links.link
-        , Maybe.withDefault (Html.text "") <| Maybe.map (renderLink FeatherIcons.github) links.githubLink
+        , Maybe.withDefault (Html.text "") <| Maybe.map (githubRepoToLink >> renderLink FeatherIcons.github) links.githubRepo
         ]
 
 
