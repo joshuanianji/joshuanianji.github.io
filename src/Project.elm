@@ -138,15 +138,15 @@ parseProjects str =
 
 decoder : Yaml.Decoder Project
 decoder =
-    Yaml.maybe (Yaml.field "githubLink" Yaml.string)
+    Yaml.maybe (Yaml.field "githubRepo" Yaml.string)
         |> Yaml.andThen
-            (\maybeGithubLink ->
+            (\maybeGithubRepo ->
                 Yaml.succeed Project
                     |> Yaml.andMap (Yaml.field "id" Yaml.string)
                     |> Yaml.andMap (Yaml.field "name" Yaml.string)
                     |> Yaml.andMap (Yaml.field "blurb" Yaml.string)
                     |> Yaml.andMap (Yaml.maybe (Yaml.field "link" Yaml.string))
-                    |> Yaml.andMap (Yaml.succeed maybeGithubLink)
+                    |> Yaml.andMap (Yaml.succeed (Maybe.map githubLink maybeGithubRepo))
                     |> Yaml.andMap (Yaml.field "year" Yaml.int |> Yaml.map Manual)
                     |> Yaml.andMap (Yaml.field "languages" (Yaml.list languageDecoder))
                     |> Yaml.andMap (Yaml.maybe (Yaml.field "concepts" (Yaml.list Yaml.string)))
@@ -154,6 +154,11 @@ decoder =
                     |> Yaml.andMap (Yaml.field "mobile" Yaml.bool)
                     |> Yaml.andMap (Yaml.succeed "")
             )
+
+
+githubLink : String -> String
+githubLink repo =
+    "https://github.com/" ++ repo
 
 
 languageDecoder : Yaml.Decoder Language
