@@ -127,22 +127,27 @@ parseProjects str =
 
 -- PARSER
 -- imgPath is not parsed, it is filled in later
+-- we also parse githubLink first, since we'll need to use it in the "year" field
 
 
 decoder : Yaml.Decoder Project
 decoder =
-    Yaml.succeed Project
-        |> Yaml.andMap (Yaml.field "id" Yaml.string)
-        |> Yaml.andMap (Yaml.field "name" Yaml.string)
-        |> Yaml.andMap (Yaml.field "blurb" Yaml.string)
-        |> Yaml.andMap (Yaml.maybe (Yaml.field "link" Yaml.string))
-        |> Yaml.andMap (Yaml.maybe (Yaml.field "githubLink" Yaml.string))
-        |> Yaml.andMap (Yaml.field "year" Yaml.int)
-        |> Yaml.andMap (Yaml.field "languages" (Yaml.list languageDecoder))
-        |> Yaml.andMap (Yaml.maybe (Yaml.field "concepts" (Yaml.list Yaml.string)))
-        |> Yaml.andMap (Yaml.field "displayType" displayTypeDecoder)
-        |> Yaml.andMap (Yaml.field "mobile" Yaml.bool)
-        |> Yaml.andMap (Yaml.succeed "")
+    Yaml.maybe (Yaml.field "githubLink" Yaml.string)
+        |> Yaml.andThen
+            (\maybeGithubLink ->
+                Yaml.succeed Project
+                    |> Yaml.andMap (Yaml.field "id" Yaml.string)
+                    |> Yaml.andMap (Yaml.field "name" Yaml.string)
+                    |> Yaml.andMap (Yaml.field "blurb" Yaml.string)
+                    |> Yaml.andMap (Yaml.maybe (Yaml.field "link" Yaml.string))
+                    |> Yaml.andMap (Yaml.succeed maybeGithubLink)
+                    |> Yaml.andMap (Yaml.field "year" Yaml.int)
+                    |> Yaml.andMap (Yaml.field "languages" (Yaml.list languageDecoder))
+                    |> Yaml.andMap (Yaml.maybe (Yaml.field "concepts" (Yaml.list Yaml.string)))
+                    |> Yaml.andMap (Yaml.field "displayType" displayTypeDecoder)
+                    |> Yaml.andMap (Yaml.field "mobile" Yaml.bool)
+                    |> Yaml.andMap (Yaml.succeed "")
+            )
 
 
 languageDecoder : Yaml.Decoder Language
