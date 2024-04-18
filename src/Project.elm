@@ -7,6 +7,7 @@ import BackendTask.Glob as Glob
 import Color
 import Colours
 import Css exposing (..)
+import Date exposing (Date)
 import FatalError exposing (FatalError)
 import FeatherIcons
 import GithubColors
@@ -23,7 +24,7 @@ type alias Project =
     , blurb : String
     , link : Maybe String
     , githubLink : Maybe String
-    , year : Int
+    , year : Year
     , languages : List Language
     , concepts : Maybe (List String)
     , displayType : DisplayType
@@ -51,6 +52,11 @@ type DisplayType
     = Featured
     | Home
     | Other
+
+
+type Year
+    = Manual Int
+    | Range Date Date
 
 
 
@@ -141,7 +147,7 @@ decoder =
                     |> Yaml.andMap (Yaml.field "blurb" Yaml.string)
                     |> Yaml.andMap (Yaml.maybe (Yaml.field "link" Yaml.string))
                     |> Yaml.andMap (Yaml.succeed maybeGithubLink)
-                    |> Yaml.andMap (Yaml.field "year" Yaml.int)
+                    |> Yaml.andMap (Yaml.field "year" Yaml.int |> Yaml.map Manual)
                     |> Yaml.andMap (Yaml.field "languages" (Yaml.list languageDecoder))
                     |> Yaml.andMap (Yaml.maybe (Yaml.field "concepts" (Yaml.list Yaml.string)))
                     |> Yaml.andMap (Yaml.field "displayType" displayTypeDecoder)
@@ -311,11 +317,7 @@ view proj =
                 ]
             ]
             [ projectTitle proj
-            , Html.p
-                [ css
-                    [ fontSize (em 0.75) ]
-                ]
-                [ Html.text <| String.fromInt proj.year ]
+            , projectYear proj.year
             , Html.p [] [ Html.text proj.blurb ]
             , languagesAndConcepts Util.Row { languages = proj.languages, concepts = proj.concepts }
             ]
@@ -340,11 +342,7 @@ viewFeatured proj =
             }
             [ padding2 (px 0) (em 1) ]
         , projectTitle proj
-        , Html.p
-            [ css
-                [ fontSize (em 0.75) ]
-            ]
-            [ Html.text <| String.fromInt proj.year ]
+        , projectYear proj.year
         , Html.p [] [ Html.text proj.blurb ]
 
         -- height-filling empty div to align the languages/concepts and links to the bottom
@@ -395,6 +393,24 @@ projectTitle proj =
                 Html.Styled.Attributes.title "No link available, sorry!"
         ]
         [ Html.text proj.name ]
+
+
+projectYear : Year -> Html msg
+projectYear year =
+    let
+        dateString =
+            case year of
+                Manual y ->
+                    String.fromInt y
+
+                Range start end ->
+                    String.fromInt (Date.year start) ++ " - " ++ String.fromInt (Date.year end)
+    in
+    Html.p
+        [ css
+            [ fontSize (em 0.75) ]
+        ]
+        [ Html.text dateString ]
 
 
 
