@@ -23,7 +23,7 @@ type alias Project =
     , name : String
     , blurb : String
     , link : Maybe String
-`    , githubRepo : Maybe String
+    , githubRepo : Maybe String
     , year : Year
     , languages : List Language
     , concepts : Maybe (List String)
