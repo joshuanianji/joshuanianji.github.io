@@ -172,7 +172,7 @@
   name: Periodic Table
   blurb: A colour-coded periodic table app with a molar mass calculator.
   link: https://joshuaji.com/periodic-table/
-  githubRepo: joshuanianji/periodic-table/
+  githubRepo: joshuanianji/periodic-table
   languages:
   - Elm
   concepts:
