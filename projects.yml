@@ -2,18 +2,15 @@
 
 # === FEATURED
 
-- id: secd-machine
-  name: SECD Machine
-  blurb: An Online Interactive Compiler and Interpreter for the SECD Machine 
-  link: https://secd-machine.netlify.app/
-  githubRepo: joshuanianji/secd-machine
+- id: personal-website
+  name: My Personal Website
+  blurb: The 6th iteration of my personal website, made with Elm and Elm-pages.
+  link: https://joshuaji.com
+  githubRepo: joshuanianji/joshuanianji.github.io
   languages:
   - Elm
-  concepts:
-  - Parsing
-  - Virtual Machine
   displayType: featured
-  mobile: false
+  mobile: true
 
 - id: gazprea
   name: Gazprea Compiler
@@ -42,6 +39,19 @@
   mobile: true
 
 # === HOME 
+
+- id: secd-machine
+  name: SECD Machine
+  blurb: An Online Interactive Compiler and Interpreter for the SECD Machine 
+  link: https://secd-machine.netlify.app/
+  githubRepo: joshuanianji/secd-machine
+  languages:
+  - Elm
+  concepts:
+  - Parsing
+  - Virtual Machine
+  displayType: home
+  mobile: false
 
 - id: the-conversationalist
   name: The Conversationalist
@@ -177,7 +187,7 @@
   - Elm
   concepts:
   - DataStructures
-  displayType: home
+  displayType: other
   mobile: false
 
 - id: hiit-timer
