@@ -502,18 +502,28 @@ projectTitle raw =
 projectYear : Year -> Html msg
 projectYear year =
     let
-        displayRange : Date -> Date -> String
+        displayRange : Date -> Date -> List (Html msg)
         displayRange start end =
             if Date.year start == Date.year end then
-                String.fromInt (Date.year start)
+                [ Html.span
+                    [ Html.Styled.Attributes.title (Date.format "EEEE, MMMM d y" start ++ " - " ++ Date.format "EEEE, MMMM d y" end) ]
+                    [ Html.text <| String.fromInt (Date.year start) ]
+                ]
 
             else
-                String.fromInt (Date.year start) ++ " - " ++ String.fromInt (Date.year end)
+                [ Html.span
+                    [ Html.Styled.Attributes.title <| Date.format "EEEE, MMMM d y" start ]
+                    [ Html.text <| String.fromInt (Date.year start) ]
+                , Html.text " - "
+                , Html.span
+                    [ Html.Styled.Attributes.title <| Date.format "EEEE, MMMM d y" end ]
+                    [ Html.text <| String.fromInt (Date.year end) ]
+                ]
 
-        dateString =
+        dateHtml =
             case year of
                 Manual y ->
-                    String.fromInt y
+                    [ Html.text (String.fromInt y) ]
 
                 Range start end ->
                     displayRange start end
@@ -521,8 +531,14 @@ projectYear year =
     Html.p
         [ css
             [ fontSize (em 0.75) ]
+        , case year of
+            Manual _ ->
+                Html.Styled.Attributes.attribute "data-datetype" "manual"
+
+            Range _ _ ->
+                Html.Styled.Attributes.attribute "data-datetype" "range"
         ]
-        [ Html.text dateString ]
+        dateHtml
 
 
 
