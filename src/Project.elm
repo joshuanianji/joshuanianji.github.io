@@ -209,7 +209,7 @@ addImagePath proj =
         |> Glob.capture (Glob.literal "proj_icons/")
         |> Glob.capture (Glob.literal proj.id)
         |> Glob.match (Glob.literal ".")
-        |> Glob.capture (Glob.oneOf ( ( "png", "png" ), [ ( "jpg", "jpg" ), ( "jpeg", "jpeg" ), ( "webp", "webp" ) ] ))
+        |> Glob.capture (Glob.oneOf ( ( "png", "png" ), [ ( "jpg", "jpg" ), ( "jpeg", "jpeg" ), ( "webp", "webp" ), ( "svg", "svg" ) ] ))
         |> Glob.toBackendTask
         |> BackendTask.andThen
             (\imgPaths ->
