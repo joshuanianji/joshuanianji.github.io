@@ -182,7 +182,14 @@ getStargazers repoName env =
         , cachePath = Nothing
         }
         |> BackendTask.allowFatal
-        |> BackendTask.map Just
+        |> BackendTask.map
+            (\stargazers ->
+                if stargazers > 5 then
+                    Just stargazers
+
+                else
+                    Nothing
+            )
 
 
 
