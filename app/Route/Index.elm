@@ -17,7 +17,7 @@ import Icon
 import Icosahedron
 import Pages.Url
 import PagesMsg exposing (PagesMsg)
-import Project exposing (Language, Project)
+import Project exposing (Project)
 import Route
 import RouteBuilder exposing (App, StatefulRoute)
 import Shared

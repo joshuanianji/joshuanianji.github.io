@@ -18,20 +18,42 @@ import Util
 import Yaml.Decode as Yaml
 
 
+
+-- I would prefer to have all the processed and raw data in the top level
+-- but Elm doesn't seem to like to do that.
+
+
 type alias Project =
+    { raw : RawData
+    , processed : ProcessedData
+    }
+
+
+
+-- extra processed data from a project
+
+
+type alias ProcessedData =
+    { imgPath : String
+    , year : Year
+    }
+
+
+
+-- data we get from the yaml file without any processing
+
+
+type alias RawData =
     { id : String
     , name : String
     , blurb : String
     , link : Maybe String
     , githubRepo : Maybe String
-    , year : Year
+    , rawYear : Maybe Int
     , languages : List Language
     , concepts : Maybe (List String)
     , displayType : DisplayType
     , mobile : Bool
-
-    -- transparent icon if no image found
-    , imgPath : String
     }
 
 
@@ -67,9 +89,9 @@ splitProjects : List Project -> BackendTask FatalError { featured : List Project
 splitProjects projs =
     let
         splitted =
-            { featured = List.filter (\p -> p.displayType == Featured) projs
-            , home = List.filter (\p -> p.displayType == Home) projs
-            , other = List.filter (\p -> p.displayType == Other) projs
+            { featured = List.filter (\p -> p.raw.displayType == Featured) projs
+            , home = List.filter (\p -> p.raw.displayType == Home) projs
+            , other = List.filter (\p -> p.raw.displayType == Other) projs
             }
     in
     if List.length splitted.home > 5 then
@@ -84,9 +106,21 @@ splitProjects projs =
 
 getProjects : String -> BackendTask FatalError (List Project)
 getProjects str =
-    parseProjects str
-        |> BackendTask.andThen
-            (\projects -> BackendTask.combine (List.map addImagePath projects))
+    parseRawData str
+        |> BackendTask.andThen (List.map addProcessedData >> BackendTask.combine)
+
+
+addProcessedData : RawData -> BackendTask FatalError Project
+addProcessedData decodedProj =
+    BackendTask.succeed ProcessedData
+        |> BackendTask.andMap (addImagePath decodedProj)
+        |> BackendTask.andMap (BackendTask.succeed <| Manual 0)
+        |> BackendTask.map
+            (\processed ->
+                { raw = decodedProj
+                , processed = processed
+                }
+            )
 
 
 type alias Path =
@@ -97,7 +131,7 @@ type alias Path =
     }
 
 
-addImagePath : Project -> BackendTask FatalError Project
+addImagePath : RawData -> BackendTask FatalError String
 addImagePath proj =
     Glob.succeed Path
         |> Glob.capture (Glob.literal "public/")
@@ -110,18 +144,18 @@ addImagePath proj =
             (\imgPaths ->
                 case imgPaths of
                     [] ->
-                        BackendTask.succeed { proj | imgPath = "/proj_icons/transparent.png" }
+                        BackendTask.succeed "/proj_icons/transparent.png"
 
                     [ path ] ->
-                        BackendTask.succeed { proj | imgPath = "/" ++ path.projIcons ++ path.projId ++ "." ++ path.extension }
+                        BackendTask.succeed ("/" ++ path.projIcons ++ path.projId ++ "." ++ path.extension)
 
                     path :: paths ->
                         BackendTask.fail (FatalError.fromString <| "Multiple images found for project " ++ proj.id)
             )
 
 
-parseProjects : String -> BackendTask FatalError (List Project)
-parseProjects str =
+parseRawData : String -> BackendTask FatalError (List RawData)
+parseRawData str =
     case Yaml.fromString (Yaml.list decoder) str of
         Ok projects ->
             BackendTask.succeed projects
@@ -132,28 +166,22 @@ parseProjects str =
 
 
 -- PARSER
--- imgPath is not parsed, it is filled in later
 -- we also parse githubLink first, since we'll need to use it in the "year" field
 
 
-decoder : Yaml.Decoder Project
+decoder : Yaml.Decoder RawData
 decoder =
-    Yaml.maybe (Yaml.field "githubRepo" Yaml.string)
-        |> Yaml.andThen
-            (\maybeGithubRepo ->
-                Yaml.succeed Project
-                    |> Yaml.andMap (Yaml.field "id" Yaml.string)
-                    |> Yaml.andMap (Yaml.field "name" Yaml.string)
-                    |> Yaml.andMap (Yaml.field "blurb" Yaml.string)
-                    |> Yaml.andMap (Yaml.maybe (Yaml.field "link" Yaml.string))
-                    |> Yaml.andMap (Yaml.succeed maybeGithubRepo)
-                    |> Yaml.andMap (Yaml.field "year" Yaml.int |> Yaml.map Manual)
-                    |> Yaml.andMap (Yaml.field "languages" (Yaml.list languageDecoder))
-                    |> Yaml.andMap (Yaml.maybe (Yaml.field "concepts" (Yaml.list Yaml.string)))
-                    |> Yaml.andMap (Yaml.field "displayType" displayTypeDecoder)
-                    |> Yaml.andMap (Yaml.field "mobile" Yaml.bool)
-                    |> Yaml.andMap (Yaml.succeed "")
-            )
+    Yaml.succeed RawData
+        |> Yaml.andMap (Yaml.field "id" Yaml.string)
+        |> Yaml.andMap (Yaml.field "name" Yaml.string)
+        |> Yaml.andMap (Yaml.field "blurb" Yaml.string)
+        |> Yaml.andMap (Yaml.maybe (Yaml.field "link" Yaml.string))
+        |> Yaml.andMap (Yaml.maybe (Yaml.field "githubRepo" Yaml.string))
+        |> Yaml.andMap (Yaml.maybe (Yaml.field "year" Yaml.int))
+        |> Yaml.andMap (Yaml.field "languages" (Yaml.list languageDecoder))
+        |> Yaml.andMap (Yaml.maybe (Yaml.field "concepts" (Yaml.list Yaml.string)))
+        |> Yaml.andMap (Yaml.field "displayType" displayTypeDecoder)
+        |> Yaml.andMap (Yaml.field "mobile" Yaml.bool)
 
 
 githubRepoToLink : String -> String
@@ -309,8 +337,8 @@ view proj =
         [ projectImage
             { imgSize = px 50
             , dir = Util.Row
-            , link = proj.imgPath
-            , name = proj.name
+            , link = proj.processed.imgPath
+            , name = proj.raw.name
             }
             [ padding2 (px 0) (em 1) ]
         , Html.div
@@ -321,12 +349,12 @@ view proj =
                 , flex (int 1)
                 ]
             ]
-            [ projectTitle proj
-            , projectYear proj.year
-            , Html.p [] [ Html.text proj.blurb ]
-            , languagesAndConcepts Util.Row { languages = proj.languages, concepts = proj.concepts }
+            [ projectTitle proj.raw
+            , projectYear proj.processed.year
+            , Html.p [] [ Html.text proj.raw.blurb ]
+            , languagesAndConcepts Util.Row { languages = proj.raw.languages, concepts = proj.raw.concepts }
             ]
-        , projectLinks Util.Column { githubRepo = proj.githubRepo, link = proj.link }
+        , projectLinks Util.Column { githubRepo = proj.raw.githubRepo, link = proj.raw.link }
         ]
 
 
@@ -342,18 +370,18 @@ viewFeatured proj =
         [ projectImage
             { imgSize = px 120
             , dir = Util.Column
-            , link = proj.imgPath
-            , name = proj.name
+            , link = proj.processed.imgPath
+            , name = proj.raw.name
             }
             [ padding2 (px 0) (em 1) ]
-        , projectTitle proj
-        , projectYear proj.year
-        , Html.p [] [ Html.text proj.blurb ]
+        , projectTitle proj.raw
+        , projectYear proj.processed.year
+        , Html.p [] [ Html.text proj.raw.blurb ]
 
         -- height-filling empty div to align the languages/concepts and links to the bottom
         , Html.div [ css [ flex (int 1) ] ] []
-        , projectLinks Util.Row { githubRepo = proj.githubRepo, link = proj.link }
-        , languagesAndConcepts Util.Column { languages = proj.languages, concepts = proj.concepts }
+        , projectLinks Util.Row { githubRepo = proj.raw.githubRepo, link = proj.raw.link }
+        , languagesAndConcepts Util.Column { languages = proj.raw.languages, concepts = proj.raw.concepts }
         ]
 
 
@@ -361,17 +389,17 @@ viewFeatured proj =
 -- view Helpers
 
 
-projectTitle : Project -> Html msg
-projectTitle proj =
+projectTitle : RawData -> Html msg
+projectTitle raw =
     let
         -- try link, otherwise link to github, else Nothing
         mainLink =
-            case proj.link of
+            case raw.link of
                 Just _ ->
-                    proj.link
+                    raw.link
 
                 Nothing ->
-                    Maybe.map githubRepoToLink proj.githubRepo
+                    Maybe.map githubRepoToLink raw.githubRepo
 
         mainLinkCSS =
             case mainLink of
@@ -397,7 +425,7 @@ projectTitle proj =
             Nothing ->
                 Html.Styled.Attributes.title "No link available, sorry!"
         ]
-        [ Html.text proj.name ]
+        [ Html.text raw.name ]
 
 
 projectYear : Year -> Html msg
