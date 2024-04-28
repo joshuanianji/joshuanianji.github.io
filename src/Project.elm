@@ -136,7 +136,7 @@ type alias Env =
 getEnvs : BackendTask FatalError Env
 getEnvs =
     BackendTask.succeed Env
-        |> BackendTask.andMap (BackendTask.Env.get "GTIHUB_TOKEN")
+        |> BackendTask.andMap (BackendTask.Env.get "GITHUB_TOKEN")
 
 
 
@@ -502,13 +502,21 @@ projectTitle raw =
 projectYear : Year -> Html msg
 projectYear year =
     let
+        displayRange : Date -> Date -> String
+        displayRange start end =
+            if Date.year start == Date.year end then
+                String.fromInt (Date.year start)
+
+            else
+                String.fromInt (Date.year start) ++ " - " ++ String.fromInt (Date.year end)
+
         dateString =
             case year of
                 Manual y ->
                     String.fromInt y
 
                 Range start end ->
-                    String.fromInt (Date.year start) ++ " - " ++ String.fromInt (Date.year end)
+                    displayRange start end
     in
     Html.p
         [ css
