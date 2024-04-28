@@ -168,7 +168,7 @@ getYearFromGithub repoName env =
         yearDecoder =
             Json.Decode.map2 Range
                 (Json.Decode.field "created_at" dateDecoder)
-                (Json.Decode.field "updated_at" dateDecoder)
+                (Json.Decode.field "pushed_at" dateDecoder)
 
         headers =
             case env.githubToken of
@@ -182,7 +182,7 @@ getYearFromGithub repoName env =
         { url = "https://api.github.com/repos/" ++ repoName
         , expect = BackendTask.Http.expectJson yearDecoder
         , headers = headers
-        , cacheStrategy = Just BackendTask.Http.ForceCache
+        , cacheStrategy = Nothing
         , retries = Nothing
         , timeoutInMs = Nothing
         , cachePath = Nothing
