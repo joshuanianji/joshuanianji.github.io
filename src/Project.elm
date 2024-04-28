@@ -3,7 +3,9 @@ module Project exposing (DisplayType(..), Language(..), Project, getProjects, la
 -- Represents a single "project"
 
 import BackendTask exposing (BackendTask)
+import BackendTask.Env
 import BackendTask.Glob as Glob
+import BackendTask.Http
 import Color
 import Colours
 import Css exposing (..)
@@ -14,14 +16,11 @@ import GithubColors
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes exposing (css)
 import Icon
-import Util
-import BackendTask.Http
-import Yaml.Decode as Yaml
-import Date
-import Json.Decode
 import Iso8601
+import Json.Decode
 import Time
-
+import Util
+import Yaml.Decode as Yaml
 
 
 
@@ -128,37 +127,72 @@ addProcessedData decodedProj =
                 }
             )
 
--- if the project doesn't have a "year" field, scrape the github API 
+
+type alias Env =
+    { githubToken : Maybe String
+    }
+
+
+getEnvs : BackendTask FatalError Env
+getEnvs =
+    BackendTask.succeed Env
+        |> BackendTask.andMap (BackendTask.Env.get "GTIHUB_TOKEN")
+
+
+
+-- if the project doesn't have a "year" field, scrape the github API
 -- to get the date of the first commit and latest commit, and use that to create a range
+
 
 addYear : RawData -> BackendTask FatalError Year
 addYear proj =
-    case (proj.rawYear, proj.githubRepo) of
-        (Just y, _) ->
+    case ( proj.rawYear, proj.githubRepo ) of
+        ( Just y, _ ) ->
             BackendTask.succeed (Manual y)
 
-        (Nothing, Just repoName) ->
-            BackendTask.Http.getJson ("https://api.github.com/repos/" ++ repoName) yearDecoder
-                |> BackendTask.allowFatal
-            
-        (Nothing, Nothing) ->
+        ( Nothing, Just repoName ) ->
+            getEnvs
+                |> BackendTask.andThen (getYearFromGithub repoName)
+
+        ( Nothing, Nothing ) ->
             BackendTask.fail (FatalError.fromString <| "Error parsing projects.yaml: no year field and no githubRepo field for project " ++ proj.id)
 
 
-yearDecoder : Json.Decode.Decoder Year
-yearDecoder = 
+getYearFromGithub : String -> Env -> BackendTask FatalError Year
+getYearFromGithub repoName env =
     let
-        dateDecoder = 
-            Iso8601.decoder 
+        dateDecoder =
+            Iso8601.decoder
                 |> Json.Decode.map (Date.fromPosix Time.utc)
+
+        yearDecoder =
+            Json.Decode.map2 Range
+                (Json.Decode.field "created_at" dateDecoder)
+                (Json.Decode.field "updated_at" dateDecoder)
+
+        headers =
+            case env.githubToken of
+                Just token ->
+                    [ ( "Authorization", "token " ++ token ) ]
+
+                Nothing ->
+                    []
     in
-    Json.Decode.map2 Range
-        (Json.Decode.field "created_at" dateDecoder)
-        (Json.Decode.field "updated_at" dateDecoder)
+    BackendTask.Http.getWithOptions
+        { url = "https://api.github.com/repos/" ++ repoName
+        , expect = BackendTask.Http.expectJson yearDecoder
+        , headers = headers
+        , cacheStrategy = Just BackendTask.Http.ForceCache
+        , retries = Nothing
+        , timeoutInMs = Nothing
+        , cachePath = Nothing
+        }
+        |> BackendTask.allowFatal
 
 
 
 -- add the image path to the project data
+
 
 type alias Path =
     { public : String
