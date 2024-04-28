@@ -15,7 +15,13 @@ import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes exposing (css)
 import Icon
 import Util
+import BackendTask.Http
 import Yaml.Decode as Yaml
+import Date
+import Json.Decode
+import Iso8601
+import Time
+
 
 
 
@@ -114,7 +120,7 @@ addProcessedData : RawData -> BackendTask FatalError Project
 addProcessedData decodedProj =
     BackendTask.succeed ProcessedData
         |> BackendTask.andMap (addImagePath decodedProj)
-        |> BackendTask.andMap (BackendTask.succeed <| Manual 0)
+        |> BackendTask.andMap (addYear decodedProj)
         |> BackendTask.map
             (\processed ->
                 { raw = decodedProj
@@ -122,6 +128,37 @@ addProcessedData decodedProj =
                 }
             )
 
+-- if the project doesn't have a "year" field, scrape the github API 
+-- to get the date of the first commit and latest commit, and use that to create a range
+
+addYear : RawData -> BackendTask FatalError Year
+addYear proj =
+    case (proj.rawYear, proj.githubRepo) of
+        (Just y, _) ->
+            BackendTask.succeed (Manual y)
+
+        (Nothing, Just repoName) ->
+            BackendTask.Http.getJson ("https://api.github.com/repos/" ++ repoName) yearDecoder
+                |> BackendTask.allowFatal
+            
+        (Nothing, Nothing) ->
+            BackendTask.fail (FatalError.fromString <| "Error parsing projects.yaml: no year field and no githubRepo field for project " ++ proj.id)
+
+
+yearDecoder : Json.Decode.Decoder Year
+yearDecoder = 
+    let
+        dateDecoder = 
+            Iso8601.decoder 
+                |> Json.Decode.map (Date.fromPosix Time.utc)
+    in
+    Json.Decode.map2 Range
+        (Json.Decode.field "created_at" dateDecoder)
+        (Json.Decode.field "updated_at" dateDecoder)
+
+
+
+-- add the image path to the project data
 
 type alias Path =
     { public : String

@@ -7,7 +7,6 @@
   blurb: An Online Interactive Compiler and Interpreter for the SECD Machine 
   link: https://secd-machine.netlify.app/
   githubRepo: joshuanianji/secd-machine
-  year: 2023
   languages:
   - Elm
   concepts:
@@ -35,7 +34,6 @@
   id: idris2
   blurb: Multi-arch, multi-distro Docker images for Idris 2
   githubRepo: joshuanianji/idris-2-docker
-  year: 2022
   languages:
   - Docker
   concepts:
@@ -50,7 +48,6 @@
   blurb: Meet your favourite celebrity. Talk to anime girls. We don't discriminate.
   link: https://reformed-22an6t4ebq-uc.a.run.app/
   githubRepo: 3iq-hacks/the-conversationalist
-  year: 2024
   languages:
   - Typescript
   - Docker
@@ -66,7 +63,6 @@
   blurb: GPT-3 Powered Math Solver
   link: https://mathgpt-3iq-hacks.vercel.app/
   githubRepo: 3iq-hacks/mathgpt
-  year: 2023
   languages:
   - Typescript
   - Python
@@ -80,7 +76,6 @@
   name: Devcontainer Features
   blurb: A collection of my custom devcontainer features
   githubRepo: joshuanianji/devcontainer-features
-  year: 2023
   languages:
   - Shell
   concepts:
@@ -95,7 +90,6 @@
     output.
   link: https://joshuaji.com/derivative
   githubRepo: joshuanianji/derivative
-  year: 2020
   languages:
   - Elm
   concepts:
@@ -110,7 +104,6 @@
   name: NerdBot
   blurb: A Discord bot to rank nerdiness. Currently hosted on an Oracle Cloud VM.
   githubRepo: joshuanianji/nerd-bot
-  year: 2023
   languages:
   - Typescript
   - Docker
@@ -124,8 +117,7 @@
   name: Imposter Detector
   blurb: 'A HackED 2022 Submission: converting speech to text to detect sus audio.'
   link: https://imposter-detector.vercel.app/
-  githubRepo: joshuanianji/imposter-detector-2022
-  year: 2022
+  githubRepo: 3iq-hacks/imposter-detector-2022
   languages:
   - Javascript
   - Python
@@ -142,7 +134,6 @@
     12 physics class.
   link: https://joshuaji.com/atomic-theory/
   githubRepo: joshuanianji/atomic-theory
-  year: 2020
   languages:
   - Elm
   concepts: []
@@ -154,7 +145,6 @@
   blurb: Latex Text-to-Speech engine, deployed and hosted on Google Cloud.
   link: https://math-tts.vercel.app/
   githubRepo: 3iq-hacks/math-tts
-  year: 2023
   languages:
   - Typescript
   - Python
@@ -170,7 +160,6 @@
   blurb: All of Github's language colours as an Elm package
   githubRepo: joshuanianji/github-language-colors
   link: https://package.elm-lang.org/packages/joshuanianji/github-language-colors/latest/
-  year: 2023
   languages:
   - Elm
   concepts:
@@ -184,7 +173,6 @@
   blurb: A colour-coded periodic table app with a molar mass calculator.
   link: https://joshuaji.com/periodic-table/
   githubRepo: joshuanianji/periodic-table/
-  year: 2019
   languages:
   - Elm
   concepts:
@@ -197,7 +185,6 @@
   blurb: A customizable PWA that times your workouts.
   link: https://joshuaji.com/HIIT-Timer/
   githubRepo: joshuanianji/HIIT-Timer
-  year: 2020
   languages:
   - Elm
   concepts:
