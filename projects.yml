@@ -6,8 +6,7 @@
   name: SECD Machine
   blurb: An Online Interactive Compiler and Interpreter for the SECD Machine 
   link: https://secd-machine.netlify.app/
-  githubLink: https://github.com/joshuanianji/secd-machine
-  year: 2023
+  githubRepo: joshuanianji/secd-machine
   languages:
   - Elm
   concepts:
@@ -34,8 +33,7 @@
 - name: Idris 2 Docker
   id: idris2
   blurb: Multi-arch, multi-distro Docker images for Idris 2
-  githubLink: https://github.com/joshuanianji/idris-2-docker
-  year: 2022
+  githubRepo: joshuanianji/idris-2-docker
   languages:
   - Docker
   concepts:
@@ -49,8 +47,7 @@
   name: The Conversationalist
   blurb: Meet your favourite celebrity. Talk to anime girls. We don't discriminate.
   link: https://reformed-22an6t4ebq-uc.a.run.app/
-  githubLink: https://github.com/3iq-hacks/the-conversationalist
-  year: 2024
+  githubRepo: 3iq-hacks/the-conversationalist
   languages:
   - Typescript
   - Docker
@@ -65,8 +62,7 @@
   name: MathGPT
   blurb: GPT-3 Powered Math Solver
   link: https://mathgpt-3iq-hacks.vercel.app/
-  githubLink: https://github.com/3iq-hacks/mathgpt
-  year: 2023
+  githubRepo: 3iq-hacks/mathgpt
   languages:
   - Typescript
   - Python
@@ -79,8 +75,7 @@
 - id: devcontainer-features
   name: Devcontainer Features
   blurb: A collection of my custom devcontainer features
-  githubLink: https://github.com/joshuanianji/devcontainer-features
-  year: 2023
+  githubRepo: joshuanianji/devcontainer-features
   languages:
   - Shell
   concepts:
@@ -94,8 +89,7 @@
   blurb: An application to calculate derivatives, using intuitive LaTeX input and
     output.
   link: https://joshuaji.com/derivative
-  githubLink: https://github.com/joshuanianji/derivative
-  year: 2020
+  githubRepo: joshuanianji/derivative
   languages:
   - Elm
   concepts:
@@ -109,8 +103,7 @@
 - id: nerdbot
   name: NerdBot
   blurb: A Discord bot to rank nerdiness. Currently hosted on an Oracle Cloud VM.
-  githubLink: https://github.com/joshuanianji/nerd-bot
-  year: 2023
+  githubRepo: joshuanianji/nerd-bot
   languages:
   - Typescript
   - Docker
@@ -124,8 +117,7 @@
   name: Imposter Detector
   blurb: 'A HackED 2022 Submission: converting speech to text to detect sus audio.'
   link: https://imposter-detector.vercel.app/
-  githubLink: https://github.com/joshuanianji/imposter-detector-2022
-  year: 2022
+  githubRepo: 3iq-hacks/imposter-detector-2022
   languages:
   - Javascript
   - Python
@@ -141,8 +133,7 @@
   blurb: A short timeline on the history of the Atomic Theory, created for my grade
     12 physics class.
   link: https://joshuaji.com/atomic-theory/
-  githubLink: https://github.com/joshuanianji/atomic-theory
-  year: 2020
+  githubRepo: joshuanianji/atomic-theory
   languages:
   - Elm
   concepts: []
@@ -153,8 +144,7 @@
   name: MathTTS
   blurb: Latex Text-to-Speech engine, deployed and hosted on Google Cloud.
   link: https://math-tts.vercel.app/
-  githubLink: https://github.com/3iq-hacks/math-tts
-  year: 2023
+  githubRepo: 3iq-hacks/math-tts
   languages:
   - Typescript
   - Python
@@ -168,9 +158,8 @@
 - id: github-language-colors
   name: Github Language Colors
   blurb: All of Github's language colours as an Elm package
-  githubLink: https://github.com/joshuanianji/github-language-colors
+  githubRepo: joshuanianji/github-language-colors
   link: https://package.elm-lang.org/packages/joshuanianji/github-language-colors/latest/
-  year: 2023
   languages:
   - Elm
   concepts:
@@ -183,8 +172,7 @@
   name: Periodic Table
   blurb: A colour-coded periodic table app with a molar mass calculator.
   link: https://joshuaji.com/periodic-table/
-  githubLink: https://github.com/joshuanianji/periodic-table/
-  year: 2019
+  githubRepo: joshuanianji/periodic-table
   languages:
   - Elm
   concepts:
@@ -196,8 +184,7 @@
   name: HIIT-Timer
   blurb: A customizable PWA that times your workouts.
   link: https://joshuaji.com/HIIT-Timer/
-  githubLink: https://github.com/joshuanianji/HIIT-Timer
-  year: 2020
+  githubRepo: joshuanianji/HIIT-Timer
   languages:
   - Elm
   concepts:

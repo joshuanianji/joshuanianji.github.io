@@ -3,11 +3,12 @@
   "type": "module",
   "scripts": {
     "postinstall": "elm-tooling install",
-    "dev": "elm-pages dev",
+    "dev": "dotenvx run -- elm-pages dev",
     "build": "elm-pages build",
     "serve": "pnpm build && http-server ./dist -a localhost -p 3000 -c-1"
   },
   "devDependencies": {
+    "@dotenvx/dotenvx": "^0.37.0",
     "elm-codegen": "0.5.3",
     "elm-optimize-level-2": "0.3.5",
     "elm-pages": "3.0.12",

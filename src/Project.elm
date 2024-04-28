@@ -3,34 +3,62 @@ module Project exposing (DisplayType(..), Language(..), Project, getProjects, la
 -- Represents a single "project"
 
 import BackendTask exposing (BackendTask)
+import BackendTask.Env
 import BackendTask.Glob as Glob
+import BackendTask.Http
 import Color
 import Colours
 import Css exposing (..)
+import Date exposing (Date)
 import FatalError exposing (FatalError)
 import FeatherIcons
 import GithubColors
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes exposing (css)
 import Icon
+import Iso8601
+import Json.Decode
+import Time
 import Util
 import Yaml.Decode as Yaml
 
 
+
+-- I would prefer to have all the processed and raw data in the top level
+-- but Elm doesn't seem to like to do that.
+
+
 type alias Project =
+    { raw : RawData
+    , processed : ProcessedData
+    }
+
+
+
+-- extra processed data from a project
+
+
+type alias ProcessedData =
+    { imgPath : String
+    , year : Year
+    }
+
+
+
+-- data we get from the yaml file without any processing
+
+
+type alias RawData =
     { id : String
     , name : String
     , blurb : String
     , link : Maybe String
-    , githubLink : Maybe String
-    , year : Int
+    , githubRepo : Maybe String
+    , rawYear : Maybe Int
     , languages : List Language
     , concepts : Maybe (List String)
     , displayType : DisplayType
     , mobile : Bool
-
-    -- transparent icon if no image found
-    , imgPath : String
     }
 
 
@@ -53,6 +81,11 @@ type DisplayType
     | Other
 
 
+type Year
+    = Manual Int
+    | Range Date Date
+
+
 
 -- BackendTask parse from string
 
@@ -61,9 +94,9 @@ splitProjects : List Project -> BackendTask FatalError { featured : List Project
 splitProjects projs =
     let
         splitted =
-            { featured = List.filter (\p -> p.displayType == Featured) projs
-            , home = List.filter (\p -> p.displayType == Home) projs
-            , other = List.filter (\p -> p.displayType == Other) projs
+            { featured = List.filter (\p -> p.raw.displayType == Featured) projs
+            , home = List.filter (\p -> p.raw.displayType == Home) projs
+            , other = List.filter (\p -> p.raw.displayType == Other) projs
             }
     in
     if List.length splitted.home > 5 then
@@ -78,9 +111,87 @@ splitProjects projs =
 
 getProjects : String -> BackendTask FatalError (List Project)
 getProjects str =
-    parseProjects str
-        |> BackendTask.andThen
-            (\projects -> BackendTask.combine (List.map addImagePath projects))
+    parseRawData str
+        |> BackendTask.andThen (List.map addProcessedData >> BackendTask.combine)
+
+
+addProcessedData : RawData -> BackendTask FatalError Project
+addProcessedData decodedProj =
+    BackendTask.succeed ProcessedData
+        |> BackendTask.andMap (addImagePath decodedProj)
+        |> BackendTask.andMap (addYear decodedProj)
+        |> BackendTask.map
+            (\processed ->
+                { raw = decodedProj
+                , processed = processed
+                }
+            )
+
+
+type alias Env =
+    { githubToken : Maybe String
+    }
+
+
+getEnvs : BackendTask FatalError Env
+getEnvs =
+    BackendTask.succeed Env
+        |> BackendTask.andMap (BackendTask.Env.get "GITHUB_TOKEN")
+
+
+
+-- if the project doesn't have a "year" field, scrape the github API
+-- to get the date of the first commit and latest commit, and use that to create a range
+
+
+addYear : RawData -> BackendTask FatalError Year
+addYear proj =
+    case ( proj.rawYear, proj.githubRepo ) of
+        ( Just y, _ ) ->
+            BackendTask.succeed (Manual y)
+
+        ( Nothing, Just repoName ) ->
+            getEnvs
+                |> BackendTask.andThen (getYearFromGithub repoName)
+
+        ( Nothing, Nothing ) ->
+            BackendTask.fail (FatalError.fromString <| "Error parsing projects.yaml: no year field and no githubRepo field for project " ++ proj.id)
+
+
+getYearFromGithub : String -> Env -> BackendTask FatalError Year
+getYearFromGithub repoName env =
+    let
+        dateDecoder =
+            Iso8601.decoder
+                |> Json.Decode.map (Date.fromPosix Time.utc)
+
+        yearDecoder =
+            Json.Decode.map2 Range
+                (Json.Decode.field "created_at" dateDecoder)
+                (Json.Decode.field "updated_at" dateDecoder)
+
+        headers =
+            case env.githubToken of
+                Just token ->
+                    [ ( "Authorization", "token " ++ token ) ]
+
+                Nothing ->
+                    []
+    in
+    BackendTask.Http.getWithOptions
+        { url = "https://api.github.com/repos/" ++ repoName
+        , expect = BackendTask.Http.expectJson yearDecoder
+        , headers = headers
+        , cacheStrategy = Just BackendTask.Http.ForceCache
+        , retries = Nothing
+        , timeoutInMs = Nothing
+        , cachePath = Nothing
+        }
+        |> BackendTask.allowFatal
+
+
+
+-- add the image path to the project data
 
 
 type alias Path =
@@ -91,7 +202,7 @@ type alias Path =
     }
 
 
-addImagePath : Project -> BackendTask FatalError Project
+addImagePath : RawData -> BackendTask FatalError String
 addImagePath proj =
     Glob.succeed Path
         |> Glob.capture (Glob.literal "public/")
@@ -104,18 +215,18 @@ addImagePath proj =
             (\imgPaths ->
                 case imgPaths of
                     [] ->
-                        BackendTask.succeed { proj | imgPath = "/proj_icons/transparent.png" }
+                        BackendTask.succeed "/proj_icons/transparent.png"
 
                     [ path ] ->
-                        BackendTask.succeed { proj | imgPath = "/" ++ path.projIcons ++ path.projId ++ "." ++ path.extension }
+                        BackendTask.succeed ("/" ++ path.projIcons ++ path.projId ++ "." ++ path.extension)
 
                     path :: paths ->
                         BackendTask.fail (FatalError.fromString <| "Multiple images found for project " ++ proj.id)
             )
 
 
-parseProjects : String -> BackendTask FatalError (List Project)
-parseProjects str =
+parseRawData : String -> BackendTask FatalError (List RawData)
+parseRawData str =
     case Yaml.fromString (Yaml.list decoder) str of
         Ok projects ->
             BackendTask.succeed projects
@@ -126,23 +237,27 @@ parseProjects str =
 
 
 -- PARSER
--- imgPath is not parsed, it is filled in later
+-- we also parse githubLink first, since we'll need to use it in the "year" field
 
 
-decoder : Yaml.Decoder Project
+decoder : Yaml.Decoder RawData
 decoder =
-    Yaml.succeed Project
+    Yaml.succeed RawData
         |> Yaml.andMap (Yaml.field "id" Yaml.string)
         |> Yaml.andMap (Yaml.field "name" Yaml.string)
         |> Yaml.andMap (Yaml.field "blurb" Yaml.string)
         |> Yaml.andMap (Yaml.maybe (Yaml.field "link" Yaml.string))
-        |> Yaml.andMap (Yaml.maybe (Yaml.field "githubLink" Yaml.string))
-        |> Yaml.andMap (Yaml.field "year" Yaml.int)
+        |> Yaml.andMap (Yaml.maybe (Yaml.field "githubRepo" Yaml.string))
+        |> Yaml.andMap (Yaml.maybe (Yaml.field "year" Yaml.int))
         |> Yaml.andMap (Yaml.field "languages" (Yaml.list languageDecoder))
         |> Yaml.andMap (Yaml.maybe (Yaml.field "concepts" (Yaml.list Yaml.string)))
         |> Yaml.andMap (Yaml.field "displayType" displayTypeDecoder)
         |> Yaml.andMap (Yaml.field "mobile" Yaml.bool)
-        |> Yaml.andMap (Yaml.succeed "")
+
+
+githubRepoToLink : String -> String
+githubRepoToLink repo =
+    "https://github.com/" ++ repo
 
 
 languageDecoder : Yaml.Decoder Language
@@ -293,8 +408,8 @@ view proj =
         [ projectImage
             { imgSize = px 50
             , dir = Util.Row
-            , link = proj.imgPath
-            , name = proj.name
+            , link = proj.processed.imgPath
+            , name = proj.raw.name
             }
             [ padding2 (px 0) (em 1) ]
         , Html.div
@@ -305,16 +420,12 @@ view proj =
                 , flex (int 1)
                 ]
             ]
-            [ projectTitle proj
-            , Html.p
-                [ css
-                    [ fontSize (em 0.75) ]
-                ]
-                [ Html.text <| String.fromInt proj.year ]
-            , Html.p [] [ Html.text proj.blurb ]
-            , languagesAndConcepts Util.Row { languages = proj.languages, concepts = proj.concepts }
+            [ projectTitle proj.raw
+            , projectYear proj.processed.year
+            , Html.p [] [ Html.text proj.raw.blurb ]
+            , languagesAndConcepts Util.Row { languages = proj.raw.languages, concepts = proj.raw.concepts }
             ]
-        , projectLinks Util.Column { githubLink = proj.githubLink, link = proj.link }
+        , projectLinks Util.Column { githubRepo = proj.raw.githubRepo, link = proj.raw.link }
         ]
 
 
@@ -330,22 +441,18 @@ viewFeatured proj =
         [ projectImage
             { imgSize = px 120
             , dir = Util.Column
-            , link = proj.imgPath
-            , name = proj.name
+            , link = proj.processed.imgPath
+            , name = proj.raw.name
             }
             [ padding2 (px 0) (em 1) ]
-        , projectTitle proj
-        , Html.p
-            [ css
-                [ fontSize (em 0.75) ]
-            ]
-            [ Html.text <| String.fromInt proj.year ]
-        , Html.p [] [ Html.text proj.blurb ]
+        , projectTitle proj.raw
+        , projectYear proj.processed.year
+        , Html.p [] [ Html.text proj.raw.blurb ]
 
         -- height-filling empty div to align the languages/concepts and links to the bottom
         , Html.div [ css [ flex (int 1) ] ] []
-        , projectLinks Util.Row { githubLink = proj.githubLink, link = proj.link }
-        , languagesAndConcepts Util.Column { languages = proj.languages, concepts = proj.concepts }
+        , projectLinks Util.Row { githubRepo = proj.raw.githubRepo, link = proj.raw.link }
+        , languagesAndConcepts Util.Column { languages = proj.raw.languages, concepts = proj.raw.concepts }
         ]
 
 
@@ -353,17 +460,17 @@ viewFeatured proj =
 -- view Helpers
 
 
-projectTitle : Project -> Html msg
-projectTitle proj =
+projectTitle : RawData -> Html msg
+projectTitle raw =
     let
         -- try link, otherwise link to github, else Nothing
         mainLink =
-            case proj.link of
+            case raw.link of
                 Just _ ->
-                    proj.link
+                    raw.link
 
                 Nothing ->
-                    proj.githubLink
+                    Maybe.map githubRepoToLink raw.githubRepo
 
         mainLinkCSS =
             case mainLink of
@@ -389,7 +496,33 @@ projectTitle proj =
             Nothing ->
                 Html.Styled.Attributes.title "No link available, sorry!"
         ]
-        [ Html.text proj.name ]
+        [ Html.text raw.name ]
+
+
+projectYear : Year -> Html msg
+projectYear year =
+    let
+        displayRange : Date -> Date -> String
+        displayRange start end =
+            if Date.year start == Date.year end then
+                String.fromInt (Date.year start)
+
+            else
+                String.fromInt (Date.year start) ++ " - " ++ String.fromInt (Date.year end)
+
+        dateString =
+            case year of
+                Manual y ->
+                    String.fromInt y
+
+                Range start end ->
+                    displayRange start end
+    in
+    Html.p
+        [ css
+            [ fontSize (em 0.75) ]
+        ]
+        [ Html.text dateString ]
 
 
 
@@ -464,7 +597,7 @@ languagesAndConcepts dir data_ =
 projectLinks :
     Util.FlexDirection
     ->
-        { githubLink : Maybe String
+        { githubRepo : Maybe String
         , link : Maybe String
         }
     -> Html msg
@@ -503,7 +636,7 @@ projectLinks dir links =
             ]
         ]
         [ Maybe.withDefault (Html.text "") <| Maybe.map (renderLink FeatherIcons.link2) links.link
-        , Maybe.withDefault (Html.text "") <| Maybe.map (renderLink FeatherIcons.github) links.githubLink
+        , Maybe.withDefault (Html.text "") <| Maybe.map (githubRepoToLink >> renderLink FeatherIcons.github) links.githubRepo
         ]
 
 
