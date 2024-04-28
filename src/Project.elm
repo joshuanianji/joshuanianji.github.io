@@ -43,8 +43,8 @@ type alias ProcessedData =
     { imgPath : String
     , year : Year
 
-    -- only add github stars if the project has a github repo and it's above 5 stars (arbitrary)
-    -- kinda embarassing to display star count if it's THAT low...
+    -- only add github stars if the project has a github repo w/ 5 stars or more
+    -- kinda awkward to display a project with 0 stars...
     , stargazers : Maybe Int
     }
 
@@ -184,7 +184,7 @@ getStargazers repoName env =
         |> BackendTask.allowFatal
         |> BackendTask.map
             (\stargazers ->
-                if stargazers > 5 then
+                if stargazers >= 5 then
                     Just stargazers
 
                 else
