@@ -2,6 +2,7 @@ module Project exposing (DisplayType(..), Language(..), Project, getProjects, la
 
 -- Represents a single "project"
 
+import Ansi.Log exposing (LineDiscipline(..))
 import BackendTask exposing (BackendTask)
 import BackendTask.Env
 import BackendTask.Glob as Glob
@@ -41,6 +42,10 @@ type alias Project =
 type alias ProcessedData =
     { imgPath : String
     , year : Year
+
+    -- only add github stars if the project has a github repo and it's above 5 stars (arbitrary)
+    -- kinda embarassing to display star count if it's THAT low...
+    , stargazers : Maybe Int
     }
 
 
@@ -120,6 +125,7 @@ addProcessedData decodedProj =
     BackendTask.succeed ProcessedData
         |> BackendTask.andMap (addImagePath decodedProj)
         |> BackendTask.andMap (addYear decodedProj)
+        |> BackendTask.andMap (addStargazers decodedProj)
         |> BackendTask.map
             (\processed ->
                 { raw = decodedProj
@@ -137,6 +143,46 @@ getEnvs : BackendTask FatalError Env
 getEnvs =
     BackendTask.succeed Env
         |> BackendTask.andMap (BackendTask.Env.get "GITHUB_TOKEN")
+
+
+githubApiAuthHeader : Env -> List ( String, String )
+githubApiAuthHeader env =
+    case env.githubToken of
+        Just token ->
+            [ ( "Authorization", "token " ++ token ) ]
+
+        Nothing ->
+            []
+
+
+
+-- it's ok to re-fetch the github API since the get requests are cached
+
+
+addStargazers : RawData -> BackendTask FatalError (Maybe Int)
+addStargazers proj =
+    case proj.githubRepo of
+        Just repoName ->
+            getEnvs
+                |> BackendTask.andThen (getStargazers repoName)
+
+        Nothing ->
+            BackendTask.succeed Nothing
+
+
+getStargazers : String -> Env -> BackendTask FatalError (Maybe Int)
+getStargazers repoName env =
+    BackendTask.Http.getWithOptions
+        { url = "https://api.github.com/repos/" ++ repoName
+        , expect = BackendTask.Http.expectJson (Json.Decode.field "stargazers_count" Json.Decode.int)
+        , headers = githubApiAuthHeader env
+        , cacheStrategy = Nothing
+        , retries = Nothing
+        , timeoutInMs = Nothing
+        , cachePath = Nothing
+        }
+        |> BackendTask.allowFatal
+        |> BackendTask.map Just
 
 
 
@@ -169,19 +215,11 @@ getYearFromGithub repoName env =
             Json.Decode.map2 Range
                 (Json.Decode.field "created_at" dateDecoder)
                 (Json.Decode.field "pushed_at" dateDecoder)
-
-        headers =
-            case env.githubToken of
-                Just token ->
-                    [ ( "Authorization", "token " ++ token ) ]
-
-                Nothing ->
-                    []
     in
     BackendTask.Http.getWithOptions
         { url = "https://api.github.com/repos/" ++ repoName
         , expect = BackendTask.Http.expectJson yearDecoder
-        , headers = headers
+        , headers = githubApiAuthHeader env
         , cacheStrategy = Nothing
         , retries = Nothing
         , timeoutInMs = Nothing
@@ -421,7 +459,11 @@ view proj =
                 ]
             ]
             [ projectTitle proj.raw
-            , projectYear proj.processed.year
+            , Html.p
+                [ css [ fontSize (em 0.75) ] ]
+                [ projectStars proj.processed.stargazers
+                , projectYear proj.processed.year
+                ]
             , Html.p [] [ Html.text proj.raw.blurb ]
             , languagesAndConcepts Util.Row { languages = proj.raw.languages, concepts = proj.raw.concepts }
             ]
@@ -446,7 +488,11 @@ viewFeatured proj =
             }
             [ padding2 (px 0) (em 1) ]
         , projectTitle proj.raw
-        , projectYear proj.processed.year
+        , Html.p
+            [ css [ fontSize (em 0.75) ] ]
+            [ projectStars proj.processed.stargazers
+            , projectYear proj.processed.year
+            ]
         , Html.p [] [ Html.text proj.raw.blurb ]
 
         -- height-filling empty div to align the languages/concepts and links to the bottom
@@ -499,6 +545,18 @@ projectTitle raw =
         [ Html.text raw.name ]
 
 
+projectStars : Maybe Int -> Html msg
+projectStars stargazers =
+    case stargazers of
+        Just stars ->
+            Html.span
+                []
+                [ Html.text <| String.fromInt stars ++ " ⭐  ⋅  " ]
+
+        Nothing ->
+            Html.text ""
+
+
 projectYear : Year -> Html msg
 projectYear year =
     let
@@ -528,10 +586,8 @@ projectYear year =
                 Range start end ->
                     displayRange start end
     in
-    Html.p
-        [ css
-            [ fontSize (em 0.75) ]
-        , case year of
+    Html.span
+        [ case year of
             Manual _ ->
                 Html.Styled.Attributes.attribute "data-datetype" "manual"
 
