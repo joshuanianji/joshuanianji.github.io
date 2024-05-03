@@ -11,8 +11,8 @@ dependencies:
 
 devDependencies:
   '@dotenvx/dotenvx':
-    specifier: 0.37.0
-    version: 0.37.0
+    specifier: 0.37.1
+    version: 0.37.1
   elm-codegen:
     specifier: 0.5.3
     version: 0.5.3
@@ -20,8 +20,8 @@ devDependencies:
     specifier: 0.3.5
     version: 0.3.5
   elm-pages:
-    specifier: 3.0.12
-    version: 3.0.12(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2)
+    specifier: 3.0.15
+    version: 3.0.15(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2)
   elm-review:
     specifier: 2.11.1
     version: 2.11.1
@@ -35,8 +35,8 @@ devDependencies:
     specifier: 0.19.1-1.2.1-1
     version: 0.19.1-1.2.1-1
   vite:
-    specifier: 5.2.8
-    version: 5.2.8(terser@5.27.0)
+    specifier: 5.2.11
+    version: 5.2.11(terser@5.27.0)
 
 packages:
 
@@ -53,8 +53,8 @@ packages:
       kuler: 2.0.0
     dev: true
 
-  /@dotenvx/dotenvx@0.37.0:
-    resolution: {integrity: sha512-oDQS5Ks7vnmZ/Enr5jJXeo3HqJzSYNR71lpnJfedemgFK5K/27hdTUaLr9EjuJ5ODnWXxDrnOIrgCvdqS+WfGg==}
+  /@dotenvx/dotenvx@0.37.1:
+    resolution: {integrity: sha512-CN8A4cxuIQ5eRIaWK6qeRAYXPtt5Mo5XHw6o9kP+VWYlTg8UY3k426tCxcgrMRTI/GKMyu8wryHng+thUFCNYg==}
     hasBin: true
     dependencies:
       '@inquirer/confirm': 2.0.17
@@ -788,6 +788,11 @@ packages:
     engines: {node: '>=18'}
     dev: true
 
+  /@sindresorhus/merge-streams@3.0.0:
+    resolution: {integrity: sha512-5Muw0TDzXvK/i0BmrL1tiTsb6Sh/DXe/e5d63GpmHWr59t7rUyQhhiIuw605q/yvJxyBf6gMWmsxCC2fqtcFvQ==}
+    engines: {node: '>=18'}
+    dev: true
+
   /@szmarczak/http-timer@1.1.2:
     resolution: {integrity: sha512-XIB2XbzHTN6ieIjfIMV9hlVcfPU26s2vafYWQcZHWXHOxiaRZYEDKEwdl129Zyg50+foYV2jCgtrqSA6qNuNSA==}
     engines: {node: '>=6'}
@@ -1244,6 +1249,13 @@ packages:
       restore-cursor: 3.1.0
     dev: true
 
+  /cli-cursor@4.0.0:
+    resolution: {integrity: sha512-VGtlMu3x/4DOtIUwEkRezxUZ2lBacNJCHash0N0WeZDBS+7Ux1dm3XWAgWYxLJFMMdOeXMHXorshEFhbMSGelg==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dependencies:
+      restore-cursor: 4.0.0
+    dev: true
+
   /cli-spinners@2.9.2:
     resolution: {integrity: sha512-ywqV+5MmyL4E7ybXgKys4DugZbX0FC6LnwrhjuykIjnK9k8OQacQ7axGKnjDXWNhns0xot3bZI5h55H8yo9cJg==}
     engines: {node: '>=6'}
@@ -1639,12 +1651,14 @@ packages:
       typescript: 4.9.5
     dev: true
 
-  /elm-pages@3.0.12(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2):
-    resolution: {integrity: sha512-MqQHXrjl9BNPaFv+46yCxjuU7cyzzN0eQESGURXXd8O7Uv9HRgQTy+c5YCTUDSutJoN3xmVBfdeLgb9NLT8NMg==}
+  /elm-pages@3.0.15(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2):
+    resolution: {integrity: sha512-L0WS5msmWYILUYdPWa6NmVDTCSXW0sU6gQTtt36jmIS4aYQA41H75UPkZ14+xahcvlrhw9GTKXmqWV6Rcz1L4w==}
     hasBin: true
     dependencies:
+      '@sindresorhus/merge-streams': 3.0.0
       busboy: 1.6.0
       chokidar: 3.5.3
+      cli-cursor: 4.0.0
       commander: 11.1.0
       connect: 3.7.0
       cookie-signature: 1.2.1
@@ -1663,7 +1677,7 @@ packages:
       micromatch: 4.0.5
       serve-static: 1.15.0
       terser: 5.27.0
-      vite: 5.2.8(terser@5.27.0)
+      vite: 5.2.11(terser@5.27.0)
       which: 4.0.0
     transitivePeerDependencies:
       - '@types/node'
@@ -3402,6 +3416,14 @@ packages:
       signal-exit: 3.0.7
     dev: true
 
+  /restore-cursor@4.0.0:
+    resolution: {integrity: sha512-I9fPXU9geO9bHOt9pHHOhOkYerIMsmVaWB0rA2AI9ERh/+x/i7MV5HKBNrg+ljO5eoPVgCcnFuRjJ9uH6I/3eg==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dependencies:
+      onetime: 5.1.2
+      signal-exit: 3.0.7
+    dev: true
+
   /retry@0.12.0:
     resolution: {integrity: sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow==}
     engines: {node: '>= 4'}
@@ -3973,8 +3995,8 @@ packages:
     engines: {node: '>= 0.8'}
     dev: true
 
-  /vite@5.2.8(terser@5.27.0):
-    resolution: {integrity: sha512-OyZR+c1CE8yeHw5V5t59aXsUPPVTHMDjEZz8MgguLL/Q7NblxhZUlTu9xSPqlsUO/y+X7dlU05jdhvyycD55DA==}
+  /vite@5.2.11(terser@5.27.0):
+    resolution: {integrity: sha512-HndV31LWW05i1BLPMUCE1B9E9GFbOu1MbenhS58FuK6owSO5qHm7GiCotrNY1YE5rMeQSFBGmT5ZaLEjFizgiQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:

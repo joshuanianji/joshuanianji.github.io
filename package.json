@@ -8,15 +8,15 @@
     "serve": "pnpm build && http-server ./dist -a localhost -p 3000 -c-1"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "0.37.0",
+    "@dotenvx/dotenvx": "0.37.1",
     "elm-codegen": "0.5.3",
     "elm-optimize-level-2": "0.3.5",
-    "elm-pages": "3.0.12",
+    "elm-pages": "3.0.15",
     "elm-review": "2.11.1",
     "elm-tooling": "1.15.1",
     "http-server": "14.1.1",
     "lamdera": "0.19.1-1.2.1-1",
-    "vite": "5.2.8"
+    "vite": "5.2.11"
   },
   "dependencies": {
     "highlight.js": "11.9.0"
