@@ -11,8 +11,8 @@ dependencies:
 
 devDependencies:
   '@dotenvx/dotenvx':
-    specifier: 0.37.1
-    version: 0.37.1
+    specifier: 0.39.0
+    version: 0.39.0
   elm-codegen:
     specifier: 0.5.3
     version: 0.5.3
@@ -53,8 +53,8 @@ packages:
       kuler: 2.0.0
     dev: true
 
-  /@dotenvx/dotenvx@0.37.1:
-    resolution: {integrity: sha512-CN8A4cxuIQ5eRIaWK6qeRAYXPtt5Mo5XHw6o9kP+VWYlTg8UY3k426tCxcgrMRTI/GKMyu8wryHng+thUFCNYg==}
+  /@dotenvx/dotenvx@0.39.0:
+    resolution: {integrity: sha512-OC8m1P10A9hG7yzuQZxQjIGvJlm2nHIZnvHse95DkwhxBgCC8NgZkb/3GnoIIw9Z6VZ2+LF0jLsnMrlcVIFk1w==}
     hasBin: true
     dependencies:
       '@inquirer/confirm': 2.0.17
@@ -65,6 +65,7 @@ packages:
       diff: 5.2.0
       dotenv: 16.4.5
       dotenv-expand: 11.0.6
+      eciesjs: 0.4.6
       execa: 5.1.1
       glob: 10.3.12
       ignore: 5.3.1
@@ -620,6 +621,21 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@noble/ciphers@0.4.1:
+    resolution: {integrity: sha512-QCOA9cgf3Rc33owG0AYBB9wszz+Ul2kramWN8tXG44Gyciud/tbkEqvxRF/IpqQaBpRBNi9f4jdNxqB2CQCIXg==}
+    dev: true
+
+  /@noble/curves@1.4.0:
+    resolution: {integrity: sha512-p+4cb332SFCrReJkCYe8Xzm0OWi4Jji5jVdIZRL/PmacmDkFNw6MrrV+gGpiPxLHbV+zKFRywUWbaseT+tZRXg==}
+    dependencies:
+      '@noble/hashes': 1.4.0
+    dev: true
+
+  /@noble/hashes@1.4.0:
+    resolution: {integrity: sha512-V1JJ1WTRUqHHrOSh597hURcMqVKVGL/ea3kv0gSnEdsEZ0/+VyPghM1lMNGc00z7CIQorSvbKpuJkxvuHbvdbg==}
+    engines: {node: '>= 16'}
+    dev: true
 
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -1594,6 +1610,15 @@ packages:
 
   /eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
+    dev: true
+
+  /eciesjs@0.4.6:
+    resolution: {integrity: sha512-t0qLzGVKeATAA6X19hIeToxBVG8yvn/be/4XyJvTCBD53m2CK22cgzk+WW+pNYjEw5FGWZLNFoJte8lyZS/A/w==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      '@noble/ciphers': 0.4.1
+      '@noble/curves': 1.4.0
+      '@noble/hashes': 1.4.0
     dev: true
 
   /ee-first@1.1.1:
