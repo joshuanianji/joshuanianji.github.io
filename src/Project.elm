@@ -181,7 +181,10 @@ getStargazers repoName env =
         , timeoutInMs = Nothing
         , cachePath = Nothing
         }
-        |> BackendTask.allowFatal
+        |> BackendTask.mapError
+            (\err ->
+                FatalError.fromString <| "Error fetching stargazers for project " ++ repoName ++ "\n" ++ httpErrorToString err.recoverable
+            )
         |> BackendTask.map
             (\stargazers ->
                 if stargazers >= 5 then
@@ -190,6 +193,29 @@ getStargazers repoName env =
                 else
                     Nothing
             )
+
+
+httpErrorToString : BackendTask.Http.Error -> String
+httpErrorToString error =
+    let
+        body =
+            case error of
+                BackendTask.Http.BadUrl string ->
+                    "BadUrl " ++ string
+
+                BackendTask.Http.Timeout ->
+                    "Timeout"
+
+                BackendTask.Http.NetworkError ->
+                    "NetworkError"
+
+                BackendTask.Http.BadStatus metadata _ ->
+                    "BadStatus: " ++ String.fromInt metadata.statusCode ++ " " ++ metadata.statusText
+
+                BackendTask.Http.BadBody _ string ->
+                    "BadBody " ++ string
+    in
+    "HTTP Error: " ++ body
 
 
 
