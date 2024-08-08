@@ -1,4 +1,7 @@
-module Route.AllProjects exposing (Model, Msg, RouteParams, route, Data, ActionData)
+module Route.AllProjects exposing
+    ( Model, Msg, RouteParams, route, Data, ActionData
+    , init
+    )
 
 {-|
 
