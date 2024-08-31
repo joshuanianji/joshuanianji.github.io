@@ -227,25 +227,36 @@ addYear proj =
 getYearFromGithub : String -> Env -> BackendTask FatalError Year
 getYearFromGithub repoName env =
     let
-        dateDecoder =
+        dateDecoder fields =
             Iso8601.decoder
                 |> Json.Decode.map (Date.fromPosix Time.utc)
+                |> Json.Decode.at fields
 
-        yearDecoder =
-            Json.Decode.map2 Range
-                (Json.Decode.field "created_at" dateDecoder)
-                (Json.Decode.field "pushed_at" dateDecoder)
+        startDate =
+            BackendTask.Http.getWithOptions
+                { url = "https://api.github.com/repos/" ++ repoName
+                , expect = BackendTask.Http.expectJson (dateDecoder [ "created_at" ])
+                , headers = githubApiAuthHeader env
+                , cacheStrategy = Nothing
+                , retries = Nothing
+                , timeoutInMs = Nothing
+                , cachePath = Nothing
+                }
+                |> BackendTask.allowFatal
+
+        endDate =
+            BackendTask.Http.getWithOptions
+                { url = "https://api.github.com/repos/" ++ repoName ++ "/commits?per_page=1"
+                , expect = BackendTask.Http.expectJson (Json.Decode.index 0 <| dateDecoder [ "commit", "author", "date" ])
+                , headers = githubApiAuthHeader env
+                , cacheStrategy = Nothing
+                , retries = Nothing
+                , timeoutInMs = Nothing
+                , cachePath = Nothing
+                }
+                |> BackendTask.allowFatal
     in
-    BackendTask.Http.getWithOptions
-        { url = "https://api.github.com/repos/" ++ repoName
-        , expect = BackendTask.Http.expectJson yearDecoder
-        , headers = githubApiAuthHeader env
-        , cacheStrategy = Nothing
-        , retries = Nothing
-        , timeoutInMs = Nothing
-        , cachePath = Nothing
-        }
-        |> BackendTask.allowFatal
+    BackendTask.map2 Range startDate endDate
 
 
 
