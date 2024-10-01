@@ -4,7 +4,7 @@ Code for my personal website.
 
 ## Run Locally
 
-Open up the project in a devcontainer, then run the following
+I'm using [asdf](https://asdf-vm.com/) to manage my Node.js version. You can install the correct version by running `asdf install` in the root of the project.
 
 ```
 pnpm i
