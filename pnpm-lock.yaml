@@ -13,17 +13,17 @@ importers:
         version: 11.10.0
     devDependencies:
       '@dotenvx/dotenvx':
-        specifier: 1.11.5
-        version: 1.11.5
+        specifier: 1.16.0
+        version: 1.16.0
       elm-codegen:
-        specifier: 0.6.0
-        version: 0.6.0
+        specifier: 0.6.1
+        version: 0.6.1
       elm-optimize-level-2:
         specifier: 0.3.5
         version: 0.3.5
       elm-pages:
         specifier: 3.0.16
-        version: 3.0.16(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2)
+        version: 3.0.16(@types/node@20.12.7)(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2)
       elm-review:
         specifier: 2.12.0
         version: 2.12.0
@@ -37,13 +37,13 @@ importers:
         specifier: 0.19.1-1.2.1-1
         version: 0.19.1-1.2.1-1
       vite:
-        specifier: 5.4.2
-        version: 5.4.2(terser@5.27.0)
+        specifier: 5.4.8
+        version: 5.4.8(@types/node@20.12.7)(terser@5.27.0)
 
 packages:
 
-  '@dotenvx/dotenvx@1.11.5':
-    resolution: {integrity: sha512-HIuAGkJpEJ36WhAppMxtdRYQvAnmgZKe294SSecsLlkNmRgI/5cIbNh2LnenVFJsYuPozhHL9XOnOuLXIIXurg==}
+  '@dotenvx/dotenvx@1.16.0':
+    resolution: {integrity: sha512-KnyCmcHQ5wK+nJD9KaBxdeFavxj6QCVVEvJDSqs50qsEbdnCaoDu2FB1/HXxVxcyCJpUy25hAQqfrJEOvNbdKA==}
     hasBin: true
 
   '@esbuild/aix-ppc64@0.19.12':
@@ -888,8 +888,8 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
-  elm-codegen@0.6.0:
-    resolution: {integrity: sha512-zMe3KBsAwEyZSmMfnO+EBpEkEJzSEQZawTs5pob8LeLDmnl0VARl19VEENLvUI2v7x54mAmP20d1YIFO57CXkA==}
+  elm-codegen@0.6.1:
+    resolution: {integrity: sha512-mbVmK4fqW+wtYzTZhJSuT42KrQZMRTueYerCvo09sO5v7QdDGw3qeG/rL1vLH0q2GJF44lXhyBo4lv6azSBOQQ==}
     hasBin: true
 
   elm-doc-preview@5.0.5:
@@ -1672,8 +1672,8 @@ packages:
     resolution: {integrity: sha512-5HviZNaZcfqP95rwpv+1HDgUamezbqdSYTyzjTvwtJSnIH+3vnbmWsItli8OFEndS984VT55M3jduxZbX351gg==}
     engines: {node: '>=12'}
 
-  picocolors@1.0.1:
-    resolution: {integrity: sha512-anP1Z8qwhkbmu7MFP5iTt+wQKXgwzf7zTyGlcdzabySa9vd0Xt392U0rVmz9poOaBj0uHJKyyo9/upk0HrEQew==}
+  picocolors@1.1.0:
+    resolution: {integrity: sha512-TQ92mBOW0l3LeMeyLV6mzy/kWr8lkd/hp3mTg7wYK7zJhuBStmGMBG0BdeDZS/dZx1IukaX6Bk11zcln25o1Aw==}
 
   picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
@@ -1687,8 +1687,8 @@ packages:
     resolution: {integrity: sha512-on2ZJVVDXRADWE6jnQaX0ioEylzgBpQk8r55NE4wjXW1ZxO+BgDlY6DXwj20i0V8eB4SenDQ00WEaxfiIQPcxg==}
     engines: {node: '>= 0.12.0'}
 
-  postcss@8.4.41:
-    resolution: {integrity: sha512-TesUflQ0WKZqAvg52PWL6kHgLKP6xB6heTOdoYM0Wt2UHyxNa4K25EZZMgKns3BH1RLVbZCREPpLY0rhnNoHVQ==}
+  postcss@8.4.47:
+    resolution: {integrity: sha512-56rxCq7G/XfB4EkXq9Egn5GCqugWvDFjafDOThIdMBsI15iqPqR5r15TfSr1YPYeEI19YeaXMCbY6u88Y76GLQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   prepend-http@2.0.0:
@@ -1914,8 +1914,8 @@ packages:
     resolution: {integrity: sha512-7maUZy1N7uo6+WVEX6psASxtNlKaNVMlGQKkG/63nEDdLOWNbiUMoLK7X4uYoLhQstau72mLgfEWcXcwsaHbYQ==}
     engines: {node: '>= 10.13.0', npm: '>= 3.0.0'}
 
-  source-map-js@1.2.0:
-    resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
+  source-map-js@1.2.1:
+    resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
   source-map-support@0.5.21:
@@ -2096,8 +2096,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  vite@5.4.2:
-    resolution: {integrity: sha512-dDrQTRHp5C1fTFzcSaMxjk6vdpKvT+2/mIdE07Gw2ykehT49O0z/VHS3zZ8iV/Gh8BJJKHWOe5RjaNrW5xf/GA==}
+  vite@5.4.8:
+    resolution: {integrity: sha512-FqrItQ4DT1NC4zCUqMB4c4AZORMKIa0m8/URVCZ77OZ/QSNeJ54bU1vrFADbDsuwfIPcgknRkmqakQcgnL4GiQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -2187,7 +2187,7 @@ packages:
 
 snapshots:
 
-  '@dotenvx/dotenvx@1.11.5':
+  '@dotenvx/dotenvx@1.16.0':
     dependencies:
       commander: 11.1.0
       dotenv: 16.4.5
@@ -2883,7 +2883,7 @@ snapshots:
 
   ee-first@1.1.1: {}
 
-  elm-codegen@0.6.0:
+  elm-codegen@0.6.1:
     dependencies:
       chalk: 4.1.2
       chokidar: 3.5.3
@@ -2921,7 +2921,7 @@ snapshots:
       ts-union: 2.3.0
       typescript: 4.9.5
 
-  elm-pages@3.0.16(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2):
+  elm-pages@3.0.16(@types/node@20.12.7)(quill-delta@5.1.0)(rxjs@7.8.1)(tslib@2.6.2):
     dependencies:
       '@sindresorhus/merge-streams': 3.0.0
       busboy: 1.6.0
@@ -2945,7 +2945,7 @@ snapshots:
       micromatch: 4.0.5
       serve-static: 1.15.0
       terser: 5.27.0
-      vite: 5.4.2(terser@5.27.0)
+      vite: 5.4.8(@types/node@20.12.7)(terser@5.27.0)
       which: 4.0.0
     transitivePeerDependencies:
       - '@types/node'
@@ -3148,7 +3148,7 @@ snapshots:
       reusify: 1.0.4
 
   fdir@6.3.0(picomatch@4.0.2):
-    dependencies:
+    optionalDependencies:
       picomatch: 4.0.2
 
   fill-range@7.0.1:
@@ -3818,7 +3818,7 @@ snapshots:
 
   path-type@5.0.0: {}
 
-  picocolors@1.0.1: {}
+  picocolors@1.1.0: {}
 
   picomatch@2.3.1: {}
 
@@ -3832,11 +3832,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  postcss@8.4.41:
+  postcss@8.4.47:
     dependencies:
       nanoid: 3.3.7
-      picocolors: 1.0.1
-      source-map-js: 1.2.0
+      picocolors: 1.1.0
+      source-map-js: 1.2.1
 
   prepend-http@2.0.0: {}
 
@@ -4093,7 +4093,7 @@ snapshots:
       ip: 2.0.0
       smart-buffer: 4.2.0
 
-  source-map-js@1.2.0: {}
+  source-map-js@1.2.1: {}
 
   source-map-support@0.5.21:
     dependencies:
@@ -4248,14 +4248,15 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vite@5.4.2(terser@5.27.0):
+  vite@5.4.8(@types/node@20.12.7)(terser@5.27.0):
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.4.41
+      postcss: 8.4.47
       rollup: 4.21.1
-      terser: 5.27.0
     optionalDependencies:
+      '@types/node': 20.12.7
       fsevents: 2.3.3
+      terser: 5.27.0
 
   wcwidth@1.0.1:
     dependencies:
