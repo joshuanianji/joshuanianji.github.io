@@ -1,4 +1,3 @@
----
 
 # === FEATURED
 
@@ -20,7 +19,7 @@
   languages:
   - C++
   - C
-  - ANTLR4
+  - ANTLR
   concepts:
   - MLIR & LLVM
   - Compiler Theory
@@ -32,7 +31,7 @@
   blurb: Multi-arch, multi-distro Docker images for Idris 2
   githubRepo: joshuanianji/idris-2-docker
   languages:
-  - Docker
+  - Dockerfile
   concepts:
   - Github Actions
   displayType: featured
@@ -59,8 +58,8 @@
   link: https://reformed-22an6t4ebq-uc.a.run.app/
   githubRepo: 3iq-hacks/the-conversationalist
   languages:
-  - Typescript
-  - Docker
+  - TypeScript
+  - Dockerfile
   concepts:
   - GCP
   - React/Next.JS
@@ -74,7 +73,7 @@
   link: https://mathgpt-3iq-hacks.vercel.app/
   githubRepo: 3iq-hacks/mathgpt
   languages:
-  - Typescript
+  - TypeScript
   - Python
   concepts:
   - React/Next.JS
@@ -115,8 +114,8 @@
   blurb: A Discord bot to rank nerdiness. Currently hosted on an Oracle Cloud VM.
   githubRepo: joshuanianji/nerd-bot
   languages:
-  - Typescript
-  - Docker
+  - TypeScript
+  - Dockerfile
   concepts:
   - Discord.js
   - PostgreSQL
@@ -129,7 +128,7 @@
   link: https://imposter-detector.vercel.app/
   githubRepo: 3iq-hacks/imposter-detector-2022
   languages:
-  - Javascript
+  - JavaScript
   - Python
   concepts:
   - GCP
@@ -156,7 +155,7 @@
   link: https://math-tts.vercel.app/
   githubRepo: 3iq-hacks/math-tts
   languages:
-  - Typescript
+  - TypeScript
   - Python
   concepts:
   - API
@@ -189,16 +188,3 @@
   - DataStructures
   displayType: other
   mobile: false
-
-- id: hiit-timer
-  name: HIIT-Timer
-  blurb: A customizable PWA that times your workouts.
-  link: https://joshuaji.com/HIIT-Timer/
-  githubRepo: joshuanianji/HIIT-Timer
-  languages:
-  - Elm
-  concepts:
-  - PWA
-  displayType: other
-  mobile: true
-
