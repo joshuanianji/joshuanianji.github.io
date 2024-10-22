@@ -1,4 +1,7 @@
-module Route.AllProjects exposing (Model, Msg, RouteParams, route, Data, ActionData)
+module Route.AllProjects exposing
+    ( Model, Msg, RouteParams, route, Data, ActionData
+    , init
+    )
 
 {-|
 
@@ -50,21 +53,6 @@ init :
     -> ( Model, Effect.Effect Msg )
 init app shared =
     ( {}, Effect.none )
-
-
-update :
-    RouteBuilder.App Data ActionData RouteParams
-    -> Shared.Model
-    -> Msg
-    -> Model
-    -> ( Model, Effect.Effect Msg )
-update app shared msg model =
-    ( model, Effect.none )
-
-
-subscriptions : RouteParams -> UrlPath.UrlPath -> Shared.Model -> Model -> Sub Msg
-subscriptions routeParams path shared model =
-    Sub.none
 
 
 type alias Data =
