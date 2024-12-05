@@ -1,4 +1,4 @@
-module Project exposing (DisplayType(..), Language(..), Project, getProjects, langToColor, langToString, splitProjects, view, viewFeatured)
+module Project exposing (DisplayType(..), Project, getProjects, langToColor, splitProjects, view, viewFeatured)
 
 -- Represents a single "project"
 
@@ -13,7 +13,7 @@ import Css exposing (..)
 import Date exposing (Date)
 import FatalError exposing (FatalError)
 import FeatherIcons
-import GithubColors
+import GithubColors exposing (Language)
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes exposing (css)
 import Icon
@@ -65,19 +65,6 @@ type alias RawData =
     , displayType : DisplayType
     , mobile : Bool
     }
-
-
-type Language
-    = Elm
-    | Python
-    | Rust
-    | Javascript
-    | Docker
-    | Typescript
-    | Shell
-    | CPP
-    | C
-    | ANTLR4
 
 
 type DisplayType
@@ -346,40 +333,13 @@ languageDecoder : Yaml.Decoder Language
 languageDecoder =
     Yaml.string
         |> Yaml.andThen
-            (\str ->
-                case str of
-                    "Elm" ->
-                        Yaml.succeed Elm
+            (\s ->
+                case GithubColors.fromString s of
+                    Just lang ->
+                        Yaml.succeed lang
 
-                    "Python" ->
-                        Yaml.succeed Python
-
-                    "Rust" ->
-                        Yaml.succeed Rust
-
-                    "Javascript" ->
-                        Yaml.succeed Javascript
-
-                    "Typescript" ->
-                        Yaml.succeed Typescript
-
-                    "Docker" ->
-                        Yaml.succeed Docker
-
-                    "Shell" ->
-                        Yaml.succeed Shell
-
-                    "C++" ->
-                        Yaml.succeed CPP
-
-                    "C" ->
-                        Yaml.succeed C
-
-                    "ANTLR4" ->
-                        Yaml.succeed ANTLR4
-
-                    other ->
-                        Yaml.fail <| "Unknown language " ++ other
+                    Nothing ->
+                        Yaml.fail <| "Unknown language " ++ s
             )
 
 
@@ -407,72 +367,9 @@ displayTypeDecoder =
 -- Helpers
 
 
-langToString : Language -> String
-langToString l =
-    case l of
-        Elm ->
-            "Elm"
-
-        Python ->
-            "Python"
-
-        Rust ->
-            "Rust"
-
-        Javascript ->
-            "Javascript"
-
-        Typescript ->
-            "Typescript"
-
-        Docker ->
-            "Docker"
-
-        Shell ->
-            "Shell"
-
-        CPP ->
-            "C++"
-
-        C ->
-            "C"
-
-        ANTLR4 ->
-            "ANTLR4"
-
-
 langToColor : Language -> Color.Color
-langToColor l =
-    case l of
-        Elm ->
-            GithubColors.elm.color
-
-        Python ->
-            GithubColors.python.color
-
-        Rust ->
-            GithubColors.rust.color
-
-        Javascript ->
-            GithubColors.javascript.color
-
-        Typescript ->
-            GithubColors.typescript.color
-
-        Docker ->
-            GithubColors.dockerfile.color
-
-        Shell ->
-            GithubColors.shell.color
-
-        CPP ->
-            GithubColors.cpp.color
-
-        C ->
-            GithubColors.c.color
-
-        ANTLR4 ->
-            GithubColors.antlr.color
+langToColor =
+    GithubColors.toColor >> .color
 
 
 
@@ -789,9 +686,10 @@ viewLanguage lang =
                 , borderRadius (em 1)
                 , backgroundColor (Colours.toCss <| langToColor lang)
                 ]
+            , Html.Styled.Attributes.attribute "data-lang" (GithubColors.toString lang)
             ]
             []
-        , Html.text <| langToString lang
+        , Html.text <| GithubColors.toString lang
         ]
 
 
