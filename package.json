@@ -5,7 +5,7 @@
     "postinstall": "elm-tooling install",
     "dev": "dotenvx run -- elm-pages dev",
     "build": "elm-pages build",
-    "serve": "pnpm build && http-server ./dist -a localhost -p 3000 -c-1"
+    "serve": "dotenvx run -- pnpm build && http-server ./dist -a localhost -p 3000 -c-1"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "1.28.0",
