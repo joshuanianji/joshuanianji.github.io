@@ -7,7 +7,6 @@ Literally hardcoding an icosahedron for Elm-3d-scene to render
 import Angle exposing (Angle)
 import Browser.Events
 import Camera3d
-import Colours
 import Color exposing (Color)
 import Duration exposing (Duration)
 import Html.Styled exposing (Html, fromUnstyled)
