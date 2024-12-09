@@ -1,10 +1,5 @@
 {
   "features": {
-    "ghcr.io/devcontainers-extra/features/asdf-package:1": {
-      "version": "1.0.8",
-      "resolved": "ghcr.io/devcontainers-extra/features/asdf-package@sha256:7af00630eaeeb3a42fcf91daccf71a8314d0106b2ee4d5b6a6b5bc17c037715e",
-      "integrity": "sha256:7af00630eaeeb3a42fcf91daccf71a8314d0106b2ee4d5b6a6b5bc17c037715e"
-    },
     "ghcr.io/devcontainers/features/github-cli:1": {
       "version": "1.0.13",
       "resolved": "ghcr.io/devcontainers/features/github-cli@sha256:13b301a039ce9e0bb07d45ea0c106c946cfff01c3b9844bbec6b0c7bacba8de3",

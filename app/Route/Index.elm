@@ -2,7 +2,6 @@ module Route.Index exposing (ActionData, Data, Model, Msg, footer, route)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.File
-import Color.Manipulate
 import Colours
 import Css exposing (..)
 import Effect exposing (Effect)
