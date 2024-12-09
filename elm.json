@@ -8,7 +8,7 @@
     "elm-version": "0.19.1",
     "dependencies": {
         "direct": {
-            "MaybeJustJames/yaml": "2.1.4",
+            "MaybeJustJames/yaml": "2.1.5",
             "NoRedInk/elm-json-decode-pipeline": "1.0.1",
             "avh4/elm-color": "1.0.0",
             "danfishgold/base64-bytes": "1.1.0",
@@ -39,7 +39,7 @@
             "ianmackenzie/elm-triangular-mesh": "1.1.0",
             "ianmackenzie/elm-units": "2.10.0",
             "jluckyiv/elm-utc-date-strings": "1.0.0",
-            "joshuanianji/github-language-colors": "2.1.0",
+            "joshuanianji/github-language-colors": "4.0.0",
             "justinmimbs/date": "4.1.0",
             "mdgriffith/elm-codegen": "4.2.2",
             "miniBill/elm-codec": "2.2.0",
@@ -48,7 +48,7 @@
             "robinheghan/fnv1a": "1.0.0",
             "rtfeldman/elm-css": "18.0.0",
             "rtfeldman/elm-iso8601-date-strings": "1.1.4",
-            "the-sett/elm-syntax-dsl": "6.0.2",
+            "the-sett/elm-syntax-dsl": "6.0.3",
             "turboMaCk/non-empty-list-alias": "1.4.0",
             "vito/elm-ansi": "10.0.1"
         },
@@ -70,10 +70,10 @@
             "ianmackenzie/elm-interval": "3.1.0",
             "ianmackenzie/elm-units-interval": "3.2.0",
             "mdgriffith/elm-ui": "1.1.8",
-            "miniBill/elm-unicode": "1.1.0",
+            "miniBill/elm-unicode": "1.1.1",
             "robinheghan/murmur3": "1.0.0",
             "rtfeldman/elm-hex": "1.0.0",
-            "stil4m/elm-syntax": "7.3.2",
+            "stil4m/elm-syntax": "7.3.8",
             "stil4m/structured-writer": "1.0.3",
             "the-sett/elm-pretty-printer": "3.1.0"
         }
