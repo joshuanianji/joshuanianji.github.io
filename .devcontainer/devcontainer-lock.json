@@ -1,0 +1,24 @@
+{
+  "features": {
+    "ghcr.io/devcontainers-extra/features/asdf-package:1": {
+      "version": "1.0.8",
+      "resolved": "ghcr.io/devcontainers-extra/features/asdf-package@sha256:7af00630eaeeb3a42fcf91daccf71a8314d0106b2ee4d5b6a6b5bc17c037715e",
+      "integrity": "sha256:7af00630eaeeb3a42fcf91daccf71a8314d0106b2ee4d5b6a6b5bc17c037715e"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "1.0.13",
+      "resolved": "ghcr.io/devcontainers/features/github-cli@sha256:13b301a039ce9e0bb07d45ea0c106c946cfff01c3b9844bbec6b0c7bacba8de3",
+      "integrity": "sha256:13b301a039ce9e0bb07d45ea0c106c946cfff01c3b9844bbec6b0c7bacba8de3"
+    },
+    "ghcr.io/joshuanianji/devcontainer-features/github-cli-persistence:1": {
+      "version": "1.0.3",
+      "resolved": "ghcr.io/joshuanianji/devcontainer-features/github-cli-persistence@sha256:757843d75915f140ec22bc16ccb5e657a910d9b1d1f445d15350a78e584d130f",
+      "integrity": "sha256:757843d75915f140ec22bc16ccb5e657a910d9b1d1f445d15350a78e584d130f"
+    },
+    "ghcr.io/joshuanianji/devcontainer-features/mount-pnpm-store:1": {
+      "version": "1.0.2",
+      "resolved": "ghcr.io/joshuanianji/devcontainer-features/mount-pnpm-store@sha256:32f78bc711aecc2b1479143a4412461b4075c61f0d4776e74265890099a3c7f6",
+      "integrity": "sha256:32f78bc711aecc2b1479143a4412461b4075c61f0d4776e74265890099a3c7f6"
+    }
+  }
+}
