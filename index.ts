@@ -1,8 +1,15 @@
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
 import python from 'highlight.js/lib/languages/python';
+import bash from 'highlight.js/lib/languages/bash';
+import plaintext from 'highlight.js/lib/languages/plaintext';
+import yaml from 'highlight.js/lib/languages/yaml';
 hljs.registerLanguage('javascript', javascript);
 hljs.registerLanguage('python', python);
+hljs.registerLanguage('bash', bash);
+hljs.registerLanguage('plaintext', plaintext);
+hljs.registerLanguage('yaml', yaml);
+
 import 'highlight.js/styles/atom-one-dark.css';
 
 type ElmPagesInit = {
@@ -54,7 +61,6 @@ customElements.define('highlightjs-code',
 
         constructor() {
             super();
-            console.log('highlightjs-code created', this.codeElem)
         }
         connectedCallback() { this.setTextContent(); }
         attributeChangedCallback() { this.setTextContent(); }
@@ -65,7 +71,6 @@ customElements.define('highlightjs-code',
             const lang = this.getAttribute('lang') || 'plaintext';
             const code = this.getAttribute('code') || '';
             const hljsVal = hljs.highlight(code, { language: lang });
-            console.log(hljsVal)
             this.innerHTML = `
             <style>
                 code {
