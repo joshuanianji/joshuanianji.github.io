@@ -9,9 +9,8 @@ import FatalError exposing (FatalError)
 import FeatherIcons
 import Head
 import Head.Seo as Seo
-import Html.Styled as Html exposing (Attribute, Html, styled)
-import Html.Styled.Attributes exposing (css, media)
-import Html.Styled.Events exposing (onClick)
+import Html.Styled as Html exposing (Html, styled)
+import Html.Styled.Attributes exposing (css)
 import Icon
 import Icosahedron
 import Pages.Url
@@ -40,6 +39,12 @@ type alias RouteParams =
 
 
 type alias Data =
+    { projects : Projects
+    , blogPosts : ()
+    }
+
+
+type alias Projects =
     { -- top 3 "pinned" projects
       pinnedProjects : List Project
 
@@ -110,12 +115,24 @@ subscriptions routeParams path shared model =
 
 data : BackendTask FatalError Data
 data =
+    BackendTask.succeed Data
+        |> BackendTask.andMap getProjects
+        |> BackendTask.andMap getBlogPosts
+
+
+getProjects : BackendTask FatalError Projects
+getProjects =
     BackendTask.File.rawFile "projects.yml"
         |> BackendTask.allowFatal
         |> BackendTask.andThen Project.getProjects
         |> BackendTask.andThen Project.splitProjects
         |> BackendTask.map
             (\data_ -> { pinnedProjects = data_.featured, homeProjects = data_.home })
+
+
+getBlogPosts : BackendTask FatalError ()
+getBlogPosts =
+    BackendTask.succeed ()
 
 
 head :
@@ -194,10 +211,8 @@ view app shared model =
                         , property "gap" "4em"
                         ]
                     ]
-                    [ about
-                    , projects app.data
-
-                    -- , blog
+                    [ blog
+                    , projects app.data.projects
                     , footer
                     ]
                 ]
@@ -236,7 +251,7 @@ jumbotron =
                 , fontSize (px 25)
                 ]
             ]
-            [ Html.text "Welcome to my website! I am a CS Student at the University of Alberta. I enjoy making webapps, primarily with React and Elm, and I'm also a big Docker + DevOps fan." ]
+            [ Html.text "Welcome to my website! I'm a software engineer currently at InEight. I enjoy making webapps, primarily with React and Elm, and I'm also a big Docker + DevOps fan. Hope you enjoy your stay here!" ]
         , jumbotronNavbar
         , Icon.view
             [ css [ displayFlex, flexDirection column, alignItems center ] ]
@@ -290,10 +305,8 @@ jumbotronNavbar : Html msg
 jumbotronNavbar =
     let
         navItems =
-            [ ( "About", "#about", False )
+            [ ( "Blog", "#blog", False )
             , ( "Projects", "#projects", False )
-
-            -- , ( "Blog", "#blog", False )
             , ( "Resume", "https://joshuaji.com/resume/Joshua%20Ji%20Resume.pdf", True )
             ]
     in
@@ -341,47 +354,10 @@ icosahedron model =
 
 
 
----- ABOUT
-
-
-about : Html msg
-about =
-    let
-        textBlock =
-            styled Html.p
-                [ fontSize (em 1.3) ]
-    in
-    Html.div
-        [ css
-            [ Util.flexDirection Util.Column
-            , property "gap" "2em"
-            ]
-        ]
-        [ Util.linkedHeader "about" "About"
-        , textBlock [] [ Html.text "I started off with HTML, CSS and Javascript: making blogs, web apps, or anything that seemed cool to me." ]
-        , textBlock []
-            [ Html.text "Currently, I use "
-            , Util.textLink "https://elm-lang.org/" "Elm"
-            , Html.text " and Typescript for most of my projects, and I'm learning Haskell, Purescript and Rust on my free time."
-            ]
-        , textBlock []
-            [ Html.text "I've recently been taking a deep dive into DevOps. I've recently interned at "
-            , Util.textLink "https://www.nanosticsdx.com/" "Nanostics"
-            , Html.text " where I worked on deploying and maintaining a ML model on Azure, as well as creating a webapp interface for it."
-            ]
-        , textBlock []
-            [ Html.text "In my free time, I like to play volleyball and walk my dog. I always try to find time to read, check me out on "
-            , Util.textLink "https://hardcover.app/@OshuaJay" "Hardcover"
-            , Html.text "!"
-            ]
-        ]
-
-
-
 ---- PROJECTS
 
 
-projects : Data -> Html msg
+projects : Projects -> Html msg
 projects data_ =
     Html.div
         [ css
@@ -445,9 +421,7 @@ blog =
             ]
         ]
         [ Util.linkedHeader "blog" "Blog"
-        , Html.h2 [] [ Html.text "Work in progress..." ]
-
-        -- , Html.h2 [] [ Html.text "📅 Recent Posts" ]
+        , Html.h2 [] [ Html.text "📅 Recent Posts" ]
         ]
 
 

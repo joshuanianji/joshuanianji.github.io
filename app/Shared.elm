@@ -161,4 +161,7 @@ navbar model =
         , Html.Styled.li
             []
             [ Util.textRouteLink Route.AllProjects "Projects" ]
+        , Html.Styled.li
+            []
+            [ Util.textRouteLink Route.Blog "Blog" ]
         ]
