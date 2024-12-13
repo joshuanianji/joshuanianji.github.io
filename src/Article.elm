@@ -1,14 +1,19 @@
-module Article exposing (..)
+module Article exposing (BlogPost, Metadata, allMetadata, blogPostsGlob, frontmatterDecoder, view)
 
 import BackendTask
 import BackendTask.File as File
 import BackendTask.Glob as Glob
+import Colours
+import Css exposing (..)
 import Date exposing (Date)
 import FatalError exposing (FatalError)
+import Html
+import Html.Styled
+import Html.Styled.Attributes exposing (css, fromUnstyled)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
-import Pages.Url exposing (Url)
-import Route
+import Route exposing (Route)
+import Util
 
 
 type alias BlogPost =
@@ -30,7 +35,7 @@ blogPostsGlob =
 allMetadata :
     BackendTask.BackendTask
         { fatal : FatalError, recoverable : File.FileReadError Decode.Error }
-        (List ( Route.Route, ArticleMetadata ))
+        (List ( Route.Route, Metadata ))
 allMetadata =
     blogPostsGlob
         |> BackendTask.map
@@ -62,7 +67,7 @@ allMetadata =
             )
 
 
-type alias ArticleMetadata =
+type alias Metadata =
     { title : String
     , description : String
     , published : Date
@@ -70,9 +75,9 @@ type alias ArticleMetadata =
     }
 
 
-frontmatterDecoder : Decoder ArticleMetadata
+frontmatterDecoder : Decoder Metadata
 frontmatterDecoder =
-    Decode.succeed ArticleMetadata
+    Decode.succeed Metadata
         |> Pipeline.required "title" Decode.string
         |> Pipeline.required "description" Decode.string
         |> Pipeline.required "published"
@@ -88,3 +93,57 @@ frontmatterDecoder =
                     )
             )
         |> Pipeline.optional "draft" Decode.bool False
+
+
+
+-- VIEW
+
+
+view : ( Route, Metadata ) -> Html.Styled.Html msg
+view ( route_, metadata ) =
+    Html.Styled.div
+        [ css
+            [ Util.flexDirection Util.Column
+            , width (pct 100)
+            , padding (em 1.5)
+            , border3 (px 1) solid (Colours.toCss Colours.gray)
+            , borderRadius (em 0.5)
+            , hover
+                [ borderColor (Colours.toCss Colours.black) ]
+            , property "gap" "0.5em"
+            ]
+        ]
+        [ Route.toLink (blogPostTitle metadata) route_
+        , blogDate metadata.published
+        , blogDescription metadata.description
+        ]
+
+
+blogPostTitle : Metadata -> List (Html.Attribute msg) -> Html.Styled.Html msg
+blogPostTitle metadata attrs =
+    Html.Styled.a
+        (css
+            [ fontSize (em 1.25)
+            , fontWeight bold
+            , textDecoration none
+            , color (Colours.toCss Colours.black)
+            , hover
+                [ color (Colours.toCss Colours.themeBlue) ]
+            ]
+            :: List.map fromUnstyled attrs
+        )
+        [ Html.Styled.text metadata.title ]
+
+
+blogDate : Date -> Html.Styled.Html msg
+blogDate date =
+    Html.Styled.p
+        [ css
+            [ fontSize (em 0.75) ]
+        ]
+        [ Html.Styled.text <| Date.format "MMMM d, yyyy" date ]
+
+
+blogDescription : String -> Html.Styled.Html msg
+blogDescription description =
+    Html.Styled.p [] [ Html.Styled.text description ]

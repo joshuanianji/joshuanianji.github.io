@@ -1,5 +1,6 @@
 module Route.Index exposing (ActionData, Data, Model, Msg, footer, route)
 
+import Article
 import BackendTask exposing (BackendTask)
 import BackendTask.File
 import Colours
@@ -9,7 +10,7 @@ import FatalError exposing (FatalError)
 import FeatherIcons
 import Head
 import Head.Seo as Seo
-import Html.Styled as Html exposing (Html, styled)
+import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
 import Icon
 import Icosahedron
@@ -39,18 +40,22 @@ type alias RouteParams =
 
 
 type alias Data =
-    { projects : Projects
-    , blogPosts : ()
+    { projects : ProjectData
+    , blogPosts : BlogData
     }
 
 
-type alias Projects =
+type alias ProjectData =
     { -- top 3 "pinned" projects
       pinnedProjects : List Project
 
     -- projects on the home page (should be no more than 5)
     , homeProjects : List Project
     }
+
+
+type alias BlogData =
+    List ( Route.Route, Article.Metadata )
 
 
 type alias ActionData =
@@ -120,7 +125,7 @@ data =
         |> BackendTask.andMap getBlogPosts
 
 
-getProjects : BackendTask FatalError Projects
+getProjects : BackendTask FatalError ProjectData
 getProjects =
     BackendTask.File.rawFile "projects.yml"
         |> BackendTask.allowFatal
@@ -130,9 +135,11 @@ getProjects =
             (\data_ -> { pinnedProjects = data_.featured, homeProjects = data_.home })
 
 
-getBlogPosts : BackendTask FatalError ()
+getBlogPosts : BackendTask FatalError BlogData
 getBlogPosts =
-    BackendTask.succeed ()
+    Article.allMetadata
+        |> BackendTask.allowFatal
+        |> BackendTask.map (List.take 3)
 
 
 head :
@@ -211,7 +218,7 @@ view app shared model =
                         , property "gap" "4em"
                         ]
                     ]
-                    [ blog
+                    [ blog app.data.blogPosts
                     , projects app.data.projects
                     , footer
                     ]
@@ -354,10 +361,49 @@ icosahedron model =
 
 
 
+---- BLOG
+
+
+blog : BlogData -> Html msg
+blog data_ =
+    Html.div
+        [ css
+            [ Util.flexDirection Util.Column
+            , property "gap" "2em"
+            ]
+        ]
+        [ Util.linkedHeader "blog" "Blog"
+        , Html.h2 [] [ Html.text "📅 Recent Posts" ]
+        , recentPosts data_
+        , Html.div
+            [ css
+                [ Util.flexDirection Util.Row
+                , alignItems center
+                , fontSize (em 1.25)
+                ]
+            ]
+            [ Util.textRouteLink Route.Blog "All posts"
+            , Icon.view [] { icon = FeatherIcons.chevronRight, strokeWidth = 2, size = 20, msg = Nothing }
+            ]
+        ]
+
+
+recentPosts : BlogData -> Html msg
+recentPosts data_ =
+    Html.div
+        [ css
+            [ Util.flexDirection Util.Column
+            , property "gap" "1em"
+            ]
+        ]
+        (List.map Article.view data_)
+
+
+
 ---- PROJECTS
 
 
-projects : Projects -> Html msg
+projects : ProjectData -> Html msg
 projects data_ =
     Html.div
         [ css
@@ -375,7 +421,7 @@ projects data_ =
                 , fontSize (em 1.25)
                 ]
             ]
-            [ Util.textRouteLink Route.AllProjects "See more projects"
+            [ Util.textRouteLink Route.AllProjects "More projects"
             , Icon.view [] { icon = FeatherIcons.chevronRight, strokeWidth = 2, size = 20, msg = Nothing }
             ]
 
@@ -406,23 +452,6 @@ homeProjects projs =
             ]
         ]
         (List.map Project.view projs)
-
-
-
----- BLOG
-
-
-blog : Html msg
-blog =
-    Html.div
-        [ css
-            [ Util.flexDirection Util.Column
-            , property "gap" "2em"
-            ]
-        ]
-        [ Util.linkedHeader "blog" "Blog"
-        , Html.h2 [] [ Html.text "📅 Recent Posts" ]
-        ]
 
 
 

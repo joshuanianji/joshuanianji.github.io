@@ -1,6 +1,6 @@
 port module Route.Blog.Slug_ exposing (ActionData, Data, Model, Msg, route)
 
-import Article exposing (ArticleMetadata)
+import Article exposing (Metadata)
 import BackendTask exposing (BackendTask)
 import Css exposing (..)
 import Date exposing (Date)
@@ -60,7 +60,7 @@ pages =
 
 
 type alias Data =
-    { metadata : ArticleMetadata
+    { metadata : Metadata
     , body : List Markdown.Block.Block
     }
 
