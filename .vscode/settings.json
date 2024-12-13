@@ -1,4 +1,4 @@
 {
-    "elmLS.elmPath": "lamdera",
+    "elmLS.elmPath": "node_modules/.bin/lamdera",
     "elmLS.onlyUpdateDiagnosticsOnSave": true
 }
