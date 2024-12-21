@@ -9,12 +9,12 @@ importers:
   .:
     dependencies:
       highlight.js:
-        specifier: 11.10.0
-        version: 11.10.0
+        specifier: 11.11.0
+        version: 11.11.0
     devDependencies:
       '@dotenvx/dotenvx':
-        specifier: 1.28.0
-        version: 1.28.0
+        specifier: 1.31.3
+        version: 1.31.3
       elm-codegen:
         specifier: 0.6.1
         version: 0.6.1
@@ -42,8 +42,8 @@ importers:
 
 packages:
 
-  '@dotenvx/dotenvx@1.28.0':
-    resolution: {integrity: sha512-JJ9HgYBuvZpFvepGMnTj6/NQQX/Ska1N30GVln0Mw+wuL6oXZMOR2t/XrkSBjnjYr2rCiWtgDtTt8FajTJcbiA==}
+  '@dotenvx/dotenvx@1.31.3':
+    resolution: {integrity: sha512-NgRjBV8NrCIoRhdbPozkKp+HvSn0Sc8DrOT22YDvTbs5pgPC2YrXKqwI7YwLFDVHBjSJHJTvkhQ5QHCCO+//yg==}
     hasBin: true
 
   '@ecies/ciphers@0.2.1':
@@ -1207,8 +1207,8 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  highlight.js@11.10.0:
-    resolution: {integrity: sha512-SYVnVFswQER+zu1laSya563s+F8VDGt7o35d4utbamowvUNLLMovFqwCLSocpZTz3MgaSRA1IbqRWZv97dtErQ==}
+  highlight.js@11.11.0:
+    resolution: {integrity: sha512-6ErL7JlGu2CNFHyRQEuDogOyGPNiqcuWdt4iSSFUPyferNTGlNTPFqeV36Y/XwA4V/TJ8l0sxp6FTnxud/mf8g==}
     engines: {node: '>=12.0.0'}
 
   html-encoding-sniffer@3.0.0:
@@ -2031,6 +2031,7 @@ packages:
 
   sudo-prompt@8.2.5:
     resolution: {integrity: sha512-rlBo3HU/1zAJUrkY6jNxDOC9eVYliG6nS4JA8u8KAshITd07tafMc/Br7xQwCSseXwJ2iCcHCE8SNWX3q8Z+kw==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
@@ -2256,7 +2257,7 @@ packages:
 
 snapshots:
 
-  '@dotenvx/dotenvx@1.28.0':
+  '@dotenvx/dotenvx@1.31.3':
     dependencies:
       commander: 11.1.0
       dotenv: 16.4.5
@@ -3175,7 +3176,7 @@ snapshots:
 
   execa@5.1.1:
     dependencies:
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       get-stream: 6.0.1
       human-signals: 2.1.0
       is-stream: 2.0.1
@@ -3307,7 +3308,7 @@ snapshots:
 
   foreground-child@3.1.1:
     dependencies:
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       signal-exit: 4.1.0
 
   forwarded@0.2.0: {}
@@ -3446,7 +3447,7 @@ snapshots:
 
   he@1.2.0: {}
 
-  highlight.js@11.10.0: {}
+  highlight.js@11.11.0: {}
 
   html-encoding-sniffer@3.0.0:
     dependencies:
