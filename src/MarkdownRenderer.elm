@@ -14,7 +14,7 @@ import Util
 renderer : Markdown.Renderer.Renderer (Html.Html msg)
 renderer =
     { heading = heading
-    , paragraph = Html.p []
+    , paragraph = Html.p [ css [ padding2 (em 0.5) (px 0) ] ]
     , thematicBreak = Html.hr [] []
     , text = Html.text
     , strong = \content -> Html.strong [ css [ fontWeight bold ] ] content
@@ -197,16 +197,17 @@ heading { level, rawText, children } =
                 [ Html.a
                     [ Attr.href <| "#" ++ rawTextToId rawText
                     , css
-                        []
+                        [ position relative ]
                     ]
-                    (children
-                        ++ [ Html.span
-                                [ Attr.class "anchor-icon"
-                                , css
-                                    []
-                                ]
-                                [ Html.text "#" ]
-                           ]
+                    (Html.span
+                        [ Attr.class "anchor-icon"
+                        , css
+                            [ position absolute
+                            , left (em -0.75)
+                            ]
+                        ]
+                        [ Html.text "#" ]
+                        :: children
                     )
                 ]
 
