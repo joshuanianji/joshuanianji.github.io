@@ -1,20 +1,20 @@
 module MarkdownRenderer exposing (renderer)
 
+import Color exposing (grey)
+import Colours exposing (black, darkGray, toCss)
 import Css exposing (..)
-import Html.Attributes
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Markdown.Block as Block
 import Markdown.Html
 import Markdown.Renderer
-import SyntaxHighlight
 import Util
 
 
 renderer : Markdown.Renderer.Renderer (Html.Html msg)
 renderer =
     { heading = heading
-    , paragraph = Html.p []
+    , paragraph = Html.p [ css [ padding2 (em 0.5) (px 0) ] ]
     , thematicBreak = Html.hr [] []
     , text = Html.text
     , strong = \content -> Html.strong [ css [ fontWeight bold ] ] content
@@ -191,22 +191,28 @@ heading { level, rawText, children } =
                 , Attr.attribute "name" (rawTextToId rawText)
                 , css
                     [ fontSize (rem 2)
-                    , fontWeight bold
                     ]
                 ]
                 [ Html.a
                     [ Attr.href <| "#" ++ rawTextToId rawText
                     , css
-                        []
+                        [ position relative
+                        , color (toCss black)
+                        , textDecoration none
+                        , hover
+                            [ color (toCss darkGray)
+                            ]
+                        ]
                     ]
-                    (children
-                        ++ [ Html.span
-                                [ Attr.class "anchor-icon"
-                                , css
-                                    []
-                                ]
-                                [ Html.text "#" ]
-                           ]
+                    (Html.span
+                        [ Attr.class "anchor-icon"
+                        , css
+                            [ position absolute
+                            , left (em -0.75)
+                            ]
+                        ]
+                        [ Html.text "#" ]
+                        :: children
                     )
                 ]
 

@@ -5,15 +5,16 @@ import Colours
 import Css exposing (..)
 import Effect exposing (Effect)
 import FatalError exposing (FatalError)
+import FeatherIcons
 import Html
 import Html.Styled
 import Html.Styled.Attributes exposing (css)
+import Icon
 import Icosahedron
 import Pages.Flags
 import Pages.PageUrl exposing (PageUrl)
 import Route exposing (Route)
 import SharedTemplate exposing (SharedTemplate)
-import Url
 import UrlPath exposing (UrlPath)
 import Util
 import View exposing (View)
@@ -131,6 +132,7 @@ withNavbarTemplate : Model -> (Msg -> msg) -> List (Html.Styled.Html msg) -> Lis
 withNavbarTemplate model toMsg content =
     [ Html.Styled.map toMsg (navbar model)
     , Html.Styled.main_ [] content
+    , Html.Styled.map toMsg footer
     ]
 
 
@@ -161,4 +163,32 @@ navbar model =
         , Html.Styled.li
             []
             [ Util.textRouteLink Route.AllProjects "Projects" ]
+        , Html.Styled.li
+            []
+            [ Util.textRouteLink Route.Blog "Blog" ]
+        ]
+
+
+footer : Html.Styled.Html Msg
+footer =
+    Html.Styled.div
+        [ css
+            [ Util.flexDirection Util.Row
+            , property "gap" "0.5em"
+            , margin2 (em 2.5) (em 2)
+            ]
+        ]
+        [ Html.Styled.p
+            [ css [ flex (int 1) ] ]
+            [ Html.Styled.text "© 2025 Joshua Ji"
+            ]
+        , Html.Styled.a
+            [ Html.Styled.Attributes.href "https://github.com/joshuanianji/" ]
+            [ Icon.view []
+                { icon = FeatherIcons.github
+                , strokeWidth = 2
+                , size = 16
+                , msg = Nothing
+                }
+            ]
         ]
