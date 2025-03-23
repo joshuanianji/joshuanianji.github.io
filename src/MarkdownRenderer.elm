@@ -1,5 +1,7 @@
 module MarkdownRenderer exposing (renderer)
 
+import Color exposing (grey)
+import Colours exposing (black, darkGray, toCss)
 import Css exposing (..)
 import Html.Attributes
 import Html.Styled as Html
@@ -191,13 +193,18 @@ heading { level, rawText, children } =
                 , Attr.attribute "name" (rawTextToId rawText)
                 , css
                     [ fontSize (rem 2)
-                    , fontWeight bold
                     ]
                 ]
                 [ Html.a
                     [ Attr.href <| "#" ++ rawTextToId rawText
                     , css
-                        [ position relative ]
+                        [ position relative
+                        , color (toCss black)
+                        , textDecoration none
+                        , hover
+                            [ color (toCss darkGray)
+                            ]
+                        ]
                     ]
                     (Html.span
                         [ Attr.class "anchor-icon"
