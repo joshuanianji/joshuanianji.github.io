@@ -258,7 +258,7 @@ jumbotron =
                 , fontSize (px 25)
                 ]
             ]
-            [ Html.text "Welcome to my website! I'm a software engineer currently at InEight. I enjoy making webapps, primarily with React and Elm, and I'm also a big Docker + DevOps fan. Hope you enjoy your stay here!" ]
+            [ Html.text "Welcome to my website! I'm a software engineer currently at InEight. I enjoy making webapps, primarily with React and Elm, and I'm also a big Docker + DevOps fan. I hope you enjoy your time here!" ]
         , jumbotronNavbar
         , Icon.view
             [ css [ displayFlex, flexDirection column, alignItems center ] ]
@@ -439,19 +439,6 @@ featuredProjects projs =
             ]
         ]
         (List.map Project.viewFeatured projs)
-
-
-homeProjects : List Project -> Html msg
-homeProjects projs =
-    Html.div
-        [ css
-            [ Util.flexDirection Util.Column
-            , alignItems center
-            , justifyContent center
-            , property "gap" "0.75em"
-            ]
-        ]
-        (List.map Project.view projs)
 
 
 

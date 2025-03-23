@@ -3,13 +3,11 @@ module MarkdownRenderer exposing (renderer)
 import Color exposing (grey)
 import Colours exposing (black, darkGray, toCss)
 import Css exposing (..)
-import Html.Attributes
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Markdown.Block as Block
 import Markdown.Html
 import Markdown.Renderer
-import SyntaxHighlight
 import Util
 
 
