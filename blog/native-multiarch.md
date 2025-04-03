@@ -56,7 +56,7 @@ Now that the docker connection is working, here's a sample Github Actions workfl
 
 ```yaml
 jobs:
-  build:
+  build-multiarch:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
