@@ -1,7 +1,7 @@
 ---
 author: Joshua Ji
 title: Native Multi-arch Docker Builds in Github Actions
-description: My first blog post 
+description: How to use remote builders to build multi-arch Docker images natively
 draft: false
 published: "2024-12-12"
 ---
