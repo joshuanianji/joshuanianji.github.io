@@ -3,7 +3,7 @@
 {
 	"name": "Website",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:3-22-bookworm",
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/joshuanianji/devcontainer-features/github-cli-persistence:1": {},
