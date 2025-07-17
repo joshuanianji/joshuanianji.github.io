@@ -16,7 +16,7 @@
     "elm-tooling": "1.15.1",
     "http-server": "14.1.1",
     "lamdera": "0.19.1-1.3.2",
-    "vite": "6.2.2"
+    "vite": "7.0.5"
   },
   "dependencies": {
     "highlight.js": "11.11.1"
